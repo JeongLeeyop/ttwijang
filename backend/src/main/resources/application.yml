@@ -1,0 +1,151 @@
+# 서버설정
+server:
+  port: 8080
+  # error.include-stacktrace: never
+# 인코딩
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  profiles:
+    active: development
+    # active: product
+  application:
+    name: weilyeat
+#용량
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  main:
+    allow-circular-references: true
+# URL설정
+  mvc:
+    view.prefix: /WEB-INF/views/
+# 개발도구
+  devtools:
+    livereload:
+      enabled: true
+# JPA 
+  jpa:
+    # hibernate 설정
+    # generate-ddl : true 
+    # hibernate:
+      # ddl-auto: update
+    properties:
+      hibernate:
+        # show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 10
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: false
+  # Init Data
+  sql:
+    init:
+      # mode: always
+      encoding: UTF-8
+      platform: MySQL5InnoDBDialect
+      
+logging:
+  level:
+    root: WARN
+    com.weilyeat.cms: DEBUG
+    org.springframework: INFO
+    org.springframework.boot: INFO
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+    org.hibernate: WARN
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: ERROR
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.type.descriptor.sql.BasicExtractor: error
+
+
+#첨부파일 경로
+attached-file:
+  upload-directory: /home/ubuntu/web/attached-file
+  # upload-directory: ./attached-file
+
+security:
+  jwt:
+    resource-ids: SinghaOAuthResourceIds
+---   
+server:
+  port: 8080
+spring:
+  profiles: development
+  config:
+    naver-client-id: ItEwz1Wu8XTmdqSiLVao
+    naver-client-secret: _SrigIq9uE
+  datasource:
+      resource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/weilyeat
+        username: root
+        password: gamepark
+      oauth:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/weilyeat_oauth
+        username: root
+        password: gamepark
+      # resource:
+      #   driver-class-name: com.mysql.cj.jdbc.Driver
+      #   jdbc-url: jdbc:mysql://110.10.147.145:3306/weilyeat?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      #   username: weilyeat
+      #   password: gamepark
+      # # username: welit_db
+      # # password: welit22031@
+      # oauth:
+      #   driver-class-name: com.mysql.cj.jdbc.Driver
+      #   jdbc-url: jdbc:mysql://110.10.147.145:3306/weilyeat_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      #   username: weilyeat
+      #   password: gamepark
+
+---   
+server:
+  port: 8080
+spring:
+  profiles: product
+  config:
+    naver-client-id: ItEwz1Wu8XTmdqSiLVao
+    naver-client-secret: _SrigIq9uE
+  datasource:
+      resource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://13.124.7.144:3306/weilyeat?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        username: welit_db
+        password: welit22031@
+      oauth:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://13.124.7.144:3306/weilyeat_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        username: welit_db
+        password: welit22031@
+
+# logging:
+  # level:
+    # org.hiberate: debug 
+
+# DB설정
+# spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+# spring.datasource.url: jdbc:mysql://121.146.250.230:3307/weilyeat?serverTimezone: Asia/Seoul&characterEncoding: UTF-8
+# spring.datasource.username: weilyeat
+# spring.datasource.password: gamepark
+
+
+# #h2 console 활성화 및 경로 설정
+# spring.h2.console.enabled: true
+# spring.h2.console.path: /h2-console
+
+# #h2 db 설정
+# spring.datasource.url: jdbc:h2:~/test;
+# spring.datasource.driverClassName: org.h2.Driver
+# spring.datasource.username: sa
+# spring.datasource.password: 
+# spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+# spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+# spring.jpa.database: h2
+

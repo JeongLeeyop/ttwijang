@@ -1,0 +1,36 @@
+package com.weilyeat.cms.entity;
+
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter @Setter
+public class MissionInquiryOption {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idx;
+
+    private Integer inquiryIdx;
+
+    private String name;
+
+    // 순서
+	@Column(insertable = false, updatable = false)
+	private int viewOrder;
+
+    @CreationTimestamp
+    private LocalDateTime createDate;
+}

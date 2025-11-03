@@ -1,0 +1,126 @@
+package com.weilyeat.cms.api.review.service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.weilyeat.cms.api.product.dto.ProductOrderDto;
+import com.weilyeat.cms.api.product.repository.ProductOrderGroupRepository;
+import com.weilyeat.cms.api.product.repository.query.ProductOrderQuery;
+import com.weilyeat.cms.api.review.dto.ReviewDto;
+import com.weilyeat.cms.api.review.dto.ReviewDto.update;
+import com.weilyeat.cms.api.review.dto.mapper.ReviewMapper;
+import com.weilyeat.cms.api.review.dto.search.ReviewSearch;
+import com.weilyeat.cms.api.review.repository.ReviewRepository;
+import com.weilyeat.cms.api.review.repository.query.ReviewQuery;
+import com.weilyeat.cms.common.exception.BadRequestException;
+import com.weilyeat.cms.common.exception.NotFoundException;
+import com.weilyeat.cms.common.exception.code.BadRequest;
+import com.weilyeat.cms.common.exception.code.NotFound;
+import com.weilyeat.cms.entity.ProductOrderGroup;
+import com.weilyeat.cms.entity.Review;
+import com.weilyeat.cms.entity.User;
+import com.weilyeat.cms.oauth.SinghaUser;
+
+import lombok.AllArgsConstructor;
+
+public interface ReviewService {
+    Page<ReviewDto.list> list(Pageable pageable, ReviewSearch search, SinghaUser authUser);
+    Page<ReviewDto.list> listMyReview(Pageable pageable, ReviewSearch search, SinghaUser authUser);
+    ReviewDto.detail detail(Integer idx, SinghaUser authUser);
+    void add(ReviewDto.add addDto, SinghaUser authUser);
+    void update(Integer idx, ReviewDto.update updateDto, SinghaUser authUser);
+    void delete(Integer idx, SinghaUser authUser);
+}
+
+@Service
+@AllArgsConstructor
+class ReviewServiceImpl implements ReviewService {
+    private final ReviewRepository reviewRepository;
+    private final ReviewQuery reviewQuery;
+    private final ProductOrderGroupRepository productOrderGroupRepository;
+    private final ProductOrderQuery productOrderQuery;
+
+    @Override
+    public Page<ReviewDto.list> list(Pageable pageable, ReviewSearch search, SinghaUser authUser) {
+        List<ReviewDto.list> datas = reviewQuery.list(pageable, authUser, false);
+        int count = reviewQuery.getTotalCount(pageable, authUser, false);
+        return new PageImpl<>(datas, pageable, count);
+    }
+
+    @Override
+    public Page<ReviewDto.list> listMyReview(Pageable pageable, ReviewSearch search, SinghaUser authUser) {
+        List<ReviewDto.list> datas = reviewQuery.list(pageable, authUser, true);
+        int count = reviewQuery.getTotalCount(pageable, authUser, true);
+        return new PageImpl<>(datas, pageable, count);
+    }
+
+    @Override
+    public ReviewDto.detail detail(Integer idx, SinghaUser authUser) {
+        Review entity = reviewRepository.findById(idx).orElseThrow(() -> new NotFoundException(NotFound.REVIEW));
+        entity.setViewCount(entity.getViewCount() + 1);
+        reviewRepository.save(entity);
+        return ReviewMapper.INSTANCE.entityToDetailDto(entity);
+    }
+
+    @Override
+    public void add(ReviewDto.add addDto, SinghaUser authUser) {
+        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(addDto.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
+        User user = authUser.getUser();
+        if (!orderGroup.getUserUid().equals(user.getUid())) throw new BadRequestException(BadRequest.NOT_MINE);
+        if (orderGroup.isReviewStatus()) throw new BadRequestException(BadRequest.ALREADY_POST_REVIEW);
+
+        ProductOrderDto.lastOrder lastOrder = productOrderQuery.getLastOrder(addDto.getOrderGroupIdx());
+        if (!lastOrder.isPickupStatus()) throw new BadRequestException(BadRequest.NOT_PICKUP_ORDER);
+        if (LocalDate.now().isAfter(lastOrder.getPickupDate().plusDays(14))) throw new BadRequestException(BadRequest.EXPIRED_REVIEW_DATE);
+
+        Review entity = ReviewMapper.INSTANCE.addDtoToEntity(addDto);
+        entity.setDeleteStatus(false);
+        entity.setViewCount(0);
+        entity.setUserUid(authUser.getUser().getUid());
+        
+        setRelation(entity);
+
+        reviewRepository.save(entity);
+
+        orderGroup.setReviewStatus(true);
+        productOrderGroupRepository.save(orderGroup);
+    }
+
+    @Override
+    public void update(Integer idx, ReviewDto.update updateDto, SinghaUser authUser) {
+        Review entity = reviewRepository.findById(idx).orElseThrow(() -> new NotFoundException(NotFound.REVIEW));
+        if (!entity.getUserUid().equals(authUser.getUser().getUid())) throw new BadRequestException(BadRequest.NOT_MINE);
+
+        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(entity.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
+        ProductOrderDto.lastOrder lastOrder = productOrderQuery.getLastOrder(orderGroup.getIdx());
+        if (LocalDate.now().isAfter(lastOrder.getPickupDate().plusDays(14))) throw new BadRequestException(BadRequest.EXPIRED_REVIEW_DATE);
+
+        entity.getPhotoes().forEach(e -> e.setReview(null));
+
+        entity = ReviewMapper.INSTANCE.updateDtoToEntity(updateDto, entity);
+        setRelation(entity);
+        reviewRepository.save(entity);
+    }
+
+    @Override
+    public void delete(Integer idx, SinghaUser authUser) {
+        Review entity = reviewRepository.findById(idx).orElseThrow(() -> new NotFoundException(NotFound.REVIEW));
+        if (!entity.getUserUid().equals(authUser.getUser().getUid())) throw new BadRequestException(BadRequest.NOT_MINE);
+        
+        entity.setDeleteStatus(true);
+        reviewRepository.save(entity);
+        
+        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(entity.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
+        orderGroup.setReviewStatus(false);
+        productOrderGroupRepository.save(orderGroup);
+    }
+
+    private void setRelation(Review entity) {
+        entity.getPhotoes().forEach(e -> e.setReview(entity));
+    }
+}
