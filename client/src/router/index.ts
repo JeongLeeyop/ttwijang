@@ -27,6 +27,46 @@ export const constantRoutes: Array<RouteConfig> = [
 		component: () => import('@/views/index.vue'),
 	},
 	{
+		path: '/email-login',
+		name: 'EmailLogin',
+		meta: {
+			title: '이메일 로그인',
+		},
+		component: () => import('@/views/emailLogin.vue'),
+	},
+	{
+		path: '/find-id',
+		name: 'FindId',
+		meta: {
+			title: '아이디 찾기',
+		},
+		component: () => import('@/views/findId.vue'),
+	},
+	{
+		path: '/find-password',
+		name: 'FindPassword',
+		meta: {
+			title: '비밀번호 찾기',
+		},
+		component: () => import('@/views/findPassword.vue'),
+	},
+	{
+		path: '/reset-password',
+		name: 'ResetPassword',
+		meta: {
+			title: '비밀번호 재설정',
+		},
+		component: () => import('@/views/resetPassword.vue'),
+	},
+	{
+		path: '/register',
+		name: 'Register',
+		meta: {
+			title: '회원가입',
+		},
+		component: () => import('@/views/register.vue'),
+	},
+	{
 		path: '/',
 		name: 'Home',
 		meta: {
