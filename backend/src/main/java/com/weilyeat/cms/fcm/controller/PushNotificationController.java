@@ -1,8 +1,8 @@
-/* package com.weilyeat.cms.fcm.controller;
+/* package com.ttwijang.cms.fcm.controller;
 
-import com.weilyeat.cms.fcm.model.PushNotificationRequest;
-import com.weilyeat.cms.fcm.model.PushNotificationResponse;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.fcm.model.PushNotificationRequest;
+import com.ttwijang.cms.fcm.model.PushNotificationResponse;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,20 +1,20 @@
-package com.weilyeat.cms.api.tfse.service;
+package com.ttwijang.cms.api.tfse.service;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.post.repository.PostLikeRepository;
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.api.tfse.repository.TfseLikeRepository;
-import com.weilyeat.cms.api.tfse.repository.TfseRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.PostLike;
-import com.weilyeat.cms.entity.Tfse;
-import com.weilyeat.cms.entity.TfseLike;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.post.repository.PostLikeRepository;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.tfse.repository.TfseLikeRepository;
+import com.ttwijang.cms.api.tfse.repository.TfseRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.PostLike;
+import com.ttwijang.cms.entity.Tfse;
+import com.ttwijang.cms.entity.TfseLike;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

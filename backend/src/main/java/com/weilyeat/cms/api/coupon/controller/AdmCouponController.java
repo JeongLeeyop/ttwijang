@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.coupon.controller;
+package com.ttwijang.cms.api.coupon.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.coupon.dto.AdmCouponDto;
-import com.weilyeat.cms.api.coupon.dto.search.AdmCouponSearch;
-import com.weilyeat.cms.api.coupon.service.AdmCouponService;
+import com.ttwijang.cms.api.coupon.dto.AdmCouponDto;
+import com.ttwijang.cms.api.coupon.dto.search.AdmCouponSearch;
+import com.ttwijang.cms.api.coupon.service.AdmCouponService;
 
 import lombok.AllArgsConstructor;
 

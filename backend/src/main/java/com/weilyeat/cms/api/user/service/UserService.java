@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.service;
+package com.ttwijang.cms.api.user.service;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -27,20 +27,20 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.api.product.repository.ProductOrderGroupRepository;
-import com.weilyeat.cms.api.user.dto.UserDto;
-import com.weilyeat.cms.api.user.dto.mapper.UserMapper;
-import com.weilyeat.cms.api.user.dto.search.UserSearch;
-import com.weilyeat.cms.api.user.exception.UserDuplicateException;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.api.user.repository.UserRoleRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.entity.UserRole;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.product.repository.ProductOrderGroupRepository;
+import com.ttwijang.cms.api.user.dto.UserDto;
+import com.ttwijang.cms.api.user.dto.mapper.UserMapper;
+import com.ttwijang.cms.api.user.dto.search.UserSearch;
+import com.ttwijang.cms.api.user.exception.UserDuplicateException;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.api.user.repository.UserRoleRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.entity.UserRole;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

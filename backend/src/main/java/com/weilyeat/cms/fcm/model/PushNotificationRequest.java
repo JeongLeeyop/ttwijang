@@ -1,4 +1,4 @@
-package com.weilyeat.cms.fcm.model;
+package com.ttwijang.cms.fcm.model;
 
 import java.util.List;
 

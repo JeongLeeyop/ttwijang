@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.product.dto.AdmProductDto;
-import com.weilyeat.cms.api.product.dto.search.AdmProductSearch;
-import com.weilyeat.cms.api.product.service.AdmProductService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.product.dto.AdmProductDto;
+import com.ttwijang.cms.api.product.dto.search.AdmProductSearch;
+import com.ttwijang.cms.api.product.service.AdmProductService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

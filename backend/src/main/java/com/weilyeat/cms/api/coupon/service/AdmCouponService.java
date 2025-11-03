@@ -1,16 +1,16 @@
-package com.weilyeat.cms.api.coupon.service;
+package com.ttwijang.cms.api.coupon.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.coupon.dto.AdmCouponDto;
-import com.weilyeat.cms.api.coupon.dto.mapper.AdmCouponMapper;
-import com.weilyeat.cms.api.coupon.dto.search.AdmCouponSearch;
-import com.weilyeat.cms.api.coupon.repository.CouponRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Coupon;
+import com.ttwijang.cms.api.coupon.dto.AdmCouponDto;
+import com.ttwijang.cms.api.coupon.dto.mapper.AdmCouponMapper;
+import com.ttwijang.cms.api.coupon.dto.search.AdmCouponSearch;
+import com.ttwijang.cms.api.coupon.repository.CouponRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Coupon;
 
 import lombok.AllArgsConstructor;
 

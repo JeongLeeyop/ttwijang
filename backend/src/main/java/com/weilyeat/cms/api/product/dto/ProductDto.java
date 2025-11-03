@@ -1,6 +1,6 @@
-package com.weilyeat.cms.api.product.dto;
+package com.ttwijang.cms.api.product.dto;
 
-import com.weilyeat.cms.entity.ProductType;
+import com.ttwijang.cms.entity.ProductType;
 
 import lombok.Getter;
 import lombok.Setter;

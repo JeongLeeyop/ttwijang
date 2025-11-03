@@ -8,12 +8,12 @@
 		<version>2.5.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.weilyeat</groupId>
+	<groupId>com.ttwijang</groupId>
 	<artifactId>cms</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>cms</name>
-	<description>WeilyEat project</description>
+	<description>ttwijang project</description>
 	<properties>
 		<java.version>11</java.version>
 		<log4j2.version>2.17.1</log4j2.version>

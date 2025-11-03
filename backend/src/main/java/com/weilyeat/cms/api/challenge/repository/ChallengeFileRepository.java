@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.challenge.repository;
+package com.ttwijang.cms.api.challenge.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.weilyeat.cms.entity.ChallengeRecordFile;
+import com.ttwijang.cms.entity.ChallengeRecordFile;
 
 public interface ChallengeFileRepository extends JpaRepository<ChallengeRecordFile, String> {
 }

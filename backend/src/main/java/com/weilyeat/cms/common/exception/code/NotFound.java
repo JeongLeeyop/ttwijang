@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.exception.code;
+package com.ttwijang.cms.common.exception.code;
 
 public enum NotFound {
     USER("사용자를 찾을 수 없습니다."),

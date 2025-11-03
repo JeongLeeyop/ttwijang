@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.board.dto.mapper;
+package com.ttwijang.cms.api.board.dto.mapper;
 
-import com.weilyeat.cms.api.board.dto.BoardDto;
-import com.weilyeat.cms.api.board.dto.BoardDto.*;
-import com.weilyeat.cms.entity.Board;
+import com.ttwijang.cms.api.board.dto.BoardDto;
+import com.ttwijang.cms.api.board.dto.BoardDto.*;
+import com.ttwijang.cms.entity.Board;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

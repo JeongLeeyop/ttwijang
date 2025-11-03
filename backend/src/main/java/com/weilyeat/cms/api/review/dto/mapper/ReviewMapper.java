@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.review.dto.mapper;
+package com.ttwijang.cms.api.review.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.review.dto.ReviewDto;
-import com.weilyeat.cms.entity.Review;
+import com.ttwijang.cms.api.review.dto.ReviewDto;
+import com.ttwijang.cms.entity.Review;
 
 @Mapper
 public interface ReviewMapper {

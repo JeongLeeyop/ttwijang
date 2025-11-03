@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.post.dto;
+package com.ttwijang.cms.api.post.dto;
 
 import javax.validation.constraints.NotBlank;
 
-import com.weilyeat.cms.api.board.dto.BoardCategoryDto;
+import com.ttwijang.cms.api.board.dto.BoardCategoryDto;
 
 import lombok.Data;
 

@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.board.dto.search;
+package com.ttwijang.cms.api.board.dto.search;
 
 import org.springframework.util.StringUtils;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QBoard;
+import com.ttwijang.cms.entity.QBoard;
 
 import lombok.Getter;
 import lombok.Setter;

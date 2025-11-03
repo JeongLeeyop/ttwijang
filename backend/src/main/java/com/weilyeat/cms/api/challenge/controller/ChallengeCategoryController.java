@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.controller;
+package com.ttwijang.cms.api.challenge.controller;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeCategoryDto;
-import com.weilyeat.cms.api.challenge.service.AdmChallengeCategoryService;
+import com.ttwijang.cms.api.challenge.dto.ChallengeCategoryDto;
+import com.ttwijang.cms.api.challenge.service.AdmChallengeCategoryService;
 
 import lombok.AllArgsConstructor;
 

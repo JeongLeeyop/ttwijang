@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.board.controller;
+package com.ttwijang.cms.api.board.controller;
 
 import java.util.List;
 
-import com.weilyeat.cms.api.board.repository.BoardFieldRepository;
-import com.weilyeat.cms.entity.BoardField;
+import com.ttwijang.cms.api.board.repository.BoardFieldRepository;
+import com.ttwijang.cms.entity.BoardField;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

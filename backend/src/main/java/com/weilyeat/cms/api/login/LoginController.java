@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.login;
+package com.ttwijang.cms.api.login;
 
 import java.security.Principal;
 import java.util.Map;
@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.weilyeat.cms.oauth.soical.apple.AppleApi;
-import com.weilyeat.cms.oauth.soical.apple.dto.AppleLoginInfo;
-import com.weilyeat.cms.oauth.soical.naver.NaverApi;
+import com.ttwijang.cms.oauth.soical.apple.AppleApi;
+import com.ttwijang.cms.oauth.soical.apple.dto.AppleLoginInfo;
+import com.ttwijang.cms.oauth.soical.naver.NaverApi;
 
 import lombok.extern.slf4j.Slf4j;
 

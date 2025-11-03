@@ -1,11 +1,11 @@
-package com.weilyeat.cms.fcm.firebase;
+package com.ttwijang.cms.fcm.firebase;
 
 import com.google.firebase.messaging.*;
-import com.weilyeat.cms.fcm.model.PushNotificationRequest;
-import com.weilyeat.cms.api.user.dto.UserFcmToken;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.fcm.model.PushNotificationRequest;
+import com.ttwijang.cms.api.user.dto.UserFcmToken;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

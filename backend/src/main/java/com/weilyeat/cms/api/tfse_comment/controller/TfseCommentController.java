@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_comment.controller;
+package com.ttwijang.cms.api.tfse_comment.controller;
 
 import javax.validation.Valid;
 
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.tfse_comment.dto.TfseCommentDto;
-import com.weilyeat.cms.api.tfse_comment.dto.search.TfseCommentSearch;
-import com.weilyeat.cms.api.tfse_comment.service.TfseCommentService;
-import com.weilyeat.cms.entity.TfseComment;
+import com.ttwijang.cms.api.tfse_comment.dto.TfseCommentDto;
+import com.ttwijang.cms.api.tfse_comment.dto.search.TfseCommentSearch;
+import com.ttwijang.cms.api.tfse_comment.service.TfseCommentService;
+import com.ttwijang.cms.entity.TfseComment;
 
 import lombok.AllArgsConstructor;
 

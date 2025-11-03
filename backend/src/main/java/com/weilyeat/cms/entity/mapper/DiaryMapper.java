@@ -1,4 +1,4 @@
-// package com.weilyeat.cms.entity.mapper;
+// package com.ttwijang.cms.entity.mapper;
 
 // import java.util.List;
 
@@ -6,12 +6,12 @@
 // import org.mapstruct.MappingTarget;
 // import org.mapstruct.factory.Mappers;
 
-// import com.weilyeat.cms.entity.Diary;
-// import com.weilyeat.cms.entity.DiaryFood;
-// import com.weilyeat.cms.entity.Food;
-// import com.weilyeat.cms.entity.dto.DiaryDto;
-// import com.weilyeat.cms.entity.dto.DiaryFoodDto;
-// import com.weilyeat.cms.entity.dto.FoodDto;
+// import com.ttwijang.cms.entity.Diary;
+// import com.ttwijang.cms.entity.DiaryFood;
+// import com.ttwijang.cms.entity.Food;
+// import com.ttwijang.cms.entity.dto.DiaryDto;
+// import com.ttwijang.cms.entity.dto.DiaryFoodDto;
+// import com.ttwijang.cms.entity.dto.FoodDto;
 
 // @Mapper
 // public interface DiaryMapper {

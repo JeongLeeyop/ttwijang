@@ -1,12 +1,12 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.weilyeat.cms.api.product.dto.AdmProductDto;
-import com.weilyeat.cms.api.product.dto.AdmProductRotationDto;
-import com.weilyeat.cms.api.product.service.AdmProductRotationService;
-import com.weilyeat.cms.api.product.service.AdmProductService;
+import com.ttwijang.cms.api.product.dto.AdmProductDto;
+import com.ttwijang.cms.api.product.dto.AdmProductRotationDto;
+import com.ttwijang.cms.api.product.service.AdmProductRotationService;
+import com.ttwijang.cms.api.product.service.AdmProductService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

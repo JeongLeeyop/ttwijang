@@ -1,4 +1,4 @@
-package com.weilyeat.cms.service;
+package com.ttwijang.cms.service;
 
 import java.util.List;
 
@@ -15,13 +15,13 @@ import org.quartz.CronScheduleBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.entity.Mission;
-import com.weilyeat.cms.entity.MissionUser;
-import com.weilyeat.cms.api.mission.repository.MissionRepository;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.fcm.firebase.FCMService;
+import com.ttwijang.cms.entity.Mission;
+import com.ttwijang.cms.entity.MissionUser;
+import com.ttwijang.cms.api.mission.repository.MissionRepository;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.fcm.firebase.FCMService;
 
 @Service
 public class MissionAlarmService {

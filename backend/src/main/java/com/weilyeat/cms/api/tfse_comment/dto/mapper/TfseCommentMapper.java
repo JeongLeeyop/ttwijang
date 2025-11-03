@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_comment.dto.mapper;
+package com.ttwijang.cms.api.tfse_comment.dto.mapper;
 
 import java.util.stream.Collectors;
 
@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.tfse_comment.dto.TfseCommentDto;
-import com.weilyeat.cms.entity.TfseComment;
+import com.ttwijang.cms.api.tfse_comment.dto.TfseCommentDto;
+import com.ttwijang.cms.entity.TfseComment;
 
 @Mapper
 public interface TfseCommentMapper {

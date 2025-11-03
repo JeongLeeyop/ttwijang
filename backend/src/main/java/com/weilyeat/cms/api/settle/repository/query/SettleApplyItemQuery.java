@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.settle.repository.query;
+package com.ttwijang.cms.api.settle.repository.query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Component;
 
-import com.weilyeat.cms.api.settle.dto.AdmSettleApplyDto;
-import com.weilyeat.cms.api.settle.dto.ShopAdmSettleApplyDto;
+import com.ttwijang.cms.api.settle.dto.AdmSettleApplyDto;
+import com.ttwijang.cms.api.settle.dto.ShopAdmSettleApplyDto;
 
 @Component
 public class SettleApplyItemQuery {

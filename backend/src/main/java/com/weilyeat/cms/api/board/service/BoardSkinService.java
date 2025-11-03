@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.board.service;
+package com.ttwijang.cms.api.board.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.weilyeat.cms.api.board.dto.BoardSkinDto;
-import com.weilyeat.cms.api.board.dto.mapper.BoardSkinMapper;
-import com.weilyeat.cms.api.board.repository.BoardSkinRepository;
+import com.ttwijang.cms.api.board.dto.BoardSkinDto;
+import com.ttwijang.cms.api.board.dto.mapper.BoardSkinMapper;
+import com.ttwijang.cms.api.board.repository.BoardSkinRepository;
 
 import org.springframework.stereotype.Service;
 

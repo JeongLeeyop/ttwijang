@@ -1,12 +1,12 @@
-package com.weilyeat.cms.api.product.dto;
+package com.ttwijang.cms.api.product.dto;
 
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
 
-import com.weilyeat.cms.common.EnumField;
-import com.weilyeat.cms.entity.BoardAuth;
-import com.weilyeat.cms.entity.ProductType;
+import com.ttwijang.cms.common.EnumField;
+import com.ttwijang.cms.entity.BoardAuth;
+import com.ttwijang.cms.entity.ProductType;
 
 import lombok.Data;
 

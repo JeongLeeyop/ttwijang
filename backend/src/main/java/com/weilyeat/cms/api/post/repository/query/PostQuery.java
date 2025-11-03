@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.repository.query;
+package com.ttwijang.cms.api.post.repository.query;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.post.dto.PostDto;
-import com.weilyeat.cms.api.post.dto.search.PostSearch;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.post.dto.PostDto;
+import com.ttwijang.cms.api.post.dto.search.PostSearch;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 @Component
 public class PostQuery {

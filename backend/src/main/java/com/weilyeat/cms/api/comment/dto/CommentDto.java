@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.comment.dto;
+package com.ttwijang.cms.api.comment.dto;
 
 import java.time.LocalDateTime;
 

@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.diary.repository;
+package com.ttwijang.cms.api.diary.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import com.weilyeat.cms.entity.DiaryMeal;
+import com.ttwijang.cms.entity.DiaryMeal;
 
 public interface DiaryMealRepository extends JpaRepository<DiaryMeal, Long>, QuerydslPredicateExecutor<DiaryMeal> {
 

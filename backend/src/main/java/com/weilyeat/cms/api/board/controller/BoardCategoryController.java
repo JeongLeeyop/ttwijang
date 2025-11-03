@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.controller;
+package com.ttwijang.cms.api.board.controller;
 
 import java.util.List;
 
@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.board.dto.BoardCategoryDto;
-import com.weilyeat.cms.api.board.dto.mapper.BoardCategoryMapper;
-import com.weilyeat.cms.api.board.dto.search.BoardCategorySearch;
-import com.weilyeat.cms.api.board.exception.BoardCategoryNotFoundException;
-import com.weilyeat.cms.api.board.service.BoardCategoryService;
-import com.weilyeat.cms.entity.BoardCategory;
+import com.ttwijang.cms.api.board.dto.BoardCategoryDto;
+import com.ttwijang.cms.api.board.dto.mapper.BoardCategoryMapper;
+import com.ttwijang.cms.api.board.dto.search.BoardCategorySearch;
+import com.ttwijang.cms.api.board.exception.BoardCategoryNotFoundException;
+import com.ttwijang.cms.api.board.service.BoardCategoryService;
+import com.ttwijang.cms.entity.BoardCategory;
 
 import lombok.AllArgsConstructor;
 

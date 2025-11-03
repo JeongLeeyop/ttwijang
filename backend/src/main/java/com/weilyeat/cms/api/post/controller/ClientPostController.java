@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.controller;
+package com.ttwijang.cms.api.post.controller;
 
 import javax.validation.Valid;
 
@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
-import com.weilyeat.cms.api.post.dto.PostDto;
-import com.weilyeat.cms.api.post.dto.search.PostSearch;
-import com.weilyeat.cms.api.post.service.ClientPostService;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
+import com.ttwijang.cms.api.post.dto.PostDto;
+import com.ttwijang.cms.api.post.dto.search.PostSearch;
+import com.ttwijang.cms.api.post.service.ClientPostService;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

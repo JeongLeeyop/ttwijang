@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository.query;
+package com.ttwijang.cms.api.product.repository.query;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.product.dto.ShopAdmProductOrderDto;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderSearch;
+import com.ttwijang.cms.api.product.dto.ShopAdmProductOrderDto;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderSearch;
 
 @Component
 public class ShopAdmProductOrderQuery {

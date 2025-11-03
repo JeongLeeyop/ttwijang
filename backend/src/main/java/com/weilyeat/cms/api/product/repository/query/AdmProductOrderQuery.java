@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository.query;
+package com.ttwijang.cms.api.product.repository.query;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,16 +13,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.detailByDay;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.detailByProduct;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.detailByShop;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.listByDay;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.listByProduct;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.listByShop;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.updateReceiveStatus;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderSearch;
-import com.weilyeat.cms.entity.ProductOrderType;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.detailByDay;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.detailByProduct;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.detailByShop;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.listByDay;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.listByProduct;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.listByShop;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.updateReceiveStatus;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderSearch;
+import com.ttwijang.cms.entity.ProductOrderType;
 
 @Component
 public class AdmProductOrderQuery {

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.service;
+package com.ttwijang.cms.api.challenge.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -8,22 +8,22 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeUserDto;
-import com.weilyeat.cms.api.challenge.dto.mapper.ChallengeUserMapper;
-import com.weilyeat.cms.api.challenge.exception.UserAlreadyJoinException;
-import com.weilyeat.cms.api.challenge.repository.ChallengeRepository;
-import com.weilyeat.cms.api.challenge.repository.ChallengeUserRepository;
-import com.weilyeat.cms.api.point.repository.PointHistoryRepository;
-import com.weilyeat.cms.api.point.service.PointHistoryService;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.ChallengeUser;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.challenge.dto.ChallengeUserDto;
+import com.ttwijang.cms.api.challenge.dto.mapper.ChallengeUserMapper;
+import com.ttwijang.cms.api.challenge.exception.UserAlreadyJoinException;
+import com.ttwijang.cms.api.challenge.repository.ChallengeRepository;
+import com.ttwijang.cms.api.challenge.repository.ChallengeUserRepository;
+import com.ttwijang.cms.api.point.repository.PointHistoryRepository;
+import com.ttwijang.cms.api.point.service.PointHistoryService;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.ChallengeUser;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

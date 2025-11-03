@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.shop.service;
+package com.ttwijang.cms.api.shop.service;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -24,18 +24,18 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.weilyeat.cms.api.shop.dto.AdmShopDto;
-import com.weilyeat.cms.api.shop.dto.AdmShopPickupTimeDto;
-import com.weilyeat.cms.api.shop.dto.mapper.AdmShopMapper;
-import com.weilyeat.cms.api.shop.dto.search.AdmShopSearch;
-import com.weilyeat.cms.api.shop.repository.ShopPickupTimeRepository;
-import com.weilyeat.cms.api.shop.repository.ShopRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.api.user.service.UserService;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Shop;
-import com.weilyeat.cms.entity.ShopPickupTime;
+import com.ttwijang.cms.api.shop.dto.AdmShopDto;
+import com.ttwijang.cms.api.shop.dto.AdmShopPickupTimeDto;
+import com.ttwijang.cms.api.shop.dto.mapper.AdmShopMapper;
+import com.ttwijang.cms.api.shop.dto.search.AdmShopSearch;
+import com.ttwijang.cms.api.shop.repository.ShopPickupTimeRepository;
+import com.ttwijang.cms.api.shop.repository.ShopRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.api.user.service.UserService;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Shop;
+import com.ttwijang.cms.entity.ShopPickupTime;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.user.repository;
+package com.ttwijang.cms.api.user.repository;
 
-import com.weilyeat.cms.entity.Role;
-import com.weilyeat.cms.entity.UserRole;
-import com.weilyeat.cms.entity.UserRolePk;
+import com.ttwijang.cms.entity.Role;
+import com.ttwijang.cms.entity.UserRole;
+import com.ttwijang.cms.entity.UserRolePk;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;

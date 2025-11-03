@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.shop.controller;
+package com.ttwijang.cms.api.shop.controller;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.shop.dto.AdmShopDto;
-import com.weilyeat.cms.api.shop.dto.search.AdmShopSearch;
-import com.weilyeat.cms.api.shop.service.AdmShopService;
+import com.ttwijang.cms.api.shop.dto.AdmShopDto;
+import com.ttwijang.cms.api.shop.dto.search.AdmShopSearch;
+import com.ttwijang.cms.api.shop.service.AdmShopService;
 
 import lombok.AllArgsConstructor;
 

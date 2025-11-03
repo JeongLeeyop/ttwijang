@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge_record.repository;
+package com.ttwijang.cms.api.challenge_record.repository;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.ChallengeRecord;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.ChallengeRecord;
 
 public interface ChallengeRecordRepository extends JpaRepository<ChallengeRecord, String>, QuerydslPredicateExecutor<ChallengeRecord> {
     @Query(value = "Select Count(*) from challenge_record where user_uid = ?1 and challenge_uid = ?2 and Date(create_date) = curdate()", nativeQuery= true)

@@ -1,4 +1,4 @@
-package com.weilyeat.cms;
+package com.ttwijang.cms;
 
 import java.util.TimeZone;
 
@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.weilyeat.cms.api.attached_file.AttachedFileProperties;
+import com.ttwijang.cms.api.attached_file.AttachedFileProperties;
 
 // @EnableJpaAuditing
 @EnableConfigurationProperties({AttachedFileProperties.class })

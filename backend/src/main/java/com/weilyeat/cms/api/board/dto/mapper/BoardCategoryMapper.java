@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.dto.mapper;
+package com.ttwijang.cms.api.board.dto.mapper;
 
 import java.util.ArrayList;
 
@@ -7,9 +7,9 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.board.dto.BoardCategoryDto;
-import com.weilyeat.cms.api.board.dto.BoardCategoryDto.Detail;
-import com.weilyeat.cms.entity.BoardCategory;
+import com.ttwijang.cms.api.board.dto.BoardCategoryDto;
+import com.ttwijang.cms.api.board.dto.BoardCategoryDto.Detail;
+import com.ttwijang.cms.entity.BoardCategory;
 
 @Mapper
 public interface BoardCategoryMapper {

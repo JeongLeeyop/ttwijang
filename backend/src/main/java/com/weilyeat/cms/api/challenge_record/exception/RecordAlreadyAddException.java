@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge_record.exception;
+package com.ttwijang.cms.api.challenge_record.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

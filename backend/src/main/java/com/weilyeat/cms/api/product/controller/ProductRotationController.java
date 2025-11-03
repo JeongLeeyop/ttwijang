@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
-import com.weilyeat.cms.api.product.dto.ProductRotationDto;
-import com.weilyeat.cms.api.product.service.ProductRotationService;
+import com.ttwijang.cms.api.product.dto.ProductRotationDto;
+import com.ttwijang.cms.api.product.service.ProductRotationService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

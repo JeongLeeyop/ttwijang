@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.review.repository.query;
+package com.ttwijang.cms.api.review.repository.query;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import javax.persistence.Query;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import com.weilyeat.cms.api.review.dto.ReviewDto;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.review.dto.ReviewDto;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 @Component
 public class ReviewQuery {

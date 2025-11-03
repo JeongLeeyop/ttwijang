@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.controller;
+package com.ttwijang.cms.api.board.controller;
 
 import java.util.List;
 
@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.board.dto.BoardDto;
-import com.weilyeat.cms.api.board.dto.mapper.BoardMapper;
-import com.weilyeat.cms.api.board.dto.search.BoardSearch;
-import com.weilyeat.cms.api.board.exception.BoardNotFoundException;
-import com.weilyeat.cms.api.board.service.BoardService;
-import com.weilyeat.cms.entity.AttachedFile;
-import com.weilyeat.cms.entity.Board;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.board.dto.BoardDto;
+import com.ttwijang.cms.api.board.dto.mapper.BoardMapper;
+import com.ttwijang.cms.api.board.dto.search.BoardSearch;
+import com.ttwijang.cms.api.board.exception.BoardNotFoundException;
+import com.ttwijang.cms.api.board.service.BoardService;
+import com.ttwijang.cms.entity.AttachedFile;
+import com.ttwijang.cms.entity.Board;
 
 import lombok.AllArgsConstructor;
 

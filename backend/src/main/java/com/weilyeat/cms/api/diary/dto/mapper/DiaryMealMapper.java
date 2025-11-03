@@ -1,14 +1,14 @@
-package com.weilyeat.cms.api.diary.dto.mapper;
+package com.ttwijang.cms.api.diary.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.diary.dto.DiaryDto;
-import com.weilyeat.cms.api.diary.dto.DiaryMealDto;
-import com.weilyeat.cms.entity.DiaryMeal;
-import com.weilyeat.cms.entity.Product;
-import com.weilyeat.cms.entity.ProductOrder;
+import com.ttwijang.cms.api.diary.dto.DiaryDto;
+import com.ttwijang.cms.api.diary.dto.DiaryMealDto;
+import com.ttwijang.cms.entity.DiaryMeal;
+import com.ttwijang.cms.entity.Product;
+import com.ttwijang.cms.entity.ProductOrder;
 
 @Mapper
 public interface DiaryMealMapper {

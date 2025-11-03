@@ -87,26 +87,26 @@ insert into custom_diet_config(name, type) values('식사횟수','5|7|10|14');
 insert into custom_diet_config(name, type) values('픽업요일','수요일|금요일');
 insert into custom_diet_config(name, type) values('희망기간','1주|2주|4주|8주');
 
-INSERT INTO weilyeat.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (1, '경남 진주시1 ...', '1', '1', '1', '1', '1', '1', '1시|2시|3시');
-INSERT INTO weilyeat.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (2, '경남 진주시2 ...', '2', '2', '2', '2', '2', '2', '1시|3시');
-INSERT INTO weilyeat.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (3, '경남 진주시3 ...', '3', '3', '3', '3', '3', '3', '1시|2시|3시|4시');
+INSERT INTO ttwijang.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (1, '경남 진주시1 ...', '1', '1', '1', '1', '1', '1', '1시|2시|3시');
+INSERT INTO ttwijang.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (2, '경남 진주시2 ...', '2', '2', '2', '2', '2', '2', '1시|3시');
+INSERT INTO ttwijang.shop (id, address, break_time, description, name, tel, weekday_time, weekend_time, pick_up_time) VALUES (3, '경남 진주시3 ...', '3', '3', '3', '3', '3', '3', '1시|2시|3시|4시');
 
-INSERT INTO weilyeat.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (1, '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',1);
-INSERT INTO weilyeat.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (2, '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',2);
-INSERT INTO weilyeat.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (3, '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',3);
+INSERT INTO ttwijang.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (1, '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',1);
+INSERT INTO ttwijang.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (2, '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',2);
+INSERT INTO ttwijang.items (id, calorie, description, diet_precaution, diet_purpose, diet_type, material, name, price, status, supplier, weight,shop_id) VALUES (3, '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',3);
 
-INSERT INTO weilyeat.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (1, '2023-01-06 01:12:55', 10, '2024-01-06 01:13:00', '신규회원 환영 쿠폰1', '쿠폰1');
-INSERT INTO weilyeat.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (2, '2023-01-07 01:12:55', 10, '2024-02-06 01:13:00', '신규회원 환영 쿠폰2', '쿠폰2');
-INSERT INTO weilyeat.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (3, '2023-01-08 01:12:55', 10, '2024-03-06 01:13:00', '신규회원 환영 쿠폰3', '쿠폰3');
+INSERT INTO ttwijang.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (1, '2023-01-06 01:12:55', 10, '2024-01-06 01:13:00', '신규회원 환영 쿠폰1', '쿠폰1');
+INSERT INTO ttwijang.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (2, '2023-01-07 01:12:55', 10, '2024-02-06 01:13:00', '신규회원 환영 쿠폰2', '쿠폰2');
+INSERT INTO ttwijang.coupon (id, created_date, discount_rate, period, sub_title, title) VALUES (3, '2023-01-08 01:12:55', 10, '2024-03-06 01:13:00', '신규회원 환영 쿠폰3', '쿠폰3');
 
-INSERT INTO weilyeat.user_coupon (id, account_id, coupon_id, down_yn,use_yn, due_date) VALUES (1, 1, 1, 'Y','N', '2024-01-06 01:22:12');
-INSERT INTO weilyeat.user_coupon (id, account_id, coupon_id, down_yn, use_yn, due_date) VALUES (2, 1, 2, 'N', 'N','2024-01-06 01:22:12');
-INSERT INTO weilyeat.user_coupon (id, account_id, coupon_id, down_yn, use_yn, due_date) VALUES (3, 1, 3, 'N', 'N','2024-01-06 01:22:12');
+INSERT INTO ttwijang.user_coupon (id, account_id, coupon_id, down_yn,use_yn, due_date) VALUES (1, 1, 1, 'Y','N', '2024-01-06 01:22:12');
+INSERT INTO ttwijang.user_coupon (id, account_id, coupon_id, down_yn, use_yn, due_date) VALUES (2, 1, 2, 'N', 'N','2024-01-06 01:22:12');
+INSERT INTO ttwijang.user_coupon (id, account_id, coupon_id, down_yn, use_yn, due_date) VALUES (3, 1, 3, 'N', 'N','2024-01-06 01:22:12');
 
-INSERT INTO weilyeat.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (1, 1, '2023-01-08 19:46:45', '111', '111', '111');
-INSERT INTO weilyeat.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (2, 1, '2023-01-08 19:46:45', '222', '222', '333');
-INSERT INTO weilyeat.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (3, 1, '2023-01-08 19:46:45', '333', '333', '333');
+INSERT INTO ttwijang.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (1, 1, '2023-01-08 19:46:45', '111', '111', '111');
+INSERT INTO ttwijang.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (2, 1, '2023-01-08 19:46:45', '222', '222', '333');
+INSERT INTO ttwijang.diary (id, account_id, date, fat_rate, muscle_rate, weight) VALUES (3, 1, '2023-01-08 19:46:45', '333', '333', '333');
 
-INSERT INTO weilyeat.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (1, '1', '1', '1', '1', '1970-01-15', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO weilyeat.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (2, '2', '2', '2', '2', '1970-02-25', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2');
-INSERT INTO weilyeat.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (3, '3', '3', '3', '3', '1970-03-25', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3');
+INSERT INTO ttwijang.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (1, '1', '1', '1', '1', '1970-01-15', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO ttwijang.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (2, '2', '2', '2', '2', '1970-02-25', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2');
+INSERT INTO ttwijang.food (id, iron, calcium, carbohydrate, cholesterol, created_date, dietary_fiber, fat, kcal, name, natrium, potassium, protein, ref, s_fatty_acid, sugar, trans_fat, input_type, vitaminc, weight) VALUES (3, '3', '3', '3', '3', '1970-03-25', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3');

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity;
+package com.ttwijang.cms.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

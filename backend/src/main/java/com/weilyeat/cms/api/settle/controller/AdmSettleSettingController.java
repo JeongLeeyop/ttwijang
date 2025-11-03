@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.settle.controller;
+package com.ttwijang.cms.api.settle.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.settle.dto.AdmSettleSettingDto;
-import com.weilyeat.cms.api.settle.service.AdmSettleSettingService;
+import com.ttwijang.cms.api.settle.dto.AdmSettleSettingDto;
+import com.ttwijang.cms.api.settle.service.AdmSettleSettingService;
 
 import lombok.AllArgsConstructor;
 

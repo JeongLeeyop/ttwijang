@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.user.dto;
+package com.ttwijang.cms.api.user.dto;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.entity.User;
 
 import lombok.Getter;
 import lombok.Setter;

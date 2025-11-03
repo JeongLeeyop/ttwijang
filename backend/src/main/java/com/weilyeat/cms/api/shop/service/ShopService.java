@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.shop.service;
+package com.ttwijang.cms.api.shop.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,16 +6,16 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.shop.dto.AdmShopDto;
-import com.weilyeat.cms.api.shop.dto.ShopDto;
-import com.weilyeat.cms.api.shop.dto.ShopDto.pickupTime;
-import com.weilyeat.cms.api.shop.dto.mapper.ShopMapper;
-import com.weilyeat.cms.api.shop.dto.search.ShopSearch;
-import com.weilyeat.cms.api.shop.repository.ShopRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Shop;
-import com.weilyeat.cms.entity.ShopPickupTime;
+import com.ttwijang.cms.api.shop.dto.AdmShopDto;
+import com.ttwijang.cms.api.shop.dto.ShopDto;
+import com.ttwijang.cms.api.shop.dto.ShopDto.pickupTime;
+import com.ttwijang.cms.api.shop.dto.mapper.ShopMapper;
+import com.ttwijang.cms.api.shop.dto.search.ShopSearch;
+import com.ttwijang.cms.api.shop.repository.ShopRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Shop;
+import com.ttwijang.cms.entity.ShopPickupTime;
 
 import lombok.AllArgsConstructor;
 

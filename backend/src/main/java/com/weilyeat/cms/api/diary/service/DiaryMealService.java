@@ -1,14 +1,14 @@
-package com.weilyeat.cms.api.diary.service;
+package com.ttwijang.cms.api.diary.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.diary.dto.DiaryMealDto;
-import com.weilyeat.cms.api.diary.dto.DiaryMealSearch;
-import com.weilyeat.cms.api.diary.dto.mapper.DiaryMealMapper;
-import com.weilyeat.cms.api.diary.repository.DiaryMealRepository;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.diary.dto.DiaryMealDto;
+import com.ttwijang.cms.api.diary.dto.DiaryMealSearch;
+import com.ttwijang.cms.api.diary.dto.mapper.DiaryMealMapper;
+import com.ttwijang.cms.api.diary.repository.DiaryMealRepository;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

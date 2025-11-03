@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.product.dto.search;
+package com.ttwijang.cms.api.product.dto.search;
 
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.entity.ProductType;
-import com.weilyeat.cms.entity.QProductPackage;
+import com.ttwijang.cms.entity.ProductType;
+import com.ttwijang.cms.entity.QProductPackage;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 

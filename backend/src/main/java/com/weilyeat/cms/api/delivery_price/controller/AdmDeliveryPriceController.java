@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.delivery_price.controller;
+package com.ttwijang.cms.api.delivery_price.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.delivery_price.dto.AdmDeliveryPriceDto;
-import com.weilyeat.cms.api.delivery_price.service.AdmDeliveryPriceService;
+import com.ttwijang.cms.api.delivery_price.dto.AdmDeliveryPriceDto;
+import com.ttwijang.cms.api.delivery_price.service.AdmDeliveryPriceService;
 
 import lombok.AllArgsConstructor;
 

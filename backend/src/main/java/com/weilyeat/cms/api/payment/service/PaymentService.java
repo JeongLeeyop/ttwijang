@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.payment.service;
+package com.ttwijang.cms.api.payment.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +20,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.weilyeat.cms.api.payment.dto.PaymentDto;
-import com.weilyeat.cms.api.payment.repository.PaymentRequestRepository;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.entity.PaymentRequest;
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.api.payment.dto.PaymentDto;
+import com.ttwijang.cms.api.payment.repository.PaymentRequestRepository;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.entity.PaymentRequest;
+import com.ttwijang.cms.entity.User;
 
 public interface PaymentService {
 }

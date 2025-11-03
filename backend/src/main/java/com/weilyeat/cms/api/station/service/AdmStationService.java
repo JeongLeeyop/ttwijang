@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.station.service;
+package com.ttwijang.cms.api.station.service;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -21,17 +21,17 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.weilyeat.cms.api.station.dto.AdmStationDto;
-import com.weilyeat.cms.api.station.dto.mapper.AdmStationMapper;
-import com.weilyeat.cms.api.station.dto.search.AdmStationSearch;
-import com.weilyeat.cms.api.station.repository.StationRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.api.user.service.UserService;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.Station;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.station.dto.AdmStationDto;
+import com.ttwijang.cms.api.station.dto.mapper.AdmStationMapper;
+import com.ttwijang.cms.api.station.dto.search.AdmStationSearch;
+import com.ttwijang.cms.api.station.repository.StationRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.api.user.service.UserService;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.Station;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

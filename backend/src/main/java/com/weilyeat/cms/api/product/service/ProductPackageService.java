@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,17 +10,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.dto.ProductPackageDto;
-import com.weilyeat.cms.api.product.dto.mapper.ProductPackageMapper;
-import com.weilyeat.cms.api.product.dto.search.ProductPackageSearch;
-import com.weilyeat.cms.api.product.repository.ProductPackageItemRepository;
-import com.weilyeat.cms.api.product.repository.ProductPackageRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.ProductPackage;
-import com.weilyeat.cms.entity.ProductPackageItem;
-import com.weilyeat.cms.entity.ProductType;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.ProductPackageDto;
+import com.ttwijang.cms.api.product.dto.mapper.ProductPackageMapper;
+import com.ttwijang.cms.api.product.dto.search.ProductPackageSearch;
+import com.ttwijang.cms.api.product.repository.ProductPackageItemRepository;
+import com.ttwijang.cms.api.product.repository.ProductPackageRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.ProductPackage;
+import com.ttwijang.cms.entity.ProductPackageItem;
+import com.ttwijang.cms.entity.ProductType;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

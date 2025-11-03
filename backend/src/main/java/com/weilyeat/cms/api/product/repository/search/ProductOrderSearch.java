@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.product.repository.search;
+package com.ttwijang.cms.api.product.repository.search;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QProductOrder;
+import com.ttwijang.cms.entity.QProductOrder;
 
 import lombok.Getter;
 import lombok.Setter;

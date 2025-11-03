@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse.controller;
+package com.ttwijang.cms.api.tfse.controller;
 
 import java.util.List;
 
@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.tfse.dto.TfseDto;
-import com.weilyeat.cms.api.tfse.dto.TfseSearch;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.Tfse;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.tfse.dto.TfseDto;
+import com.ttwijang.cms.api.tfse.dto.TfseSearch;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.Tfse;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 
@@ -29,7 +29,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/api/client/tfse")
 @AllArgsConstructor
 public class ClientTfseController {
-    private final com.weilyeat.cms.api.tfse.service.ClientTfseService TfseService;
+    private final com.ttwijang.cms.api.tfse.service.ClientTfseService TfseService;
 
     @GetMapping("{idx}")
     public ResponseEntity<TfseDto.detail> detail(@AuthenticationPrincipal SinghaUser authUser,@PathVariable("idx") Long idx) {

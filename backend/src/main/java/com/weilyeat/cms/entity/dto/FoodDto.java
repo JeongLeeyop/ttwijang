@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity.dto;
+package com.ttwijang.cms.entity.dto;
 
 import java.time.LocalDateTime;
 

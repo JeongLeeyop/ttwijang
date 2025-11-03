@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.payment.dto.mapper;
+package com.ttwijang.cms.api.payment.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

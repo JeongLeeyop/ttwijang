@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.controller;
+package com.ttwijang.cms.api.challenge.controller;
 
 import java.util.List;
 
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeDto;
-import com.weilyeat.cms.api.challenge.dto.ChallengeSearch;
-import com.weilyeat.cms.api.challenge.service.ChallengeService;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.challenge.dto.ChallengeDto;
+import com.ttwijang.cms.api.challenge.dto.ChallengeSearch;
+import com.ttwijang.cms.api.challenge.service.ChallengeService;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

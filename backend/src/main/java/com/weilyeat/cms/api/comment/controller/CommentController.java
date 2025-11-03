@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.comment.controller;
+package com.ttwijang.cms.api.comment.controller;
 
 import javax.validation.Valid;
 
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.comment.dto.CommentDto;
-import com.weilyeat.cms.api.comment.dto.search.CommentSearch;
-import com.weilyeat.cms.api.comment.service.CommentService;
-import com.weilyeat.cms.entity.Comment;
+import com.ttwijang.cms.api.comment.dto.CommentDto;
+import com.ttwijang.cms.api.comment.dto.search.CommentSearch;
+import com.ttwijang.cms.api.comment.service.CommentService;
+import com.ttwijang.cms.entity.Comment;
 
 import lombok.AllArgsConstructor;
 

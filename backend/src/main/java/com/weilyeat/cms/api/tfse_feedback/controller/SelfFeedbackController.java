@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_feedback.controller;
+package com.ttwijang.cms.api.tfse_feedback.controller;
 
 import javax.websocket.server.PathParam;
 
@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.tfse_feedback.dto.SelfFeedbackDto;
-import com.weilyeat.cms.api.tfse_feedback.dto.SelfFeedbackSearch;
-import com.weilyeat.cms.api.tfse_feedback.service.SelfFeedbackService;
-import com.weilyeat.cms.entity.SelfFeedback;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.tfse_feedback.dto.SelfFeedbackDto;
+import com.ttwijang.cms.api.tfse_feedback.dto.SelfFeedbackSearch;
+import com.ttwijang.cms.api.tfse_feedback.service.SelfFeedbackService;
+import com.ttwijang.cms.entity.SelfFeedback;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

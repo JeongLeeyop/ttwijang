@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.nice.dto;
+package com.ttwijang.cms.api.nice.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

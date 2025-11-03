@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse.dto;
+package com.ttwijang.cms.api.tfse.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,8 +11,8 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.weilyeat.cms.api.tfse_comment.dto.TfseCommentDto;
-import com.weilyeat.cms.api.user.dto.UserDto;
+import com.ttwijang.cms.api.tfse_comment.dto.TfseCommentDto;
+import com.ttwijang.cms.api.user.dto.UserDto;
 
 import lombok.Data;
 

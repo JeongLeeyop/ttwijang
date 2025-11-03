@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity.mapper;
+package com.ttwijang.cms.entity.mapper;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.entity.Account;
-import com.weilyeat.cms.entity.dto.AccountDto;
+import com.ttwijang.cms.entity.Account;
+import com.ttwijang.cms.entity.dto.AccountDto;
 
 @Mapper
 public interface AccountMapper {

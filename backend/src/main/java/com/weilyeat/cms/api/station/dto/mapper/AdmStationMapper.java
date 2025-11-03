@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.station.dto.mapper;
+package com.ttwijang.cms.api.station.dto.mapper;
 
 import java.time.LocalTime;
 
@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.station.dto.AdmStationDto;
-import com.weilyeat.cms.entity.Station;
+import com.ttwijang.cms.api.station.dto.AdmStationDto;
+import com.ttwijang.cms.entity.Station;
 
 @Mapper
 public interface AdmStationMapper {

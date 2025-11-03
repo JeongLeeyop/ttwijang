@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.payment.dto;
+package com.ttwijang.cms.api.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 
-import com.weilyeat.cms.api.payment.constant.PaymentMethod;
+import com.ttwijang.cms.api.payment.constant.PaymentMethod;
 
 public class PaymentDto {
 

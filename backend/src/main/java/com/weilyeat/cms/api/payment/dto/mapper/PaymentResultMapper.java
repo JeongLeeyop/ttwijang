@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.payment.dto.mapper;
+package com.ttwijang.cms.api.payment.dto.mapper;
 
-import com.weilyeat.cms.api.payment.dto.PaymentResultDto;
-import com.weilyeat.cms.entity.PaymentResult;
+import com.ttwijang.cms.api.payment.dto.PaymentResultDto;
+import com.ttwijang.cms.entity.PaymentResult;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

@@ -1,6 +1,6 @@
-package com.weilyeat.cms.api.post.repository;
+package com.ttwijang.cms.api.post.repository;
 
-import com.weilyeat.cms.entity.PostData;
+import com.ttwijang.cms.entity.PostData;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

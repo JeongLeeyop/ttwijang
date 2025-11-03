@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_user_inquiry.exception;
+package com.ttwijang.cms.api.mission_user_inquiry.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

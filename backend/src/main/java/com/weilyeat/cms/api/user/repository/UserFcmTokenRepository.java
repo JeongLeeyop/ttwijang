@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.repository;
+package com.ttwijang.cms.api.user.repository;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.weilyeat.cms.api.user.dto.UserFcmToken;
+import com.ttwijang.cms.api.user.dto.UserFcmToken;
 
 public interface UserFcmTokenRepository extends JpaRepository<UserFcmToken, String> {
 

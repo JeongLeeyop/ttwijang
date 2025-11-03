@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.delivery_price.dto;
+package com.ttwijang.cms.api.delivery_price.dto;
 
 import java.time.LocalDateTime;
 

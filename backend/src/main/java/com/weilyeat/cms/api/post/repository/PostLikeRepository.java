@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.post.repository;
+package com.ttwijang.cms.api.post.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.weilyeat.cms.entity.PostLike;
+import com.ttwijang.cms.entity.PostLike;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Integer> {
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 
 import java.time.LocalDateTime;
@@ -28,24 +28,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.weilyeat.cms.api.coupon.repository.CouponRepository;
-import com.weilyeat.cms.api.coupon.repository.UserCouponRepository;
-// import com.weilyeat.cms.api.nice.service.NiceService;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.common.exception.code.BadRequest;
-import com.weilyeat.cms.entity.Coupon;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.entity.UserCoupon;
-import com.weilyeat.cms.entity.UserRole;
-import com.weilyeat.cms.oauth.soical.OAuth2UserInfo;
-import com.weilyeat.cms.oauth.soical.SocialType;
-import com.weilyeat.cms.oauth.soical.apple.AppleApi;
-import com.weilyeat.cms.oauth.soical.apple.AppleUser;
-import com.weilyeat.cms.oauth.soical.kakao.KakaoApi;
-import com.weilyeat.cms.oauth.soical.kakao.KakaoUser;
-import com.weilyeat.cms.oauth.soical.naver.NaverApi;
-import com.weilyeat.cms.oauth.soical.naver.NaverUser;
+import com.ttwijang.cms.api.coupon.repository.CouponRepository;
+import com.ttwijang.cms.api.coupon.repository.UserCouponRepository;
+// import com.ttwijang.cms.api.nice.service.NiceService;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.common.exception.code.BadRequest;
+import com.ttwijang.cms.entity.Coupon;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.entity.UserCoupon;
+import com.ttwijang.cms.entity.UserRole;
+import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
+import com.ttwijang.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.oauth.soical.apple.AppleApi;
+import com.ttwijang.cms.oauth.soical.apple.AppleUser;
+import com.ttwijang.cms.oauth.soical.kakao.KakaoApi;
+import com.ttwijang.cms.oauth.soical.kakao.KakaoUser;
+import com.ttwijang.cms.oauth.soical.naver.NaverApi;
+import com.ttwijang.cms.oauth.soical.naver.NaverUser;
 
 import lombok.extern.slf4j.Slf4j;
 

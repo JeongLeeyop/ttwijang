@@ -1,18 +1,18 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.service;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// import com.weilyeat.cms.config.WebUtilConfig;
-import com.weilyeat.cms.entity.NewAlarm;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.mapper.NewAlarmMapper;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.search.NewAlarmSearch;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.exception.NewAlarmAccessException;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.oauth.SinghaUser;
+// import com.ttwijang.cms.config.WebUtilConfig;
+import com.ttwijang.cms.entity.NewAlarm;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.mapper.NewAlarmMapper;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.search.NewAlarmSearch;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.exception.NewAlarmAccessException;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

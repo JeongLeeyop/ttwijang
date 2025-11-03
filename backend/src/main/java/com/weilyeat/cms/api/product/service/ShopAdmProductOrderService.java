@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
 import java.util.List;
 
@@ -7,15 +7,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto;
-import com.weilyeat.cms.api.product.dto.ShopAdmProductOrderDto;
-import com.weilyeat.cms.api.product.dto.mapper.ShopAdmProductOrderMapper;
-import com.weilyeat.cms.api.product.repository.AdmProductOrderRepository;
-import com.weilyeat.cms.api.product.repository.query.AdmProductOrderQuery;
-import com.weilyeat.cms.api.product.repository.query.ShopAdmProductOrderQuery;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderSearch;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto;
+import com.ttwijang.cms.api.product.dto.ShopAdmProductOrderDto;
+import com.ttwijang.cms.api.product.dto.mapper.ShopAdmProductOrderMapper;
+import com.ttwijang.cms.api.product.repository.AdmProductOrderRepository;
+import com.ttwijang.cms.api.product.repository.query.AdmProductOrderQuery;
+import com.ttwijang.cms.api.product.repository.query.ShopAdmProductOrderQuery;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderSearch;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 import org.springframework.data.domain.PageImpl;
 
 import lombok.AllArgsConstructor;

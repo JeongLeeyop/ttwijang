@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.push_alarm.exception;
+package com.ttwijang.cms.api.push_alarm.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

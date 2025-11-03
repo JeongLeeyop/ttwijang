@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_feedback.service;
+package com.ttwijang.cms.api.tfse_feedback.service;
 
 import java.util.Optional;
 
@@ -7,15 +7,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.api.tfse_feedback.dto.SelfFeedbackDto;
-import com.weilyeat.cms.api.tfse_feedback.dto.SelfFeedbackSearch;
-import com.weilyeat.cms.api.tfse_feedback.dto.mapper.SelfFeedbackMapper;
-import com.weilyeat.cms.api.tfse_feedback.repository.SelfFeedbackRepository;
-import com.weilyeat.cms.entity.SelfFeedback;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.api.tfse_feedback.dto.SelfFeedbackDto;
+import com.ttwijang.cms.api.tfse_feedback.dto.SelfFeedbackSearch;
+import com.ttwijang.cms.api.tfse_feedback.dto.mapper.SelfFeedbackMapper;
+import com.ttwijang.cms.api.tfse_feedback.repository.SelfFeedbackRepository;
+import com.ttwijang.cms.entity.SelfFeedback;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

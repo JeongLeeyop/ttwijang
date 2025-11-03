@@ -1,4 +1,4 @@
-package com.weilyeat.cms;
+package com.ttwijang.cms;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;

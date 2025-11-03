@@ -1,6 +1,6 @@
-package com.weilyeat.cms.api.user.controller;
+package com.ttwijang.cms.api.user.controller;
 
-import com.weilyeat.cms.api.user.service.UserRoleService;
+import com.ttwijang.cms.api.user.service.UserRoleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

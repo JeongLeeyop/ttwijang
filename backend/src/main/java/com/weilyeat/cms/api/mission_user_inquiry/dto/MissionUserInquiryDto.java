@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_user_inquiry.dto;
+package com.ttwijang.cms.api.mission_user_inquiry.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

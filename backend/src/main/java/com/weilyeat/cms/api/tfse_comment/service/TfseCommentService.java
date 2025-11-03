@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_comment.service;
+package com.ttwijang.cms.api.tfse_comment.service;
 
 import java.util.Optional;
 
@@ -12,21 +12,21 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.comment.exception.CommentNotFoundException;
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.api.tfse.repository.TfseRepository;
-import com.weilyeat.cms.api.tfse_comment.dto.TfseCommentDto;
-import com.weilyeat.cms.api.tfse_comment.dto.mapper.TfseCommentMapper;
-import com.weilyeat.cms.api.tfse_comment.dto.search.TfseCommentSearch;
-import com.weilyeat.cms.api.tfse_comment.repository.TfseCommentRepository;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.Tfse;
-import com.weilyeat.cms.entity.TfseComment;
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.api.comment.exception.CommentNotFoundException;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.tfse.repository.TfseRepository;
+import com.ttwijang.cms.api.tfse_comment.dto.TfseCommentDto;
+import com.ttwijang.cms.api.tfse_comment.dto.mapper.TfseCommentMapper;
+import com.ttwijang.cms.api.tfse_comment.dto.search.TfseCommentSearch;
+import com.ttwijang.cms.api.tfse_comment.repository.TfseCommentRepository;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.Tfse;
+import com.ttwijang.cms.entity.TfseComment;
+import com.ttwijang.cms.entity.User;
 
 import lombok.AllArgsConstructor;
 

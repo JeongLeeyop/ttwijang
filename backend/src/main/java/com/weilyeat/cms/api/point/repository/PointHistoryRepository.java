@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.point.repository;
+package com.ttwijang.cms.api.point.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import com.weilyeat.cms.entity.PointHistory;
+import com.ttwijang.cms.entity.PointHistory;
 
 public interface PointHistoryRepository extends JpaRepository<PointHistory, Integer>, QuerydslPredicateExecutor<PointHistory> {
 

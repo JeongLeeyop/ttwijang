@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.diary.repository.query;
+package com.ttwijang.cms.api.diary.repository.query;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Component;
 
-import com.weilyeat.cms.api.diary.dto.DiaryDto;
-import com.weilyeat.cms.api.diary.dto.DiarySearch;
-import com.weilyeat.cms.api.diary.dto.DiaryStatisticsSearch;
+import com.ttwijang.cms.api.diary.dto.DiaryDto;
+import com.ttwijang.cms.api.diary.dto.DiarySearch;
+import com.ttwijang.cms.api.diary.dto.DiaryStatisticsSearch;
 
 @Component
 public class DiaryMealQuery {

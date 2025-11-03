@@ -5,10 +5,10 @@
       다이어리
     </button>
     <router-link :to="{ name: 'Home'}" class="footer_home">
-      <img src="~@/assets/images/logo-bg.png" class="logo_img" alt="웨일리잇">
+      <img src="~@/assets/images/logo-bg.png" class="logo_img" alt="뛰장">
     </router-link>
     <button class="footer_link_b" @click="handleOrder()">
-      <img src="~@/assets/images/footer-plan.png" class="footer_img" alt="웨일리잇">식단 주문
+      <img src="~@/assets/images/footer-plan.png" class="footer_img" alt="뛰장">식단 주문
     </button>
   </div>
 </template>

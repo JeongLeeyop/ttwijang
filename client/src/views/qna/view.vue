@@ -15,7 +15,7 @@
         <div class="home4-10-3__tibox">
           <p class="ti">작성해주신 문의에<br>답변이 도착하였습니다.</p>
         </div>
-        <p class="home4103main">안녕하세요. 웨일리잇 입니다/</p>
+        <p class="home4103main">안녕하세요. 뛰장 입니다/</p>
         <p class="home4103main">
           현재 문의주신 배송내용은 다른날로 변경 합니다.<br>
           고객센터로 전화 문의 주시면 상세하게 안내 및<br>

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.service;
+package com.ttwijang.cms.api.board.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,12 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.board.dto.BoardDto;
-import com.weilyeat.cms.api.board.dto.mapper.BoardMapper;
-import com.weilyeat.cms.api.board.dto.search.BoardSearch;
-import com.weilyeat.cms.api.board.repository.BoardRepository;
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.entity.Board;
+import com.ttwijang.cms.api.board.dto.BoardDto;
+import com.ttwijang.cms.api.board.dto.mapper.BoardMapper;
+import com.ttwijang.cms.api.board.dto.search.BoardSearch;
+import com.ttwijang.cms.api.board.repository.BoardRepository;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.entity.Board;
 
 import lombok.AllArgsConstructor;
 

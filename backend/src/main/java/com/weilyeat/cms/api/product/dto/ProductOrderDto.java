@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.product.dto;
+package com.ttwijang.cms.api.product.dto;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import com.weilyeat.cms.entity.ProductOrderType;
+import com.ttwijang.cms.entity.ProductOrderType;
 
 import lombok.Data;
 import lombok.Getter;

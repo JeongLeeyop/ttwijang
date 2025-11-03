@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URLEncoder;
@@ -19,29 +19,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto.updateReceiveStatus;
-import com.weilyeat.cms.api.product.dto.ProductOrderGroupDto;
-import com.weilyeat.cms.api.product.dto.mapper.AdmProductOrderMapper;
-import com.weilyeat.cms.api.product.repository.AdmProductOrderRepository;
-import com.weilyeat.cms.api.product.repository.query.AdmProductOrderQuery;
-import com.weilyeat.cms.api.product.repository.query.ProductOrderQuery;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderSearch;
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.api.station.repository.StationRepository;
-import com.weilyeat.cms.api.user.dto.UserFcmToken;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.ProductOrder;
-import com.weilyeat.cms.entity.ProductOrderGroup;
-import com.weilyeat.cms.entity.ProductOrderType;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.fcm.model.PushNotificationRequest;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto.updateReceiveStatus;
+import com.ttwijang.cms.api.product.dto.ProductOrderGroupDto;
+import com.ttwijang.cms.api.product.dto.mapper.AdmProductOrderMapper;
+import com.ttwijang.cms.api.product.repository.AdmProductOrderRepository;
+import com.ttwijang.cms.api.product.repository.query.AdmProductOrderQuery;
+import com.ttwijang.cms.api.product.repository.query.ProductOrderQuery;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderSearch;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.api.station.repository.StationRepository;
+import com.ttwijang.cms.api.user.dto.UserFcmToken;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.ProductOrder;
+import com.ttwijang.cms.entity.ProductOrderGroup;
+import com.ttwijang.cms.entity.ProductOrderType;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.fcm.model.PushNotificationRequest;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -630,7 +630,7 @@ class AdmProductOrderServiceImpl implements AdmProductOrderService {
         
         // Excel File Output
         try {
-            String fileName = URLEncoder.encode("웨일리잇_주문_내역.xls", "utf-8");
+            String fileName = URLEncoder.encode("뛰장_주문_내역.xls", "utf-8");
             response.setContentType("ms-vnd/excel");
             response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
             wb.write(response.getOutputStream());

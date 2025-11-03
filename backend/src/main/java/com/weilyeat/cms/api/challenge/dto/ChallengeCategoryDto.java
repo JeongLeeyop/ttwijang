@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.dto;
+package com.ttwijang.cms.api.challenge.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.settle.controller;
+package com.ttwijang.cms.api.settle.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.settle.dto.ShopAdmSettleApplyDto;
-import com.weilyeat.cms.api.settle.service.ShopAdmSettleApplyService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.settle.dto.ShopAdmSettleApplyDto;
+import com.ttwijang.cms.api.settle.service.ShopAdmSettleApplyService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

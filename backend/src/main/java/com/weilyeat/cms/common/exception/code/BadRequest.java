@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.exception.code;
+package com.ttwijang.cms.common.exception.code;
 
 public enum BadRequest {
     PRODUCT_ORDER_LIMIT("최대 4주치까지만 구매 가능합니다."),

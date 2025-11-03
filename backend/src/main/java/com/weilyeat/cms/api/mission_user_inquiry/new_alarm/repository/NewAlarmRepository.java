@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.repository;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository;
 
 import javax.transaction.Transactional;
 
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import com.weilyeat.cms.entity.NewAlarm;
+import com.ttwijang.cms.entity.NewAlarm;
 
 public interface NewAlarmRepository extends JpaRepository<NewAlarm, Long>, QuerydslPredicateExecutor<NewAlarm> {
     

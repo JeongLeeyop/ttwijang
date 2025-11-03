@@ -1,16 +1,16 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
-import com.weilyeat.cms.api.product.dto.AdmProductOrderGroupDto;
-import com.weilyeat.cms.api.product.dto.ProductOrderDto;
-import com.weilyeat.cms.api.product.dto.ProductOrderGroupDto;
-import com.weilyeat.cms.api.product.dto.mapper.AdmProductOrderGroupMapper;
-import com.weilyeat.cms.api.product.repository.AdmProductOrderGroupRepository;
-import com.weilyeat.cms.api.product.repository.query.ProductOrderQuery;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderGroupSearch;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.ProductOrderGroup;
-import com.weilyeat.cms.entity.ProductOrderType;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderGroupDto;
+import com.ttwijang.cms.api.product.dto.ProductOrderDto;
+import com.ttwijang.cms.api.product.dto.ProductOrderGroupDto;
+import com.ttwijang.cms.api.product.dto.mapper.AdmProductOrderGroupMapper;
+import com.ttwijang.cms.api.product.repository.AdmProductOrderGroupRepository;
+import com.ttwijang.cms.api.product.repository.query.ProductOrderQuery;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderGroupSearch;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.ProductOrderGroup;
+import com.ttwijang.cms.entity.ProductOrderType;
 
 import java.util.List;
 

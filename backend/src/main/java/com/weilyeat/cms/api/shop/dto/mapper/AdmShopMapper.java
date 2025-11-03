@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.shop.dto.mapper;
+package com.ttwijang.cms.api.shop.dto.mapper;
 
 import java.time.LocalTime;
 
@@ -7,10 +7,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.shop.dto.AdmShopDto;
-import com.weilyeat.cms.api.shop.dto.AdmShopPickupTimeDto;
-import com.weilyeat.cms.entity.Shop;
-import com.weilyeat.cms.entity.ShopPickupTime;
+import com.ttwijang.cms.api.shop.dto.AdmShopDto;
+import com.ttwijang.cms.api.shop.dto.AdmShopPickupTimeDto;
+import com.ttwijang.cms.entity.Shop;
+import com.ttwijang.cms.entity.ShopPickupTime;
 
 @Mapper
 public interface AdmShopMapper {

@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.product.dto.mapper;
+package com.ttwijang.cms.api.product.dto.mapper;
 
 import java.util.List;
 
-import com.weilyeat.cms.api.product.dto.ProductOrderGroupDto;
-import com.weilyeat.cms.entity.ProductOrderGroup;
+import com.ttwijang.cms.api.product.dto.ProductOrderGroupDto;
+import com.ttwijang.cms.entity.ProductOrderGroup;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

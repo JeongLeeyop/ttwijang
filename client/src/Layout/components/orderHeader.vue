@@ -2,7 +2,7 @@
   <div class="home-header">
     <button @click="handleClickBefore()" class="home-header__arrow"><img src="~@/assets/images/arrow-ico.png" alt="뒤로가기"></button>
     <button @click="handleClickHome()" class="home-header__arrow2"><img src="~@/assets/images/home-ico.png" alt="뒤로가기"></button>
-    {{ $route.meta.title || 'WEILYEAT' }}
+    {{ $route.meta.title || 'ttwijang' }}
     <el-popover
           v-model="showPopover"
           placement="bottom"

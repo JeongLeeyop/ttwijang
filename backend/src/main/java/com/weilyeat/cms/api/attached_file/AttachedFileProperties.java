@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.attached_file;
+package com.ttwijang.cms.api.attached_file;
 
 import java.beans.JavaBean;
 

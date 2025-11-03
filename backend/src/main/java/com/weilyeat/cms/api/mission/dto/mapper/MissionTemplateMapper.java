@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.dto.mapper;
+package com.ttwijang.cms.api.mission.dto.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.mission.dto.MissionTemplateDto;
-import com.weilyeat.cms.api.mission.dto.MissionFileDto;
-import com.weilyeat.cms.entity.MissionTemplate;
-import com.weilyeat.cms.entity.MissionFile;
-import com.weilyeat.cms.entity.MissionFileType;
+import com.ttwijang.cms.api.mission.dto.MissionTemplateDto;
+import com.ttwijang.cms.api.mission.dto.MissionFileDto;
+import com.ttwijang.cms.entity.MissionTemplate;
+import com.ttwijang.cms.entity.MissionFile;
+import com.ttwijang.cms.entity.MissionFileType;
 
 @Mapper
 public interface MissionTemplateMapper {

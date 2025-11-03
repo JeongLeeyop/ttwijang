@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.comment.service;
+package com.ttwijang.cms.api.comment.service;
 
 import java.util.Optional;
 
@@ -12,18 +12,18 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.comment.dto.CommentDto;
-import com.weilyeat.cms.api.comment.dto.mapper.CommentMapper;
-import com.weilyeat.cms.api.comment.dto.search.CommentSearch;
-import com.weilyeat.cms.api.comment.exception.CommentNotFoundException;
-import com.weilyeat.cms.api.comment.repository.CommentRepository;
-import com.weilyeat.cms.api.post.exception.PostNotFoundException;
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.entity.Comment;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.api.comment.dto.CommentDto;
+import com.ttwijang.cms.api.comment.dto.mapper.CommentMapper;
+import com.ttwijang.cms.api.comment.dto.search.CommentSearch;
+import com.ttwijang.cms.api.comment.exception.CommentNotFoundException;
+import com.ttwijang.cms.api.comment.repository.CommentRepository;
+import com.ttwijang.cms.api.post.exception.PostNotFoundException;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.entity.Comment;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.User;
 
 import lombok.AllArgsConstructor;
 

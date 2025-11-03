@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.dto;
+package com.ttwijang.cms.api.product.dto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.weilyeat.cms.api.shop.dto.ShopDto;
-import com.weilyeat.cms.api.station.dto.StationDto;
+import com.ttwijang.cms.api.shop.dto.ShopDto;
+import com.ttwijang.cms.api.station.dto.StationDto;
 
 import lombok.Getter;
 import lombok.Setter;

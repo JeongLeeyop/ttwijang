@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.push_alarm.service;
+package com.ttwijang.cms.api.push_alarm.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,15 +7,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-// import com.weilyeat.cms.api.post.model.dto.PostDto;
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.dto.mapper.PushAlarmMapper;
-import com.weilyeat.cms.api.push_alarm.dto.search.PushAlarmSearch;
-import com.weilyeat.cms.api.push_alarm.exception.PushAlarmAccessException;
-import com.weilyeat.cms.api.push_alarm.repository.PushAlarmRepository;
-// import com.weilyeat.cms.config.WebUtilConfig;
-import com.weilyeat.cms.entity.PushAlarm;
-import com.weilyeat.cms.oauth.SinghaUser;
+// import com.ttwijang.cms.api.post.model.dto.PostDto;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.dto.mapper.PushAlarmMapper;
+import com.ttwijang.cms.api.push_alarm.dto.search.PushAlarmSearch;
+import com.ttwijang.cms.api.push_alarm.exception.PushAlarmAccessException;
+import com.ttwijang.cms.api.push_alarm.repository.PushAlarmRepository;
+// import com.ttwijang.cms.config.WebUtilConfig;
+import com.ttwijang.cms.entity.PushAlarm;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

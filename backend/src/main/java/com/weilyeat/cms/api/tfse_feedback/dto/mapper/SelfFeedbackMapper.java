@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.tfse_feedback.dto.mapper;
+package com.ttwijang.cms.api.tfse_feedback.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.tfse_feedback.dto.SelfFeedbackDto;
-import com.weilyeat.cms.entity.SelfFeedback;
+import com.ttwijang.cms.api.tfse_feedback.dto.SelfFeedbackDto;
+import com.ttwijang.cms.entity.SelfFeedback;
 
 @Mapper
 public interface SelfFeedbackMapper {

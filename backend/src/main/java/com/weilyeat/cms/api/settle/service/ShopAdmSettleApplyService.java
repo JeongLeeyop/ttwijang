@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.settle.service;
+package com.ttwijang.cms.api.settle.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,26 +7,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.repository.ProductOrderRepository;
-import com.weilyeat.cms.api.product.service.AdmProductOrderService;
-import com.weilyeat.cms.api.settle.dto.ShopAdmSettleApplyDto;
-import com.weilyeat.cms.api.settle.dto.mapper.ShopAdmSettleApplyMapper;
-import com.weilyeat.cms.api.settle.dto.search.ShopAdmSettleApplySearch;
-import com.weilyeat.cms.api.settle.repository.SettleApplyRepository;
-import com.weilyeat.cms.api.settle.repository.SettleSettingRepository;
-import com.weilyeat.cms.api.settle.repository.query.SettleApplyItemQuery;
-import com.weilyeat.cms.api.shop.repository.ShopRepository;
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.BadRequest;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.ProductOrder;
-import com.weilyeat.cms.entity.SettleApply;
-import com.weilyeat.cms.entity.SettleApplyItem;
-import com.weilyeat.cms.entity.SettleSetting;
-import com.weilyeat.cms.entity.Shop;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.repository.ProductOrderRepository;
+import com.ttwijang.cms.api.product.service.AdmProductOrderService;
+import com.ttwijang.cms.api.settle.dto.ShopAdmSettleApplyDto;
+import com.ttwijang.cms.api.settle.dto.mapper.ShopAdmSettleApplyMapper;
+import com.ttwijang.cms.api.settle.dto.search.ShopAdmSettleApplySearch;
+import com.ttwijang.cms.api.settle.repository.SettleApplyRepository;
+import com.ttwijang.cms.api.settle.repository.SettleSettingRepository;
+import com.ttwijang.cms.api.settle.repository.query.SettleApplyItemQuery;
+import com.ttwijang.cms.api.shop.repository.ShopRepository;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.BadRequest;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.ProductOrder;
+import com.ttwijang.cms.entity.SettleApply;
+import com.ttwijang.cms.entity.SettleApplyItem;
+import com.ttwijang.cms.entity.SettleSetting;
+import com.ttwijang.cms.entity.Shop;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

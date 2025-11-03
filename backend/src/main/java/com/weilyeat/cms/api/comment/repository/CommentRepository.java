@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.comment.repository;
+package com.ttwijang.cms.api.comment.repository;
 
 import java.util.Optional;
 
-import com.weilyeat.cms.entity.Comment;
+import com.ttwijang.cms.entity.Comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;

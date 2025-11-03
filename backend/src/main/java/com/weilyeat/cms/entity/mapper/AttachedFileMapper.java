@@ -1,10 +1,10 @@
-package com.weilyeat.cms.entity.mapper;
+package com.ttwijang.cms.entity.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.entity.AttachedFile;
-import com.weilyeat.cms.entity.dto.AttachedFileDto;
+import com.ttwijang.cms.entity.AttachedFile;
+import com.ttwijang.cms.entity.dto.AttachedFileDto;
 
 @Mapper
 public interface AttachedFileMapper {

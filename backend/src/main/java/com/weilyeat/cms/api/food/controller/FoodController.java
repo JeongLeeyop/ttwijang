@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.food.controller;
+package com.ttwijang.cms.api.food.controller;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.food.dto.search.FoodSearch;
-import com.weilyeat.cms.api.food.service.FoodService;
+import com.ttwijang.cms.api.food.dto.search.FoodSearch;
+import com.ttwijang.cms.api.food.service.FoodService;
 
 import lombok.AllArgsConstructor;
 

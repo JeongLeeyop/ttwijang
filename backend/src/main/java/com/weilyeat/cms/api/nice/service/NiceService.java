@@ -1,4 +1,4 @@
-// package com.weilyeat.cms.api.nice.service;
+// package com.ttwijang.cms.api.nice.service;
 
 // import java.text.SimpleDateFormat;
 // import java.util.Calendar;
@@ -9,7 +9,7 @@
 
 // import org.springframework.stereotype.Service;
 
-// import com.weilyeat.cms.oauth.soical.nice.NiceUser;
+// import com.ttwijang.cms.oauth.soical.nice.NiceUser;
 
 // import lombok.AllArgsConstructor;
 

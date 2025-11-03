@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.coupon.controller;
+package com.ttwijang.cms.api.coupon.controller;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.coupon.dto.UserCouponDto;
-import com.weilyeat.cms.api.coupon.dto.search.UserCouponSearch;
-import com.weilyeat.cms.api.coupon.service.UserCouponService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.coupon.dto.UserCouponDto;
+import com.ttwijang.cms.api.coupon.dto.search.UserCouponSearch;
+import com.ttwijang.cms.api.coupon.service.UserCouponService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

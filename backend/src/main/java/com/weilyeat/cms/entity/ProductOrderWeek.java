@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity;
+package com.ttwijang.cms.entity;
 
 import java.time.LocalDate;
 import java.util.List;

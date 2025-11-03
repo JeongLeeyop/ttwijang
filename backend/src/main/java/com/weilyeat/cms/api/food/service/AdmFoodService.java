@@ -1,16 +1,16 @@
-package com.weilyeat.cms.api.food.service;
+package com.ttwijang.cms.api.food.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.food.dto.AdmFoodDto;
-import com.weilyeat.cms.api.food.dto.mapper.AdmFoodMapper;
-import com.weilyeat.cms.api.food.dto.search.AdmFoodSearch;
-import com.weilyeat.cms.api.food.repository.FoodRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Food;
+import com.ttwijang.cms.api.food.dto.AdmFoodDto;
+import com.ttwijang.cms.api.food.dto.mapper.AdmFoodMapper;
+import com.ttwijang.cms.api.food.dto.search.AdmFoodSearch;
+import com.ttwijang.cms.api.food.repository.FoodRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Food;
 
 import lombok.AllArgsConstructor;
 
@@ -42,7 +42,7 @@ class AdmFoodServiceImpl implements AdmFoodService {
     public void add(AdmFoodDto.add addDto) {
         Food entity = AdmFoodMapper.INSTANCE.addDtoToEntity(addDto);
         entity.setInputType(2);
-        entity.setRef("웨일리잇");
+        entity.setRef("뛰장");
         foodRepository.save(entity);
     }
 

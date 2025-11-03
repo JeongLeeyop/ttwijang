@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.controller;
+package com.ttwijang.cms.api.user.controller;
 
 import javax.validation.Valid;
 
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.user.dto.ClientUserDto;
-import com.weilyeat.cms.api.user.service.ClientUserService;
-import com.weilyeat.cms.api.user.service.UserService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.user.dto.ClientUserDto;
+import com.ttwijang.cms.api.user.service.ClientUserService;
+import com.ttwijang.cms.api.user.service.UserService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

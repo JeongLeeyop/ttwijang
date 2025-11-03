@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.board.controller;
+package com.ttwijang.cms.api.board.controller;
 
-import com.weilyeat.cms.api.board.dto.BoardDto;
-import com.weilyeat.cms.api.board.service.ClientBoardService;
+import com.ttwijang.cms.api.board.dto.BoardDto;
+import com.ttwijang.cms.api.board.service.ClientBoardService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

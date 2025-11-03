@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.service;
+package com.ttwijang.cms.api.post.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,27 +14,27 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.board.exception.BoardNotFoundException;
-import com.weilyeat.cms.api.board.repository.BoardRepository;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
-import com.weilyeat.cms.api.post.dto.PostDataDto;
-import com.weilyeat.cms.api.post.dto.PostDto;
-import com.weilyeat.cms.api.post.dto.mapper.PostMapper;
-import com.weilyeat.cms.api.post.dto.search.PostSearch;
-import com.weilyeat.cms.api.post.exception.PostAccessDenyException;
-import com.weilyeat.cms.api.post.exception.PostNotFoundException;
-import com.weilyeat.cms.api.post.exception.PostNotValidException;
-import com.weilyeat.cms.api.post.exception.PostSearchNotValidExcpetion;
-import com.weilyeat.cms.api.post.repository.PostLikeRepository;
-import com.weilyeat.cms.api.post.repository.PostRepository;
-import com.weilyeat.cms.api.post.repository.query.PostQuery;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.api.user.service.ClientUserService;
-import com.weilyeat.cms.entity.Board;
-import com.weilyeat.cms.entity.BoardField;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.PostLike;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.board.exception.BoardNotFoundException;
+import com.ttwijang.cms.api.board.repository.BoardRepository;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
+import com.ttwijang.cms.api.post.dto.PostDataDto;
+import com.ttwijang.cms.api.post.dto.PostDto;
+import com.ttwijang.cms.api.post.dto.mapper.PostMapper;
+import com.ttwijang.cms.api.post.dto.search.PostSearch;
+import com.ttwijang.cms.api.post.exception.PostAccessDenyException;
+import com.ttwijang.cms.api.post.exception.PostNotFoundException;
+import com.ttwijang.cms.api.post.exception.PostNotValidException;
+import com.ttwijang.cms.api.post.exception.PostSearchNotValidExcpetion;
+import com.ttwijang.cms.api.post.repository.PostLikeRepository;
+import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.post.repository.query.PostQuery;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.api.user.service.ClientUserService;
+import com.ttwijang.cms.entity.Board;
+import com.ttwijang.cms.entity.BoardField;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.PostLike;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

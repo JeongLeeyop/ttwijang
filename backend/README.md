@@ -1,4 +1,4 @@
-create table if not exists weilyeat.mission_template
+create table if not exists ttwijang.mission_template
 (
     uid              varchar(255)  not null
         primary key,

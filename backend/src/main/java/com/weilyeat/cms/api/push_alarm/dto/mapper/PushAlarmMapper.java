@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.push_alarm.dto.mapper;
+package com.ttwijang.cms.api.push_alarm.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.entity.PushAlarm;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.entity.PushAlarm;
 
 @Mapper
 public interface PushAlarmMapper {

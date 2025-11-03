@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.push_alarm.controller;
+package com.ttwijang.cms.api.push_alarm.controller;
 
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.entity.PushAlarm;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.entity.PushAlarm;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

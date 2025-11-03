@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity;
+package com.ttwijang.cms.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.weilyeat.cms.common.code.AuthorityCode;
+import com.ttwijang.cms.common.code.AuthorityCode;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

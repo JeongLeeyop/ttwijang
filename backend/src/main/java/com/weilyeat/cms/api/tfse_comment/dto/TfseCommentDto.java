@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_comment.dto;
+package com.ttwijang.cms.api.tfse_comment.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 import org.mapstruct.Mapping;
 
-import com.weilyeat.cms.api.user.dto.UserDto;
+import com.ttwijang.cms.api.user.dto.UserDto;
 
 import lombok.Data;
 

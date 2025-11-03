@@ -1,6 +1,6 @@
-package com.weilyeat.cms.api.board.repository;
+package com.ttwijang.cms.api.board.repository;
 
-import com.weilyeat.cms.entity.BoardSkin;
+import com.ttwijang.cms.entity.BoardSkin;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

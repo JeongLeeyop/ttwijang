@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.user.dto.mapper;
+package com.ttwijang.cms.api.user.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.user.dto.ClientUserDto;
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.api.user.dto.ClientUserDto;
+import com.ttwijang.cms.entity.User;
 
 @Mapper
 public interface ClientUserMapper {

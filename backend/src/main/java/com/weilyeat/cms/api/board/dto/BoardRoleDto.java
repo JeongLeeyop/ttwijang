@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.board.dto;
+package com.ttwijang.cms.api.board.dto;
 
 import javax.validation.constraints.NotBlank;
 
-import com.weilyeat.cms.common.EnumField;
-import com.weilyeat.cms.entity.BoardAction;
+import com.ttwijang.cms.common.EnumField;
+import com.ttwijang.cms.entity.BoardAction;
 
 import lombok.Data;
 

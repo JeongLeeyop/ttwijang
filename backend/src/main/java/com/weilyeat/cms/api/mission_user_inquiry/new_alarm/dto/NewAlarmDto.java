@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.repository;
+package com.ttwijang.cms.api.user.repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,8 +11,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.soical.SocialType;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String>, QuerydslPredicateExecutor<User>{

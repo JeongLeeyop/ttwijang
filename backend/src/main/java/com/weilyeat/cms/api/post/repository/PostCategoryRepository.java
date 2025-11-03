@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.post.repository;
+package com.ttwijang.cms.api.post.repository;
 
-import com.weilyeat.cms.entity.BoardCategory;
-import com.weilyeat.cms.entity.PostCategory;
-import com.weilyeat.cms.entity.PostLike;
+import com.ttwijang.cms.entity.BoardCategory;
+import com.ttwijang.cms.entity.PostCategory;
+import com.ttwijang.cms.entity.PostLike;
 
 import java.util.List;
 import java.util.Optional;

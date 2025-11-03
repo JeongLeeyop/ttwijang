@@ -1,4 +1,4 @@
-package com.weilyeat.cms.service;
+package com.ttwijang.cms.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.mission.dto.MissionDto;
-import com.weilyeat.cms.api.mission.repository.MissionUserRepository;
-import com.weilyeat.cms.api.mission_record.repository.MissionRecordRepository;
-import com.weilyeat.cms.entity.Mission;
-import com.weilyeat.cms.entity.MissionUser;
-import com.weilyeat.cms.utils.MissionStatusCalculator;
+import com.ttwijang.cms.api.mission.dto.MissionDto;
+import com.ttwijang.cms.api.mission.repository.MissionUserRepository;
+import com.ttwijang.cms.api.mission_record.repository.MissionRecordRepository;
+import com.ttwijang.cms.entity.Mission;
+import com.ttwijang.cms.entity.MissionUser;
+import com.ttwijang.cms.utils.MissionStatusCalculator;
 
 /**
  * 미션 상태 계산 전용 서비스

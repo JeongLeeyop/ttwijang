@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.mission.dto;
+package com.ttwijang.cms.api.mission.dto;
 
-import com.weilyeat.cms.api.attached_file.dto.AttachedFileDto;
-import com.weilyeat.cms.entity.MissionFileType;
+import com.ttwijang.cms.api.attached_file.dto.AttachedFileDto;
+import com.ttwijang.cms.entity.MissionFileType;
 
 import lombok.Data;
 

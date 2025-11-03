@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository.query;
+package com.ttwijang.cms.api.product.repository.query;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,8 +12,8 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Component;
 
-import com.weilyeat.cms.api.product.dto.ProductOrderDto;
-import com.weilyeat.cms.api.product.dto.ShopAdmProductOrderDto;
+import com.ttwijang.cms.api.product.dto.ProductOrderDto;
+import com.ttwijang.cms.api.product.dto.ShopAdmProductOrderDto;
 
 @Component
 public class ProductOrderQuery {

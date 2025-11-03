@@ -1,17 +1,17 @@
-package com.weilyeat.cms.api.user.controller;
+package com.ttwijang.cms.api.user.controller;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.user.dto.UserDto;
-import com.weilyeat.cms.api.user.dto.mapper.UserMapper;
-import com.weilyeat.cms.api.user.dto.search.UserSearch;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.service.UserService;
-import com.weilyeat.cms.entity.AttachedFile;
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.user.dto.UserDto;
+import com.ttwijang.cms.api.user.dto.mapper.UserMapper;
+import com.ttwijang.cms.api.user.dto.search.UserSearch;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.service.UserService;
+import com.ttwijang.cms.entity.AttachedFile;
+import com.ttwijang.cms.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

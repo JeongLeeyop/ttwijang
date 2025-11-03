@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.point.service;
+package com.ttwijang.cms.api.point.service;
 
 import javax.transaction.Transactional;
 
@@ -6,16 +6,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.point.dto.PointHistoryDto;
-import com.weilyeat.cms.api.point.dto.mapper.PointHistoryMapper;
-import com.weilyeat.cms.api.point.dto.search.PointHistorySearch;
-import com.weilyeat.cms.api.point.repository.PointHistoryRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.PointHistory;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.point.dto.PointHistoryDto;
+import com.ttwijang.cms.api.point.dto.mapper.PointHistoryMapper;
+import com.ttwijang.cms.api.point.dto.search.PointHistorySearch;
+import com.ttwijang.cms.api.point.repository.PointHistoryRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.PointHistory;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

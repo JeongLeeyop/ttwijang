@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.entity.UserRole;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.entity.UserRole;
 
 import lombok.AllArgsConstructor;
 

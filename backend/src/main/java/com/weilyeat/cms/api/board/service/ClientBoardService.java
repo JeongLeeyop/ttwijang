@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.board.service;
+package com.ttwijang.cms.api.board.service;
 
-import com.weilyeat.cms.api.board.dto.BoardDto.ClientDetail;
-import com.weilyeat.cms.api.board.dto.mapper.BoardMapper;
-import com.weilyeat.cms.api.board.exception.BoardNotFoundException;
-import com.weilyeat.cms.api.board.repository.BoardRepository;
-import com.weilyeat.cms.entity.Board;
+import com.ttwijang.cms.api.board.dto.BoardDto.ClientDetail;
+import com.ttwijang.cms.api.board.dto.mapper.BoardMapper;
+import com.ttwijang.cms.api.board.exception.BoardNotFoundException;
+import com.ttwijang.cms.api.board.repository.BoardRepository;
+import com.ttwijang.cms.entity.Board;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.dto;
+package com.ttwijang.cms.api.product.dto;
 
 import java.time.LocalDate;
 import java.util.List;

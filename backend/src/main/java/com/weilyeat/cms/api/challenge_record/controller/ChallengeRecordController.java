@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge_record.controller;
+package com.ttwijang.cms.api.challenge_record.controller;
 
 import java.util.List;
 
@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.weilyeat.cms.api.attached_file.dto.AttachedFileDto;
-import com.weilyeat.cms.api.attached_file.dto.mapper.AttachedFileMapper;
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.challenge_record.dto.ChallengeRecordDto;
-import com.weilyeat.cms.api.challenge_record.dto.ChallengeRecordSearch;
-import com.weilyeat.cms.api.challenge_record.service.ChallengeRecordService;
-import com.weilyeat.cms.entity.ChallengeRecord;
-import com.weilyeat.cms.entity.Post;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.attached_file.dto.AttachedFileDto;
+import com.ttwijang.cms.api.attached_file.dto.mapper.AttachedFileMapper;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.challenge_record.dto.ChallengeRecordDto;
+import com.ttwijang.cms.api.challenge_record.dto.ChallengeRecordSearch;
+import com.ttwijang.cms.api.challenge_record.service.ChallengeRecordService;
+import com.ttwijang.cms.entity.ChallengeRecord;
+import com.ttwijang.cms.entity.Post;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

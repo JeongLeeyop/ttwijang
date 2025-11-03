@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderGroupSearch;
-import com.weilyeat.cms.api.product.service.AdmProductOrderGroupService;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderGroupSearch;
+import com.ttwijang.cms.api.product.service.AdmProductOrderGroupService;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;

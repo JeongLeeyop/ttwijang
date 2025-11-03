@@ -1,4 +1,4 @@
-package com.weilyeat.cms;
+package com.ttwijang.cms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
 
 import lombok.extern.slf4j.Slf4j;
 

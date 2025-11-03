@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.post.service;
+package com.ttwijang.cms.api.post.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.post.dto.PostTagDto;
-import com.weilyeat.cms.api.post.repository.query.PostTagQuery;
+import com.ttwijang.cms.api.post.dto.PostTagDto;
+import com.ttwijang.cms.api.post.repository.query.PostTagQuery;
 
 import lombok.AllArgsConstructor;
 

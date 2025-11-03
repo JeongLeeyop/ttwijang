@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_user_inquiry.controller;
+package com.ttwijang.cms.api.mission_user_inquiry.controller;
 
 import java.util.List;
 
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.weilyeat.cms.api.attached_file.dto.AttachedFileDto;
-import com.weilyeat.cms.api.attached_file.dto.mapper.AttachedFileMapper;
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.mission_user_inquiry.dto.MissionUserInquiryDto;
-import com.weilyeat.cms.api.mission_user_inquiry.dto.MissionUserInquirySearch;
-import com.weilyeat.cms.api.mission_user_inquiry.service.MissionUserInquiryService;
-import com.weilyeat.cms.entity.MissionUserInquiry;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.attached_file.dto.AttachedFileDto;
+import com.ttwijang.cms.api.attached_file.dto.mapper.AttachedFileMapper;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.mission_user_inquiry.dto.MissionUserInquiryDto;
+import com.ttwijang.cms.api.mission_user_inquiry.dto.MissionUserInquirySearch;
+import com.ttwijang.cms.api.mission_user_inquiry.service.MissionUserInquiryService;
+import com.ttwijang.cms.entity.MissionUserInquiry;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

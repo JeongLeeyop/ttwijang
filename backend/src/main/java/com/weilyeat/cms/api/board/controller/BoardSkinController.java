@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.controller;
+package com.ttwijang.cms.api.board.controller;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.board.dto.BoardSkinDto;
-import com.weilyeat.cms.api.board.service.BoardSkinService;
+import com.ttwijang.cms.api.board.dto.BoardSkinDto;
+import com.ttwijang.cms.api.board.service.BoardSkinService;
 
 import lombok.AllArgsConstructor;
 

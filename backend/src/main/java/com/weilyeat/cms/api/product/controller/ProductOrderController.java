@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
 import java.net.URISyntaxException;
 
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.payment.dto.PaymentDto;
-import com.weilyeat.cms.api.payment.dto.PaymentRequestDto;
-import com.weilyeat.cms.api.payment.service.TossPaymentService;
-import com.weilyeat.cms.api.product.dto.ProductOrderDto;
-import com.weilyeat.cms.api.product.service.ProductOrderService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.payment.dto.PaymentDto;
+import com.ttwijang.cms.api.payment.dto.PaymentRequestDto;
+import com.ttwijang.cms.api.payment.service.TossPaymentService;
+import com.ttwijang.cms.api.product.dto.ProductOrderDto;
+import com.ttwijang.cms.api.product.service.ProductOrderService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

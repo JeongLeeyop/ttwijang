@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
-import com.weilyeat.cms.api.product.dto.ProductOrderGroupDto;
-import com.weilyeat.cms.api.product.repository.ProductOrderGroupRepository;
-import com.weilyeat.cms.api.product.service.ProductOrderGroupService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.ProductOrderGroupDto;
+import com.ttwijang.cms.api.product.repository.ProductOrderGroupRepository;
+import com.ttwijang.cms.api.product.service.ProductOrderGroupService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

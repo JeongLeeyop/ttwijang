@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.coupon.dto;
+package com.ttwijang.cms.api.coupon.dto;
 
 import java.time.LocalDateTime;
 

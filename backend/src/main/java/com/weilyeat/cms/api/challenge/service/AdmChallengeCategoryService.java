@@ -1,13 +1,13 @@
-package com.weilyeat.cms.api.challenge.service;
+package com.ttwijang.cms.api.challenge.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeCategoryDto;
-import com.weilyeat.cms.api.challenge.dto.mapper.ChallengeCategoryMapper;
-import com.weilyeat.cms.api.challenge.repository.AdmChallengeCategoryRepository;
+import com.ttwijang.cms.api.challenge.dto.ChallengeCategoryDto;
+import com.ttwijang.cms.api.challenge.dto.mapper.ChallengeCategoryMapper;
+import com.ttwijang.cms.api.challenge.repository.AdmChallengeCategoryRepository;
 
 import lombok.AllArgsConstructor;
 

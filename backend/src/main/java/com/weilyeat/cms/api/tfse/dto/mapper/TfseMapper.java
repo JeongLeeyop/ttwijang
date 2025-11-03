@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.tfse.dto.mapper;
+package com.ttwijang.cms.api.tfse.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.tfse.dto.TfseDto;
-import com.weilyeat.cms.entity.Tfse;
+import com.ttwijang.cms.api.tfse.dto.TfseDto;
+import com.ttwijang.cms.entity.Tfse;
 
 @Mapper
 public interface TfseMapper {

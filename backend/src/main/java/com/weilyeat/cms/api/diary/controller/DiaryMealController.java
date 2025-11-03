@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.diary.controller;
+package com.ttwijang.cms.api.diary.controller;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.diary.service.DiaryMealService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.diary.service.DiaryMealService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

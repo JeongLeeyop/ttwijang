@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_inquiry.dto;
+package com.ttwijang.cms.api.mission_inquiry.dto;
 
 import java.time.LocalDate;
 
@@ -6,8 +6,8 @@ import org.springframework.util.StringUtils;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.common.search.SearchDefault;
-import com.weilyeat.cms.entity.QMissionInquiry;
+import com.ttwijang.cms.common.search.SearchDefault;
+import com.ttwijang.cms.entity.QMissionInquiry;
 
 import lombok.Data;
 

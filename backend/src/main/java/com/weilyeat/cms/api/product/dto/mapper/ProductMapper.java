@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.dto.mapper;
+package com.ttwijang.cms.api.product.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -6,9 +6,9 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-import com.weilyeat.cms.api.product.dto.AdmProductDto;
-import com.weilyeat.cms.api.product.dto.ProductDto;
-import com.weilyeat.cms.entity.Product;
+import com.ttwijang.cms.api.product.dto.AdmProductDto;
+import com.ttwijang.cms.api.product.dto.ProductDto;
+import com.ttwijang.cms.entity.Product;
 
 @Mapper
 public interface ProductMapper {

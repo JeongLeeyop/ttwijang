@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository;
+package com.ttwijang.cms.api.product.repository;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.ProductOrder;
+import com.ttwijang.cms.entity.ProductOrder;
 
 public interface AdmProductOrderRepository extends JpaRepository<ProductOrder, Integer>, QuerydslPredicateExecutor<ProductOrder> {
 

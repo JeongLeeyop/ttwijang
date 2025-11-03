@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.product.repository;
+package com.ttwijang.cms.api.product.repository;
 
 import java.util.List;
 
-import com.weilyeat.cms.entity.Product;
-import com.weilyeat.cms.entity.ProductRotation;
+import com.ttwijang.cms.entity.Product;
+import com.ttwijang.cms.entity.ProductRotation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.payment.constant;
+package com.ttwijang.cms.api.payment.constant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.weilyeat.cms.common.AbstractEnumToStringConverter;
+import com.ttwijang.cms.common.AbstractEnumToStringConverter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

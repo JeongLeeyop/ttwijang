@@ -1,17 +1,17 @@
-package com.weilyeat.cms.api.user.service;
+package com.ttwijang.cms.api.user.service;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.user.dto.UserFcmToken;
-import com.weilyeat.cms.api.user.dto.UserFcmTokenDto;
-import com.weilyeat.cms.api.user.exception.UserFcmNotFoundException;
-import com.weilyeat.cms.api.user.exception.UserNotFoundException;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.user.dto.UserFcmToken;
+import com.ttwijang.cms.api.user.dto.UserFcmTokenDto;
+import com.ttwijang.cms.api.user.exception.UserFcmNotFoundException;
+import com.ttwijang.cms.api.user.exception.UserNotFoundException;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

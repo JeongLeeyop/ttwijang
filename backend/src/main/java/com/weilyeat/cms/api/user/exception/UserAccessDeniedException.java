@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.exception;
+package com.ttwijang.cms.api.user.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

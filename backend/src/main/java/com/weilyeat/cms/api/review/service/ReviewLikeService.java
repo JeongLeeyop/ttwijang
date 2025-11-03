@@ -1,17 +1,17 @@
-package com.weilyeat.cms.api.review.service;
+package com.ttwijang.cms.api.review.service;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.review.repository.ReviewLikeRepository;
-import com.weilyeat.cms.api.review.repository.ReviewRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Review;
-import com.weilyeat.cms.entity.ReviewLike;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.review.repository.ReviewLikeRepository;
+import com.ttwijang.cms.api.review.repository.ReviewRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Review;
+import com.ttwijang.cms.entity.ReviewLike;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

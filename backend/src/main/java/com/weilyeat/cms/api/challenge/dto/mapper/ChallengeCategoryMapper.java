@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.challenge.dto.mapper;
+package com.ttwijang.cms.api.challenge.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeCategoryDto;
-import com.weilyeat.cms.entity.ChallengeCategory;
+import com.ttwijang.cms.api.challenge.dto.ChallengeCategoryDto;
+import com.ttwijang.cms.entity.ChallengeCategory;
 
 @Mapper
 public interface ChallengeCategoryMapper {

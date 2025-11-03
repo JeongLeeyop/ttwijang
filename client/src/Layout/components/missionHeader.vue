@@ -1,7 +1,7 @@
 <template>
   <div class="mission-header" :class="linkCheck()">
     <button @click="handleClickBefore()" class="home-header__arrow"><i class="el-icon-arrow-left"></i></button>
-    {{ $route.meta.title || 'WEILYEAT' }}
+    {{ $route.meta.title || 'ttwijang' }}
     <slot v-if="$route.name === 'MyMission' || $route.name === 'MissionHistory'">
       <button @click="handleClickClose()" class="home-header__close"><i class="el-icon-close"></i></button>
     </slot>

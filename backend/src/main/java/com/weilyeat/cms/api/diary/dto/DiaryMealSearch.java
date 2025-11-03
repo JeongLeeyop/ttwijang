@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.diary.dto;
+package com.ttwijang.cms.api.diary.dto;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QDiaryMeal;
+import com.ttwijang.cms.entity.QDiaryMeal;
 
 import lombok.Getter;
 import lombok.Setter;

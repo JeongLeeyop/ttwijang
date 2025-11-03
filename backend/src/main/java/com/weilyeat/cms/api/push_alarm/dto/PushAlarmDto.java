@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.push_alarm.dto;
+package com.ttwijang.cms.api.push_alarm.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.weilyeat.cms.entity.User;
+import com.ttwijang.cms.entity.User;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.fcm.service;
+package com.ttwijang.cms.fcm.service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.weilyeat.cms.fcm.firebase.FCMService;
-import com.weilyeat.cms.fcm.model.PushNotificationRequest;
+import com.ttwijang.cms.fcm.firebase.FCMService;
+import com.ttwijang.cms.fcm.model.PushNotificationRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class PushNotificationService {
     private FCMService fcmService;
 
     public PushNotificationService() {
-        this.defaults.put("topic", "weilyeat");
+        this.defaults.put("topic", "ttwijang");
         this.defaults.put("title", "Common topic - Hello");
         this.defaults.put("message", "Sending test message \uD83D\uDE42");
         this.defaults.put("token", "ss22t03wz208eg:APA2idkkow223FE_0v5yHxqCLTyxAQafj6nWaqi4QzwZTW004q1PUux63UsFN");

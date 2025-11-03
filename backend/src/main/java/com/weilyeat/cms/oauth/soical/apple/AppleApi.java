@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.apple;
+package com.ttwijang.cms.oauth.soical.apple;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.common.exception.code.BadRequest;
-import com.weilyeat.cms.oauth.soical.apple.dto.AppleLoginInfo;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.common.exception.code.BadRequest;
+import com.ttwijang.cms.oauth.soical.apple.dto.AppleLoginInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ public class AppleApi {
 
     public static final String TEAM_ID = "PDTCUY63XW";
 	// public static final String REDIRECT_URL = "https://127.0.0.1/api/apple/login";
-    public static final String CLIENT_ID = "unids.weilyeat";
+    public static final String CLIENT_ID = "unids.ttwijang";
 	public static final String KEY_ID = "Y75R25GR55";
     public static final String AUTH_URL = "https://appleid.apple.com";
 	public static final String KEY_PATH = "lib/AuthKey_Y75R25GR55.p8";
@@ -101,7 +101,7 @@ public class AppleApi {
             .queryParam("client_secret", clientSecret)
             .queryParam("code", code)
             .queryParam("grant_type", "authorization_code")
-            .queryParam("redirect_uri", profile.equals("development") ? "http://localhost:3000/oauth/token" : "https://weilyeat.go.kr/oauth/token");
+            .queryParam("redirect_uri", profile.equals("development") ? "http://localhost:3000/oauth/token" : "https://ttwijang.go.kr/oauth/token");
         String url = builder.toUriString();
         
         RestTemplate template = new RestTemplate();
@@ -122,8 +122,8 @@ public class AppleApi {
     public ResponseEntity access(String access) {
         RestTemplate template = new RestTemplate();
         
-        String url = profile.equals("development") ? "http://localhost:8080/oauth/token" : "https://weilyeat.co.kr/oauth/token";
-        // String url = profile.equals("development") ? "ttp://leeyop.unids.kr:8080/oauth/token" : "https://weilyeat.co.kr/oauth/token";
+        String url = profile.equals("development") ? "http://localhost:8080/oauth/token" : "https://ttwijang.co.kr/oauth/token";
+        // String url = profile.equals("development") ? "ttp://leeyop.unids.kr:8080/oauth/token" : "https://ttwijang.co.kr/oauth/token";
         
         HttpHeaders headers  = new HttpHeaders();
         headers.add("authorization", "Basic c2luZ2hhX29hdXRoOnNpbmdoYXNjcmVjdCFAIyQ=");

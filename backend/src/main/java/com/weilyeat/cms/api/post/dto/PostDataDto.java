@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.dto;
+package com.ttwijang.cms.api.post.dto;
 
 import javax.validation.constraints.NotBlank;
 

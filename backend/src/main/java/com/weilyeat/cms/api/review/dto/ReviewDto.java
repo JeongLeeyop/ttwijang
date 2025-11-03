@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.review.dto;
+package com.ttwijang.cms.api.review.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

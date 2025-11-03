@@ -1,4 +1,4 @@
-package com.weilyeat.cms.util;
+package com.ttwijang.cms.util;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

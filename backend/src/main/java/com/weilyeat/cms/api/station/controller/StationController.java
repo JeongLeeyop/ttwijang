@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.station.controller;
+package com.ttwijang.cms.api.station.controller;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.station.dto.StationDto;
-import com.weilyeat.cms.api.station.service.StationService;
+import com.ttwijang.cms.api.station.dto.StationDto;
+import com.ttwijang.cms.api.station.service.StationService;
 
 import lombok.AllArgsConstructor;
 

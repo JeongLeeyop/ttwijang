@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.diary.repository;
+package com.ttwijang.cms.api.diary.repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.weilyeat.cms.entity.Diary;
+import com.ttwijang.cms.entity.Diary;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
 

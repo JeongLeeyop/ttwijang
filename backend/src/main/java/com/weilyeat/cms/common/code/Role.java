@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.code;
+package com.ttwijang.cms.common.code;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

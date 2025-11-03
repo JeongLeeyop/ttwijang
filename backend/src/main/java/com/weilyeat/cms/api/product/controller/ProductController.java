@@ -1,13 +1,13 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
-import com.weilyeat.cms.api.product.dto.AdmProductDto;
-import com.weilyeat.cms.api.product.dto.ProductDto;
-import com.weilyeat.cms.api.product.dto.ProductRotationDto;
-import com.weilyeat.cms.api.product.dto.search.AdmProductSearch;
-import com.weilyeat.cms.api.product.dto.search.ProductSearch;
-import com.weilyeat.cms.api.product.service.ProductRotationService;
-import com.weilyeat.cms.api.product.service.ProductService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.AdmProductDto;
+import com.ttwijang.cms.api.product.dto.ProductDto;
+import com.ttwijang.cms.api.product.dto.ProductRotationDto;
+import com.ttwijang.cms.api.product.dto.search.AdmProductSearch;
+import com.ttwijang.cms.api.product.dto.search.ProductSearch;
+import com.ttwijang.cms.api.product.service.ProductRotationService;
+import com.ttwijang.cms.api.product.service.ProductService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

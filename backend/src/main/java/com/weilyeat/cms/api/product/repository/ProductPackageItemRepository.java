@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.product.repository;
+package com.ttwijang.cms.api.product.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.weilyeat.cms.entity.ProductPackageItem;
+import com.ttwijang.cms.entity.ProductPackageItem;
 
 public interface ProductPackageItemRepository extends JpaRepository<ProductPackageItem, Long> {
     

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.review.controller;
+package com.ttwijang.cms.api.review.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.api.review.dto.ReviewDto;
-import com.weilyeat.cms.api.review.dto.search.ReviewSearch;
-import com.weilyeat.cms.api.review.service.ReviewService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.api.review.dto.ReviewDto;
+import com.ttwijang.cms.api.review.dto.search.ReviewSearch;
+import com.ttwijang.cms.api.review.service.ReviewService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

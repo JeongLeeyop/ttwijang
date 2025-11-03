@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.repository;
+package com.ttwijang.cms.api.mission.repository;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.Mission;
+import com.ttwijang.cms.entity.Mission;
 
 public interface MissionRepository extends JpaRepository<Mission, String>, QuerydslPredicateExecutor<Mission> {
     List<Mission> findAll(Predicate search);

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.dto.search;
+package com.ttwijang.cms.api.user.dto.search;
 
 import org.springframework.util.StringUtils;
 
@@ -6,8 +6,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.weilyeat.cms.common.search.SearchDefault;
-import com.weilyeat.cms.entity.QUser;
+import com.ttwijang.cms.common.search.SearchDefault;
+import com.ttwijang.cms.entity.QUser;
 
 import lombok.Getter;
 import lombok.Setter;

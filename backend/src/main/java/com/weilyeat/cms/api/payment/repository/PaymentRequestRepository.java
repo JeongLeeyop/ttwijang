@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.payment.repository;
+package com.ttwijang.cms.api.payment.repository;
 
 import java.util.List;
 import java.util.Optional;
-import com.weilyeat.cms.entity.PaymentRequest;
+import com.ttwijang.cms.entity.PaymentRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 

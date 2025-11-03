@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse_comment.exception;
+package com.ttwijang.cms.api.tfse_comment.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

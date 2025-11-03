@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.weilyeat.cms.CmsApplication;
+import com.ttwijang.cms.CmsApplication;
 
 @SpringBootTest
 @ContextConfiguration(classes = CmsApplication.class)

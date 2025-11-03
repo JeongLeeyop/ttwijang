@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ public class SinghaUser extends User {
 
 	private static final long serialVersionUID = -1164526427887641766L;
 
-	private com.weilyeat.cms.entity.User user;
+	private com.ttwijang.cms.entity.User user;
 
-	public SinghaUser(com.weilyeat.cms.entity.User user, List<GrantedAuthority> authorities) {
+	public SinghaUser(com.ttwijang.cms.entity.User user, List<GrantedAuthority> authorities) {
 		super(user.getUserId(), user.getUserPassword(), user.isEnabled(), true, true, user.isNotLocked(), authorities);
 		this.user = user;
 	}

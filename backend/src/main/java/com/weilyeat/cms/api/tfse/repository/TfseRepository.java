@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse.repository;
+package com.ttwijang.cms.api.tfse.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.Tfse;
+import com.ttwijang.cms.entity.Tfse;
 
 public interface TfseRepository extends JpaRepository<Tfse, Long>, QuerydslPredicateExecutor<Tfse> {
     List<Tfse> findAll(Predicate search);

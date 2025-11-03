@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.attached_file.exception;
+package com.ttwijang.cms.api.attached_file.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

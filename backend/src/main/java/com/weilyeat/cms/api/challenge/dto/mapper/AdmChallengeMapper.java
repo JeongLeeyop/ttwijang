@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.dto.mapper;
+package com.ttwijang.cms.api.challenge.dto.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeDto;
-import com.weilyeat.cms.api.challenge.dto.ChallengeFileDto;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.ChallengeFile;
-import com.weilyeat.cms.entity.ChallengeFileType;
+import com.ttwijang.cms.api.challenge.dto.ChallengeDto;
+import com.ttwijang.cms.api.challenge.dto.ChallengeFileDto;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.ChallengeFile;
+import com.ttwijang.cms.entity.ChallengeFileType;
 
 @Mapper
 public interface AdmChallengeMapper {

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.review.service;
+package com.ttwijang.cms.api.review.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,23 +8,23 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.dto.ProductOrderDto;
-import com.weilyeat.cms.api.product.repository.ProductOrderGroupRepository;
-import com.weilyeat.cms.api.product.repository.query.ProductOrderQuery;
-import com.weilyeat.cms.api.review.dto.ReviewDto;
-import com.weilyeat.cms.api.review.dto.ReviewDto.update;
-import com.weilyeat.cms.api.review.dto.mapper.ReviewMapper;
-import com.weilyeat.cms.api.review.dto.search.ReviewSearch;
-import com.weilyeat.cms.api.review.repository.ReviewRepository;
-import com.weilyeat.cms.api.review.repository.query.ReviewQuery;
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.BadRequest;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.ProductOrderGroup;
-import com.weilyeat.cms.entity.Review;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.ProductOrderDto;
+import com.ttwijang.cms.api.product.repository.ProductOrderGroupRepository;
+import com.ttwijang.cms.api.product.repository.query.ProductOrderQuery;
+import com.ttwijang.cms.api.review.dto.ReviewDto;
+import com.ttwijang.cms.api.review.dto.ReviewDto.update;
+import com.ttwijang.cms.api.review.dto.mapper.ReviewMapper;
+import com.ttwijang.cms.api.review.dto.search.ReviewSearch;
+import com.ttwijang.cms.api.review.repository.ReviewRepository;
+import com.ttwijang.cms.api.review.repository.query.ReviewQuery;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.BadRequest;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.ProductOrderGroup;
+import com.ttwijang.cms.entity.Review;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

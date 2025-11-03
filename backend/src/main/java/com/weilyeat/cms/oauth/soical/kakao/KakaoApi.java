@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.kakao;
+package com.ttwijang.cms.oauth.soical.kakao;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.shop.dto;
+package com.ttwijang.cms.api.shop.dto;
 
 import lombok.Data;
 

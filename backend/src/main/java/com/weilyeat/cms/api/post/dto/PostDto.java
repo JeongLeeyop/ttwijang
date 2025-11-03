@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.dto;
+package com.ttwijang.cms.api.post.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,8 +7,8 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
-import com.weilyeat.cms.entity.Board;
-import com.weilyeat.cms.entity.PostTag;
+import com.ttwijang.cms.entity.Board;
+import com.ttwijang.cms.entity.PostTag;
 
 import lombok.Data;
 

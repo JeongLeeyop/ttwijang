@@ -1,9 +1,9 @@
-package com.weilyeat.cms.utils;
+package com.ttwijang.cms.utils;
 
 import java.time.LocalDate;
 
-import com.weilyeat.cms.api.mission.dto.MissionDto;
-import com.weilyeat.cms.entity.Mission;
+import com.ttwijang.cms.api.mission.dto.MissionDto;
+import com.ttwijang.cms.entity.Mission;
 
 /**
  * 미션 상태 계산 유틸리티 클래스

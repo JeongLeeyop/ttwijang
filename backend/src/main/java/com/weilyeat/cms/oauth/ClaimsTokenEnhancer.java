@@ -1,10 +1,10 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.weilyeat.cms.oauth.soical.OAuth2UserInfo;
+import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;

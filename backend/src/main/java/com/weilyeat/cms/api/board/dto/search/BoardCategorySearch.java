@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.board.dto.search;
+package com.ttwijang.cms.api.board.dto.search;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.common.search.SearchDefault;
-import com.weilyeat.cms.entity.QBoardCategory;
+import com.ttwijang.cms.common.search.SearchDefault;
+import com.ttwijang.cms.entity.QBoardCategory;
 
 import lombok.Getter;
 import lombok.Setter;

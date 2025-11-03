@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.product.repository.query;
+package com.ttwijang.cms.api.product.repository.query;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.weilyeat.cms.api.product.dto.ProductOrderGroupDto;
+import com.ttwijang.cms.api.product.dto.ProductOrderGroupDto;
 
 import org.springframework.stereotype.Component;
 

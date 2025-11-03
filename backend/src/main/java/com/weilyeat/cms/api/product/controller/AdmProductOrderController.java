@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.controller;
+package com.ttwijang.cms.api.product.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.product.dto.AdmProductOrderDto;
-import com.weilyeat.cms.api.product.repository.search.AdmProductOrderSearch;
-import com.weilyeat.cms.api.product.service.AdmProductOrderService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderDto;
+import com.ttwijang.cms.api.product.repository.search.AdmProductOrderSearch;
+import com.ttwijang.cms.api.product.service.AdmProductOrderService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

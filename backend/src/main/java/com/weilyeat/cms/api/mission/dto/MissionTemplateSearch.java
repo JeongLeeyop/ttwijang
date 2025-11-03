@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.dto;
+package com.ttwijang.cms.api.mission.dto;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -12,8 +12,8 @@ import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
-import com.weilyeat.cms.common.search.SearchDefault;
-import com.weilyeat.cms.entity.QMissionTemplate;
+import com.ttwijang.cms.common.search.SearchDefault;
+import com.ttwijang.cms.entity.QMissionTemplate;
 
 import lombok.Data;
 

@@ -2,7 +2,7 @@
   <div>
     <div class="home-header">
       <button @click="handleClickBefore()" class="home-header__arrow"><img src="~@/assets/images/arrow-ico.png" alt="뒤로가기"></button>
-      {{ $route.meta.title || 'WEILYEAT' }}
+      {{ $route.meta.title || 'ttwijang' }}
       <el-popover v-model="showPopover" placement="top" width="450" trigger="click" popper-class="alarm" place- :popper-append-to-body="false"
         :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
         <div @click="showPopover = false" class="alarm-close">

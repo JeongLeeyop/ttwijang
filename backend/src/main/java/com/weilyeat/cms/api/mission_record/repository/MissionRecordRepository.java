@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission_record.repository;
+package com.ttwijang.cms.api.mission_record.repository;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.Mission;
-import com.weilyeat.cms.entity.MissionRecord;
+import com.ttwijang.cms.entity.Mission;
+import com.ttwijang.cms.entity.MissionRecord;
 
 public interface MissionRecordRepository extends JpaRepository<MissionRecord, String>, QuerydslPredicateExecutor<MissionRecord> {
     @Query(value = "Select Count(*) from mission_record where user_uid = ?1 and mission_uid = ?2 and Date(create_date) = curdate()", nativeQuery= true)

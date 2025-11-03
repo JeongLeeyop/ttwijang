@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.challenge.dto;
+package com.ttwijang.cms.api.challenge.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.weilyeat.cms.api.challenge_record.dto.ChallengeRecordDto;
+import com.ttwijang.cms.api.challenge_record.dto.ChallengeRecordDto;
 
 import lombok.Data;
 

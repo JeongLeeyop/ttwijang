@@ -1,4 +1,4 @@
-package com.weilyeat.cms.fcm.firebase;
+package com.ttwijang.cms.fcm.firebase;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -14,7 +14,7 @@ import java.io.IOException;
 @Service
 public class FCMInitializer {
 
-    private final String firebaseConfigPath = "firebase/weilyeat-725eb-firebase-adminsdk-rrjph-3e1c5f62e3.json";
+    private final String firebaseConfigPath = "firebase/ttwijang-725eb-firebase-adminsdk-rrjph-3e1c5f62e3.json";
 
     Logger logger = LoggerFactory.getLogger(FCMInitializer.class);
 

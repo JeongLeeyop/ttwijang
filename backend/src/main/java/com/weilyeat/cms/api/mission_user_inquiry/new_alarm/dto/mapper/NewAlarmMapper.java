@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.mapper;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
-import com.weilyeat.cms.entity.NewAlarm;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
+import com.ttwijang.cms.entity.NewAlarm;
 
 @Mapper
 public interface NewAlarmMapper {

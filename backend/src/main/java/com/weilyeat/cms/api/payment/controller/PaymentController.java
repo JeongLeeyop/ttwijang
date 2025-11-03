@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.payment.controller;
+package com.ttwijang.cms.api.payment.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,12 +23,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysema.commons.lang.URLEncoder;
-import com.weilyeat.cms.api.payment.dto.PaymentRequestDto;
-import com.weilyeat.cms.api.payment.service.PaymentService;
-import com.weilyeat.cms.api.payment.service.TossPaymentService;
-import com.weilyeat.cms.common.exception.BadRequestException;
-import com.weilyeat.cms.common.exception.CommonException;
-import com.weilyeat.cms.common.exception.ProductQuantityExceedException;
+import com.ttwijang.cms.api.payment.dto.PaymentRequestDto;
+import com.ttwijang.cms.api.payment.service.PaymentService;
+import com.ttwijang.cms.api.payment.service.TossPaymentService;
+import com.ttwijang.cms.common.exception.BadRequestException;
+import com.ttwijang.cms.common.exception.CommonException;
+import com.ttwijang.cms.common.exception.ProductQuantityExceedException;
 
 import lombok.AllArgsConstructor;
 

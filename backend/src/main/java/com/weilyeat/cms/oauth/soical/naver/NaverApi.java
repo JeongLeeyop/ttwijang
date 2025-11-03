@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.naver;
+package com.ttwijang.cms.oauth.soical.naver;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -52,8 +52,8 @@ public class NaverApi {
             .queryParam("grant_type", "authorization_code")
             .queryParam("client_id", naverClientId)
             .queryParam("client_secret", naverClientSecret)
-            // .queryParam("redirect_uri", profile.equals("development") ? "http://leeyop.unids.kr/oauth/token" : "https://weilyeat.co.kr/oauth/token")
-            .queryParam("redirect_uri", profile.equals("development") ? "http://localhost:3000/oauth/token" : "https://weilyeat.co.kr/oauth/token")
+            // .queryParam("redirect_uri", profile.equals("development") ? "http://leeyop.unids.kr/oauth/token" : "https://ttwijang.co.kr/oauth/token")
+            .queryParam("redirect_uri", profile.equals("development") ? "http://localhost:3000/oauth/token" : "https://ttwijang.co.kr/oauth/token")
             .queryParam("state", "state");
         String url = builder.toUriString();
         RestTemplate template = new RestTemplate();
@@ -73,7 +73,7 @@ public class NaverApi {
         RestTemplate template = new RestTemplate();
         
         String url = profile.equals("development") ? "http://localhost:8080/oauth/token" : "http://localhost:8080/oauth/token";
-        // String url = profile.equals("development") ? "http://leeyop.unids.kr:8080/oauth/token" : "http://weilyeat.co.kr/oauth/token";
+        // String url = profile.equals("development") ? "http://leeyop.unids.kr:8080/oauth/token" : "http://ttwijang.co.kr/oauth/token";
         
         HttpHeaders headers  = new HttpHeaders();
         headers.add("authorization", "Basic c2luZ2hhX29hdXRoOnNpbmdoYXNjcmVjdCFAIyQ=");

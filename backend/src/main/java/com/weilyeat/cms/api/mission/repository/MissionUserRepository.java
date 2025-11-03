@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.repository;
+package com.ttwijang.cms.api.mission.repository;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.weilyeat.cms.entity.MissionUser;
+import com.ttwijang.cms.entity.MissionUser;
 
 public interface MissionUserRepository extends JpaRepository<MissionUser, String>, QuerydslPredicateExecutor<MissionUser> {
     int countByUserUidAndMissionUid(String userUid, String MissionUid);

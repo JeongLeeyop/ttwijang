@@ -1,4 +1,4 @@
-package com.weilyeat.cms.config;
+package com.ttwijang.cms.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;

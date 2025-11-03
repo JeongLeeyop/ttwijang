@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.bank.dto;
+package com.ttwijang.cms.api.bank.dto;
 
 import lombok.Data;
 

@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.product.repository;
+package com.ttwijang.cms.api.product.repository;
 
 import java.util.List;
 
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.api.product.dto.AdmProductOrderGroupDto.list;
-import com.weilyeat.cms.entity.ProductOrderGroup;
+import com.ttwijang.cms.api.product.dto.AdmProductOrderGroupDto.list;
+import com.ttwijang.cms.entity.ProductOrderGroup;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

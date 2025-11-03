@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.settle.dto.search;
+package com.ttwijang.cms.api.settle.dto.search;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QSettleApply;
+import com.ttwijang.cms.entity.QSettleApply;
 
 import lombok.Data;
 

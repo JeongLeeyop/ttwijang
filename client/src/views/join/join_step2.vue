@@ -31,7 +31,7 @@
         <div class="button-color__gray">
           <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" class="check-all"
             @change="handleCheckAllChange">
-            웨일리잇 약관 전체동의123
+            뛰장 약관 전체동의123
           </el-checkbox>
         </div>
       </div>

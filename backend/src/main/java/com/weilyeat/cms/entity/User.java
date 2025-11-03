@@ -1,4 +1,4 @@
-package com.weilyeat.cms.entity;
+package com.ttwijang.cms.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -22,7 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.weilyeat.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.oauth.soical.SocialType;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.user.dto;
+package com.ttwijang.cms.api.user.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,9 +11,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import com.weilyeat.cms.entity.UserRole;
-import com.weilyeat.cms.oauth.soical.OAuth2UserInfo;
-import com.weilyeat.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.entity.UserRole;
+import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
+import com.ttwijang.cms.oauth.soical.SocialType;
 
 import lombok.Data;
 

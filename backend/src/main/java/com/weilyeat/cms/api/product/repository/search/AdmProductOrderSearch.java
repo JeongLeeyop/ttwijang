@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository.search;
+package com.ttwijang.cms.api.product.repository.search;
 
 import org.springframework.util.StringUtils;
 
@@ -7,9 +7,9 @@ import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
-import com.weilyeat.cms.api.product.dto.ProductOrderDto.order;
-import com.weilyeat.cms.entity.ProductOrderType;
-import com.weilyeat.cms.entity.QProductOrder;
+import com.ttwijang.cms.api.product.dto.ProductOrderDto.order;
+import com.ttwijang.cms.entity.ProductOrderType;
+import com.ttwijang.cms.entity.QProductOrder;
 
 import lombok.Getter;
 import lombok.Setter;

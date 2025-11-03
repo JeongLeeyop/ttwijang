@@ -1,4 +1,4 @@
-package com.weilyeat.cms.util;
+package com.ttwijang.cms.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

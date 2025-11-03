@@ -1,6 +1,6 @@
-package com.weilyeat.cms.entity.dto;
+package com.ttwijang.cms.entity.dto;
 
-import com.weilyeat.cms.entity.Food;
+import com.ttwijang.cms.entity.Food;
 
 import lombok.Data;
 

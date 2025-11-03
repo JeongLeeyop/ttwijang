@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.tfse.dto;
+package com.ttwijang.cms.api.tfse.dto;
 
 import java.time.LocalDate;
 
@@ -8,10 +8,10 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.weilyeat.cms.common.search.SearchDefault;
-import com.weilyeat.cms.entity.QProduct;
-import com.weilyeat.cms.entity.QTfse;
-import com.weilyeat.cms.entity.QUser;
+import com.ttwijang.cms.common.search.SearchDefault;
+import com.ttwijang.cms.entity.QProduct;
+import com.ttwijang.cms.entity.QTfse;
+import com.ttwijang.cms.entity.QUser;
 
 import lombok.Data;
 

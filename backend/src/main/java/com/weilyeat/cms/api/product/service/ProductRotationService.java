@@ -1,17 +1,17 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.product.dto.ProductRotationDto;
-import com.weilyeat.cms.api.product.dto.mapper.ProductMapper;
-import com.weilyeat.cms.api.product.repository.ProductRepository;
-import com.weilyeat.cms.api.product.repository.ProductRotationRepository;
-import com.weilyeat.cms.entity.Product;
-import com.weilyeat.cms.entity.ProductRotation;
-import com.weilyeat.cms.util.DateUtil;
+import com.ttwijang.cms.api.product.dto.ProductRotationDto;
+import com.ttwijang.cms.api.product.dto.mapper.ProductMapper;
+import com.ttwijang.cms.api.product.repository.ProductRepository;
+import com.ttwijang.cms.api.product.repository.ProductRotationRepository;
+import com.ttwijang.cms.entity.Product;
+import com.ttwijang.cms.entity.ProductRotation;
+import com.ttwijang.cms.util.DateUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

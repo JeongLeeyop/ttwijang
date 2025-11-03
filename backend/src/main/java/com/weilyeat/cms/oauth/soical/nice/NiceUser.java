@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.nice;
+package com.ttwijang.cms.oauth.soical.nice;
 
 import java.util.Collection;
 import java.util.Map;
@@ -6,8 +6,8 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-import com.weilyeat.cms.oauth.soical.OAuth2UserInfo;
-import com.weilyeat.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
+import com.ttwijang.cms.oauth.soical.SocialType;
 
 public class NiceUser extends OAuth2UserInfo {
 

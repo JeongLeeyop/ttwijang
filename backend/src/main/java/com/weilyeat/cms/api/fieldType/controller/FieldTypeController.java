@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.fieldType.controller;
+package com.ttwijang.cms.api.fieldType.controller;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.fieldType.service.FieldTypeService;
-import com.weilyeat.cms.entity.FieldType;
+import com.ttwijang.cms.api.fieldType.service.FieldTypeService;
+import com.ttwijang.cms.entity.FieldType;
 
 import lombok.AllArgsConstructor;
 

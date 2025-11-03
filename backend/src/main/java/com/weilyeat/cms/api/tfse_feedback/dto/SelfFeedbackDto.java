@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.tfse_feedback.dto;
+package com.ttwijang.cms.api.tfse_feedback.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.weilyeat.cms.api.user.dto.UserDto;
+import com.ttwijang.cms.api.user.dto.UserDto;
 
 import lombok.Data;
 

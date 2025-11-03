@@ -1,4 +1,4 @@
-	package com.weilyeat.cms.api.attached_file.service;
+	package com.ttwijang.cms.api.attached_file.service;
 
 	import java.io.IOException;
 	import java.net.MalformedURLException;
@@ -12,11 +12,11 @@
 
 	import javax.transaction.Transactional;
 
-	import com.weilyeat.cms.api.attached_file.AttachedFileProperties;
-	import com.weilyeat.cms.api.attached_file.exception.AttachedFileException;
-	import com.weilyeat.cms.api.attached_file.exception.AttachedFileNotFoundException;
-	import com.weilyeat.cms.api.attached_file.repository.AttachedFileRepository;
-	import com.weilyeat.cms.entity.AttachedFile;
+	import com.ttwijang.cms.api.attached_file.AttachedFileProperties;
+	import com.ttwijang.cms.api.attached_file.exception.AttachedFileException;
+	import com.ttwijang.cms.api.attached_file.exception.AttachedFileNotFoundException;
+	import com.ttwijang.cms.api.attached_file.repository.AttachedFileRepository;
+	import com.ttwijang.cms.entity.AttachedFile;
 
 	import org.springframework.beans.factory.annotation.Autowired;
 	import org.springframework.core.io.Resource;

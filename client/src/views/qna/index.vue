@@ -47,10 +47,10 @@
 
         <div class="home4-10-1__box2">
           <router-link to="" class="">
-            <img src="~@/assets/images/call-inq.png" alt="웨일리잇">
+            <img src="~@/assets/images/call-inq.png" alt="뛰장">
           </router-link>
           <router-link to="" class="">
-            <img src="~@/assets/images/kakao-inq.png" alt="웨일리잇">
+            <img src="~@/assets/images/kakao-inq.png" alt="뛰장">
           </router-link>
         </div>
       </div>

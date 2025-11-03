@@ -1,4 +1,4 @@
-package com.weilyeat.cms.fcm.firebase;
+package com.ttwijang.cms.fcm.firebase;
 
 public enum NotificationParameter {
     SOUND("default"),

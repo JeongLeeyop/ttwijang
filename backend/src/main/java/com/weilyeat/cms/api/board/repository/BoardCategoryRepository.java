@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.board.repository;
+package com.ttwijang.cms.api.board.repository;
 
 import java.util.List;
 
-import com.weilyeat.cms.entity.BoardCategory;
+import com.ttwijang.cms.entity.BoardCategory;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

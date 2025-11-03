@@ -1,7 +1,7 @@
-package com.weilyeat.cms.api.challenge.dto;
+package com.ttwijang.cms.api.challenge.dto;
 
-import com.weilyeat.cms.api.attached_file.dto.AttachedFileDto;
-import com.weilyeat.cms.entity.ChallengeFileType;
+import com.ttwijang.cms.api.attached_file.dto.AttachedFileDto;
+import com.ttwijang.cms.entity.ChallengeFileType;
 
 import lombok.Data;
 

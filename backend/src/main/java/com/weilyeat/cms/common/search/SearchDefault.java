@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.search;
+package com.ttwijang.cms.common.search;
 
 import java.lang.reflect.Field;
 

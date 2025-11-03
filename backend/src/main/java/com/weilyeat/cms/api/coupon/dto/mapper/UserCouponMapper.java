@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.coupon.dto.mapper;
+package com.ttwijang.cms.api.coupon.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.coupon.dto.UserCouponDto;
-import com.weilyeat.cms.entity.UserCoupon;
+import com.ttwijang.cms.api.coupon.dto.UserCouponDto;
+import com.ttwijang.cms.entity.UserCoupon;
 
 @Mapper
 public interface UserCouponMapper {

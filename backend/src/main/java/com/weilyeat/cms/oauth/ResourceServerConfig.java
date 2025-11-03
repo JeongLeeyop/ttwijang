@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth;
+package com.ttwijang.cms.oauth;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

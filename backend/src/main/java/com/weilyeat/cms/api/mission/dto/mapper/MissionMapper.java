@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.dto.mapper;
+package com.ttwijang.cms.api.mission.dto.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.mission.dto.MissionDto;
-import com.weilyeat.cms.api.mission.dto.MissionFileDto;
-import com.weilyeat.cms.api.mission.dto.MissionSearch;
-import com.weilyeat.cms.api.mission.dto.MissionUserDto;
-import com.weilyeat.cms.api.review.dto.ReviewDto;
-import com.weilyeat.cms.entity.Mission;
-import com.weilyeat.cms.entity.MissionFile;
-import com.weilyeat.cms.entity.MissionFileType;
-import com.weilyeat.cms.entity.MissionUser;
-import com.weilyeat.cms.entity.Review;
+import com.ttwijang.cms.api.mission.dto.MissionDto;
+import com.ttwijang.cms.api.mission.dto.MissionFileDto;
+import com.ttwijang.cms.api.mission.dto.MissionSearch;
+import com.ttwijang.cms.api.mission.dto.MissionUserDto;
+import com.ttwijang.cms.api.review.dto.ReviewDto;
+import com.ttwijang.cms.entity.Mission;
+import com.ttwijang.cms.entity.MissionFile;
+import com.ttwijang.cms.entity.MissionFileType;
+import com.ttwijang.cms.entity.MissionUser;
+import com.ttwijang.cms.entity.Review;
 
 @Mapper
 public interface MissionMapper {

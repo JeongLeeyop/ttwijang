@@ -1,13 +1,13 @@
-package com.weilyeat.cms.api.settle.service;
+package com.ttwijang.cms.api.settle.service;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.settle.dto.AdmSettleSettingDto;
-import com.weilyeat.cms.api.settle.dto.mapper.AdmSettleSettingMapper;
-import com.weilyeat.cms.api.settle.repository.SettleSettingRepository;
-import com.weilyeat.cms.entity.SettleSetting;
+import com.ttwijang.cms.api.settle.dto.AdmSettleSettingDto;
+import com.ttwijang.cms.api.settle.dto.mapper.AdmSettleSettingMapper;
+import com.ttwijang.cms.api.settle.repository.SettleSettingRepository;
+import com.ttwijang.cms.entity.SettleSetting;
 
 import lombok.AllArgsConstructor;
 

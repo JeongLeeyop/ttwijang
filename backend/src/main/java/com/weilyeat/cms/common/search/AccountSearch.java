@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.search;
+package com.ttwijang.cms.common.search;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QAccount;
+import com.ttwijang.cms.entity.QAccount;
 
 import lombok.Data;
 

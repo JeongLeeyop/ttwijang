@@ -1,4 +1,4 @@
-package com.weilyeat.cms.config;
+package com.ttwijang.cms.config;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-import com.weilyeat.cms.service.MissionAlarmJob;
+import com.ttwijang.cms.service.MissionAlarmJob;
 
 @Configuration
 public class QuartzConfig {

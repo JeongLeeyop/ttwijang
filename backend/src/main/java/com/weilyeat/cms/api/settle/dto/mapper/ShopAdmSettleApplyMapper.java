@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.settle.dto.mapper;
+package com.ttwijang.cms.api.settle.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.settle.dto.ShopAdmSettleApplyDto;
-import com.weilyeat.cms.entity.SettleApply;
+import com.ttwijang.cms.api.settle.dto.ShopAdmSettleApplyDto;
+import com.ttwijang.cms.entity.SettleApply;
 
 @Mapper
 public interface ShopAdmSettleApplyMapper {

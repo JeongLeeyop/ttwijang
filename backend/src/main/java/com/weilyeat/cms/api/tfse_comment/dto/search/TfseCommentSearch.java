@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.tfse_comment.dto.search;
+package com.ttwijang.cms.api.tfse_comment.dto.search;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QTfseComment;
+import com.ttwijang.cms.entity.QTfseComment;
 
 import org.springframework.util.StringUtils;
 

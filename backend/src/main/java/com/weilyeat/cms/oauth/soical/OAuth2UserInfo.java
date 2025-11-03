@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical;
+package com.ttwijang.cms.oauth.soical;
 
 import java.io.Serializable;
 import java.util.Map;

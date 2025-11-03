@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.mission_inquiry.dto.mapper;
+package com.ttwijang.cms.api.mission_inquiry.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.mission_inquiry.dto.MissionInquiryPageDto;
-import com.weilyeat.cms.entity.MissionInquiryPage;
+import com.ttwijang.cms.api.mission_inquiry.dto.MissionInquiryPageDto;
+import com.ttwijang.cms.entity.MissionInquiryPage;
 
 @Mapper
 public interface MissionInquiryPageMapper {

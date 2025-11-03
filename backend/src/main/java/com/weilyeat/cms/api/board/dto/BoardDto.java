@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.board.dto;
+package com.ttwijang.cms.api.board.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import com.weilyeat.cms.common.EnumField;
-import com.weilyeat.cms.entity.BoardAuth;
-import com.weilyeat.cms.entity.BoardRole;
+import com.ttwijang.cms.common.EnumField;
+import com.ttwijang.cms.entity.BoardAuth;
+import com.ttwijang.cms.entity.BoardRole;
 
 import lombok.Data;
 

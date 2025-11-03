@@ -1,8 +1,8 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.search;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.search;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.weilyeat.cms.entity.QNewAlarm;
+import com.ttwijang.cms.entity.QNewAlarm;
 
 
 import lombok.Data;

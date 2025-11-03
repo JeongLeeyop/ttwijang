@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.challenge.service;
+package com.ttwijang.cms.api.challenge.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,25 +11,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.challenge.dto.ChallengeDto;
-import com.weilyeat.cms.api.challenge.dto.ChallengeSearch;
-import com.weilyeat.cms.api.challenge.dto.mapper.AdmChallengeMapper;
-import com.weilyeat.cms.api.challenge.dto.mapper.ChallengeMapper;
-import com.weilyeat.cms.api.challenge.repository.AdmChallengeRepository;
-import com.weilyeat.cms.api.challenge.repository.ChallengeRepository;
-import com.weilyeat.cms.api.point.repository.PointHistoryRepository;
-import com.weilyeat.cms.api.point.service.PointHistoryService;
-import com.weilyeat.cms.api.push_alarm.dto.PushAlarmDto;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.api.user.dto.UserFcmToken;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Challenge;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.fcm.model.PushNotificationRequest;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.challenge.dto.ChallengeDto;
+import com.ttwijang.cms.api.challenge.dto.ChallengeSearch;
+import com.ttwijang.cms.api.challenge.dto.mapper.AdmChallengeMapper;
+import com.ttwijang.cms.api.challenge.dto.mapper.ChallengeMapper;
+import com.ttwijang.cms.api.challenge.repository.AdmChallengeRepository;
+import com.ttwijang.cms.api.challenge.repository.ChallengeRepository;
+import com.ttwijang.cms.api.point.repository.PointHistoryRepository;
+import com.ttwijang.cms.api.point.service.PointHistoryService;
+import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.api.user.dto.UserFcmToken;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Challenge;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.fcm.model.PushNotificationRequest;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 
@@ -131,7 +131,7 @@ class AdmChallengeServiceImpl implements AdmChallengeService {
         content = "신규 챌린지가 등록되었습니다.";
         link = "/Challenge/?tfseDate=";
 
-        String title = "지금 바로 웨일리잇 앱에서";
+        String title = "지금 바로 뛰장 앱에서";
 
         UserFcmToken fcmToken = userFcmTokenRepository.findById(user.getUid()).orElse(null);
 

@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.post.dto.mapper;
+package com.ttwijang.cms.api.post.dto.mapper;
 
-import com.weilyeat.cms.api.post.dto.PostDto;
-import com.weilyeat.cms.api.post.dto.PostDto.ClientDetail;
-import com.weilyeat.cms.api.post.dto.PostDto.ClientList;
-import com.weilyeat.cms.api.post.dto.PostDto.Detail;
-import com.weilyeat.cms.entity.Post;
+import com.ttwijang.cms.api.post.dto.PostDto;
+import com.ttwijang.cms.api.post.dto.PostDto.ClientDetail;
+import com.ttwijang.cms.api.post.dto.PostDto.ClientList;
+import com.ttwijang.cms.api.post.dto.PostDto.Detail;
+import com.ttwijang.cms.entity.Post;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

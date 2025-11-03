@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.apple;
+package com.ttwijang.cms.oauth.soical.apple;
 
 
 import java.util.Collection;
@@ -7,8 +7,8 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-import com.weilyeat.cms.oauth.soical.OAuth2UserInfo;
-import com.weilyeat.cms.oauth.soical.SocialType;
+import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
+import com.ttwijang.cms.oauth.soical.SocialType;
 
 import lombok.extern.slf4j.Slf4j;
 

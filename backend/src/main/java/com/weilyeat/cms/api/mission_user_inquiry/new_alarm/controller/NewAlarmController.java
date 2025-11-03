@@ -1,9 +1,9 @@
-package com.weilyeat.cms.api.mission_user_inquiry.new_alarm.controller;
+package com.ttwijang.cms.api.mission_user_inquiry.new_alarm.controller;
 
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
-import com.weilyeat.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
-import com.weilyeat.cms.entity.NewAlarm;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
+import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
+import com.ttwijang.cms.entity.NewAlarm;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

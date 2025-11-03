@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.product.repository;
+package com.ttwijang.cms.api.product.repository;
 
 public class ProductPaymentRepository {
     

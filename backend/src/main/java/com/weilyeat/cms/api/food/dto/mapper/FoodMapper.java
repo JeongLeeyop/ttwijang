@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.food.dto.mapper;
+package com.ttwijang.cms.api.food.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.food.dto.FoodDto;
-import com.weilyeat.cms.entity.Food;
+import com.ttwijang.cms.api.food.dto.FoodDto;
+import com.ttwijang.cms.entity.Food;
 
 @Mapper
 public interface FoodMapper {

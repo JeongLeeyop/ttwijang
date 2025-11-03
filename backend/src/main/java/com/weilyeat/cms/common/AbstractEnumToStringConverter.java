@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common;
+package com.ttwijang.cms.common;
 
 import javax.persistence.AttributeConverter;
 

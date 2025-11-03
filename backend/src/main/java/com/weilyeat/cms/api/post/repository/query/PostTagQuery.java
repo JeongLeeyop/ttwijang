@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.repository.query;
+package com.ttwijang.cms.api.post.repository.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,8 +11,8 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.weilyeat.cms.api.post.dto.PostDto;
-import com.weilyeat.cms.api.post.dto.PostTagDto;
+import com.ttwijang.cms.api.post.dto.PostDto;
+import com.ttwijang.cms.api.post.dto.PostTagDto;
 
 @Component
 public class PostTagQuery {

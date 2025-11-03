@@ -1,4 +1,4 @@
-// package com.weilyeat.cms.api.product.dto.search;
+// package com.ttwijang.cms.api.product.dto.search;
 
 // import com.querydsl.core.BooleanBuilder;
 // import com.querydsl.core.types.Predicate;

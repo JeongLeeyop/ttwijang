@@ -1,6 +1,6 @@
 <configuration>
     <conversionRule conversionWord="epoch"
-        converterClass="com.weilyeat.cms.util.MsEpochConverter" />
+        converterClass="com.ttwijang.cms.util.MsEpochConverter" />
 
     <property name="SYSTEM" value="warosalad" />
     <property name="LOG_PATTERN" value="%date{yyyy-MM-dd HH:mm:ss.SSS}[%epoch] | %-5level | %-10thread{10} | %-36logger{36} - %msg%n" />

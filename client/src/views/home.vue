@@ -5,7 +5,7 @@
         ><img
           src="~@/assets/images/logo-bg.png"
           class="logot_img"
-          alt="웨일리잇"
+          alt="뛰장"
       /></router-link>
       <a @click="handlePickupForm()" class="top2"
         ><i class="el-icon-location"></i>
@@ -356,14 +356,14 @@
         <img
           src="~@/assets/images/logo-bg.png"
           class="logo_img"
-          alt="웨일리잇"
+          alt="뛰장"
         />
       </a>
       <button class="footer_link_b" @click="handleOrderTypeForm()">
         <img
           src="~@/assets/images/footer-plan.png"
           class="footer_img"
-          alt="웨일리잇"
+          alt="뛰장"
         />식단 주문
       </button>
     </div>

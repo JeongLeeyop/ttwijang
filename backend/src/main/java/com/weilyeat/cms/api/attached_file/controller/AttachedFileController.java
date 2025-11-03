@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.attached_file.controller;
+package com.ttwijang.cms.api.attached_file.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.attached_file.exception.AttachedFileNotFoundException;
-import com.weilyeat.cms.api.attached_file.service.AttachedFileService;
-import com.weilyeat.cms.entity.AttachedFile;
-import com.weilyeat.cms.util.FileNameUtil;
+import com.ttwijang.cms.api.attached_file.exception.AttachedFileNotFoundException;
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
+import com.ttwijang.cms.entity.AttachedFile;
+import com.ttwijang.cms.util.FileNameUtil;
 
 import lombok.AllArgsConstructor;
 

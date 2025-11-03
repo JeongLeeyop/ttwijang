@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.coupon.repository;
+package com.ttwijang.cms.api.coupon.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import com.weilyeat.cms.entity.Coupon;
+import com.ttwijang.cms.entity.Coupon;
 
 public interface CouponRepository extends JpaRepository<Coupon, Integer>, QuerydslPredicateExecutor<Coupon> {
 

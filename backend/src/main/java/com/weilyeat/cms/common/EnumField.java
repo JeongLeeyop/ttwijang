@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common;
+package com.ttwijang.cms.common;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

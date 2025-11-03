@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.dto.search;
+package com.ttwijang.cms.api.post.dto.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.weilyeat.cms.entity.QPost;
-import com.weilyeat.cms.entity.QPostData;
+import com.ttwijang.cms.entity.QPost;
+import com.ttwijang.cms.entity.QPostData;
 
 import lombok.Getter;
 import lombok.Setter;

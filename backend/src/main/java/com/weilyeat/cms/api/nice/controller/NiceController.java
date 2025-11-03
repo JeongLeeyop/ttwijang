@@ -1,8 +1,8 @@
-// package com.weilyeat.cms.api.nice.controller;
+// package com.ttwijang.cms.api.nice.controller;
 
 // import javax.servlet.http.HttpServletRequest;
 
-// import com.weilyeat.cms.api.nice.service.NiceService;
+// import com.ttwijang.cms.api.nice.service.NiceService;
 
 // import org.springframework.http.ResponseEntity;
 // import org.springframework.stereotype.Controller;

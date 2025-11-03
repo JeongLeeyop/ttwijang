@@ -1,4 +1,4 @@
-package com.weilyeat.cms.oauth.soical.apple.dto;
+package com.ttwijang.cms.oauth.soical.apple.dto;
 
 import lombok.Getter;
 import lombok.Setter;

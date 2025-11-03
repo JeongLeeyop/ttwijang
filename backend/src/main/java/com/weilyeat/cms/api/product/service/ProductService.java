@@ -1,16 +1,16 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
-import com.weilyeat.cms.api.product.dto.AdmProductDto;
-import com.weilyeat.cms.api.product.dto.ProductDto;
-import com.weilyeat.cms.api.product.dto.ProductDto.detail;
-import com.weilyeat.cms.api.product.dto.mapper.AdmProductMapper;
-import com.weilyeat.cms.api.product.dto.mapper.ProductMapper;
-import com.weilyeat.cms.api.product.dto.search.AdmProductSearch;
-import com.weilyeat.cms.api.product.dto.search.ProductSearch;
-import com.weilyeat.cms.api.product.repository.ProductRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.entity.Product;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.product.dto.AdmProductDto;
+import com.ttwijang.cms.api.product.dto.ProductDto;
+import com.ttwijang.cms.api.product.dto.ProductDto.detail;
+import com.ttwijang.cms.api.product.dto.mapper.AdmProductMapper;
+import com.ttwijang.cms.api.product.dto.mapper.ProductMapper;
+import com.ttwijang.cms.api.product.dto.search.AdmProductSearch;
+import com.ttwijang.cms.api.product.dto.search.ProductSearch;
+import com.ttwijang.cms.api.product.repository.ProductRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.entity.Product;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

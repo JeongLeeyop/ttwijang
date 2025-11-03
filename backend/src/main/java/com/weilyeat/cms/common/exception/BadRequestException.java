@@ -1,6 +1,6 @@
-package com.weilyeat.cms.common.exception;
+package com.ttwijang.cms.common.exception;
 
-import com.weilyeat.cms.common.exception.code.BadRequest;
+import com.ttwijang.cms.common.exception.code.BadRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

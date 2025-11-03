@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.diary.controller;
+package com.ttwijang.cms.api.diary.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.diary.dto.DiaryDto;
-import com.weilyeat.cms.api.diary.dto.DiarySearch;
-import com.weilyeat.cms.api.diary.dto.DiaryStatisticsSearch;
-import com.weilyeat.cms.api.diary.service.DiaryService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.diary.dto.DiaryDto;
+import com.ttwijang.cms.api.diary.dto.DiarySearch;
+import com.ttwijang.cms.api.diary.dto.DiaryStatisticsSearch;
+import com.ttwijang.cms.api.diary.service.DiaryService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

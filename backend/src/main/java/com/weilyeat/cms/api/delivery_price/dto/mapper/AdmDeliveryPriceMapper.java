@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.delivery_price.dto.mapper;
+package com.ttwijang.cms.api.delivery_price.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.delivery_price.dto.AdmDeliveryPriceDto;
-import com.weilyeat.cms.entity.DeliveryPrice;
+import com.ttwijang.cms.api.delivery_price.dto.AdmDeliveryPriceDto;
+import com.ttwijang.cms.entity.DeliveryPrice;
 
 @Mapper
 public interface AdmDeliveryPriceMapper {

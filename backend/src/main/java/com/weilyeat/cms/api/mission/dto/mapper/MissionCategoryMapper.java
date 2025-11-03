@@ -1,10 +1,10 @@
-package com.weilyeat.cms.api.mission.dto.mapper;
+package com.ttwijang.cms.api.mission.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.weilyeat.cms.api.mission.dto.MissionCategoryDto;
-import com.weilyeat.cms.entity.MissionCategory;
+import com.ttwijang.cms.api.mission.dto.MissionCategoryDto;
+import com.ttwijang.cms.entity.MissionCategory;
 
 @Mapper
 public interface MissionCategoryMapper {

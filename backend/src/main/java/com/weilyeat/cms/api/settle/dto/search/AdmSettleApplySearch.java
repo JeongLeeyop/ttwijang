@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.settle.dto.search;
+package com.ttwijang.cms.api.settle.dto.search;
 
 import org.springframework.util.StringUtils;
 
@@ -7,7 +7,7 @@ import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
-import com.weilyeat.cms.entity.QSettleApply;
+import com.ttwijang.cms.entity.QSettleApply;
 
 import lombok.Data;
 

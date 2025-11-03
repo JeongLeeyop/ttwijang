@@ -1,14 +1,14 @@
-package com.weilyeat.cms.api.product.service;
+package com.ttwijang.cms.api.product.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.weilyeat.cms.api.product.dto.AdmProductRotationDto;
-import com.weilyeat.cms.api.product.dto.mapper.AdmProductMapper;
-import com.weilyeat.cms.api.product.repository.AdmProductRotationRepository;
-import com.weilyeat.cms.entity.ProductRotation;
-import com.weilyeat.cms.entity.ProductType;
-import com.weilyeat.cms.api.product.repository.AdmProductRepository;
+import com.ttwijang.cms.api.product.dto.AdmProductRotationDto;
+import com.ttwijang.cms.api.product.dto.mapper.AdmProductMapper;
+import com.ttwijang.cms.api.product.repository.AdmProductRotationRepository;
+import com.ttwijang.cms.entity.ProductRotation;
+import com.ttwijang.cms.entity.ProductType;
+import com.ttwijang.cms.api.product.repository.AdmProductRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

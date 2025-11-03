@@ -46,7 +46,7 @@
             <p class="tl">목표달성을 언제까지 하시길 원하십니까?</p>
             <el-form-item prop="goalDate">
               <div class="input__box__date">
-                <p v-if="tipVisible" class="tip">웨일리잇에서 권장하는 날짜입니다.</p>
+                <p v-if="tipVisible" class="tip">뛰장에서 권장하는 날짜입니다.</p>
                 <el-date-picker type="date" placeholder="" @change="tipVisible = false" class="ca" v-model="form.goalDate" value-format="yyyy-MM-dd">
                 </el-date-picker>
               </div>

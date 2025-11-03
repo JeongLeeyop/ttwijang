@@ -1,11 +1,11 @@
-package com.weilyeat.cms.api.mission.repository;
+package com.ttwijang.cms.api.mission.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.weilyeat.cms.entity.MissionFile;
+import com.ttwijang.cms.entity.MissionFile;
 
 public interface MissionFileRepository extends JpaRepository<MissionFile, String> {
     

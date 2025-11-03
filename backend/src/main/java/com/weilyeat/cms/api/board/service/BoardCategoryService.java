@@ -1,17 +1,17 @@
-package com.weilyeat.cms.api.board.service;
+package com.ttwijang.cms.api.board.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.weilyeat.cms.api.board.dto.BoardCategoryDto;
-import com.weilyeat.cms.api.board.dto.mapper.BoardCategoryMapper;
-import com.weilyeat.cms.api.board.dto.search.BoardCategorySearch;
-import com.weilyeat.cms.api.board.repository.BoardCategoryRepository;
-import com.weilyeat.cms.api.post.repository.PostCategoryRepository;
-import com.weilyeat.cms.entity.BoardCategory;
-import com.weilyeat.cms.entity.PostCategory;
+import com.ttwijang.cms.api.board.dto.BoardCategoryDto;
+import com.ttwijang.cms.api.board.dto.mapper.BoardCategoryMapper;
+import com.ttwijang.cms.api.board.dto.search.BoardCategorySearch;
+import com.ttwijang.cms.api.board.repository.BoardCategoryRepository;
+import com.ttwijang.cms.api.post.repository.PostCategoryRepository;
+import com.ttwijang.cms.entity.BoardCategory;
+import com.ttwijang.cms.entity.PostCategory;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

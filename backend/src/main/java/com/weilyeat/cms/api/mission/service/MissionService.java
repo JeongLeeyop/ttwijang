@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.mission.service;
+package com.ttwijang.cms.api.mission.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,25 +11,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.weilyeat.cms.api.mission.dto.MissionDto;
-import com.weilyeat.cms.api.mission.dto.MissionSearch;
-import com.weilyeat.cms.api.mission.dto.mapper.MissionMapper;
-import com.weilyeat.cms.api.mission.dto.mapper.MissionUserMapper;
-import com.weilyeat.cms.api.mission.repository.MissionRepository;
-import com.weilyeat.cms.api.mission.repository.MissionUserRepository;
-import com.weilyeat.cms.api.mission_record.repository.MissionRecordRepository;
-import com.weilyeat.cms.api.point.repository.PointHistoryRepository;
-import com.weilyeat.cms.api.point.service.PointHistoryService;
-import com.weilyeat.cms.api.push_alarm.service.PushAlarmService;
-import com.weilyeat.cms.api.user.repository.UserFcmTokenRepository;
-import com.weilyeat.cms.api.user.repository.UserRepository;
-import com.weilyeat.cms.common.exception.NotFoundException;
-import com.weilyeat.cms.common.exception.code.NotFound;
-import com.weilyeat.cms.entity.Mission;
-import com.weilyeat.cms.entity.MissionUser;
-import com.weilyeat.cms.entity.User;
-import com.weilyeat.cms.fcm.service.PushNotificationService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.mission.dto.MissionDto;
+import com.ttwijang.cms.api.mission.dto.MissionSearch;
+import com.ttwijang.cms.api.mission.dto.mapper.MissionMapper;
+import com.ttwijang.cms.api.mission.dto.mapper.MissionUserMapper;
+import com.ttwijang.cms.api.mission.repository.MissionRepository;
+import com.ttwijang.cms.api.mission.repository.MissionUserRepository;
+import com.ttwijang.cms.api.mission_record.repository.MissionRecordRepository;
+import com.ttwijang.cms.api.point.repository.PointHistoryRepository;
+import com.ttwijang.cms.api.point.service.PointHistoryService;
+import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
+import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.common.exception.NotFoundException;
+import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.Mission;
+import com.ttwijang.cms.entity.MissionUser;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.fcm.service.PushNotificationService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 
@@ -70,10 +70,10 @@ class MissionServiceImpl implements MissionService {
     UserFcmTokenRepository userFcmTokenRepository;
 
     @Autowired
-    com.weilyeat.cms.service.MissionAlarmService missionAlarmService;
+    com.ttwijang.cms.service.MissionAlarmService missionAlarmService;
     
     @Autowired
-    com.weilyeat.cms.service.MissionStatusService missionStatusService;
+    com.ttwijang.cms.service.MissionStatusService missionStatusService;
 
     @Override
     public MissionDto.detail detail(SinghaUser authUser, String uid) {

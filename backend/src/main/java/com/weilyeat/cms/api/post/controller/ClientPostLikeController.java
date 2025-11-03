@@ -1,4 +1,4 @@
-package com.weilyeat.cms.api.post.controller;
+package com.ttwijang.cms.api.post.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weilyeat.cms.api.post.service.ClientPostLikeService;
-import com.weilyeat.cms.oauth.SinghaUser;
+import com.ttwijang.cms.api.post.service.ClientPostLikeService;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import lombok.AllArgsConstructor;
 

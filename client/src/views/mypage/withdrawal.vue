@@ -23,9 +23,9 @@
       </div>
 
       <div class="home4-1-4__mid">
-        <p class="ab">회원탈퇴에 동의하시면 '웨일리잇 회원탈퇴' 라고 입력해주세요</p>
+        <p class="ab">회원탈퇴에 동의하시면 '뛰장 회원탈퇴' 라고 입력해주세요</p>
         <el-form-item prop="confirmTxt">
-          <el-input placeholder="웨일리잇 회원탈퇴" type="text" id="" v-model="form.confirmTxt" />
+          <el-input placeholder="뛰장 회원탈퇴" type="text" id="" v-model="form.confirmTxt" />
         </el-form-item>
       </div>
 
@@ -53,7 +53,7 @@ export default class extends Vue {
   }
 
   private confirmTextValidator: any = (rules: any, value: any, callback: Function) => {
-    if (value !== '웨일리잇 회원탈퇴') {
+    if (value !== '뛰장 회원탈퇴') {
       callback(new Error('정확한 문구를 입력해주세요.'));
     }
     callback();

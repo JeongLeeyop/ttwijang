@@ -1,4 +1,4 @@
-package com.weilyeat.cms.config;
+package com.ttwijang.cms.config;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

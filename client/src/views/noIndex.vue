@@ -2,7 +2,7 @@
   <div class="main" v-loading="loading">
     <div id="logo">
       <router-link to="/">
-        <img src="~@/assets/images/logo.png" alt="웨일리잇">
+        <img src="~@/assets/images/logo.png" alt="뛰장">
       </router-link>
     </div>
   </div>

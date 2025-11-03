@@ -1,4 +1,4 @@
-package com.weilyeat.cms.common.code;
+package com.ttwijang.cms.common.code;
 
 public enum GenderCode {
         // 출결 타입
