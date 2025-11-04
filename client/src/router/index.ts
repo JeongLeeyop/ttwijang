@@ -74,6 +74,14 @@ export const constantRoutes: Array<RouteConfig> = [
 		},
 		component: () => import('@/views/home.vue'),
 	},
+	{
+		path: '/calendar',
+		name: 'Calendar',
+		meta: {
+			title: '경기 일정',
+		},
+		component: () => import('@/views/calendar.vue'),
+	},
 	/* 회원가입  */
 	{
 		path: '/join',

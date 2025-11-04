@@ -48,7 +48,7 @@
 html {overflow-y:scroll}
 html.noscr {overflow:hidden;}
 html.fixed {overflow-y:hidden;}
-body {margin:0;padding:0;font-size: 17px;font-weight: 400;font-family: 'Noto Sans KR',sans-serif;letter-spacing:-1px;word-break: keep-all;}
+body {margin:0;padding:0;font-size: 22px;font-weight: 400;font-family: 'Noto Sans KR',sans-serif;letter-spacing:-1px;word-break: keep-all;}
 html, h1, h2, h3, h4, h5, h6, form, fieldset, img {margin:0;padding:0;border:0}
 h1, h2, h3, h4, h5, h6 {font-size:1em;}
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {display:block}
@@ -113,10 +113,10 @@ html{
 .el-select-dropdown__item.selected,
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item{
-  font-size: 19px !important;
+  font-size: 24px !important;
   text-align: center;
-  line-height: 50px !important;
-  height: 50px !important;
+  line-height: 58px !important;
+  height: 58px !important;
   color: #fff !important;
   border-bottom: 1px solid #fff;
   margin: 0 20px;
@@ -142,4 +142,3 @@ html{
 button{
   cursor: pointer;
 }
-

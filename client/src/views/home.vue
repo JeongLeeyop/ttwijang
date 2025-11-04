@@ -1,668 +1,1265 @@
 <template>
-  <div>
-    <div class="home-top">
-      <router-link :to="{ name: 'Home' }" class="top1"
-        ><img
-          src="~@/assets/images/logo-bg.png"
-          class="logot_img"
-          alt="뛰장"
-      /></router-link>
-      <a @click="handlePickupForm()" class="top2"
-        ><i class="el-icon-location"></i>
-        <slot v-if="pickUpShop">{{ pickUpShop ? `픽업 : ${pickUpShop.name}` : "픽업장소 선택" }}</slot>
-        <slot v-else>{{ station ? `배달 : ${station.name}` : "배달장소 선택" }}</slot>
-      </a>
-      <el-popover
-        v-model="showPopover"
-        placement="top"
-        width="450"
-        trigger="click"
-        popper-class="alarm"
-        place-
-        :popper-append-to-body="false"
-        :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''"
-      >
-        <div @click="showPopover = false" class="alarm-close">
-          <i class="el-icon-close"></i>
-        </div>
-        <div v-if="alarmList2.length > 0">
+  <div class="main">
+    <div class="background-wave"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <i class="el-icon-s-fold"></i>
+      </div>
+      <div class="header-center">
+        <el-select :popper-append-to-body="false" v-model="selectedRegion" placeholder="지역 선택" size="small">
+          <el-option label="서울" value="seoul"></el-option>
+          <el-option label="경기" value="gyeonggi"></el-option>
+          <el-option label="인천" value="incheon"></el-option>
+        </el-select>
+      </div>
+      <div class="header-right">
+        <i class="el-icon-date" @click="goToCalendar"></i>
+        <i class="el-icon-bell"></i>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Team Cards Section -->
+      <div class="team-section">
+        <h2 class="section-title">이 팀이랑 경기 어떠세요?</h2>
+        <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
           <div
-            class="alarm-item-day-wr"
-            v-for="(item, index) in alarmList2"
+            v-for="(team, index) in teamCards"
             :key="index"
+            class="team-card"
           >
-            <div class="alarm-item-day">
-              {{ item[0].createDate | parseDate("YYYY-MM-DD") }}
+            <div class="team-card-left">
+              <img :src="team.logo" :alt="team.name" class="team-logo">
             </div>
-            <div v-if="item.length > 0">
-              <a
-                :href="item2.link"
-                class="alarm-item-wr"
-                v-for="item2 in item"
-                :key="item2.id"
-              >
-                <div class="alarm-info">
-                  <div class="title">{{ item2.title }}</div>
-                  <div class="date">
-                    {{ item2.createDate | parseDate("YYYY-MM-DD HH:mm") }}
-                  </div>
+            <div class="team-card-right">
+              <div class="team-tags">
+                <span class="tag">{{ team.league }}</span>
+                <span class="tag">매너 {{ team.manner }}점</span>
+                <span class="tag">{{ team.matchType }}</span>
+                <span class="tag">{{ team.teamSize }}</span>
+              </div>
+              <div class="team-match-info">
+                {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
+              </div>
+              <div class="team-location">
+                {{ team.location }} <i class="el-icon-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        </VueSlickCarousel>
+      </div>
+
+      <!-- League Schedule Section -->
+      <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
+        <div class="league-header">
+          <div class="league-title-row">
+            <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
+              <el-option label="A리그" value="a-league"></el-option>
+              <el-option label="B리그" value="b-league"></el-option>
+              <el-option label="C리그" value="c-league"></el-option>
+            </el-select>
+            <span class="league-title-text">경기 일정</span>
+          </div>
+          <div class="league-button-row">
+            <button class="status-button" @click="toggleLeagueStatus">현황보기</button>
+          </div>
+        </div>
+
+        <!-- League Status Expanded View -->
+        <div v-if="showLeagueStatus" class="league-status-expanded">
+          <h3 class="status-title">리그 현황</h3>
+          <!-- Calendar Navigation -->
+          <div class="calendar-nav">
+            <i class="el-icon-arrow-left" @click="previousMonth"></i>
+            <span class="current-month">{{ currentMonth }}</span>
+            <i class="el-icon-arrow-right" @click="nextMonth"></i>
+          </div>
+
+          <!-- League Table -->
+          <div class="league-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>경기</th>
+                  <th>승점</th>
+                  <th>승</th>
+                  <th>무</th>
+                  <th>패</th>
+                  <th>득</th>
+                  <th>실</th>
+                  <th>차</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(team, index) in leagueTable" :key="index">
+                  <td class="rank-cell">
+                    <span class="rank-number">{{ index + 1 }}</span>
+                    <img :src="team.logo" :alt="team.name" class="team-mini-logo">
+                  </td>
+                  <td class="points">{{ team.points }}</td>
+                  <td>{{ team.wins }}</td>
+                  <td>{{ team.draws }}</td>
+                  <td>{{ team.losses }}</td>
+                  <td>{{ team.goals }}</td>
+                  <td>{{ team.conceded }}</td>
+                  <td>{{ team.difference }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Past Match Results -->
+          <div class="past-matches">
+            <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
+              <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
+              <div class="past-match-teams">
+                <div class="past-team">
+                  <span class="past-team-name">{{ match.homeTeam }}</span>
+                  <img :src="match.homeLogo" :alt="match.homeTeam" class="past-team-logo">
                 </div>
-                <div class="alarm-content">{{ item2.content }}</div>
-              </a>
+                <div class="past-match-score">
+                  <span class="score-number">{{ match.homeScore }}</span>
+                  <span class="score-divider">-</span>
+                  <span class="score-number">{{ match.awayScore }}</span>
+                </div>
+                <div class="past-team">
+                  <img :src="match.awayLogo" :alt="match.awayTeam" class="past-team-logo">
+                  <span class="past-team-name">{{ match.awayTeam }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="empty" v-else>
-          <div class="logo"><img src="@/assets/images/logo2.png" /></div>
-          <div class="txt">도착한 알림이 없어요</div>
-        </div>
-        <el-button
-          type="text"
-          slot="reference"
-          class="diary-header__user alarm"
-        ></el-button>
-      </el-popover>
-      <router-link
-        :to="{ name: 'Mypage' }"
-        class="home-header__user"
-        :class="{ alert: newAlarmCount >= 1 }"
-        ><img src="~@/assets/images/user.png" alt="마이페이지"
-      /></router-link>
-    </div>
-    <div class="home__wr">
-      <div class="home-main">
-        <el-input
-          v-model="searchValue"
-          @keyup.native.enter="handleSearch"
-          placeholder="검색어를 입력하세요"
-        >
-          <a class="search" slot="suffix" @click="handleSearch"></a>
-        </el-input>
-        <router-link
-          v-for="(item, index) in bestTagList"
-          :key="index"
-          :to="{
-            name: 'BoardIndex',
-            params: { boardUid: 'bb4db5fe-8083-4d87-96f7-7c1ae66b7e76' },
-            query: { searchValue: `#${item.tag}` },
-          }"
-        >
-          #{{ item.tag }}
-        </router-link>
-      </div>
 
-      <div class="home-main__a">
-        <VueSlickCarousel v-bind="set3">
-          <div class="carousel__item img1"></div>
-          <div class="carousel__item img2"></div>
-          <div class="carousel__item img3"></div>
-        </VueSlickCarousel>
-      </div>
-      <div class="home-main__w">
-        <!-- <a @click="handleGoDiary()">
-          <img src="~@/assets/images/main-ico02.png" />
-          <p>다이어리</p>
-          <span>체중 감량을 위한 핵심!</span>
-        </a> -->
-        <a @click="handleOrderTypeForm()">
-          <img src="~@/assets/images/main-ico01.png" />
-          <p>주문하기</p>
-          <span>나에게 꼭! 맞는 맞춤식단</span>
-        </a>
-        <router-link :to="{ name: 'Mission' }">
-          <img src="~@/assets/images/main-ico06.png" />
-          <p>맞춤미션</p>
-          <span>목표 달성을 위한 맞춤미션!</span>
-        </router-link>
-      </div>
-      <!-- <div class="home-main__w r">
-        <router-link :to="{ name: 'Review' }">
-          <img src="~@/assets/images/main-ico03.png" />
-          <p>식단후기</p>
-        </router-link>
-        <router-link
-          :to="{
-            name: 'BoardIndex',
-            params: { boardUid: '8ed8c768-93e0-4502-a906-9c62bd44d26d' },
-          }"
-          class=""
-        >
-          <img src="~@/assets/images/main-ico04.png" />
-          <p>공지사항</p>
-        </router-link>
-        <router-link
-          :to="{
-            name: 'BoardIndex',
-            params: { boardUid: 'c4f7bf8f-d05a-4135-a512-f1745a9b5d9d' },
-          }"
-          class=""
-        >
-          <img src="~@/assets/images/main-ico05.png" />
-          <p>서비스 문의하기</p>
-        </router-link>
-      </div> -->
-
-      <!-- 메인 링크박스 -->
-      <div class="main__link-list">
-        <div class="main__link-item">
-            <div class="main__link-item__con">
-              <p class="main__link-item__ttl">다이어리</p>
-              <p class="main__link-item__txt sft bd6">
-                체중 감량을 위한 <br> 핵심! 다이어리
-              </p>
-              <p class="main__link-item__btn">
-                <a @click="handleGoDiary()" class="btn bg01 sft">작성하기</a>
-              </p>
-            </div>
-            <div class="main__link-item__img">
-              <img src="~@/assets/images/main-ico02.png" alt="">
-            </div>
-          </div>
-        <!-- <div class="main__link-item">
-            <div class="main__link-item__con">
-              <p class="main__link-item__ttl">요즘 핫한 제품들</p>
-              <p class="main__link-item__txt sft bd6">
-                와로샐러드에 <br>
-                입점한 제품을 알아보세요
-              </p>
-              <p class="main__link-item__btn">
-                <router-link :to="{ name: 'CustomProductList' }" class="btn bg01 sft"></router-link>
-              </p>
-            </div>
-            <div class="main__link-item__img">
-              <img src="~@/assets/images/main_hot.svg" alt="">
-            </div>
-          </div> -->
-        <div class="main__link-item">
-          <div class="main__link-item__con">
-            <p class="main__link-item__ttl">TFSE</p>
-            <p class="main__link-item__txt sft bd6">
-              기록이 쌓이면 <br />
-              뭐든 된다! TFSE
-            </p>
-            <p class="main__link-item__btn">
-              <router-link :to="{ name: 'Tfse' }" class="btn bg01 sft">작성하기</router-link>
-            </p>
-          </div>
-          <div class="main__link-item__img">
-						<img src="~@/assets/images/main_tfse.svg" alt="">
-          </div>
-        </div>
-        <div class="main__link-item">
-          <div class="main__link-item__con">
-            <p class="main__link-item__ttl">너도 나도 우리 모두!</p>
-            <p class="main__link-item__txt sft bd6">
-							오늘부터 우리 <br>
-							30일간 챌린지 시작
-						</p>
-            <p class="main__link-item__btn" style="width:210px">
-							<router-link :to="{ name: 'Challenge', params: { myFlag: false } }" style="flex:0 1 calc(40% - 5px)" class="btn sft bd6 bg01">참여하기</router-link>
-              <router-link :to="{ name: 'Challenge', params: { myFlag: true } }" style="flex:0 1 calc(51% - 2px);" class="btn bg02 sft bd6">내 챌린지</router-link>
-						</p>
-          </div>
-          <div class="main__link-item__img">
-						<img src="~@/assets/images/main_challenge.svg" alt="">
-          </div>
-        </div>
-        <div class="main__link-item">
-          <div class="main__link-item__con">
-            <p class="main__link-item__ttl">식단후기</p>
-            <p class="main__link-item__txt sft bd6">
-							고객님들의 생생한 식단후기
-						</p>
-            <p class="main__link-item__btn" style="width:210px">
-							<router-link :to="{ name: 'Review', params: { myFlag: false } }" style="flex:0 1 calc(40% - 5px)" class="btn sft bd6 bg01">식단후기</router-link>
-						</p>
-          </div>
-          <div class="main__link-item__img">
-						<img src="~@/assets/images/main-ico03.png" alt="">
-          </div>
-        </div>
-      </div>
-      <!-- <div class="home-main__b">
-        <div class="home-main__b__txt">
-          <p class="tii">영양상담</p>
-          <router-link
-            :to="{
-              name: 'BoardIndex',
-              params: { boardUid: 'd485f6c8-ea3b-439e-9308-80a5eaf3ffe0' },
-            }"
-          ></router-link>
-        </div>
-        <VueSlickCarousel v-if="consultList.length > 0" v-bind="settings">
+        <!-- Upcoming Match Cards -->
+        <div v-if="!showLeagueStatus" class="match-cards">
           <div
-            v-for="post in consultList"
-            class="slick-content"
-            :key="post.uid"
+            v-for="(match, index) in upcomingMatches"
+            :key="index"
+            class="match-card"
           >
-            <router-link
-              :to="{
-                name: 'PostDetail',
-                params: { boardUid: post.boardUid, postUid: post.uid },
-              }"
-              class="slide_wrap"
-            >
-              <div class="slide_box">
-                <p
-                  v-for="(category, index) in post.categoryList"
-                  :key="index"
-                  class="ti"
-                >
-                  {{ category }}
-                </p>
-                <p class="tti" v-if="post.replyStatus > 0">전문가 답변</p>
-                <p class="ttti">{{ post.title }}</p>
-                <p class="tttti">
-                  {{ post.createDate | parseDate("YYYY-MM-DD") }}
-                </p>
+            <i class="el-icon-arrow-right match-arrow"></i>
+            <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
+            <div class="match-location">{{ match.location }}</div>
+            <div class="match-versus">
+              <div class="match-team">
+                <span class="match-team-name">{{ match.homeTeam }}</span>
+                <img :src="match.homeLogo" :alt="match.homeTeam" class="match-team-logo">
               </div>
-            </router-link>
+              <span class="vs-text">VS</span>
+              <div class="match-team">
+                <img :src="match.awayLogo" :alt="match.awayTeam" class="match-team-logo">
+                <span class="match-team-name">{{ match.awayTeam }}</span>
+              </div>
+            </div>
           </div>
-        </VueSlickCarousel>
-      </div> -->
-
-      <div class="home-main__b">
-        <div class="home-main__b__txt">
-          <p class="tii">TFSE</p>
-          <router-link
-            :to="{
-              name: 'Community',
-            }"
-          ></router-link>
         </div>
-
-        <VueSlickCarousel v-if="tfseList.length > 0" v-bind="settings">
-          <div
-            v-for="tfse in tfseList"
-            class="slick-content"
-            :key="tfse.idx"
-          >
-            <router-link
-              :to="{
-                name: 'CommunityDetail',
-                params: { idx: tfse.idx },
-              }"
-              class="slide_wrap"
-            >
-              <div class="slide_box">
-                <p class="tti">일지</p>
-                <p class="ttti">{{ tfse.foodText }}</p>
-                <p class="emotion-txt">{{ tfse.emotionText }}</p>
-                <p class="tttti">
-                  {{ tfse.tfseDate | parseDate("YYYY-MM-DD") }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-        </VueSlickCarousel>
-      </div>
-
-      <div class="home-main__c">
-        <div class="home-main__b__txt">
-          <p class="tii">건강피드</p>
-          <router-link
-            :to="{
-              name: 'BoardIndex',
-              params: { boardUid: 'bb4db5fe-8083-4d87-96f7-7c1ae66b7e76' },
-            }"
-          ></router-link>
-        </div>
-
-        <VueSlickCarousel
-          v-if="feedList.length > 0"
-          v-bind="set2"
-          class="imgca"
-        >
-          <div v-for="post in feedList" :key="post.uid">
-            <router-link
-              :to="{
-                name: 'BoardIndex',
-                params: { boardUid: 'bb4db5fe-8083-4d87-96f7-7c1ae66b7e76' },
-                query: { postUid: post.uid },
-              }"
-              class="slide_wrap"
-            >
-              <div class="slide_box2">
-                <img
-                  v-if="post.fileList.length > 0"
-                  :src="`${commonApiUrl}/attached-file/${post.fileList[0]}`"
-                />
-              </div>
-              <div class="main__c__a">
-                <p
-                  v-for="(category, index) in post.categoryList"
-                  :key="index"
-                  class="main__c__ti"
-                >
-                  {{ category }}
-                </p>
-                <p class="main__c__tii">{{ post.title }}</p>
-              </div>
-            </router-link>
-          </div>
-        </VueSlickCarousel>
       </div>
     </div>
-    <div class="home-footer">
-      <button class="footer_link_a" @click="handleGoDiary()">
-        <img
-          src="~@/assets/images/footer-diary.png"
-          class="footer_img"
-          alt=""
-        />
-        다이어리
-      </button>
-      <a href="#" class="footer_home">
-        <img
-          src="~@/assets/images/logo-bg.png"
-          class="logo_img"
-          alt="뛰장"
-        />
-      </a>
-      <button class="footer_link_b" @click="handleOrderTypeForm()">
-        <img
-          src="~@/assets/images/footer-plan.png"
-          class="footer_img"
-          alt="뛰장"
-        />식단 주문
-      </button>
-    </div>
-    <!-- <homeFooter /> -->
 
-  <el-dialog title="" :visible.sync="formVisible">
-      <div class="diary2-2-1">
-        <div class="diary2-2-1__a">
-          <div class="diary2-2-3__top">
-            <el-button  @click="handleOrderTypeForm()">
-              <img src="~@/assets/images/cancel.png" class="cancle_img" alt="닫기">
-            </el-button>
-          </div>
-
-          <div class="diary2-2-1__mid">
-            <p class="ti">어떻게<br>주문할까요?</p>
-          </div>
-
-          <div class="diary2-2-1__bot foodSelect">
-            <el-button class="top">
-              <a @click="handleOrderPick('station')">배달장소 선택</a>
-            </el-button>
-            <el-button class="bottom">
-              <a @click="handleOrderPick('pickup')">픽업매장 방문</a>
-            </el-button>
-          </div>
-        </div>
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-item">
+        <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2 L12 22 M2 12 L22 12" stroke="currentColor" stroke-width="1"/>
+          <path d="M7 5 Q12 8 17 5 M7 19 Q12 16 17 19" fill="none" stroke="currentColor" stroke-width="1"/>
+          <path d="M5 7 Q8 12 5 17 M19 7 Q16 12 19 17" fill="none" stroke="currentColor" stroke-width="1"/>
+        </svg>
+        <span>리그</span>
       </div>
-    </el-dialog>
+      <div class="footer-item">
+        <svg class="footer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="18" height="14" rx="2"/>
+          <path d="M3 10 L21 10"/>
+          <circle cx="12" cy="14" r="2" fill="currentColor"/>
+        </svg>
+        <span>매치</span>
+      </div>
+      <div class="footer-item footer-home">
+        <i class="el-icon-s-home"></i>
+      </div>
+      <div class="footer-item">
+        <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="7" r="3"/>
+          <path d="M12 12 C8 12 5 14 5 17 L19 17 C19 14 16 12 12 12 Z"/>
+          <circle cx="6" cy="9" r="2" opacity="0.7"/>
+          <path d="M6 12 C3.5 12 2 13.5 2 15.5 L7 15.5" opacity="0.7"/>
+          <circle cx="18" cy="9" r="2" opacity="0.7"/>
+          <path d="M18 12 C20.5 12 22 13.5 22 15.5 L17 15.5" opacity="0.7"/>
+        </svg>
+        <span>게스트</span>
+      </div>
+      <div class="footer-item">
+        <i class="el-icon-user-solid"></i>
+        <span>MY</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import homeFooter from '@/Layout/components/homeFooter.vue';
-import { storageKey } from '@/enums/localStorage';
-import axios from 'axios';
-import { getPostList } from '@/api/post';
-import { getTfseCommunityList } from '@/api/tfse';
-import { getAlarmCount, getAlarmList } from '@/api/pushAlarm';
-import { getNewAlarmCount } from '@/api/newAlarm';
-import { getBestTagList } from '@/api/postTag';
-import { RoutingModule } from '@/store/modules/routing';
-import 'popper.js';
-import { UserModule } from '@/store/modules/user';
+
+interface TeamCard {
+  name: string
+  logo: string
+  league: string
+  manner: number
+  matchType: string
+  teamSize: string
+  matchDate: string
+  matchDay: string
+  matchTime: string
+  location: string
+}
+
+interface LeagueTeam {
+  name: string
+  logo: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  goals: number
+  conceded: number
+  difference: number
+}
+
+interface Match {
+  date: string
+  day: string
+  time: string
+  location: string
+  homeTeam: string
+  awayTeam: string
+  homeLogo: string
+  awayLogo: string
+  homeScore?: number
+  awayScore?: number
+}
 
 @Component({
   components: {
     VueSlickCarousel,
-    homeFooter,
   },
 })
-
 export default class extends Vue {
-  async mounted() {
-    RoutingModule.setPoint('Home');
-    await this.getMainPostList();
-    await this.getTfseCommunityList();
-    await this.getAlarmList();
-    this.getNewAlarmCount();
-    this.getBestTagList();
-    // console.log(
-      // JSON.parse((window as any).localStorage.getItem(storageKey.pickUpPlace)),
-    // );
-    // console.log((window as any).localStorage.getItem('jwttoken'));
+  private selectedRegion = 'seoul'
+
+  private selectedLeague = 'a-league'
+
+  private showLeagueStatus = false
+
+  private currentYear = 2024
+
+  private currentMonthIndex = 0
+
+  private touchStartX = 0
+
+  private touchEndX = 0
+
+  get currentMonth(): string {
+    return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
   }
 
-  private formVisible = false;
-
-  private newAlarmCount = 0;
-
-  private pickUpShop = JSON.parse(
-    (window as any).localStorage.getItem(storageKey.pickUpPlace),
-  );
-
-  private station = JSON.parse(
-    (window as any).localStorage.getItem(storageKey.stationPlace),
-  );
-
-  private commonApiUrl = process.env.VUE_APP_COMMON_API;
-
-  private settings = {
-    dots: true,
-    centerMode: true,
-    centerPadding: '20px',
-    focusOnSelect: true,
-    infinite: true,
-    slidesToShow: 1,
-    speed: 500,
-  };
-
-  private set2 = {
-    dots: true,
-    focusOnSelect: true,
+  private slickOptions = {
+    dots: false,
     infinite: true,
     speed: 500,
-    slidesToShow: 2,
-    slidesToScroll: 2,
-    touchThreshold: 5,
-  };
-
-  private set3 = {
-    dots: true,
-    infinite: true,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    speed: 500,
-    slidesToShow: 1,
+    slidesToShow: 1.2,
     slidesToScroll: 1,
-  };
-
-  private consultListQuery = {
-    boardUid: 'd485f6c8-ea3b-439e-9308-80a5eaf3ffe0',
-    page: 1,
-    size: 4,
-  };
-
-  private feedListQuery = {
-    boardUid: 'bb4db5fe-8083-4d87-96f7-7c1ae66b7e76',
-    page: 1,
-    size: 8,
-  };
-
-  private tfseListQuery = {
-    communitySearch: true,
-    page: 0,
-    size: 8,
-  };
-
-  private showPopover = false;
-
-  private consultList: any = [];
-
-  private feedList: any = [];
-
-  private tfseList: any = [];
-
-  private searchValue = '';
-
-  private bestTagList = [];
-
-  private getNewAlarmCount() {
-    getNewAlarmCount().then((res) => {
-      this.newAlarmCount = res.data;
-    });
+    arrows: false,
+    centerMode: false,
+    centerPadding: '40px',
+    variableWidth: false,
+    swipeToSlide: true,
+    touchThreshold: 10,
+    initialSlide: 0.75,
   }
 
-  private handleSearch() {
-    if (this.searchValue) {
-      this.$router.push({
-        name: 'Search',
-        query: { searchValue: this.searchValue },
-      });
+  private teamCards: TeamCard[] = [
+    {
+      name: '대성풋살클럽',
+      logo: 'https://ui-avatars.com/api/?name=DS&background=061da1&color=fff&size=60',
+      league: 'B리그',
+      manner: 4.8,
+      matchType: '친선 경기',
+      teamSize: '5 대 5',
+      matchDate: '05월 09일',
+      matchDay: '금',
+      matchTime: 'Pm 07:00',
+      location: '대성풋살장',
+    },
+    {
+      name: '강남FC',
+      logo: 'https://ui-avatars.com/api/?name=GN&background=0066cc&color=fff&size=60',
+      league: 'A리그',
+      manner: 4.5,
+      matchType: '정규 경기',
+      teamSize: '5 대 5',
+      matchDate: '05월 10일',
+      matchDay: '토',
+      matchTime: 'Pm 06:00',
+      location: '강남풋살장',
+    },
+    {
+      name: '서울유나이티드',
+      logo: 'https://ui-avatars.com/api/?name=SU&background=cc0000&color=fff&size=60',
+      league: 'A리그',
+      manner: 4.9,
+      matchType: '친선 경기',
+      teamSize: '6 대 6',
+      matchDate: '05월 11일',
+      matchDay: '일',
+      matchTime: 'Am 10:00',
+      location: '서울풋살장',
+    },
+    {
+      name: '인천블루스',
+      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
+      league: 'B리그',
+      manner: 4.6,
+      matchType: '정규 경기',
+      teamSize: '5 대 5',
+      matchDate: '05월 12일',
+      matchDay: '월',
+      matchTime: 'Pm 08:00',
+      location: '인천풋살장',
+    },
+    {
+      name: '경기타이탄',
+      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
+      league: 'A리그',
+      manner: 4.7,
+      matchType: '친선 경기',
+      teamSize: '5 대 5',
+      matchDate: '05월 13일',
+      matchDay: '화',
+      matchTime: 'Pm 07:30',
+      location: '경기풋살장',
+    },
+  ]
+
+  private leagueTable: LeagueTeam[] = [
+    {
+      name: '최강숏FC',
+      logo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
+      played: 18,
+      wins: 15,
+      draws: 2,
+      losses: 1,
+      points: 47,
+      goals: 45,
+      conceded: 12,
+      difference: 33,
+    },
+    {
+      name: '위더스 FC',
+      logo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
+      played: 18,
+      wins: 12,
+      draws: 3,
+      losses: 3,
+      points: 39,
+      goals: 38,
+      conceded: 20,
+      difference: 18,
+    },
+    {
+      name: '라이온 FC',
+      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
+      played: 18,
+      wins: 11,
+      draws: 4,
+      losses: 3,
+      points: 37,
+      goals: 35,
+      conceded: 22,
+      difference: 13,
+    },
+    {
+      name: '아란치 FC',
+      logo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+      played: 18,
+      wins: 10,
+      draws: 5,
+      losses: 3,
+      points: 35,
+      goals: 32,
+      conceded: 24,
+      difference: 8,
+    },
+    {
+      name: '진주고 FC',
+      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
+      played: 18,
+      wins: 9,
+      draws: 6,
+      losses: 3,
+      points: 33,
+      goals: 30,
+      conceded: 25,
+      difference: 5,
+    },
+  ]
+
+  private recentMatches: Match[] = [
+    {
+      date: '05월 01일',
+      day: '목요일',
+      time: '15:00',
+      location: '송도풋살장',
+      homeTeam: '위더스 FC',
+      awayTeam: '아란치 FC',
+      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
+      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+      homeScore: 2,
+      awayScore: 1,
+    },
+    {
+      date: '05월 09일',
+      day: '금요일',
+      time: '18:00',
+      location: '송도풋살장',
+      homeTeam: '최강숏 FC',
+      awayTeam: '아란치 FC',
+      homeLogo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
+      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+      homeScore: 5,
+      awayScore: 2,
+    },
+  ]
+
+  private upcomingMatches: Match[] = [
+    {
+      date: '05월 10일',
+      day: '토요일',
+      time: '19:00',
+      location: '위더스풋살장',
+      homeTeam: '위더스 FC',
+      awayTeam: '아란치 FC',
+      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
+      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+    },
+    {
+      date: '05월 11일',
+      day: '일요일',
+      time: '14:00',
+      location: '송도풋살장',
+      homeTeam: '라이온 FC',
+      awayTeam: '진주고 FC',
+      homeLogo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
+      awayLogo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
+    },
+  ]
+
+  private toggleLeagueStatus(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
+  private previousMonth(): void {
+    if (this.currentMonthIndex === 0) {
+      this.currentMonthIndex = 11;
+      this.currentYear -= 1;
     } else {
-      this.$message.warning('검색어를 입력하세요.');
+      this.currentMonthIndex -= 1;
     }
   }
 
-  private async getMainPostList() {
-    await getPostList(this.consultListQuery).then((res) => {
-      this.consultList = res.data.content;
-    });
-    await getPostList(this.feedListQuery).then((res) => {
-      this.feedList = res.data.content;
-    });
-  }
-
-  private async getTfseCommunityList() {
-    await getTfseCommunityList(this.tfseListQuery).then((res) => {
-      this.tfseList = res.data.content;
-    });
-  }
-
-  private getBestTagList() {
-    getBestTagList().then((res) => {
-      this.bestTagList = res.data;
-    });
-  }
-
-  private alarmCount = 0;
-
-  private alarmList: any[] = [];
-
-  private alarmList2: any[][] = [];
-
-  private totalElements = 0;
-
-  private totalPages = 0;
-
-  private listQuery = {
-    page: 0,
-    size: 5,
-  };
-
-  private handleOrderTypeForm() {
-    this.formVisible = !this.formVisible;
-  }
-
-  private handlePickupForm() {
-    this.handleOrderTypeForm();
-    // this.$confirm('현재 선택된 픽업매장을 변경하시겠습니까?', '매장 선택', {
-    //       confirmButtonText: '네',
-    //       cancelButtonText: '아니요',
-    // }).then((result) => {
-    //   this.$router.push({ name: 'Map', query: { type: 'pickup' } });
-    // });
-  }
-
-  private handleOrderPick(type: string) {
-      if (type === 'station') {
-        if (window.localStorage.getItem(storageKey.stationPlace) == null) {
-          this.$router.push({ name: 'Map2', query: { type: 'station' } });
-        } else {
-          this.$confirm('현재 선택된 배송지로 주문하시겠습니까?', '배송지 선택', {
-            confirmButtonText: '네',
-            cancelButtonText: '아니요',
-          }).then((result) => {
-            this.$router.push({ name: 'CustomProduct' });
-          }).catch(() => {
-            this.$router.push({ name: 'Map2', query: { type: 'station' } });
-          });
-        }
-      } else if (type === 'pickup') {
-        if (window.localStorage.getItem(storageKey.pickUpPlace) == null) {
-          this.$router.push({ name: 'Map', query: { type: 'pickup' } });
-        } else {
-          this.$confirm('현재 선택된 픽업매장으로 주문하시겠습니까?', '매장 선택', {
-            confirmButtonText: '네',
-            cancelButtonText: '아니요',
-          }).then((result) => {
-            this.$router.push({ name: 'Order' });
-          }).catch(() => {
-            this.$router.push({ name: 'Map', query: { type: 'pickup' } });
-          });
-        }
-          // if (window.localStorage.getItem(storageKey.pickUpPlace) == null) {
-          // this.$router.push({ name: 'Map', query: { type: 'pickup' } });
-        // } else {
-          // this.$router.push({ name: 'Order' });
-        // }
-      }
-  }
-
-  private handleGoDiary() {
-    // if (UserModule.isLogin) {
-      this.$router.push({ name: 'Diary' });
-    // } else {
-      // this.$message.info('로그인이 필요한 서비스 입니다.');
-      // this.$router.push({ name: 'Login' });
-    // }
-  }
-
-  private getAlarmCount() {
-    getAlarmCount().then((res) => {
-      this.alarmCount = res.data;
-    });
-  }
-
-  private async getAlarmList() {
-    await getAlarmList(this.listQuery).then((res) => {
-      this.alarmList = res.data.content;
-      this.totalElements = res.data.totalElements;
-      this.totalPages = res.data.totalPages;
-      const itemMap: Map<string, any[]> = new Map();
-      if (this.alarmList !== undefined) {
-        this.alarmList.forEach((item: any) => {
-          const date: string = item.createDate.substring(0, 10); // 날짜 부분만 추출
-        if (!itemMap.has(date)) {
-          itemMap.set(date, []);
-        }
-        const itemList: any[] | undefined = itemMap.get(date);
-        if (itemList) {
-          itemList.push(item);
-        }
-      });
-      this.alarmList2 = Array.from(itemMap.values());
+  private nextMonth(): void {
+    if (this.currentMonthIndex === 11) {
+      this.currentMonthIndex = 0;
+      this.currentYear += 1;
     } else {
-      this.alarmList = [];
-      this.alarmList2 = [];
+      this.currentMonthIndex += 1;
     }
-  });
-    // console.log(itemMap);
   }
 
-  private handleChangePage(page: number) {
-    this.listQuery.page = page;
-    this.getAlarmList();
+  private handleTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
   }
 
-  private handleClickMap() {
-    // if (UserModule.isLogin) {
-      this.$router.push({ name: 'Map' });
-    // } else {
-      // this.$message.info('로그인이 필요한 서비스 입니다.');
-      // this.$router.push({ name: 'Login' });
-    // }
+  private handleTouchMove(event: TouchEvent): void {
+    this.touchEndX = event.touches[0].clientX;
+  }
+
+  private handleTouchEnd(): void {
+    const difference = this.touchStartX - this.touchEndX;
+    if (Math.abs(difference) > 50) {
+      // Swipe detected
+    }
+  }
+
+  private navigateToMatchDetail(match: Match): void {
+    // Navigate to match detail page
+    console.log('Navigate to match:', match);
+  }
+
+  private goToCalendar(): void {
+    this.$router.push('/calendar');
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.main {
+  position: relative;
+  min-height: 100vh;
+  max-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #061da1;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.background-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" preserveAspectRatio="none"><defs><linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:rgba(0,10,80,0.6);stop-opacity:1" /><stop offset="50%" style="stop-color:rgba(10,30,120,0.8);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(0,10,80,0.6);stop-opacity:1" /></linearGradient></defs><g><path d="M 140,-50 L 120,-40 L 105,-25 L 90,-5 Q 70,20 50,35 T 20,60 Q 10,75 0,90 L -10,105 L -20,125 L -20,150 L 0,150 L 15,135 L 30,115 Q 45,95 60,80 T 85,55 Q 95,40 110,20 L 125,0 L 135,-20 L 140,-35 Z" fill="url(%23waveGradient)" opacity="0.75"/><path d="M 145,-60 L 125,-48 L 108,-30 L 92,-8 Q 70,22 48,40 T 15,68 Q 5,82 -5,98 L -15,115 L -25,135 L -25,160 L -5,160 L 10,143 L 25,122 Q 42,100 60,83 T 88,56 Q 100,38 118,15 L 132,-5 L 142,-25 L 145,-42 Z" fill="url(%23waveGradient)" opacity="0.7"/><path d="M 150,-70 L 128,-55 L 110,-35 L 92,-10 Q 68,25 43,45 T 8,78 Q -3,93 -12,108 L -22,128 L -30,148 L -30,170 L -8,170 L 8,150 L 25,128 Q 43,105 63,86 T 92,58 Q 105,38 125,10 L 140,-12 L 148,-32 L 150,-50 Z" fill="url(%23waveGradient)" opacity="0.65"/><path d="M 155,-80 L 130,-62 L 112,-40 L 92,-12 Q 65,28 38,50 T 0,88 Q -10,103 -20,120 L -30,142 L -35,160 L -35,180 L -12,180 L 5,158 L 23,133 Q 43,108 65,88 T 95,58 Q 110,35 130,5 L 145,-18 L 152,-40 L 155,-58 Z" fill="url(%23waveGradient)" opacity="0.6"/><path d="M 160,-90 L 132,-68 L 113,-43 L 90,-13 Q 62,32 32,56 T -8,98 Q -18,115 -28,133 L -38,155 L -40,175 L -40,190 L -15,190 L 2,165 L 20,138 Q 42,110 67,90 T 98,58 Q 115,32 135,0 L 150,-25 L 157,-48 L 160,-68 Z" fill="url(%23waveGradient)" opacity="0.55"/></g><g transform="translate(100, 0)"><path d="M 140,-50 L 120,-40 L 105,-25 L 90,-5 Q 70,20 50,35 T 20,60 Q 10,75 0,90 L -10,105 L -20,125 L -20,150 L 0,150 L 15,135 L 30,115 Q 45,95 60,80 T 85,55 Q 95,40 110,20 L 125,0 L 135,-20 L 140,-35 Z" fill="url(%23waveGradient)" opacity="0.75"/><path d="M 145,-60 L 125,-48 L 108,-30 L 92,-8 Q 70,22 48,40 T 15,68 Q 5,82 -5,98 L -15,115 L -25,135 L -25,160 L -5,160 L 10,143 L 25,122 Q 42,100 60,83 T 88,56 Q 100,38 118,15 L 132,-5 L 142,-25 L 145,-42 Z" fill="url(%23waveGradient)" opacity="0.7"/><path d="M 150,-70 L 128,-55 L 110,-35 L 92,-10 Q 68,25 43,45 T 8,78 Q -3,93 -12,108 L -22,128 L -30,148 L -30,170 L -8,170 L 8,150 L 25,128 Q 43,105 63,86 T 92,58 Q 105,38 125,10 L 140,-12 L 148,-32 L 150,-50 Z" fill="url(%23waveGradient)" opacity="0.65"/><path d="M 155,-80 L 130,-62 L 112,-40 L 92,-12 Q 65,28 38,50 T 0,88 Q -10,103 -20,120 L -30,142 L -35,160 L -35,180 L -12,180 L 5,158 L 23,133 Q 43,108 65,88 T 95,58 Q 110,35 130,5 L 145,-18 L 152,-40 L 155,-58 Z" fill="url(%23waveGradient)" opacity="0.6"/><path d="M 160,-90 L 132,-68 L 113,-43 L 90,-13 Q 62,32 32,56 T -8,98 Q -18,115 -28,133 L -38,155 L -40,175 L -40,190 L -15,190 L 2,165 L 20,138 Q 42,110 67,90 T 98,58 Q 115,32 135,0 L 150,-25 L 157,-48 L 160,-68 Z" fill="url(%23waveGradient)" opacity="0.55"/></g></svg>');
+    background-size: 100% 100%;
+    background-repeat: repeat-x;
+    // animation: wave-slide 20s linear infinite;
+  }
+}
+
+@keyframes wave-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+// Header
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  // background: rgba(255, 255, 255, 0.1);
+  // backdrop-filter: blur(10px);
+  flex-shrink: 0;
+
+  .header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    i {
+      font-size: 28px;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        opacity: 0.8;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .header-center {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 16px;
+
+    ::v-deep .el-select {
+      width: 140px;
+
+      .el-input__inner {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #061da1;
+        font-weight: 600;
+        font-size: 16px;
+        padding: 10px 14px;
+
+        &::placeholder {
+          color: rgba(6, 29, 161, 0.7);
+        }
+      }
+
+      .el-input__icon {
+        color: #061da1;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Content
+.content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  padding-top: 80px;
+  padding-bottom: 0;
+}
+
+.section-title {
+  font-size: 30px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 25px 0;
+}
+
+// Team Cards Section
+.team-section {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-bottom: 54px;
+  padding: 0 20px;
+
+  ::v-deep .slick-slider {
+    .slick-list {
+      overflow: visible;
+      padding-bottom: 10px;
+    }
+
+    .slick-track {
+      display: flex !important;
+      gap: 12px;
+    }
+
+    .slick-slide {
+      float: none !important;
+
+      > div {
+        padding: 0 6px;
+        height: 100%;
+        display: flex !important;
+      }
+    }
+  }
+}
+
+.team-cards-container {
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.team-card {
+  width: 100% !important;
+  height: 100px !important;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex !important;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .team-card-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+
+    .team-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+  }
+
+  .team-card-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+
+    .team-tags {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow-x: auto;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tag {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &:nth-child(1) {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &:nth-child(2) {
+          background: #fff3e0;
+          color: #f57c00;
+        }
+
+        &:nth-child(3) {
+          background: #f3e5f5;
+          color: #7b1fa2;
+        }
+
+        &:nth-child(4) {
+          background: #e8f5e9;
+          color: #388e3c;
+        }
+      }
+    }
+
+    .team-match-info {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      text-align: left;
+    }
+
+    .team-location {
+      font-size: 15px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      i {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// League Section
+.league-section {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  background: #fff;
+  border-radius: 35px 35px 0 0;
+  padding: 20px 0 80px 0;
+  margin-bottom: 0;
+  width: 100%;
+  height: calc(100vh - 280px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 50;
+  transition: height 0.4s ease-in-out, padding-top 0.4s ease-in-out;
+
+  &.expanded {
+    height: calc(100vh - 80px);
+    padding-top: 20px;
+  }
+}
+
+.league-header {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 20px;
+  flex-wrap: wrap;
+  border-bottom: 3px solid #c5cad5;
+
+  .league-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .league-select {
+      width: 140px;
+      ::v-deep .el-input__inner {
+        background: #061da1;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+        padding: 20px 12px;
+        font-size:20px;
+      }
+
+      ::v-deep .el-input__icon {
+        color: #ffffff;
+      }
+    }
+
+    .league-title-text {
+      font-size: 26px;
+      font-weight: 600;
+      color: #061da1;
+    }
+  }
+  .league-button-row {
+    flex:0 1 100%;
+    text-align: right;
+    .status-button {
+      padding: 8px 16px;
+      background: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.league-status-expanded {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  // background: #f9f9f9;
+  border-radius: 0;
+
+  .status-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(6, 29, 161, 0.3);
+    border-radius: 4px;
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0;
+  margin-bottom: 16px;
+
+  i {
+    font-size: 24px;
+    color: #061da1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #0a2bcc;
+      transform: scale(1.2);
+    }
+  }
+
+  .current-month {
+    padding: 8px 20px;
+    background: #061da1;
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.league-table {
+  overflow-x: auto;
+  margin-bottom: 20px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+
+    thead {
+      background: #f5f5f5;
+
+      th {
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: #666;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        td {
+          padding: 12px 8px;
+          text-align: center;
+          font-size: 16px;
+          color: #333;
+
+          &.rank-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+
+            .rank-number {
+              font-weight: 600;
+              color: #666;
+              min-width: 20px;
+              font-size: 16px;
+            }
+
+            .team-mini-logo {
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+            }
+          }
+
+          &.points {
+            font-weight: 700;
+            color: #061da1;
+          }
+        }
+      }
+    }
+  }
+}
+
+.past-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .past-match-card {
+    background: #ffffff;
+    padding: 12px;
+    background: #f7f7f7;
+    border: 3px solid #c5cad5;
+    border-radius: 20px;
+
+    .past-match-date {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .past-match-teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .past-team {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+
+        .past-team-name {
+          font-size: 17px;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .past-team-logo {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+        }
+
+        &:first-child {
+          justify-content: end;
+        }
+
+        &:last-child {
+          justify-content: start;
+        }
+      }
+
+      .past-match-score {
+        display: flex;
+        align-items: center;
+        gap:6px;
+        padding: 0 10px;
+        margin: 0 15px;
+        background: #e9e8f8;
+        border-radius: 6px;
+
+        .score-number {
+          font-size: 18px;
+          font-weight: 700;
+          color: #061da1;
+        }
+
+        .score-divider {
+          font-size: 18px;
+          color: #999;
+        }
+      }
+    }
+  }
+}
+
+// Match Cards
+.match-cards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px 20px 20px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(6, 29, 161, 0.3);
+    border-radius: 4px;
+  }
+}
+
+.match-card {
+  position: relative;
+  background: #f7f7f7;
+  border: 3px solid #c5cad5;
+  border-radius: 20px;
+  padding: 16px;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #f9f9f9;
+    transform: translateX(2px);
+  }
+
+  .match-arrow {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 18px;
+    color: #999;
+  }
+
+  .match-date-time {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .match-location {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 6px;
+  }
+
+  .match-versus {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 32px;
+
+    .match-team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+
+      .match-team-name {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .match-team-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      &:first-child {
+        justify-content: end;
+      }
+
+      &:last-child {
+        justify-content: start;
+      }
+    }
+
+    .vs-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #061da1;
+      padding: 0 12px;
+    }
+  }
+}
+
+// Footer
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: solid 3px #c5cad5;
+  // backdrop-filter: blur(10px);
+  // box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+
+  .footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 30px;
+      color: #666;
+    }
+
+    .footer-icon {
+      width: 30px;
+      height: 30px;
+      color: #666;
+    }
+
+    span {
+      font-size: 13px;
+      color: #666;
+    }
+
+    &:hover {
+      i, span, .footer-icon {
+        color: #061da1;
+      }
+    }
+
+    &.footer-home {
+      position: relative;
+      top: -40px;
+
+      i {
+        font-size: 48px;
+        color: #ffffff;
+        background: #061da1;
+        border-radius: 50%;
+        padding: 8px;
+        box-shadow: 0 4px 12px rgba(6, 29, 161, 0.3);
+      }
+
+      &:hover i {
+        background: #0a2bcc;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 18px;
+  }
+
+  .team-card {
+    min-width: 240px;
+    padding: 16px;
+
+    .team-name {
+      font-size: 18px;
+    }
+  }
+
+  .header {
+    padding: 12px 16px;
+
+    .header-left i, .header-right i {
+      font-size: 24px;
+    }
+  }
+
+  .team-section {
+    padding: 0 16px;
+  }
+
+  .league-header {
+    padding: 0 16px;
+  }
+
+  .league-status-expanded {
+    padding: 16px;
+  }
+
+  .match-cards {
+    padding: 0 16px 16px 16px;
+  }
+}
+</style>
