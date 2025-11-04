@@ -60,4 +60,3 @@ export interface IBoardRolePk {
   roleCode: string
   action: string
 }
-

@@ -5,137 +5,84 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">이 팀이랑 경기 어떠세요?</h2>
+        <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
+        <el-button style="margin-bottom: 15px;">더 알아보기</el-button>
         <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
           <div
             v-for="(team, index) in teamCards"
             :key="index"
             class="team-card"
           >
-            <div class="team-card-left">
-              <img :src="team.logo" :alt="team.name" class="team-logo">
-            </div>
-            <div class="team-card-right">
-              <div class="team-tags">
-                <span class="tag">{{ team.league }}</span>
-                <span class="tag">매너 {{ team.manner }}점</span>
-                <span class="tag">{{ team.matchType }}</span>
-                <span class="tag">{{ team.teamSize }}</span>
-              </div>
-              <div class="team-match-info">
-                {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
-              </div>
-              <div class="team-location">
-                {{ team.location }} <i class="el-icon-arrow-right"></i>
-              </div>
-            </div>
+            배너 영역
           </div>
         </VueSlickCarousel>
       </div>
 
       <!-- League Schedule Section -->
       <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
-        <div class="league-header">
-          <div class="league-title-row">
-            <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
-              <el-option label="A리그" value="a-league"></el-option>
-              <el-option label="B리그" value="b-league"></el-option>
-              <el-option label="C리그" value="c-league"></el-option>
-            </el-select>
-            <span class="league-title-text">경기 일정</span>
+        <div class="league-join-team">
+          <div class="join-team-header">
+            <h3 class="join-team-title">리그 참가 팀</h3>
+            <button class="add-team-button">
+              <i class="el-icon-circle-plus-outline"></i>
+            </button>
           </div>
-          <div class="league-button-row">
-            <button class="status-button" @click="toggleLeagueStatus">현황보기</button>
+          <VueSlickCarousel v-bind="joinTeamSlickOptions" class="join-team-carousel">
+            <div
+              v-for="(team, index) in joinTeams"
+              :key="index"
+              class="join-team-card"
+            >
+              <div class="team-badge-wrapper">
+                <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
+                <div class="team-logo-container">
+                  <img :src="team.logo" :alt="team.name" class="join-team-logo">
+                </div>
+              </div>
+              <div class="join-team-name">{{ team.name }}</div>
+            </div>
+          </VueSlickCarousel>
+        </div>
+      <div class="league-join-team">
+        <div class="join-team-header">
+            <h3 class="join-team-title">팀 회원 모집</h3>
+            <button class="add-team-button">
+              <i class="el-icon-circle-plus-outline"></i>
+            </button>
           </div>
+          <VueSlickCarousel v-bind="joinTeamSlickOptions" class="join-team-carousel">
+            <div
+              v-for="(team, index) in joinTeams"
+              :key="index"
+              class="join-team-card"
+            >
+              <div class="team-badge-wrapper">
+                <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
+                <div class="team-logo-container">
+                  <img :src="team.logo" :alt="team.name" class="join-team-logo">
+                </div>
+              </div>
+              <div class="join-team-name">{{ team.name }}</div>
+            </div>
+          </VueSlickCarousel>
         </div>
 
         <!-- League Status Expanded View -->
-        <div v-if="showLeagueStatus" class="league-status-expanded">
-          <h3 class="status-title">리그 현황</h3>
-          <!-- Calendar Navigation -->
-          <div class="calendar-nav">
-            <i class="el-icon-arrow-left" @click="previousMonth"></i>
-            <span class="current-month">{{ currentMonth }}</span>
-            <i class="el-icon-arrow-right" @click="nextMonth"></i>
-          </div>
 
-          <!-- League Table -->
-          <div class="league-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>경기</th>
-                  <th>승점</th>
-                  <th>승</th>
-                  <th>무</th>
-                  <th>패</th>
-                  <th>득</th>
-                  <th>실</th>
-                  <th>차</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(team, index) in leagueTable" :key="index">
-                  <td class="rank-cell">
-                    <span class="rank-number">{{ index + 1 }}</span>
-                    <img :src="team.logo" :alt="team.name" class="team-mini-logo">
-                  </td>
-                  <td class="points">{{ team.points }}</td>
-                  <td>{{ team.wins }}</td>
-                  <td>{{ team.draws }}</td>
-                  <td>{{ team.losses }}</td>
-                  <td>{{ team.goals }}</td>
-                  <td>{{ team.conceded }}</td>
-                  <td>{{ team.difference }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Past Match Results -->
-          <div class="past-matches">
-            <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
-              <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
-              <div class="past-match-teams">
-                <div class="past-team">
-                  <span class="past-team-name">{{ match.homeTeam }}</span>
-                  <img :src="match.homeLogo" :alt="match.homeTeam" class="past-team-logo">
-                </div>
-                <div class="past-match-score">
-                  <span class="score-number">{{ match.homeScore }}</span>
-                  <span class="score-divider">-</span>
-                  <span class="score-number">{{ match.awayScore }}</span>
-                </div>
-                <div class="past-team">
-                  <img :src="match.awayLogo" :alt="match.awayTeam" class="past-team-logo">
-                  <span class="past-team-name">{{ match.awayTeam }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Upcoming Match Cards -->
-        <div v-if="!showLeagueStatus" class="match-cards">
-          <div
-            v-for="(match, index) in upcomingMatches"
-            :key="index"
-            class="match-card"
-          >
-            <i class="el-icon-arrow-right match-arrow"></i>
-            <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
-            <div class="match-location">{{ match.location }}</div>
-            <div class="match-versus">
-              <div class="match-team">
-                <span class="match-team-name">{{ match.homeTeam }}</span>
-                <img :src="match.homeLogo" :alt="match.homeTeam" class="match-team-logo">
-              </div>
-              <span class="vs-text">VS</span>
-              <div class="match-team">
-                <img :src="match.awayLogo" :alt="match.awayTeam" class="match-team-logo">
-                <span class="match-team-name">{{ match.awayTeam }}</span>
-              </div>
-            </div>
+        <div class="match-cards">
+          <div class="league-action-buttons">
+            <router-link to="/league-schedule" class="league-action-btn-link">
+              <button class="league-action-btn">
+                <i class="el-icon-date"></i>
+                <span>리그 일정</span>
+              </button>
+            </router-link>
+            <router-link to="/league-status" class="league-action-btn-link">
+              <button class="league-action-btn">
+                <i class="el-icon-s-data"></i>
+                <span>리그 현황</span>
+              </button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -190,6 +137,13 @@ interface Match {
   awayScore?: number
 }
 
+interface JoinTeam {
+  name: string
+  logo: string
+  leagueName: string
+  leagueColor: string
+}
+
 @Component({
   components: {
     VueSlickCarousel,
@@ -213,7 +167,7 @@ export default class extends Vue {
   }
 
   private slickOptions = {
-    dots: false,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -225,7 +179,67 @@ export default class extends Vue {
     touchThreshold: 5,
     initialSlide: 0,
     variableWidth: true,
+    autoPlay: true,
   }
+
+  private joinTeamSlickOptions = {
+    dots: false,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3.5,
+    slidesToScroll: 1,
+    arrows: false,
+    swipeToSlide: true,
+    touchThreshold: 5,
+    variableWidth: false,
+    responsive: [
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 380,
+        settings: {
+          slidesToShow: 2.5,
+        },
+      },
+    ],
+  }
+
+  private joinTeams: JoinTeam[] = [
+    {
+      name: '최강숏FC',
+      logo: 'https://ui-avatars.com/api/?name=CK&background=1a1a1a&color=fff&size=80',
+      leagueName: 'A리그',
+      leagueColor: '#061da1',
+    },
+    {
+      name: '위더스FC',
+      logo: 'https://ui-avatars.com/api/?name=WD&background=1e3c8c&color=fff&size=80',
+      leagueName: 'B리그',
+      leagueColor: '#ff8800',
+    },
+    {
+      name: '아란치FC',
+      logo: 'https://ui-avatars.com/api/?name=AR&background=22c55e&color=fff&size=80',
+      leagueName: 'C리그',
+      leagueColor: '#e91e63',
+    },
+    {
+      name: '라이온FC',
+      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=80',
+      leagueName: 'A리그',
+      leagueColor: '#061da1',
+    },
+    {
+      name: '진주고FC',
+      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=80',
+      leagueName: 'B리그',
+      leagueColor: '#ff8800',
+    },
+  ]
 
   private teamCards: TeamCard[] = [
     {
@@ -404,7 +418,11 @@ export default class extends Vue {
   ]
 
   private toggleLeagueStatus(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
+    this.$router.push('/league-status');
+  }
+
+  private goToSchedule(): void {
+    this.$router.push('/league-schedule');
   }
 
   private previousMonth(): void {
@@ -447,5 +465,7 @@ export default class extends Vue {
 </script>
 
 <style scoped>
-/* Styles moved to style.css - Home Page Specific Styles section */
+.league-page .league-section {
+  height: calc(100vh - 320px);
+}
 </style>

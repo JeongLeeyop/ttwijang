@@ -1,15 +1,6 @@
 <template>
-  <div class="register-page">
-    <div class="header">
-      <button class="back-button" @click="goBack">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="content">
-      <div class="form-container">
+  <div class="content register-page">
+    <div class="form-container">
         <div class="form-group">
           <label for="email">이메일</label>
           <input
@@ -181,14 +172,18 @@
           가입하기
         </button>
       </div>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
+import AuthLayout from '@/Layout/authLayout.vue';
 
-@Component
+@Component({
+  components: {
+    AuthLayout,
+  },
+})
 export default class Register extends Vue {
   private form = {
     email: '',
@@ -249,10 +244,6 @@ export default class Register extends Vue {
     } else {
       this.form.terms.term1 = false;
     }
-  }
-
-  private goBack() {
-    this.$router.go(-1);
   }
 
   private sendVerificationCode() {
@@ -390,223 +381,6 @@ export default class Register extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
-.register-page {
-  min-height: 100vh;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-
-  .header {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-
-    .back-button {
-      background: none;
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        opacity: 0.7;
-      }
-    }
-  }
-
-  .content {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: 40px 20px;
-    overflow-y: auto;
-  }
-
-  .form-container {
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .form-group {
-    margin-bottom: 24px;
-
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333333;
-      margin-bottom: 8px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      font-size: 14px;
-      outline: none;
-      box-sizing: border-box;
-
-      &:focus {
-        border-color: #061da1;
-      }
-
-      &::placeholder {
-        color: #999999;
-      }
-    }
-  }
-
-  .birth-date-group {
-    display: flex;
-    gap: 8px;
-
-    .birth-select {
-      flex: 1;
-      padding: 12px 16px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      font-size: 14px;
-      outline: none;
-      background-color: #ffffff;
-      cursor: pointer;
-
-      &:focus {
-        border-color: #061da1;
-      }
-    }
-  }
-
-  .gender-group {
-    display: flex;
-    gap: 8px;
-
-    .gender-button {
-      flex: 1;
-      padding: 12px;
-      background-color: #ffffff;
-      color: #666666;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        border-color: #061da1;
-      }
-
-      &.active {
-        background-color: #061da1;
-        color: #ffffff;
-        border-color: #061da1;
-      }
-    }
-  }
-
-  .input-with-button {
-    display: flex;
-    gap: 8px;
-
-    input {
-      flex: 1;
-    }
-
-    .verify-button {
-      padding: 12px 20px;
-      background-color: #ffffff;
-      color: #061da1;
-      border: 1px solid #061da1;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: #061da1;
-        color: #ffffff;
-      }
-    }
-  }
-
-  .terms-section {
-    margin-bottom: 24px;
-    padding: 16px;
-    background-color: #f8f8f8;
-    border-radius: 4px;
-
-    .term-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        margin: 0;
-        margin-right: 8px;
-        cursor: pointer;
-      }
-
-      label {
-        font-size: 14px;
-        color: #333333;
-        cursor: pointer;
-        user-select: none;
-        margin: 0;
-      }
-
-      &:first-child {
-        padding-bottom: 12px;
-        border-bottom: 1px solid #e0e0e0;
-        margin-bottom: 16px;
-
-        label {
-          font-weight: 600;
-        }
-      }
-    }
-  }
-
-  .submit-button {
-    width: 100%;
-    padding: 16px;
-    background-color: #061da1;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: #04166e;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .register-page {
-    .content {
-      padding: 24px 16px;
-    }
-  }
-}
+<style scoped>
+/* Styles moved to style.css - Login/Auth Pages Styles section */
 </style>

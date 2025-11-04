@@ -74,4 +74,3 @@ export interface IPostFilePk {
   postUid: string
   // file: IAttachedFile
 }
-

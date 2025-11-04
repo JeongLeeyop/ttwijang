@@ -1,11 +1,11 @@
 <template>
-  <div class="main league-page">
+  <div class="main league-page guest-page">
     <div class="background-wave"></div>
     <!-- Content -->
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">이 팀이랑 경기 어떠세요?</h2>
+        <h2 class="section-title">추천 매치를 확인해 보세요!</h2>
         <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
           <div
             v-for="(team, index) in teamCards"
@@ -36,107 +36,65 @@
       <!-- League Schedule Section -->
       <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
         <div class="league-header">
-          <div class="league-title-row">
-            <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
-              <el-option label="A리그" value="a-league"></el-option>
-              <el-option label="B리그" value="b-league"></el-option>
-              <el-option label="C리그" value="c-league"></el-option>
-            </el-select>
-            <span class="league-title-text">경기 일정</span>
-          </div>
-          <div class="league-button-row">
-            <button class="status-button" @click="toggleLeagueStatus">현황보기</button>
-          </div>
+          <div class="calendar-nav">
+          <i class="el-icon-arrow-left" @click="previousMonth"></i>
+          <span class="current-month">{{ currentMonth }}</span>
+          <i class="el-icon-arrow-right" @click="nextMonth"></i>
+        </div>
         </div>
 
-        <!-- League Status Expanded View -->
-        <div v-if="showLeagueStatus" class="league-status-expanded">
-          <h3 class="status-title">리그 현황</h3>
-          <!-- Calendar Navigation -->
-          <div class="calendar-nav">
-            <i class="el-icon-arrow-left" @click="previousMonth"></i>
-            <span class="current-month">{{ currentMonth }}</span>
-            <i class="el-icon-arrow-right" @click="nextMonth"></i>
-          </div>
-
-          <!-- League Table -->
-          <div class="league-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>경기</th>
-                  <th>승점</th>
-                  <th>승</th>
-                  <th>무</th>
-                  <th>패</th>
-                  <th>득</th>
-                  <th>실</th>
-                  <th>차</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(team, index) in leagueTable" :key="index">
-                  <td class="rank-cell">
-                    <span class="rank-number">{{ index + 1 }}</span>
-                    <img :src="team.logo" :alt="team.name" class="team-mini-logo">
-                  </td>
-                  <td class="points">{{ team.points }}</td>
-                  <td>{{ team.wins }}</td>
-                  <td>{{ team.draws }}</td>
-                  <td>{{ team.losses }}</td>
-                  <td>{{ team.goals }}</td>
-                  <td>{{ team.conceded }}</td>
-                  <td>{{ team.difference }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Past Match Results -->
-          <div class="past-matches">
-            <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
-              <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
-              <div class="past-match-teams">
-                <div class="past-team">
-                  <span class="past-team-name">{{ match.homeTeam }}</span>
-                  <img :src="match.homeLogo" :alt="match.homeTeam" class="past-team-logo">
-                </div>
-                <div class="past-match-score">
-                  <span class="score-number">{{ match.homeScore }}</span>
-                  <span class="score-divider">-</span>
-                  <span class="score-number">{{ match.awayScore }}</span>
-                </div>
-                <div class="past-team">
-                  <img :src="match.awayLogo" :alt="match.awayTeam" class="past-team-logo">
-                  <span class="past-team-name">{{ match.awayTeam }}</span>
-                </div>
-              </div>
-            </div>
+        <!-- Date Selector Row -->
+        <div class="date-selector-row">
+          <div class="date-item"
+               v-for="day in getDaysInMonth(currentYear, currentMonthIndex)"
+               :key="day"
+               :class="{ 'selected': isSelectedDate(day) }"
+               @click="selectDate(day)">
+            <div class="day-label">{{ getDayLabel(day) }}</div>
+            <div class="day-number">{{ day }}</div>
           </div>
         </div>
 
         <!-- Upcoming Match Cards -->
-        <div v-if="!showLeagueStatus" class="match-cards">
-          <div
-            v-for="(match, index) in upcomingMatches"
-            :key="index"
-            class="match-card"
-          >
-            <i class="el-icon-arrow-right match-arrow"></i>
-            <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
-            <div class="match-location">{{ match.location }}</div>
-            <div class="match-versus">
-              <div class="match-team">
-                <span class="match-team-name">{{ match.homeTeam }}</span>
-                <img :src="match.homeLogo" :alt="match.homeTeam" class="match-team-logo">
-              </div>
-              <span class="vs-text">VS</span>
-              <div class="match-team">
-                <img :src="match.awayLogo" :alt="match.awayTeam" class="match-team-logo">
-                <span class="match-team-name">{{ match.awayTeam }}</span>
+        <div class="match-cards">
+          <div class="guest-list">
+              <div
+                v-for="(guest, index) in guestData"
+                :key="index"
+                class="team-card"
+                :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
+              >
+                <div class="team-card-left">
+                  <img :src="guest.logo" :alt="guest.name" class="team-logo">
+                </div>
+                <div class="team-card-right">
+                  <div class="team-tags">
+                    <span class="tag">{{ guest.league }}</span>
+                    <span class="tag">매너 {{ guest.manner }}점</span>
+                    <span class="tag">{{ guest.matchType }}</span>
+                    <span class="tag">{{ guest.teamSize }}</span>
+                  </div>
+                  <div class="team-match-info">
+                    {{ guest.matchDate }} ({{ guest.matchDay }}) {{ guest.matchTime }}
+                  </div>
+                  <div class="guest-location-row">
+                    <div class="guest-location">
+                      <img v-if="guest.teamLogo" :src="guest.teamLogo" :alt="guest.name" class="team-icon">
+                      <span>{{ guest.location }}</span>
+                      <i class="el-icon-arrow-right"></i>
+                    </div>
+                    <div class="guest-members" v-if="guest.currentMembers !== undefined && guest.maxMembers !== undefined">
+                      <i class="el-icon-user"></i>
+                      <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="guest.isRecruitmentClosed" class="recruitment-overlay">
+                  <div class="recruitment-status">모집완료</div>
+                  <img v-if="guest.teamLogo" :src="guest.teamLogo" :alt="guest.name" class="small-team-logo">
+                </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -443,9 +401,84 @@ export default class extends Vue {
   private navigateToMatchDetail(match: Match): void {
     console.log('Navigate to match:', match);
   }
+
+  private guestData: any[] = [
+    {
+      name: '인천블루스',
+      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
+      league: 'B리그',
+      manner: 4.6,
+      matchType: '정규 경기',
+      teamSize: '5 대 5',
+      matchDate: '11월 22일',
+      matchDay: '월',
+      matchTime: 'Pm 08:00',
+      location: '아란치FC',
+      date: new Date(2025, 10, 22),
+      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+      currentMembers: 2,
+      maxMembers: 5,
+    },
+    {
+      name: '경기타이탄',
+      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
+      league: 'A리그',
+      manner: 4.7,
+      matchType: '친선 경기',
+      teamSize: '5 대 5',
+      matchDate: '11월 23일',
+      matchDay: '화',
+      matchTime: 'Pm 07:30',
+      location: '아란치FC',
+      date: new Date(2025, 10, 23),
+      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
+      currentMembers: 5,
+      maxMembers: 5,
+      isRecruitmentClosed: true,
+    },
+  ]
+
+  private selectedDate: Date = new Date()
+
+  private selectedDay: number = new Date().getDate()
+
+  get filteredGuests(): any[] {
+    return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
+  }
+
+  private isSameDate(date1: Date, date2: Date): boolean {
+    return date1.getFullYear() === date2.getFullYear()
+      && date1.getMonth() === date2.getMonth()
+      && date1.getDate() === date2.getDate();
+  }
+
+  private getDaysInMonth(year: number, month: number): number[] {
+    const daysCount = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: daysCount }, (_, i) => i + 1);
+  }
+
+  private getDayLabel(day: number): string {
+    const date = new Date(this.currentYear, this.currentMonthIndex, day);
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    return days[date.getDay()];
+  }
+
+  private selectDate(day: number): void {
+    this.selectedDay = day;
+    this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, day);
+  }
+
+  private isSelectedDate(day: number): boolean {
+    return day === this.selectedDay
+      && this.currentYear === this.selectedDate.getFullYear()
+      && this.currentMonthIndex === this.selectedDate.getMonth();
+  }
 }
 </script>
 
 <style scoped>
 /* Styles moved to style.css - Home Page Specific Styles section */
+.league-header{
+  margin-bottom:0px;
+}
 </style>

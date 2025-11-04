@@ -1,15 +1,6 @@
 <template>
-  <div class="email-login-page">
-    <div class="header">
-      <button class="back-button" @click="goBack">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="content">
-      <div class="form-container">
+    <div class="content email-login-page">
+    <div class="form-container">
         <div class="form-group">
           <label for="email">이메일</label>
           <input
@@ -54,7 +45,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -126,145 +116,6 @@ export default class EmailLogin extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
-.email-login-page {
-  min-height: 100vh;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-
-  .header {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-
-    .back-button {
-      background: none;
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        opacity: 0.7;
-      }
-    }
-  }
-
-  .content {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-
-  .form-container {
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .form-group {
-    margin-bottom: 24px;
-
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333333;
-      margin-bottom: 8px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      font-size: 14px;
-      outline: none;
-      box-sizing: border-box;
-
-      &:focus {
-        border-color: #061da1;
-      }
-
-      &::placeholder {
-        color: #999999;
-      }
-    }
-  }
-
-  .remember-me {
-    display: flex;
-    align-items: center;
-    margin-bottom: 24px;
-
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      margin: 0;
-      margin-right: 8px;
-      cursor: pointer;
-    }
-
-    label {
-      font-size: 14px;
-      color: #666666;
-      cursor: pointer;
-      user-select: none;
-    }
-  }
-
-  .login-button {
-    width: 100%;
-    padding: 16px;
-    background-color: #061da1;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: #04166e;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-
-  .footer-links {
-    margin-top: 24px;
-    text-align: center;
-    font-size: 14px;
-
-    a {
-      color: #666666;
-      text-decoration: none;
-      transition: color 0.3s ease;
-
-      &:hover {
-        color: #061da1;
-      }
-    }
-
-    .divider {
-      margin: 0 12px;
-      color: #d0d0d0;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .email-login-page {
-    .content {
-      padding: 24px 16px;
-    }
-  }
-}
+<style scoped>
+/* Styles moved to style.css - Login/Auth Pages Styles section */
 </style>

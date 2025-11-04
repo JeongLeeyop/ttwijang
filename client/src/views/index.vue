@@ -3,7 +3,9 @@
     <div class="background-wave"></div>
     <div class="content-container">
       <div class="title-section">
-        <h1 class="main-title">뛰장</h1>
+        <router-link to="/">
+          <h1 class="main-title">뛰장</h1>
+        </router-link>
         <p class="sub-title">풋살도 이제는 리그로 재미있게 뛰장!</p>
       </div>
 

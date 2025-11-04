@@ -1,21 +1,18 @@
 <template>
-  <div class="main-layout">
-    <main-header />
+  <div class="auth-layout">
+    <auth-header />
     <router-view :newAlarmCount="newAlarmCount" @child="refreshAlarm" />
-    <main-footer />
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import MainHeader from './components/mainHeader.vue';
-import MainFooter from './components/mainFooter.vue';
+import AuthHeader from './components/backHeader.vue';
 
 @Component({
-  name: 'MainLayout',
+  name: 'AuthLayout',
   components: {
-    MainHeader,
-    MainFooter,
+    AuthHeader,
   },
 })
 export default class extends Vue {}

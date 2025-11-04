@@ -1,15 +1,6 @@
 <template>
-  <div class="reset-password-page">
-    <div class="header">
-      <button class="back-button" @click="goBack">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="content">
-      <h1 class="page-title">비밀번호 찾기</h1>
+  <div class="content reset-password-page">
+    <h1 class="page-title">비밀번호 찾기</h1>
 
       <div class="form-container">
         <div class="form-group">
@@ -37,14 +28,18 @@
           비밀번호 찾기
         </button>
       </div>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import AuthLayout from '@/Layout/authLayout.vue';
 
-@Component
+@Component({
+  components: {
+    AuthLayout,
+  },
+})
 export default class ResetPassword extends Vue {
   private newPassword = '';
 
@@ -60,10 +55,6 @@ export default class ResetPassword extends Vue {
       this.$message.warning('잘못된 접근입니다.');
       this.$router.push({ name: 'FindPassword' });
     }
-  }
-
-  private goBack() {
-    this.$router.go(-1);
   }
 
   private validatePassword(): boolean {
@@ -113,117 +104,6 @@ export default class ResetPassword extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
-.reset-password-page {
-  min-height: 100vh;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-
-  .header {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-
-    .back-button {
-      background: none;
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        opacity: 0.7;
-      }
-    }
-  }
-
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-  }
-
-  .page-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #000000;
-    margin-bottom: 40px;
-    text-align: center;
-  }
-
-  .form-container {
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .form-group {
-    margin-bottom: 24px;
-
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333333;
-      margin-bottom: 8px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      font-size: 14px;
-      outline: none;
-      box-sizing: border-box;
-
-      &:focus {
-        border-color: #061da1;
-      }
-
-      &::placeholder {
-        color: #999999;
-      }
-    }
-  }
-
-  .submit-button {
-    width: 100%;
-    padding: 16px;
-    background-color: #061da1;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 16px;
-
-    &:hover {
-      background-color: #04166e;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .reset-password-page {
-    .content {
-      padding: 24px 16px;
-    }
-
-    .page-title {
-      font-size: 20px;
-      margin-bottom: 30px;
-    }
-  }
-}
+<style scoped>
+/* Styles moved to style.css - Login/Auth Pages Styles section */
 </style>
