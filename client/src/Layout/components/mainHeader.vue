@@ -12,8 +12,7 @@
       </div>
       <div class="header-right">
         <i class="el-icon-date" @click="goToCalendar"></i>
-        <i class="el-icon-bell"></i>
-        <el-popover v-model="showPopover" placement="bottom-end" width="450" trigger="click" popper-class="alarm" place-
+        <el-popover v-model="showPopover" placement="bottom-end" width="450" trigger="click" popper-class="alarm"
           :popper-append-to-body="false" :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
           <div @click="showPopover = false" class="alarm-close">
             <i class="el-icon-close"></i>
@@ -36,7 +35,7 @@
             <div class="logo"><img src="@/assets/images/logo2.png" /></div>
             <div class="txt">도착한 알림이 없어요</div>
           </div>
-          <el-button type="text" slot="reference" class="header__bell alarm" :class="{'alert': newAlarmCount >= 1}"></el-button>
+          <el-button type="text" slot="reference" class="el-icon-bell header__bell alarm" :class="{'alert': newAlarmCount >= 1}"></el-button>
         </el-popover>
       </div>
   </div>
