@@ -199,6 +199,7 @@ import AuthLayout from '@/Layout/authLayout.vue';
 import {
   register,
   RegisterData,
+  checkPhoneNumberDuplicate,
 } from '@/api/user';
 import { sendVerificationCode, verifyCode } from '@/api/sms';
 
@@ -301,6 +302,13 @@ export default class Register extends Vue {
     }
 
     try {
+      // 휴대폰 번호 중복 체크
+      const duplicateResponse = await checkPhoneNumberDuplicate(this.form.phoneNumber);
+      if (duplicateResponse.data.isDuplicate) {
+        this.$message.error('이미 해당 휴대폰 번호로 가입된 계정이 존재합니다.');
+        return;
+      }
+
       // SMS 인증번호 발송 API 호출
       const response = await sendVerificationCode({
         phoneNumber: this.form.phoneNumber,
@@ -462,11 +470,11 @@ export default class Register extends Vue {
       const registerData: RegisterData = {
         email: this.form.email,
         password: this.form.password,
-        name: this.form.name,
-        birthDate: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
-        gender: this.form.gender as '남자' | '여자',
-        phoneNumber: this.form.phoneNumber,
-        marketingAgreed: this.form.terms.term6,
+        actualName: this.form.name,
+        birth: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
+        gender: this.form.gender === '남자' ? 0 : 1, // 0: 남성, 1: 여성
+        concatNumber: this.form.phoneNumber,
+        marketingStatus: this.form.terms.term6,
       };
 
       await register(registerData);
@@ -475,7 +483,7 @@ export default class Register extends Vue {
 
       // 로그인 페이지로 이동
       setTimeout(() => {
-        this.$router.push({ name: 'EmailLogin' });
+        this.$router.push({ name: 'Login' });
       }, 1500);
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '회원가입에 실패했습니다.';

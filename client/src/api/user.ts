@@ -26,11 +26,11 @@ export const getUserInfo = () => request({
 export interface RegisterData {
   email: string
   password: string
-  name: string
-  birthDate: string // YYYY-MM-DD format
-  gender: '남자' | '여자'
-  phoneNumber: string
-  marketingAgreed: boolean
+  actualName: string
+  birth: string // YYYY-MM-DD format
+  gender: number // 0: 남성, 1: 여성
+  concatNumber: string
+  marketingStatus: boolean
 }
 
 export const register = (data: RegisterData) => request({
@@ -55,6 +55,14 @@ export const verifyPhoneCode = (phoneNumber: string, code: string) => request({
   url: `${PATH}/phone/verify`,
   method: 'post',
   data: { phoneNumber, code },
+});
+
+/**
+ * 휴대폰 번호 중복 확인
+ */
+export const checkPhoneNumberDuplicate = (phoneNumber: string) => request({
+  url: `${PATH}/phone-check/${phoneNumber}`,
+  method: 'get',
 });
 
 /**

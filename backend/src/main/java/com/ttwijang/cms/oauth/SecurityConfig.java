@@ -60,7 +60,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // NoOpPasswordEncoder와 BCrypt를 모두 지원하도록 설정
+        return org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -90,6 +91,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/**").permitAll();
+        http
+            .httpBasic().disable()  // HTTP Basic Authentication 비활성화
+            .csrf().disable()       // CSRF 비활성화 (OAuth2 토큰 사용)
+            .authorizeRequests()
+            .antMatchers("/oauth/**").permitAll()
+            .antMatchers("/api/client/**").permitAll()
+            .antMatchers("/api/attached-file/**").permitAll()
+            .antMatchers("/swagger-ui/**").permitAll()
+            .antMatchers("/swagger-ui.html").permitAll()
+            .antMatchers("/api-docs/**").permitAll()
+            .antMatchers("/v3/api-docs/**").permitAll()
+            .anyRequest().permitAll();
     }
 }

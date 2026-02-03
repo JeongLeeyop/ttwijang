@@ -1920,7 +1920,8 @@
 
 /* Auth Layout Container */
 .auth-layout .content {
-  min-height: 100vh;
+  min-height: auto;
+  height: calc(100vh - 73px);
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -1928,7 +1929,8 @@
   width: 100%;
   align-items: center;
   justify-content: start;
-  padding: 20px 20px 40px 20px;
+  padding: 20px;
+  overflow: hidden;
 }
 
 /* Auth Header (inside layout) */
@@ -1944,6 +1946,45 @@
   max-width: 480px;
   width: 100%;
   z-index: 100;
+}
+
+.auth-layout .header {
+  justify-content: flex-start;
+}
+
+.auth-layout .header .header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.auth-layout .header .header-title {
+  color: #1a1a1a;
+}
+
+/* Email Login Page - prevent vertical scroll */
+.email-login-page {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Register Page - allow vertical scroll */
+.auth-layout .content.register-page {
+  height: calc(100vh - 73px);
+  overflow: auto;
+  padding-bottom: 40px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Auth Layout - prevent body scroll */
+.auth-layout {
+  height: 100vh;
+  overflow: hidden;
 }
 
 .futsal-layout .header .back-button,
@@ -2444,6 +2485,11 @@
    MyPage Dashboard Styles
    ========================== */
 
+/* MyPage Header Background */
+.mypage-active .header {
+  background: #0a24a0;
+}
+
 .mypage-page .mypage-wrapper {
   margin-top: 73px;
   padding-bottom: 120px;
@@ -2761,6 +2807,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 100px;
 }
 
 .menu-item {
