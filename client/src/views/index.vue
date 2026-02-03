@@ -35,10 +35,7 @@ import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import homeFooter from '@/Layout/components/homeFooter.vue';
 import { UserModule } from '@/store/modules/user';
-import { saveFcmToken } from '@/api/fcm-token';
 import { getUserInfo } from '@/api/user';
-import { getShopList } from '@/api/shop';
-import { getStationList } from '@/api/station';
 import { storageKey } from '@/enums/localStorage';
 
 @Component({
@@ -77,25 +74,6 @@ export default class extends Vue {
   // };
     getUserInfo().then(async (res) => {
       if (res.data.registerInfoStatus) {
-        if (this.fcmToken.token !== '') await saveFcmToken(this.fcmToken);
-        await getShopList().then(async (res2) => {
-          this.shopList = res2.data;
-          this.shopList.forEach((shop: any) => {
-            if (shop.idx === res.data.shopIdx) {
-              window.localStorage.setItem(storageKey.pickUpPlace, JSON.stringify(shop));
-            }
-          });
-        });
-        if (this.shopList === '') {
-          await getStationList().then(async (res3) => {
-            this.stationList = res3.data;
-            this.stationList.forEach((station: any) => {
-              if (station.idx === res.data.stationIdx) {
-                window.localStorage.setItem(storageKey.stationPlace, JSON.stringify(station));
-              }
-            });
-          });
-        }
         this.$router.push({ name: 'Home' });
       } else {
         window.localStorage.setItem('isRegister', 'false');

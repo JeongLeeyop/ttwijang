@@ -141,10 +141,6 @@ public class User implements Serializable {
     @JoinColumn(name = "userUid", insertable = false, updatable = false)
     private List<UserRole> roles;
 
-    @ManyToOne
-    @JoinColumn(name = "shopIdx", insertable = false, updatable = false)
-    private Shop shop;
-
     public void setUserPassword(String password) {
         if (password == null)
             this.userPassword = "";

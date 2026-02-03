@@ -8,9 +8,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.ttwijang.cms.api.product.dto.ProductOrderDto;
-import com.ttwijang.cms.api.product.repository.ProductOrderGroupRepository;
-import com.ttwijang.cms.api.product.repository.query.ProductOrderQuery;
 import com.ttwijang.cms.api.review.dto.ReviewDto;
 import com.ttwijang.cms.api.review.dto.ReviewDto.update;
 import com.ttwijang.cms.api.review.dto.mapper.ReviewMapper;
@@ -21,7 +18,6 @@ import com.ttwijang.cms.common.exception.BadRequestException;
 import com.ttwijang.cms.common.exception.NotFoundException;
 import com.ttwijang.cms.common.exception.code.BadRequest;
 import com.ttwijang.cms.common.exception.code.NotFound;
-import com.ttwijang.cms.entity.ProductOrderGroup;
 import com.ttwijang.cms.entity.Review;
 import com.ttwijang.cms.entity.User;
 import com.ttwijang.cms.oauth.SinghaUser;
@@ -42,8 +38,6 @@ public interface ReviewService {
 class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewQuery reviewQuery;
-    private final ProductOrderGroupRepository productOrderGroupRepository;
-    private final ProductOrderQuery productOrderQuery;
 
     @Override
     public Page<ReviewDto.list> list(Pageable pageable, ReviewSearch search, SinghaUser authUser) {
@@ -69,14 +63,7 @@ class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void add(ReviewDto.add addDto, SinghaUser authUser) {
-        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(addDto.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
         User user = authUser.getUser();
-        if (!orderGroup.getUserUid().equals(user.getUid())) throw new BadRequestException(BadRequest.NOT_MINE);
-        if (orderGroup.isReviewStatus()) throw new BadRequestException(BadRequest.ALREADY_POST_REVIEW);
-
-        ProductOrderDto.lastOrder lastOrder = productOrderQuery.getLastOrder(addDto.getOrderGroupIdx());
-        if (!lastOrder.isPickupStatus()) throw new BadRequestException(BadRequest.NOT_PICKUP_ORDER);
-        if (LocalDate.now().isAfter(lastOrder.getPickupDate().plusDays(14))) throw new BadRequestException(BadRequest.EXPIRED_REVIEW_DATE);
 
         Review entity = ReviewMapper.INSTANCE.addDtoToEntity(addDto);
         entity.setDeleteStatus(false);
@@ -86,19 +73,12 @@ class ReviewServiceImpl implements ReviewService {
         setRelation(entity);
 
         reviewRepository.save(entity);
-
-        orderGroup.setReviewStatus(true);
-        productOrderGroupRepository.save(orderGroup);
     }
 
     @Override
     public void update(Integer idx, ReviewDto.update updateDto, SinghaUser authUser) {
         Review entity = reviewRepository.findById(idx).orElseThrow(() -> new NotFoundException(NotFound.REVIEW));
         if (!entity.getUserUid().equals(authUser.getUser().getUid())) throw new BadRequestException(BadRequest.NOT_MINE);
-
-        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(entity.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
-        ProductOrderDto.lastOrder lastOrder = productOrderQuery.getLastOrder(orderGroup.getIdx());
-        if (LocalDate.now().isAfter(lastOrder.getPickupDate().plusDays(14))) throw new BadRequestException(BadRequest.EXPIRED_REVIEW_DATE);
 
         entity.getPhotoes().forEach(e -> e.setReview(null));
 
@@ -114,10 +94,6 @@ class ReviewServiceImpl implements ReviewService {
         
         entity.setDeleteStatus(true);
         reviewRepository.save(entity);
-        
-        ProductOrderGroup orderGroup = productOrderGroupRepository.findById(entity.getOrderGroupIdx()).orElseThrow(() -> new NotFoundException(NotFound.ORDER));
-        orderGroup.setReviewStatus(false);
-        productOrderGroupRepository.save(orderGroup);
     }
 
     private void setRelation(Review entity) {

@@ -64,6 +64,21 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.hibernate.type.descriptor.sql.BasicExtractor: error
 
+# Swagger/OpenAPI 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  packages-to-scan: com.ttwijang.cms
+  paths-to-match: /api/**
 
 #첨부파일 경로
 attached-file:

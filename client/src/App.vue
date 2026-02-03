@@ -9,7 +9,6 @@
 <style>
 @import url("~@/assets/css/default.css");
 @import url("~@/assets/css/style.css");
-@import url("~@/assets/css/ssh.css");
 #app {
   font-family: Pretendard, SEBANG_Gothic_Regular, sans-serif;
   -webkit-font-smoothing: antialiased;

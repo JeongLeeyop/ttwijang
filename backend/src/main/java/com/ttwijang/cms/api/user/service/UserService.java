@@ -28,7 +28,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ttwijang.cms.api.post.repository.PostRepository;
-import com.ttwijang.cms.api.product.repository.ProductOrderGroupRepository;
 import com.ttwijang.cms.api.user.dto.UserDto;
 import com.ttwijang.cms.api.user.dto.mapper.UserMapper;
 import com.ttwijang.cms.api.user.dto.search.UserSearch;
@@ -70,7 +69,6 @@ class UserServiceImpl implements UserService {
 	private final UserRoleRepository userRoleRepository;
 	private final PostRepository postRepository;
 	private final TokenStore tokenStore;
-	private final ProductOrderGroupRepository productOrderGroupRepository;
 	private final UserFcmTokenRepository userFcmTokenRepository;
 
 	@Override
@@ -136,8 +134,6 @@ class UserServiceImpl implements UserService {
 		for (OAuth2AccessToken token : tokens) {
 			tokenStore.removeAccessToken(token);
 		}
-
-		productOrderGroupRepository.withdrawUser(user.getUid());
 	}
 
 	@Transactional
