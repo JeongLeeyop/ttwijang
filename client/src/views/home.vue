@@ -229,11 +229,11 @@ export default class extends Vue {
     slidesToScroll: 1,
     arrows: false,
     centerMode: true,
-    centerPadding: '20px',
+    centerPadding: '30px',
     swipeToSlide: true,
     touchThreshold: 5,
     initialSlide: 0,
-    variableWidth: true,
+    focusOnSelect: true,
   }
 
   private teamCards: TeamCard[] = []
