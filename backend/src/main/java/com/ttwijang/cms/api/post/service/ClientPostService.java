@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 
 import com.ttwijang.cms.api.board.exception.BoardNotFoundException;
 import com.ttwijang.cms.api.board.repository.BoardRepository;
-import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
 import com.ttwijang.cms.api.post.dto.PostDataDto;
 import com.ttwijang.cms.api.post.dto.PostDto;
 import com.ttwijang.cms.api.post.dto.mapper.PostMapper;
@@ -56,7 +55,6 @@ class ClientPostServiceImpl implements ClientPostService {
 	private final UserRepository userRepository;
 	private final PostLikeRepository postLikeRepository;
 	private final PostQuery postQuery;
-	private final NewAlarmRepository newAlarmRepository;
 
 	@Override
 	public Page<PostDto.ClientList> list(PostSearch search, Pageable pageable, SinghaUser authUser) {
@@ -130,10 +128,6 @@ class ClientPostServiceImpl implements ClientPostService {
 					postDetail.setHasAuthority(true);
 				}
 			}
-		}
-		// 공지사항 새글인지 체크
-		if(board.getUid().equals("8ed8c768-93e0-4502-a906-9c62bd44d26d")){
-			newAlarmRepository.check(authUser.getUser().getUid(), uid);
 		}
 		
 		return postDetail;

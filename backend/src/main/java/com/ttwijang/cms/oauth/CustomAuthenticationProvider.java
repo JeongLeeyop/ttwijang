@@ -28,15 +28,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ttwijang.cms.api.coupon.repository.CouponRepository;
-import com.ttwijang.cms.api.coupon.repository.UserCouponRepository;
 // import com.ttwijang.cms.api.nice.service.NiceService;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.common.exception.BadRequestException;
 import com.ttwijang.cms.common.exception.code.BadRequest;
-import com.ttwijang.cms.entity.Coupon;
 import com.ttwijang.cms.entity.User;
-import com.ttwijang.cms.entity.UserCoupon;
 import com.ttwijang.cms.entity.UserRole;
 import com.ttwijang.cms.oauth.soical.OAuth2UserInfo;
 import com.ttwijang.cms.oauth.soical.SocialType;
@@ -78,12 +74,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
 	private ObjectMapper objectMapper;
-
-    @Autowired
-    private CouponRepository couponRepository;
-
-    @Autowired
-    private UserCouponRepository userCouponRepository;
 
     @Transactional
     @Override
@@ -213,23 +203,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         user.setPoint(0);
         user.setRoles(new ArrayList<UserRole>());
         user = userRepository.save(user);
-
-        List<Coupon> eventCouponList = couponRepository.getJoinEventCouponList(LocalDateTime.now());
-        List<UserCoupon> giveCouponList = new ArrayList<UserCoupon>();
-        for (Coupon coupon : eventCouponList) {
-            UserCoupon userCoupon = new UserCoupon();
-            userCoupon.setUserUid(user.getUid());
-            userCoupon.setCouponIdx(coupon.getIdx());
-            userCoupon.setName(coupon.getName());
-            userCoupon.setType(coupon.getType());
-            userCoupon.setPercentStatus(coupon.isPercentStatus());
-            userCoupon.setDiscountPercent(coupon.getDiscountPercent());
-            userCoupon.setDiscountPrice(coupon.getDiscountPrice());
-            userCoupon.setExpiredDate(coupon.getExpiredDate());
-            
-            giveCouponList.add(userCoupon);
-        }
-        userCouponRepository.saveAll(giveCouponList);
 
         return user;
     }

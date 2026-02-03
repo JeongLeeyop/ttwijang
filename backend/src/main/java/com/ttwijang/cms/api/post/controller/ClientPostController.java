@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
 import com.ttwijang.cms.api.post.dto.PostDto;
 import com.ttwijang.cms.api.post.dto.search.PostSearch;
 import com.ttwijang.cms.api.post.service.ClientPostService;

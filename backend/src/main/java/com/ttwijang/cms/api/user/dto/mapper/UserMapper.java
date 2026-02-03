@@ -20,7 +20,6 @@ public interface UserMapper {
     UserDto.Detail entityToDetailDto(User entity);
     List<UserDto.Detail> entityToDetailDto(List<User> entity);
 
-    @Mapping(target = "shopName", source = "shop.name")
     UserDto.manager entityToManagerDto(User entity);
 
     @Mapping(target = "roles", ignore = true)

@@ -52,18 +52,6 @@ public class ClientUserController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PutMapping("setShop/{idx}")
-	public ResponseEntity setShop(@PathVariable("idx") Integer idx, @AuthenticationPrincipal SinghaUser authUser) {
-		clientUserService.setShop(idx, authUser);
-		return ResponseEntity.ok().build();
-	}
-	
-	@PutMapping("setStation/{idx}")
-	public ResponseEntity setStation(@PathVariable("idx") Integer idx, @AuthenticationPrincipal SinghaUser authUser) {
-		clientUserService.setStation(idx, authUser);
-		return ResponseEntity.ok().build();
-	}
-
 	@DeleteMapping("withdraw")
 	public ResponseEntity withdraw(@RequestBody ClientUserDto.withdraw dto, @AuthenticationPrincipal SinghaUser authUser) {
 		clientUserService.withdraw(dto, authUser);

@@ -16,9 +16,6 @@ import org.springframework.util.StringUtils;
 
 import com.ttwijang.cms.api.board.exception.BoardNotFoundException;
 import com.ttwijang.cms.api.board.repository.BoardRepository;
-import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.dto.NewAlarmDto;
-import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.repository.NewAlarmRepository;
-import com.ttwijang.cms.api.mission_user_inquiry.new_alarm.service.NewAlarmService;
 import com.ttwijang.cms.api.post.dto.PostDataDto;
 import com.ttwijang.cms.api.post.dto.PostDto;
 import com.ttwijang.cms.api.post.dto.mapper.PostMapper;
@@ -26,8 +23,6 @@ import com.ttwijang.cms.api.post.dto.search.PostSearch;
 import com.ttwijang.cms.api.post.exception.PostNotFoundException;
 import com.ttwijang.cms.api.post.exception.PostNotValidException;
 import com.ttwijang.cms.api.post.repository.PostRepository;
-import com.ttwijang.cms.api.push_alarm.dto.PushAlarmDto;
-import com.ttwijang.cms.api.push_alarm.service.PushAlarmService;
 import com.ttwijang.cms.api.user.dto.UserFcmToken;
 import com.ttwijang.cms.api.user.exception.UserNotFoundException;
 import com.ttwijang.cms.api.user.repository.UserFcmTokenRepository;
@@ -36,8 +31,6 @@ import com.ttwijang.cms.entity.Board;
 import com.ttwijang.cms.entity.BoardField;
 import com.ttwijang.cms.entity.Post;
 import com.ttwijang.cms.entity.User;
-import com.ttwijang.cms.fcm.model.PushNotificationRequest;
-import com.ttwijang.cms.fcm.service.PushNotificationService;
 
 import lombok.AllArgsConstructor;
 
@@ -60,13 +53,6 @@ class PostServiceImpl implements PostService {
 	private final BoardRepository boardRepository;
 	private final UserRepository userRepository;
     private final UserFcmTokenRepository userFcmTokenRepository;
-    private final NewAlarmService newAlarmService;
-
-	@Autowired
-    PushNotificationService pushNotificationService;
-
-	@Autowired
-    PushAlarmService pushAlarmService;
 
 	@Override
 	public Page<PostDto.Detail> list(PostSearch postSearch, Pageable pageable) {
@@ -110,60 +96,7 @@ class PostServiceImpl implements PostService {
 		
 		PostDto.Detail result = PostMapper.INSTANCE.entityToDetailDto(postRepository.save(post));
 		
-		// 공지사항이면 FCM전송 후 기록
-		if(post.getBoardUid().equals("8ed8c768-93e0-4502-a906-9c62bd44d26d")){
-
-			List<UserFcmToken> fcmTokenList = userFcmTokenRepository.findAll();
-			List<String> fcmTokenStrList = new ArrayList<String>();
-			for(UserFcmToken item : fcmTokenList){
-				fcmTokenStrList.add(item.getToken());
-			}
-
-			String title = "새로운 공지사항이 등록되었습니다";
-            String content = post.getTitle();
-            String link = "/board/post/8ed8c768-93e0-4502-a906-9c62bd44d26d/"+result.getUid();
-
-			PushNotificationRequest pushRequest = new PushNotificationRequest(title,content,link,null,fcmTokenStrList);
-			pushNotificationService.sendPushNotificationToToken(pushRequest);
-
-			 // 푸쉬알람 저장
-			 PushAlarmDto.Add pushAlarmDto = new PushAlarmDto.Add();
-			 pushAlarmDto.setUserUid(null);
-			 pushAlarmDto.setTitle(title);
-			 pushAlarmDto.setContent(content);
-			 pushAlarmDto.setLink(link);
-			 pushAlarmDto.setUserUidList(userRepository.findAll());
-			 pushAlarmService.add(pushAlarmDto);
-
-			// 공지사항이면 new alarm 표시
-			NewAlarmDto.Add newAlarmDto = new NewAlarmDto.Add();
-			newAlarmDto.setPostUid(result.getUid());
-			newAlarmDto.setType(1);
-			newAlarmService.add(newAlarmDto);
-		} 
-
 		Optional<Post> parentPost = postRepository.findById(addDto.getParentUid());
-		
-		if (parentPost.isPresent()) {
-			// 답변글 FCM전송 후 기록	
-			UserFcmToken fcmToken = userFcmTokenRepository.findById(parentPost.get().getUserUid()).orElseThrow(() -> new UserNotFoundException("잘못된 접근입니다."));
-				String title = "답글이 등록되었습니다";
-				String content = post.getTitle();
-				String link = "/board/post/d485f6c8-ea3b-439e-9308-80a5eaf3ffe0/"+parentPost.get().getUid();
-	
-				PushNotificationRequest pushRequest = new PushNotificationRequest(title,content,link,fcmToken.getToken(),null);
-				pushNotificationService.sendPushNotificationToToken(pushRequest);
-	
-				 // 푸쉬알람 저장
-				 PushAlarmDto.Add pushAlarmDto = new PushAlarmDto.Add();
-				 pushAlarmDto.setUserUid(parentPost.get().getUserUid());
-				 pushAlarmDto.setTitle(title);
-				 pushAlarmDto.setContent(content);
-				 pushAlarmDto.setLink(link);
-				 pushAlarmDto.setUserUidList(null);
-				 pushAlarmService.add(pushAlarmDto);
-
-		}
 		return result;
 	}
 
