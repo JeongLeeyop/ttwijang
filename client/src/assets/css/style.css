@@ -66,8 +66,8 @@
 .el-popover.el-popper.alarm { 
   margin-top: 12px;
   border-radius: 20px;
-  /* top: 64px !important; */
-  /* left: 15px !important; */
+  top: 64px !important;
+  left: 300px !important;
   max-height: 400px;
   overflow-y: scroll;
   padding:20px;
@@ -1791,9 +1791,8 @@
 .team-section .slick-slider .slick-slide {
   float: none !important;
   opacity: 0.5;
-  transform: scale(0.9);
   transition: all 0.3s ease;
-  padding: 0 8px;
+  transform: scale(0.9);
 }
 
 .team-section .slick-slider .slick-slide.slick-center {
