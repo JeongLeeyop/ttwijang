@@ -43,7 +43,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/css/**", "/script/**", "/images/**", "/fonts/**", "lib/**", "/h2-console/**");
+        web.ignoring()
+                .antMatchers("/css/**", "/script/**", "/images/**", "/fonts/**", "lib/**", "/h2-console/**")
+                // Swagger UI 허용
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/swagger-ui.html")
+                .antMatchers("/api-docs/**")
+                .antMatchers("/v3/api-docs/**");
     }
 
     @Bean
