@@ -4,6 +4,12 @@
 ./request2.md
 ./request3.md
 
+.github/img 안에는 페이지 디자인 스크린샷이 들어있습니다.
+- 현재 프론트에서 사용 중인 컴포넌트와 페이지 구조를 시각적으로 확인할 수 있습니다.
+- 만약 추가로 필요한 화면이 있다면 구현해주세요
+
+./NotebookLM Mind Map.png는 대략적인 마인드 맵이 들어있습니다.
+
 
 # Backend Project Analysis Checklist
 
