@@ -6,7 +6,11 @@
       <!-- Team Cards Section -->
       <div class="team-section">
         <h2 class="section-title">추천 매치를 확인해 보세요!</h2>
-        <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
+        <VueSlickCarousel
+          v-if="teamCards.length > 0"
+          v-bind="slickOptions"
+          class="team-cards-container"
+        >
           <div
             v-for="(team, index) in teamCards"
             :key="index"
@@ -35,6 +39,10 @@
 
       <!-- League Schedule Section -->
       <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
+        <div class="league-section-handle" @click="toggleLeagueSection">
+          <div class="handle-bar"></div>
+        </div>
+        <div class="league-section-content">
         <div class="league-header">
           <div class="calendar-nav">
           <i class="el-icon-arrow-left" @click="previousMonth"></i>
@@ -95,6 +103,7 @@
                 </div>
               </div>
             </div>
+        </div>
         </div>
       </div>
     </div>
@@ -175,7 +184,7 @@ export default class extends Vue {
   }
 
   private slickOptions = {
-    dots: false,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -187,6 +196,7 @@ export default class extends Vue {
     touchThreshold: 5,
     initialSlide: 0,
     variableWidth: true,
+    autoPlay: true,
   }
 
   private teamCards: TeamCard[] = []
@@ -347,6 +357,54 @@ export default class extends Vue {
         matchTime: 'Pm 07:00',
         location: '대성풋살장',
       },
+      {
+        name: '강남FC',
+        logo: this.getTeamLogo('강남FC'),
+        league: 'A리그',
+        manner: 4.5,
+        matchType: '정규 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 10일',
+        matchDay: '토',
+        matchTime: 'Pm 06:00',
+        location: '강남풋살장',
+      },
+      {
+        name: '서울유나이티드',
+        logo: this.getTeamLogo('서울유나이티드'),
+        league: 'A리그',
+        manner: 4.9,
+        matchType: '친선 경기',
+        teamSize: '6 대 6',
+        matchDate: '05월 11일',
+        matchDay: '일',
+        matchTime: 'Am 10:00',
+        location: '서울풋살장',
+      },
+      {
+        name: '인천블루스',
+        logo: this.getTeamLogo('인천블루스'),
+        league: 'B리그',
+        manner: 4.6,
+        matchType: '정규 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 12일',
+        matchDay: '월',
+        matchTime: 'Pm 08:00',
+        location: '인천풋살장',
+      },
+      {
+        name: '경기타이탄',
+        logo: this.getTeamLogo('경기타이탄'),
+        league: 'A리그',
+        manner: 4.7,
+        matchType: '친선 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 13일',
+        matchDay: '화',
+        matchTime: 'Pm 07:30',
+        location: '경기풋살장',
+      },
     ];
   }
 
@@ -373,6 +431,10 @@ export default class extends Vue {
   }
 
   private toggleLeagueStatus(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
+  private toggleLeagueSection(): void {
     this.showLeagueStatus = !this.showLeagueStatus;
   }
 
@@ -455,5 +517,10 @@ export default class extends Vue {
 /* Styles moved to style.css - Home Page Specific Styles section */
 .league-header{
   margin-bottom:0px;
+}
+
+.league-page .league-section {
+  padding-top: 30px !important;
+  overflow: hidden !important;
 }
 </style>

@@ -369,7 +369,7 @@
 
 /* Expanded 상태 */
 .league-section.expanded {
-  top: 80px;
+  top: 70px;
   padding-top: 20px;
 }
 
@@ -379,6 +379,175 @@
 
 .league-section.expanded .league-section-handle .handle-bar {
   background: #061da1;
+}
+
+/* 게스트 페이지: 슬릭 바로 아래 (헤더 73px + 배너/슬릭 약 180px) */
+.guest-page .league-section {
+  top: 253px;
+}
+
+.guest-page .league-section.expanded {
+  top: 70px;
+}
+
+/* 게스트 페이지 슬릭 캐러셀 스타일 */
+.guest-page .team-section .slick-slider {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.guest-page .team-section .slick-slider .slick-list {
+  overflow: visible !important;
+}
+
+.guest-page .team-section .slick-slider .slick-track {
+  display: flex !important;
+  align-items: center;
+}
+
+.guest-page .team-section .slick-slider .slick-slide {
+  float: none !important;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+}
+
+.guest-page .team-section .slick-slider .slick-slide.slick-center {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 10;
+}
+
+.guest-page .team-section .slick-slider .slick-slide > div {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.guest-page .team-section .slick-slider .slick-slide .team-card {
+  width: 350px !important;
+  min-width: 350px;
+  max-width: 350px;
+  min-height: 100px;
+  box-sizing: border-box;
+  display: flex !important;
+}
+
+/* Slick Dots 스타일 */
+.team-section .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.team-section .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.team-section .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.team-section .slick-dots li button:hover,
+.team-section .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.team-section .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.team-section .slick-dots li button:before {
+  display: none;
+}
+
+/* 게스트 페이지 slick-dots */
+.guest-page .team-section .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.guest-page .team-section .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.guest-page .team-section .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.guest-page .team-section .slick-dots li button:hover,
+.guest-page .team-section .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.guest-page .team-section .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.guest-page .team-section .slick-dots li button:before {
+  display: none;
+}
+
+/* 매치 페이지: 팀 코드 입력 바로 아래 (헤더 73px + 팀만들기 + 코드입력 약 230px) */
+.match-page .league-section {
+  top: 233px;
+}
+
+.match-page .league-section.expanded {
+  top: 70px;
 }
 
 .league-header {
@@ -644,7 +813,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 20px 20px 20px;
+  padding: 20px;
 }
 
 .match-cards .matches-title {
@@ -1867,6 +2036,59 @@
   display: flex !important;
 }
 
+/* Slick Dots 스타일 - 일반 team-section */
+.team-section .team-cards-container .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.team-section .team-cards-container .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.team-section .team-cards-container .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.team-section .team-cards-container .slick-dots li button:hover,
+.team-section .team-cards-container .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.team-section .team-cards-container .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.team-section .team-cards-container .slick-dots li button:before {
+  display: none;
+}
+
 .team-cards-container {
   cursor: grab;
   -webkit-user-select: none;
@@ -1910,7 +2132,6 @@
 
 .league-join-team:nth-of-type(2) {
   border-bottom: 3px solid #c5cad5;
-  margin-bottom: 12px;
   padding-bottom: 20px;
 }
 

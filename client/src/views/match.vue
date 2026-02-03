@@ -1,5 +1,5 @@
 <template>
-  <div class="main league-page guest-page">
+  <div class="main league-page match-page">
     <div class="background-wave"></div>
     <!-- Content -->
     <div class="content">
@@ -26,6 +26,10 @@
 
       <!-- League Schedule Section -->
       <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
+        <div class="league-section-handle" @click="toggleLeagueSection">
+          <div class="handle-bar"></div>
+        </div>
+        <div class="league-section-content">
         <div class="league-header">
           <div class="calendar-nav">
           <i class="el-icon-arrow-left" @click="previousMonth"></i>
@@ -86,6 +90,7 @@
                 </div>
               </div>
             </div>
+        </div>
         </div>
       </div>
     </div>
@@ -361,6 +366,10 @@ export default class extends Vue {
     this.showLeagueStatus = !this.showLeagueStatus;
   }
 
+  private toggleLeagueSection(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
   private previousMonth(): void {
     if (this.currentMonthIndex === 0) {
       this.currentMonthIndex = 11;
@@ -563,5 +572,10 @@ export default class extends Vue {
 /* Styles moved to style.css - Home Page Specific Styles section */
 .league-header{
   margin-bottom:0px;
+}
+
+.league-page .league-section {
+  padding-top: 30px !important;
+  overflow: hidden !important;
 }
 </style>
