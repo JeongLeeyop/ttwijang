@@ -7,7 +7,7 @@ import com.ttwijang.cms.entity.UserRolePk;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-public interface UserRoleRepository extends JpaRepository<UserRole, UserRolePk>, QuerydslPredicateExecutor<UserRole> {
+public interface UserRoleRepository extends JpaRepository<UserRole, String>, QuerydslPredicateExecutor<UserRole> {
 
 	void deleteByUserUid(String uid);
 

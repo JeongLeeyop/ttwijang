@@ -5,7 +5,7 @@
             "name": "Spring Boot-CmsApplication<cms>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "com.weilyeat.cms.CmsApplication",
+            "mainClass": "com.ttwijang.cms.CmsApplication",
             "projectName": "cms",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
