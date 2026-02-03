@@ -93,6 +93,10 @@ attached-file:
 security:
   jwt:
     resource-ids: SinghaOAuthResourceIds
+    token:
+      secret-key: ttwijang-jwt-secret-key-2026-spring-security-oauth2
+      access-token-validity-seconds: 86400     # 24시간
+      refresh-token-validity-seconds: 2592000  # 30일
 
 # 문자알리고 SMS API 설정
 sms:
@@ -117,11 +121,11 @@ spring:
         jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
         username: ttwijang
         password: ttwijang1!
-      # oauth:
-      #   driver-class-name: com.mysql.cj.jdbc.Driver
-      #   jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang_oauth
-      #   username: ttwijang
-      #   password: ttwijang1!
+      oauth:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
+        username: ttwijang
+        password: ttwijang1!
       # resource:
       #   driver-class-name: com.mysql.cj.jdbc.Driver
       #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
@@ -151,7 +155,7 @@ spring:
         password: welit22031@
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         username: welit_db
         password: welit22031@
 

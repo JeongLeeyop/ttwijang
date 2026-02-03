@@ -162,7 +162,6 @@ import { getMyTeams } from '@/api/team';
 import { getUserMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMatchList } from '@/api/match';
-import { removeToken } from '@/utils/auth';
 
 @Component({
   name: 'MyPage',
@@ -310,14 +309,20 @@ export default class MyPage extends Vue {
       cancelButtonText: '취소',
       type: 'warning',
     })
-      .then(() => {
-        // 토큰 및 세션 정보 삭제 및 Vuex 상태 초기화
-        this.userModule.LogOut();
-        this.$message.success('로그아웃되었습니다.');
-        this.$router.push('/login');
+      .then(async () => {
+        try {
+          // Vuex 로그아웃 액션 실행 (토큰 및 세션 정보 삭제)
+          await this.userModule.LogOut();
+          this.$message.success('로그아웃되었습니다.');
+          // 로그인 페이지로 이동
+          this.$router.push({ name: 'EmailLogin' });
+        } catch (error) {
+          console.error('로그아웃 실패:', error);
+          this.$message.error('로그아웃에 실패했습니다.');
+        }
       })
       .catch(() => {
-        // Cancel logout
+        // 취소 시 아무 작업 없음
       });
   }
 }

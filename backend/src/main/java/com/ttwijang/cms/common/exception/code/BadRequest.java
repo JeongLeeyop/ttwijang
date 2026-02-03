@@ -20,7 +20,8 @@ public enum BadRequest {
     REMAIN_ORDER("픽업하지 않은 주문이 존재합니다."),
     EXPIRED_ID_TOKEN("만료된 ID TOKEN입니다."),
     NOT_VALID_ID_TOKEN("검증되지 않은 ID TOKEN입니다."),
-    ALREADY_CANCEL_ORDER("이미 취소된 주문입니다.");
+    ALREADY_CANCEL_ORDER("이미 취소된 주문입니다."),
+    DUPLICATE_EMAIL("이미 등록된 이메일입니다.");
     
 
     private final String message;

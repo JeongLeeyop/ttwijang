@@ -123,7 +123,8 @@ public class Post implements Serializable {
 	
 	public void setPassword(String password) {
         if (StringUtils.hasText(password)) {
-			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			// DelegatingPasswordEncoder 사용하여 {bcrypt} prefix 자동 추가
+			PasswordEncoder passwordEncoder = org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
 			this.password = passwordEncoder.encode(password);
 		}
     }

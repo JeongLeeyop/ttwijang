@@ -462,11 +462,11 @@ export default class Register extends Vue {
       const registerData: RegisterData = {
         email: this.form.email,
         password: this.form.password,
-        name: this.form.name,
-        birthDate: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
-        gender: this.form.gender as '남자' | '여자',
-        phoneNumber: this.form.phoneNumber,
-        marketingAgreed: this.form.terms.term6,
+        actualName: this.form.name,
+        birth: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
+        gender: this.form.gender === '남자' ? 0 : 1, // 0: 남성, 1: 여성
+        concatNumber: this.form.phoneNumber,
+        marketingStatus: this.form.terms.term6,
       };
 
       await register(registerData);

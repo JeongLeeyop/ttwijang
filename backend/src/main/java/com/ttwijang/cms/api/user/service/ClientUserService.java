@@ -39,7 +39,7 @@ import com.ttwijang.cms.oauth.SinghaUser;
 import lombok.AllArgsConstructor;
 
 public interface ClientUserService {
-    void join(ClientUserDto.join dto, SinghaUser authUser);
+void join(ClientUserDto.join dto);
 
     ClientUserDto.info info(SinghaUser authUser);
 
@@ -65,29 +65,47 @@ class ClientUserServiceImpl implements ClientUserService {
 
 	@Transactional
 	@Override
-	public void join(ClientUserDto.join dto, SinghaUser authUser) {
-		User user = authUser.getUser();
+	public void join(ClientUserDto.join dto) {
+		// 이메일 중복 체크
+		if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+			throw new BadRequestException(BadRequest.DUPLICATE_EMAIL);
+		}
 
-		if (user.isJoinStatus()) throw new BadRequestException(BadRequest.ALREADY_JOIN_USER);
-
-		user = ClientUserMapper.INSTANCE.joinDtoToEntity(dto, user);
+		// 새로운 User 엔티티 생성
+		User user = new User();
+		user.setUserId(dto.getEmail());
+		user.setEmail(dto.getEmail());
+		user.setUserPassword(dto.getPassword());
+		user.setEnabled(true);
+		user.setNotLocked(true);
 		user.setJoinStatus(true);
 		user.setPoint(0);
 
-		Map<String, String> map = this.findLatLon(user.getAddress());
-		if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
-		if(map.containsKey("Lon")) user.setLon(map.get("Lon"));
+		// DTO에서 데이터 매핑
+		user.setActualName(dto.getActualName());
+		user.setConcatNumber(dto.getConcatNumber());
+		user.setBirth(dto.getBirth());
+		user.setGender(dto.getGender());
+		user.setMarketingStatus(dto.isMarketingStatus());
+
+		// 주소 정보
+		if (dto.getPostCode() != null) user.setPostCode(dto.getPostCode());
+		if (dto.getAddress() != null) {
+			user.setAddress(dto.getAddress());
+			// 주소가 있을 경우에만 좌표 조회
+			Map<String, String> map = this.findLatLon(dto.getAddress());
+			if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
+			if(map.containsKey("Lon")) user.setLon(map.get("Lon"));
+		}
+		if (dto.getAddressDetail() != null) user.setAddressDetail(dto.getAddressDetail());
+		
 		userRepository.save(user);
 
+		// 사용자 권한 추가
 		UserRole userRole = new UserRole();
 		userRole.setUserUid(user.getUid());
 		userRole.setRoleCode("ROLE_USER");
 		userRoleRepository.save(userRole);
-
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("singha_oauth", user.getUserId());
-		for (OAuth2AccessToken token : tokens) {
-			tokenStore.removeAccessToken(token);
-		}
 	}
 
 	@Transactional
@@ -107,7 +125,6 @@ class ClientUserServiceImpl implements ClientUserService {
 		user = ClientUserMapper.INSTANCE.updateDtoToEntity(updateDto, user);
 		
 		user.setJoinStatus(true);
-		user.setRegisterInfoStatus(true);
 
 		Map<String, String> map = this.findLatLon(user.getAddress());
 		if(map.containsKey("Lat")) user.setLat(map.get("Lat"));

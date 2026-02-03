@@ -41,8 +41,8 @@ public class ClientUserController {
     }
 	
 	@PostMapping("join")
-	public ResponseEntity join(@Valid @RequestBody ClientUserDto.join dto, @AuthenticationPrincipal SinghaUser authUser) {
-		clientUserService.join(dto, authUser);
+	public ResponseEntity join(@Valid @RequestBody ClientUserDto.join dto) {
+		clientUserService.join(dto);
 		return ResponseEntity.ok().build();
 	}
 
