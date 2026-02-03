@@ -521,3 +521,110 @@ export default class FormComponent extends Vue {
 데이터베이스 마이그레이션 스크립트 가이드는 별도 파일로 관리합니다.
 
 📄 **[database-migration-guide.md](./database-migration-guide.md)** 참조
+
+---
+
+## ESLint 규칙 (ESLint Rules)
+
+### TypeScript 인터페이스 규칙
+```typescript
+// ✅ 올바른 방법: 여러 줄인 경우 구분자 없음
+export interface User {
+  id: number
+  name: string
+  email: string
+}
+
+// ✅ 한 줄인 경우: 쉼표(,) 사용
+export interface Point { x: number, y: number }
+
+// ❌ 잘못된 방법: 여러 줄에 쉼표 사용
+export interface User {
+  id: number,
+  name: string,
+  email: string,
+}
+
+// ❌ 잘못된 방법: 여러 줄에 세미콜론 사용
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+```
+
+### 네이밍 규칙
+```typescript
+// ✅ camelCase 사용
+export interface ApiResponse {
+  resultCode: number
+  successCount: number
+  errorMessage: string
+}
+
+// ❌ snake_case 사용 금지
+export interface ApiResponse {
+  result_code: number
+  success_count: number
+  error_message: string
+}
+```
+
+### 화살표 함수 규칙
+```typescript
+// ✅ 한 줄로 작성하거나
+export const getUser = (id: number) => request({ url: `/user/${id}`, method: 'get' });
+
+// ✅ 줄바꿈 시 괄호로 감싸기
+export const getUser = (id: number) => request({
+  url: `/user/${id}`,
+  method: 'get',
+});
+
+// ❌ 화살표 뒤 즉시 줄바꿈 금지
+export const getUser = (id: number) =>
+  request({
+    url: `/user/${id}`,
+    method: 'get',
+  });
+```
+
+### 주요 ESLint 규칙 요약
+- **@typescript-eslint/member-delimiter-style**: 
+  - 여러 줄(multiline): 구분자 없음
+  - 한 줄(singleline): 쉼표(,) 사용
+- **camelcase**: 변수/속성명은 camelCase 사용
+- **implicit-arrow-linebreak**: 화살표 함수는 한 줄 또는 괄호로 감싸기
+- **no-trailing-spaces**: 줄 끝 공백 금지 (모든 코드 라인)
+- **object-property-newline**: 객체 속성은 각 줄에 하나씩 (복잡한 객체)
+- **lines-between-class-members**: 클래스 멤버 사이 빈 줄 추가
+
+### Vue Template에서 주의사항
+```html
+<!-- ✅ 올바른 방법: 태그와 속성에 trailing spaces 없음 -->
+<button
+  class="verify-button"
+  :disabled="isVerified"
+  @click="sendVerificationCode"
+>
+  인증 요청
+</button>
+
+<!-- ❌ 잘못된 방법: <button 뒤에 공백 -->
+<button 
+  class="verify-button" 
+  :disabled="isVerified"
+>
+  인증 요청
+</button>
+```
+
+### ESLint 설정 확인
+프로젝트의 ESLint 설정은 `.eslintrc.js`에서 관리됩니다:
+```bash
+# ESLint 검사
+npm run lint
+
+# ESLint 자동 수정
+npm run lint:fix
+```

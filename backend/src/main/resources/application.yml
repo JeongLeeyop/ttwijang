@@ -22,6 +22,11 @@ spring:
       max-request-size: 100MB
   main:
     allow-circular-references: true
+# Redis 설정
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 3000ms
 # URL설정
   mvc:
     view.prefix: /WEB-INF/views/
@@ -88,6 +93,16 @@ attached-file:
 security:
   jwt:
     resource-ids: SinghaOAuthResourceIds
+
+# 문자알리고 SMS API 설정
+sms:
+  aligo:
+    api-url: https://apis.aligo.in
+    api-key: 8tfm95prlsz7mckj0z5l9k2mcmtkvg52
+    user-id: leeyop12
+    sender: "01044493118"
+    testmode: Y
+
 ---   
 server:
   port: 8080
