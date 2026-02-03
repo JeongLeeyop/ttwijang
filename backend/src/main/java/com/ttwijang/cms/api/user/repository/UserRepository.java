@@ -32,4 +32,8 @@ public interface UserRepository extends JpaRepository<User, String>, QuerydslPre
 
     List<User> findAllByBirth(LocalDate birth);
 
+    Optional<User> findByConcatNumber(String concatNumber);
+
+    boolean existsByConcatNumber(String concatNumber);
+
 }

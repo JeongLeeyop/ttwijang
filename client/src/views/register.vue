@@ -199,6 +199,7 @@ import AuthLayout from '@/Layout/authLayout.vue';
 import {
   register,
   RegisterData,
+  checkPhoneNumberDuplicate,
 } from '@/api/user';
 import { sendVerificationCode, verifyCode } from '@/api/sms';
 
@@ -301,6 +302,13 @@ export default class Register extends Vue {
     }
 
     try {
+      // 휴대폰 번호 중복 체크
+      const duplicateResponse = await checkPhoneNumberDuplicate(this.form.phoneNumber);
+      if (duplicateResponse.data.isDuplicate) {
+        this.$message.error('이미 해당 휴대폰 번호로 가입된 계정이 존재합니다.');
+        return;
+      }
+
       // SMS 인증번호 발송 API 호출
       const response = await sendVerificationCode({
         phoneNumber: this.form.phoneNumber,

@@ -1,15 +1,15 @@
 <template>
   <div class="content reset-password-page">
-    <h1 class="page-title">비밀번호 찾기</h1>
+    <h1 class="page-title">비밀번호 재설정</h1>
 
       <div class="form-container">
         <div class="form-group">
-          <label for="newPassword">비밀번호 재설정</label>
+          <label for="newPassword">새 비밀번호</label>
           <input
             id="newPassword"
             v-model="newPassword"
             type="password"
-            placeholder="재설정 할 비밀번호를 입력하세요."
+            placeholder="새 비밀번호를 입력하세요 (최소 8자)"
           />
         </div>
 
@@ -25,7 +25,7 @@
         </div>
 
         <button class="submit-button" @click="handleResetPassword">
-          비밀번호 찾기
+          비밀번호 재설정
         </button>
       </div>
   </div>

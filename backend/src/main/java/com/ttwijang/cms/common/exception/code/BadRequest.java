@@ -21,7 +21,11 @@ public enum BadRequest {
     EXPIRED_ID_TOKEN("만료된 ID TOKEN입니다."),
     NOT_VALID_ID_TOKEN("검증되지 않은 ID TOKEN입니다."),
     ALREADY_CANCEL_ORDER("이미 취소된 주문입니다."),
-    DUPLICATE_EMAIL("이미 등록된 이메일입니다.");
+    DUPLICATE_EMAIL("이미 등록된 이메일입니다."),
+    DUPLICATE_PHONE_NUMBER("이미 해당 휴대폰 번호로 가입된 계정이 존재합니다."),
+    PASSWORD_RESET_MISMATCH("입력하신 정보와 일치하는 계정을 찾을 수 없습니다."),
+    INVALID_RESET_TOKEN("유효하지 않은 재설정 토큰입니다."),
+    EXPIRED_RESET_TOKEN("토큰이 만료되었습니다. 다시 시도해주세요.");
     
 
     private final String message;

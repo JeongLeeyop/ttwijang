@@ -1,7 +1,6 @@
 <template>
     <div class="content find-password-page">
     <div class="form-container">
-          <h1 class="page-title">비밀번호 찾기</h1>
         <div class="form-group">
           <label for="email">이메일</label>
           <input
@@ -21,9 +20,22 @@
               type="text"
               placeholder="휴대폰 번호를 입력하세요."
               maxlength="11"
+              :disabled="isVerified"
             />
-            <button class="verify-button" @click="sendVerificationCode">
-              인증 요청
+            <button
+              class="verify-button"
+              :disabled="isVerified || resendTimer > 0"
+              @click="sendVerificationCode"
+            >
+              <template v-if="isVerified">
+                인증완료
+              </template>
+              <template v-else-if="resendTimer > 0">
+                재발송 ({{ resendTimer }}초)
+              </template>
+              <template v-else>
+                {{ isVerificationSent ? '재발송' : '인증 요청' }}
+              </template>
             </button>
           </div>
         </div>
@@ -37,10 +49,15 @@
               type="text"
               placeholder="인증 번호를 입력하세요."
               maxlength="6"
+              :disabled="isVerified"
               @keyup.enter="handleNext"
             />
-            <button class="verify-button" @click="verifyCode">
-              인증 확인
+            <button
+              class="verify-button"
+              :disabled="isVerified"
+              @click="verifyCode"
+            >
+              {{ isVerified ? '인증완료' : '인증 확인' }}
             </button>
           </div>
         </div>
@@ -55,10 +72,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import {
-  sendPhoneVerification,
-  verifyPhoneCode,
   requestPasswordReset,
 } from '@/api/user';
+import {
+  sendVerificationCode,
+  verifyCode,
+} from '@/api/sms';
 
 @Component({
   components: {
@@ -75,6 +94,10 @@ export default class FindPassword extends Vue {
 
   private isVerified = false;
 
+  private resendTimer = 0;
+
+  private timerInterval: number | null = null;
+
   private async sendVerificationCode() {
     if (!this.phoneNumber) {
       this.$message.warning('휴대폰 번호를 입력해주세요.');
@@ -86,10 +109,18 @@ export default class FindPassword extends Vue {
       return;
     }
 
+    if (this.resendTimer > 0) {
+      this.$message.warning(`${this.resendTimer}초 후에 다시 시도해주세요.`);
+      return;
+    }
+
     try {
-      await sendPhoneVerification(this.phoneNumber);
+      const response = await sendVerificationCode({
+        phoneNumber: this.phoneNumber,
+      });
       this.isVerificationSent = true;
-      this.$message.success('인증번호가 발송되었습니다.');
+      this.startResendTimer();
+      this.$message.success('인증번호가 발송되었습니다. 3분 이내에 입력해주세요.');
     } catch (error: any) {
       this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
     }
@@ -102,7 +133,10 @@ export default class FindPassword extends Vue {
     }
 
     try {
-      await verifyPhoneCode(this.phoneNumber, this.verificationCode);
+      const response = await verifyCode({
+        phoneNumber: this.phoneNumber,
+        verificationCode: this.verificationCode,
+      });
       this.isVerified = true;
       this.$message.success('인증이 완료되었습니다.');
     } catch (error: any) {
@@ -113,6 +147,12 @@ export default class FindPassword extends Vue {
   private async handleNext() {
     if (!this.email) {
       this.$message.warning('이메일을 입력해주세요.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.email)) {
+      this.$message.warning('올바른 이메일 형식이 아닙니다.');
       return;
     }
 
@@ -146,9 +186,33 @@ export default class FindPassword extends Vue {
         query: { token: resetToken },
       });
     } catch (error: any) {
-      this.$message.error(error.response?.data?.message || '인증에 실패했습니다.');
+      this.$message.error(error.response?.data?.message || '입력하신 정보와 일치하는 계정을 찾을 수 없습니다.');
       console.error(error);
     }
+  }
+
+  private startResendTimer(): void {
+    this.clearTimer();
+    this.resendTimer = 60; // 60초 대기
+
+    this.timerInterval = window.setInterval(() => {
+      this.resendTimer -= 1;
+      if (this.resendTimer <= 0) {
+        this.clearTimer();
+      }
+    }, 1000);
+  }
+
+  private clearTimer(): void {
+    if (this.timerInterval !== null) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.resendTimer = 0;
+  }
+
+  beforeDestroy(): void {
+    this.clearTimer();
   }
 }
 </script>

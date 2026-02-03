@@ -58,6 +58,14 @@ export const verifyPhoneCode = (phoneNumber: string, code: string) => request({
 });
 
 /**
+ * 휴대폰 번호 중복 확인
+ */
+export const checkPhoneNumberDuplicate = (phoneNumber: string) => request({
+  url: `${PATH}/phone-check/${phoneNumber}`,
+  method: 'get',
+});
+
+/**
  * 아이디(이메일) 찾기 - 휴대폰 인증 후 이메일 조회
  */
 export const findEmail = (phoneNumber: string, verificationCode: string) => request({
