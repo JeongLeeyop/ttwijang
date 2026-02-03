@@ -97,8 +97,7 @@ export default class EmailLogin extends Vue {
       this.$message.success('로그인 성공');
       this.$router.push({ name: 'Home' });
     } catch (error: any) {
-      const errorMsg = error.message || '로그인에 실패했습니다.';
-      this.$message.error(errorMsg);
+      this.$message.error('로그인에 실패했습니다.');
       console.error(error);
     }
   }
