@@ -161,7 +161,7 @@ export default class FindId extends Vue {
         confirmButtonText: '로그인하기',
         dangerouslyUseHTMLString: true,
         callback: () => {
-          this.$router.push({ name: 'EmailLogin' });
+          this.$router.push({ name: 'Login' });
         },
       });
     } catch (error: any) {

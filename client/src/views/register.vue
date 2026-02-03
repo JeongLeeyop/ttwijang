@@ -483,7 +483,7 @@ export default class Register extends Vue {
 
       // 로그인 페이지로 이동
       setTimeout(() => {
-        this.$router.push({ name: 'EmailLogin' });
+        this.$router.push({ name: 'Login' });
       }, 1500);
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '회원가입에 실패했습니다.';

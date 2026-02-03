@@ -95,7 +95,7 @@ export default class ResetPassword extends Vue {
 
       // 로그인 페이지로 이동
       setTimeout(() => {
-        this.$router.push({ name: 'EmailLogin' });
+        this.$router.push({ name: 'Login' });
       }, 1500);
     } catch (error: any) {
       this.$message.error(error.response?.data?.message || '비밀번호 재설정에 실패했습니다.');
