@@ -628,3 +628,5 @@ npm run lint
 # ESLint 자동 수정
 npm run lint:fix
 ```
+### 프론트 뷰포트 수정 금지
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">

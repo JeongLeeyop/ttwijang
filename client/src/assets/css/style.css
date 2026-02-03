@@ -307,26 +307,78 @@
 /* League Section */
 .league-section {
   position: fixed;
-  bottom: 0;
+  /* 배너 영역 바로 아래에 붙도록 top 값 조정 (헤더 73px + 배너 콘텐츠 약 170px) */
+  top: 290px;
+  /* footer 높이(약 70px)를 고려하여 bottom 설정 */
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   max-width: 480px;
   background: #fff;
   border-radius: 35px 35px 0 0;
-  padding: 20px 0 80px 0;
+  padding: 20px 0 0 0;
   margin-bottom: 0;
   width: 100%;
-  height: calc(100vh - 280px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 50;
-  transition: height 0.4s ease-in-out, padding-top 0.4s ease-in-out;
+  transition: top 0.4s ease-in-out, padding-top 0.4s ease-in-out;
 }
 
+/* 스크롤 가능한 내부 콘텐츠 영역 */
+.league-section-content {
+  flex: 1;
+  overflow-y: hidden;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.league-section-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* 핸들 스타일 (터치/클릭 영역) */
+.league-section-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+  background: transparent;
+}
+
+.league-section-handle .handle-bar {
+  width: 40px;
+  height: 5px;
+  background: #c5cad5;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.league-section-handle:hover .handle-bar,
+.league-section-handle:active .handle-bar {
+  background: #061da1;
+}
+
+/* Expanded 상태 */
 .league-section.expanded {
-  height: calc(100vh - 80px);
+  top: 80px;
   padding-top: 20px;
+}
+
+.league-section.expanded .league-section-content {
+  overflow-y: auto;
+}
+
+.league-section.expanded .league-section-handle .handle-bar {
+  background: #061da1;
 }
 
 .league-header {
@@ -593,7 +645,6 @@
   flex-direction: column;
   gap: 12px;
   padding: 0 20px 20px 20px;
-  overflow-y: auto;
 }
 
 .match-cards .matches-title {
@@ -1851,6 +1902,10 @@
 .league-join-team {
   padding: 0 20px;
   background: #fff;
+}
+
+.league-join-team:first-child {
+  margin-top: 20px;
 }
 
 .league-join-team:nth-of-type(2) {

@@ -20,6 +20,10 @@
 
       <!-- League Schedule Section -->
       <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
+        <div class="league-section-handle" @click="toggleLeagueSection">
+          <div class="handle-bar"></div>
+        </div>
+        <div class="league-section-content">
         <div class="league-join-team">
           <div class="join-team-header">
             <h3 class="join-team-title">리그 참가 팀</h3>
@@ -84,6 +88,7 @@
               </button>
             </router-link>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -462,6 +467,10 @@ export default class extends Vue {
     this.$router.push('/league-status');
   }
 
+  private toggleLeagueSection(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
   private goToSchedule(): void {
     this.$router.push('/league-schedule');
   }
@@ -507,6 +516,7 @@ export default class extends Vue {
 
 <style scoped>
 .league-page .league-section {
-  height: calc(100vh - 320px);
+  padding-top: 30px !important;
+  overflow: hidden !important;
 }
 </style>
