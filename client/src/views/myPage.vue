@@ -156,35 +156,41 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
 import { getMyTeams } from '@/api/team';
 import { getUserMannerScore } from '@/api/mannerRating';
+import { getUserInfo } from '@/api/user';
+import { getMatchList } from '@/api/match';
+import { removeToken } from '@/utils/auth';
 
 @Component({
   name: 'MyPage',
 })
 export default class MyPage extends Vue {
+  private userModule = UserModule;
+
   private userProfile = {
-    name: '오형래',
-    email: 'kim.chulsu@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=CS&background=061da1&color=fff&size=80&bold=true',
+    name: '',
+    email: '',
+    avatar: 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=80&bold=true',
   };
 
   private userStats = {
-    matches: 15,
-    wins: 10,
-    losses: 5,
-    totalMatches: 45,
-    avgGoals: 2.3,
-    winRate: 68,
-    ranking: 42,
-    mannerscore: 95,
-    team: '위더스 FC',
+    matches: 0,
+    wins: 0,
+    losses: 0,
+    totalMatches: 0,
+    avgGoals: 0,
+    winRate: 0,
+    ranking: 0,
+    mannerscore: 0,
+    team: '-',
   };
 
   private userWallet = {
-    points: 25000,
-    coupons: 3,
+    points: 0,
+    coupons: 0,
   };
 
   private isLoading = false;
@@ -196,19 +202,66 @@ export default class MyPage extends Vue {
   private async loadUserData(): Promise<void> {
     this.isLoading = true;
     try {
+      // 사용자 프로필 정보 로드
+      const userInfoResponse = await getUserInfo();
+      if (userInfoResponse.data) {
+        this.userProfile.name = userInfoResponse.data.name || '';
+        this.userProfile.email = userInfoResponse.data.email || '';
+        // 아바타 URL 생성 (이름 기반)
+        if (this.userProfile.name) {
+          const initials = this.userProfile.name.slice(0, 2);
+          this.userProfile.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=061da1&color=fff&size=80&bold=true`;
+        }
+
+        // 매너 점수 로드 (사용자 UID 사용)
+        if (userInfoResponse.data.uid) {
+          try {
+            const mannerResponse = await getUserMannerScore(userInfoResponse.data.uid);
+            if (mannerResponse.data) {
+              this.userStats.mannerscore = Math.round(mannerResponse.data.averageScore || 0);
+            }
+          } catch (mannerError) {
+            console.warn('매너 점수 로드 실패:', mannerError);
+            this.userStats.mannerscore = 0;
+          }
+        }
+      }
+
       // 지갑 정보 로드
-      const walletResponse = await getWallet();
-      if (walletResponse.data) {
-        this.userWallet.points = walletResponse.data.balance || 0;
+      try {
+        const walletResponse = await getWallet();
+        if (walletResponse.data) {
+          this.userWallet.points = walletResponse.data.balance || 0;
+        }
+      } catch (walletError) {
+        console.warn('지갑 정보 로드 실패:', walletError);
       }
 
       // 내 팀 정보 로드
-      const teamsResponse = await getMyTeams();
-      if (teamsResponse.data && teamsResponse.data.length > 0) {
-        this.userStats.team = teamsResponse.data[0].name;
+      try {
+        const teamsResponse = await getMyTeams();
+        if (teamsResponse.data && teamsResponse.data.length > 0) {
+          this.userStats.team = teamsResponse.data[0].name;
+        } else {
+          this.userStats.team = '-';
+        }
+      } catch (teamError) {
+        console.warn('팀 정보 로드 실패:', teamError);
+        this.userStats.team = '-';
+      }
+
+      // 참여 경기수 로드
+      try {
+        const matchesResponse = await getMatchList({ status: 'FINISHED' });
+        if (matchesResponse.data) {
+          this.userStats.matches = matchesResponse.data.totalElements || 0;
+        }
+      } catch (matchError) {
+        console.warn('경기 정보 로드 실패:', matchError);
       }
     } catch (error) {
-      console.error('Failed to load user data:', error);
+      console.error('사용자 데이터 로드 실패:', error);
+      this.$message.error('사용자 정보를 불러오는데 실패했습니다.');
     } finally {
       this.isLoading = false;
     }
@@ -243,7 +296,7 @@ export default class MyPage extends Vue {
     this.$message.info(`${guideMap[type]} 가이드를 엽니다`);
   }
 
-  private navigateTo(path: string): void {
+  private navigateTo(): void {
     this.$message.info('준비중입니다.');
   }
 
@@ -258,6 +311,9 @@ export default class MyPage extends Vue {
       type: 'warning',
     })
       .then(() => {
+        // 토큰 및 세션 정보 삭제 및 Vuex 상태 초기화
+        this.userModule.LogOut();
+        this.$message.success('로그아웃되었습니다.');
         this.$router.push('/login');
       })
       .catch(() => {

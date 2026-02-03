@@ -54,6 +54,11 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import {
+  sendPhoneVerification,
+  verifyPhoneCode,
+  requestPasswordReset,
+} from '@/api/user';
 
 @Component({
   components: {
@@ -70,7 +75,7 @@ export default class FindPassword extends Vue {
 
   private isVerified = false;
 
-  private sendVerificationCode() {
+  private async sendVerificationCode() {
     if (!this.phoneNumber) {
       this.$message.warning('휴대폰 번호를 입력해주세요.');
       return;
@@ -81,20 +86,28 @@ export default class FindPassword extends Vue {
       return;
     }
 
-    // TODO: 실제 인증번호 발송 API 호출
-    this.isVerificationSent = true;
-    this.$message.success('인증번호가 발송되었습니다.');
+    try {
+      await sendPhoneVerification(this.phoneNumber);
+      this.isVerificationSent = true;
+      this.$message.success('인증번호가 발송되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
+    }
   }
 
-  private verifyCode() {
+  private async verifyCode() {
     if (!this.verificationCode) {
       this.$message.warning('인증번호를 입력해주세요.');
       return;
     }
 
-    // TODO: 실제 인증번호 확인 API 호출
-    this.isVerified = true;
-    this.$message.success('인증이 완료되었습니다.');
+    try {
+      await verifyPhoneCode(this.phoneNumber, this.verificationCode);
+      this.isVerified = true;
+      this.$message.success('인증이 완료되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호가 올바르지 않습니다.');
+    }
   }
 
   private async handleNext() {
@@ -119,14 +132,21 @@ export default class FindPassword extends Vue {
     }
 
     try {
-      // TODO: 실제 비밀번호 찾기 API 호출
+      // 비밀번호 재설정 요청 API 호출
+      const response = await requestPasswordReset(
+        this.email,
+        this.phoneNumber,
+        this.verificationCode,
+      );
+      const resetToken = response.data.resetToken;
+
       // 인증 성공 후 비밀번호 재설정 페이지로 이동
       this.$router.push({
         name: 'ResetPassword',
-        query: { email: this.email },
+        query: { token: resetToken },
       });
-    } catch (error) {
-      this.$message.error('인증에 실패했습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증에 실패했습니다.');
       console.error(error);
     }
   }

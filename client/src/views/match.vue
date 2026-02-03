@@ -500,6 +500,10 @@ export default class extends Vue {
   }
 
   async created() {
+    this.currentYear = new Date().getFullYear();
+    this.currentMonthIndex = new Date().getMonth();
+    this.selectedDay = new Date().getDate();
+    this.selectedDate = new Date();
     await this.loadGuestData();
   }
 
@@ -507,17 +511,50 @@ export default class extends Vue {
     try {
       const today = new Date();
       const startDate = today.toISOString().split('T')[0];
-      const endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       const response = await getGuestRecruitmentsByDateRange(startDate, endDate);
-      if (response.data && response.data.content) {
-        // API 데이터를 기존 guestData 형식에 맞게 변환
-        // 이 부분은 실제 API 연결 시 활성화
-        // this.guestData = response.data.content.map(...);
+      if (response.data) {
+        const guests = response.data.content || response.data || [];
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+        this.guestData = guests.map((guest: any) => {
+          const matchDate = new Date(guest.matchDate);
+          const isFull = guest.currentGuests >= guest.maxGuests;
+
+          return {
+            uid: guest.uid,
+            name: guest.teamName,
+            logo: guest.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(guest.teamName?.substring(0, 2) || 'T')}&background=random&color=fff&size=60`,
+            league: guest.leagueGrade ? `${guest.leagueGrade}리그` : '',
+            manner: guest.teamMannerScore || 0,
+            matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+            teamSize: this.formatMatchFormat(guest.matchFormat),
+            matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
+            matchDay: dayNames[matchDate.getDay()],
+            matchTime: guest.matchTime,
+            location: guest.stadiumName,
+            date: matchDate,
+            teamLogo: guest.teamLogoUrl,
+            currentMembers: guest.currentGuests,
+            maxMembers: guest.maxGuests,
+            isRecruitmentClosed: isFull,
+          };
+        });
       }
     } catch (error) {
       console.error('Failed to load guest data:', error);
     }
+  }
+
+  private formatMatchFormat(format: string): string {
+    const formatMap: { [key: string]: string } = {
+      FOUR_VS_FOUR: '4 대 4',
+      FIVE_VS_FIVE: '5 대 5',
+      SIX_VS_SIX: '6 대 6',
+      SEVEN_VS_SEVEN: '7 대 7',
+    };
+    return formatMap[format] || format;
   }
 }
 </script>

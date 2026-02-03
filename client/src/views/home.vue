@@ -38,9 +38,12 @@
         <div class="league-header">
           <div class="league-title-row">
             <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
-              <el-option label="A리그" value="a-league"></el-option>
-              <el-option label="B리그" value="b-league"></el-option>
-              <el-option label="C리그" value="c-league"></el-option>
+              <el-option
+                v-for="league in availableLeagues"
+                :key="league.uid"
+                :label="league.name || league.grade + '리그'"
+                :value="league.uid"
+              ></el-option>
             </el-select>
             <span class="league-title-text">경기 일정</span>
           </div>
@@ -146,10 +149,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
+import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
+import { getMatchList } from '@/api/match';
 
 interface TeamCard {
   name: string
@@ -196,17 +201,21 @@ interface Match {
   },
 })
 export default class extends Vue {
-  private selectedLeague = 'a-league'
+  private selectedLeague = ''
+
+  private availableLeagues: { uid: string, name: string, grade: string }[] = []
 
   private showLeagueStatus = false
 
-  private currentYear = 2025
+  private currentYear = new Date().getFullYear()
 
-  private currentMonthIndex = 0
+  private currentMonthIndex = new Date().getMonth()
 
   private touchStartX = 0
 
   private touchEndX = 0
+
+  private isLoading = false
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -227,181 +236,298 @@ export default class extends Vue {
     variableWidth: true,
   }
 
-  private teamCards: TeamCard[] = [
-    {
-      name: '대성풋살클럽',
-      logo: 'https://ui-avatars.com/api/?name=DS&background=061da1&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.8,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 09일',
-      matchDay: '금',
-      matchTime: 'Pm 07:00',
-      location: '대성풋살장',
-    },
-    {
-      name: '강남FC',
-      logo: 'https://ui-avatars.com/api/?name=GN&background=0066cc&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.5,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 10일',
-      matchDay: '토',
-      matchTime: 'Pm 06:00',
-      location: '강남풋살장',
-    },
-    {
-      name: '서울유나이티드',
-      logo: 'https://ui-avatars.com/api/?name=SU&background=cc0000&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.9,
-      matchType: '친선 경기',
-      teamSize: '6 대 6',
-      matchDate: '05월 11일',
-      matchDay: '일',
-      matchTime: 'Am 10:00',
-      location: '서울풋살장',
-    },
-    {
-      name: '인천블루스',
-      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.6,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 12일',
-      matchDay: '월',
-      matchTime: 'Pm 08:00',
-      location: '인천풋살장',
-    },
-    {
-      name: '경기타이탄',
-      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.7,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 13일',
-      matchDay: '화',
-      matchTime: 'Pm 07:30',
-      location: '경기풋살장',
-    },
-  ]
+  private teamCards: TeamCard[] = []
 
-  private leagueTable: LeagueTeam[] = [
-    {
-      name: '최강숏FC',
-      logo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      played: 18,
-      wins: 15,
-      draws: 2,
-      losses: 1,
-      points: 47,
-      goals: 45,
-      conceded: 12,
-      difference: 33,
-    },
-    {
-      name: '위더스 FC',
-      logo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      played: 18,
-      wins: 12,
-      draws: 3,
-      losses: 3,
-      points: 39,
-      goals: 38,
-      conceded: 20,
-      difference: 18,
-    },
-    {
-      name: '라이온 FC',
-      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      played: 18,
-      wins: 11,
-      draws: 4,
-      losses: 3,
-      points: 37,
-      goals: 35,
-      conceded: 22,
-      difference: 13,
-    },
-    {
-      name: '아란치 FC',
-      logo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      played: 18,
-      wins: 10,
-      draws: 5,
-      losses: 3,
-      points: 35,
-      goals: 32,
-      conceded: 24,
-      difference: 8,
-    },
-    {
-      name: '진주고 FC',
-      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-      played: 18,
-      wins: 9,
-      draws: 6,
-      losses: 3,
-      points: 33,
-      goals: 30,
-      conceded: 25,
-      difference: 5,
-    },
-  ]
+  private leagueTable: LeagueTeam[] = []
 
-  private recentMatches: Match[] = [
-    {
-      date: '05월 01일',
-      day: '목요일',
-      time: '15:00',
-      location: '송도풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 2,
-      awayScore: 1,
-    },
-    {
-      date: '05월 09일',
-      day: '금요일',
-      time: '18:00',
-      location: '송도풋살장',
-      homeTeam: '최강숏 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 5,
-      awayScore: 2,
-    },
-  ]
+  private recentMatches: Match[] = []
 
-  private upcomingMatches: Match[] = [
-    {
-      date: '05월 10일',
-      day: '토요일',
-      time: '19:00',
-      location: '위더스풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-    },
-    {
-      date: '05월 11일',
-      day: '일요일',
-      time: '14:00',
-      location: '송도풋살장',
-      homeTeam: '라이온 FC',
-      awayTeam: '진주고 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-    },
-  ]
+  private upcomingMatches: Match[] = []
+
+  async created() {
+    await this.loadHomeData();
+  }
+
+  @Watch('selectedLeague')
+  async onLeagueChange() {
+    if (this.selectedLeague) {
+      await this.loadLeagueData();
+    }
+  }
+
+  @Watch('currentMonthIndex')
+  async onMonthChange() {
+    if (this.selectedLeague) {
+      await this.loadLeagueData();
+    }
+  }
+
+  private async loadHomeData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      // 리그 목록 로드
+      const leaguesResponse = await getLeagueList({ status: 'IN_PROGRESS' });
+      if (leaguesResponse.data && leaguesResponse.data.content) {
+        this.availableLeagues = leaguesResponse.data.content.map((league: any) => ({
+          uid: league.uid,
+          name: league.name,
+          grade: league.grade,
+        }));
+        // 첫 번째 리그 선택
+        if (this.availableLeagues.length > 0) {
+          this.selectedLeague = this.availableLeagues[0].uid;
+        }
+      }
+
+      // 추천 팀 카드 로드 (매치 모집 중인 팀들)
+      await this.loadTeamCards();
+    } catch (error) {
+      console.error('홈 데이터 로드 실패:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private async loadTeamCards(): Promise<void> {
+    try {
+      const matchesResponse = await getMatchList({ status: 'OPEN' });
+      if (matchesResponse.data && matchesResponse.data.content) {
+        this.teamCards = matchesResponse.data.content.slice(0, 5).map((match: any) => ({
+          name: match.teamName || match.team?.name || '팀 모집중',
+          logo: this.getTeamLogo(match.teamName || '팀'),
+          league: match.leagueName || 'A리그',
+          manner: match.teamMannerScore || 4.5,
+          matchType: match.matchType === 'FRIENDLY' ? '친선 경기' : '정규 경기',
+          teamSize: this.formatMatchFormat(match.matchFormat),
+          matchDate: this.formatDate(match.matchDate),
+          matchDay: this.getDayOfWeek(match.matchDate),
+          matchTime: match.matchTime || '',
+          location: match.stadiumName || match.location || '',
+        }));
+      }
+
+      // API 데이터가 없으면 기본 데이터 표시
+      if (this.teamCards.length === 0) {
+        this.teamCards = this.getDefaultTeamCards();
+      }
+    } catch (error) {
+      console.warn('팀 카드 로드 실패:', error);
+      this.teamCards = this.getDefaultTeamCards();
+    }
+  }
+
+  private async loadLeagueData(): Promise<void> {
+    try {
+      // 리그 순위표 로드
+      const standingsResponse = await getLeagueStandings(this.selectedLeague);
+      if (standingsResponse.data && standingsResponse.data.standings) {
+        this.leagueTable = standingsResponse.data.standings.map((team: any) => ({
+          name: team.teamName,
+          logo: this.getTeamLogo(team.teamName),
+          played: team.played,
+          wins: team.wins,
+          draws: team.draws,
+          losses: team.losses,
+          points: team.points,
+          goals: team.goalsFor,
+          conceded: team.goalsAgainst,
+          difference: team.goalDifference,
+        }));
+      }
+
+      // 리그 일정 로드
+      const startDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-01`;
+      const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-31`;
+      const scheduleResponse = await getLeagueSchedule(this.selectedLeague, { startDate, endDate });
+
+      if (scheduleResponse.data && scheduleResponse.data.content) {
+        const allMatches = scheduleResponse.data.content;
+
+        // 최근 경기 (완료된 경기)
+        this.recentMatches = allMatches
+          .filter((m: any) => m.status === 'FINISHED')
+          .slice(0, 5)
+          .map((match: any) => this.transformMatch(match, true));
+
+        // 예정 경기
+        this.upcomingMatches = allMatches
+          .filter((m: any) => m.status !== 'FINISHED')
+          .slice(0, 5)
+          .map((match: any) => this.transformMatch(match, false));
+      }
+
+      // 데이터가 없으면 기본값 유지
+      if (this.leagueTable.length === 0) {
+        this.leagueTable = this.getDefaultLeagueTable();
+      }
+      if (this.upcomingMatches.length === 0 && !this.showLeagueStatus) {
+        this.upcomingMatches = this.getDefaultUpcomingMatches();
+      }
+      if (this.recentMatches.length === 0 && this.showLeagueStatus) {
+        this.recentMatches = this.getDefaultRecentMatches();
+      }
+    } catch (error) {
+      console.warn('리그 데이터 로드 실패:', error);
+      // 기본 데이터 사용
+      this.leagueTable = this.getDefaultLeagueTable();
+      this.upcomingMatches = this.getDefaultUpcomingMatches();
+      this.recentMatches = this.getDefaultRecentMatches();
+    }
+  }
+
+  private transformMatch(match: any, includeScore: boolean): Match {
+    const matchObj: Match = {
+      date: this.formatDate(match.matchDate),
+      day: this.getDayOfWeek(match.matchDate),
+      time: match.matchTime || '',
+      location: match.stadiumName || '',
+      homeTeam: match.homeTeamName || '',
+      awayTeam: match.awayTeamName || '',
+      homeLogo: this.getTeamLogo(match.homeTeamName),
+      awayLogo: this.getTeamLogo(match.awayTeamName),
+    };
+    if (includeScore) {
+      matchObj.homeScore = match.homeScore ?? 0;
+      matchObj.awayScore = match.awayScore ?? 0;
+    }
+    return matchObj;
+  }
+
+  private formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}월 ${day}일`;
+  }
+
+  private getDayOfWeek(dateStr: string): string {
+    if (!dateStr) return '';
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const date = new Date(dateStr);
+    return days[date.getDay()];
+  }
+
+  private formatMatchFormat(format: string): string {
+    const formatMap: Record<string, string> = {
+      FOUR_VS_FOUR: '4 대 4',
+      FIVE_VS_FIVE: '5 대 5',
+      SIX_VS_SIX: '6 대 6',
+      SEVEN_VS_SEVEN: '7 대 7',
+    };
+    return formatMap[format] || '5 대 5';
+  }
+
+  private getTeamLogo(teamName: string): string {
+    if (!teamName) return 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=40';
+    const initials = teamName.slice(0, 2);
+    const bgColors = ['061da1', '0066cc', 'cc0000', 'ff6600', '00cc66', 'ffd700'];
+    const colorIndex = teamName.charCodeAt(0) % bgColors.length;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${bgColors[colorIndex]}&color=fff&size=40`;
+  }
+
+  // 기본 데이터 (API 로드 실패시 사용)
+  private getDefaultTeamCards(): TeamCard[] {
+    return [
+      {
+        name: '대성풋살클럽',
+        logo: this.getTeamLogo('대성풋살클럽'),
+        league: 'B리그',
+        manner: 4.8,
+        matchType: '친선 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 09일',
+        matchDay: '금',
+        matchTime: 'Pm 07:00',
+        location: '대성풋살장',
+      },
+      {
+        name: '강남FC',
+        logo: this.getTeamLogo('강남FC'),
+        league: 'A리그',
+        manner: 4.5,
+        matchType: '정규 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 10일',
+        matchDay: '토',
+        matchTime: 'Pm 06:00',
+        location: '강남풋살장',
+      },
+    ];
+  }
+
+  private getDefaultLeagueTable(): LeagueTeam[] {
+    return [
+      {
+        name: '최강숏FC',
+        logo: this.getTeamLogo('최강숏FC'),
+        played: 18,
+        wins: 15,
+        draws: 2,
+        losses: 1,
+        points: 47,
+        goals: 45,
+        conceded: 12,
+        difference: 33,
+      },
+      {
+        name: '위더스 FC',
+        logo: this.getTeamLogo('위더스 FC'),
+        played: 18,
+        wins: 12,
+        draws: 3,
+        losses: 3,
+        points: 39,
+        goals: 38,
+        conceded: 20,
+        difference: 18,
+      },
+      {
+        name: '라이온 FC',
+        logo: this.getTeamLogo('라이온 FC'),
+        played: 18,
+        wins: 11,
+        draws: 4,
+        losses: 3,
+        points: 37,
+        goals: 35,
+        conceded: 22,
+        difference: 13,
+      },
+    ];
+  }
+
+  private getDefaultUpcomingMatches(): Match[] {
+    return [
+      {
+        date: '05월 10일',
+        day: '토요일',
+        time: '19:00',
+        location: '위더스풋살장',
+        homeTeam: '위더스 FC',
+        awayTeam: '아란치 FC',
+        homeLogo: this.getTeamLogo('위더스 FC'),
+        awayLogo: this.getTeamLogo('아란치 FC'),
+      },
+    ];
+  }
+
+  private getDefaultRecentMatches(): Match[] {
+    return [
+      {
+        date: '05월 01일',
+        day: '목요일',
+        time: '15:00',
+        location: '송도풋살장',
+        homeTeam: '위더스 FC',
+        awayTeam: '아란치 FC',
+        homeLogo: this.getTeamLogo('위더스 FC'),
+        awayLogo: this.getTeamLogo('아란치 FC'),
+        homeScore: 2,
+        awayScore: 1,
+      },
+    ];
+  }
 
   private toggleLeagueStatus(): void {
     this.showLeagueStatus = !this.showLeagueStatus;

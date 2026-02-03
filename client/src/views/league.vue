@@ -97,6 +97,8 @@ import { Vue, Component } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
+import { getLeagueList, getLeagueTeams } from '@/api/league';
+import { getTeamList } from '@/api/team';
 
 interface TeamCard {
   name: string
@@ -175,9 +177,29 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 리그 목록과 팀 데이터 로드는 추후 API 연결 시 활성화
-      // const leagueResponse = await getLeagueList();
-      // const teamsResponse = await getTeamList();
+      // 리그 목록 로드
+      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS' });
+      const leagues = leagueResponse.data || [];
+
+      // 팀 목록 로드 (회원 모집 중인 팀)
+      const teamsResponse = await getTeamList({ page: 0, size: 10 });
+      const teams = teamsResponse.data?.content || [];
+
+      // 리그 참가 팀 데이터 변환
+      if (leagues.length > 0) {
+        const leagueGradeColors: { [key: string]: string } = {
+          A: '#061da1',
+          B: '#ff8800',
+          C: '#e91e63',
+        };
+
+        this.joinTeams = teams.slice(0, 5).map((team: any) => ({
+          name: team.name,
+          logo: team.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
+          leagueName: team.leagueGrade ? `${team.leagueGrade}리그` : 'B리그',
+          leagueColor: leagueGradeColors[team.leagueGrade] || '#ff8800',
+        }));
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {

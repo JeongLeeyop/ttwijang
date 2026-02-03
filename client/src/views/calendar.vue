@@ -162,7 +162,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { getMatchesByDateRange } from '@/api/match';
+import { getGuestRecruitmentsByDateRange } from '@/api/guest';
 
 interface CalendarDay {
   day: number
@@ -208,6 +210,96 @@ export default class extends Vue {
   private selectedYear = new Date().getFullYear()
 
   private selectedMonth = new Date().getMonth() + 1
+
+  private isLoading = false
+
+  private matchData: MatchData[] = []
+
+  private guestData: MatchData[] = []
+
+  async created() {
+    await this.loadCalendarData();
+  }
+
+  @Watch('currentMonthIndex')
+  @Watch('currentYear')
+  async onMonthChange() {
+    await this.loadCalendarData();
+  }
+
+  private async loadCalendarData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const startDate = new Date(this.currentYear, this.currentMonthIndex, 1);
+      const endDate = new Date(this.currentYear, this.currentMonthIndex + 1, 0);
+
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+      // 매치 데이터 로드
+      const matchResponse = await getMatchesByDateRange(startDateStr, endDateStr);
+      const matches = matchResponse.data?.content || matchResponse.data || [];
+      this.matchData = matches.map((match: any) => {
+        const matchDate = new Date(match.matchDate);
+        return {
+          uid: match.uid,
+          name: match.homeTeamName || match.teamName,
+          logo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((match.homeTeamName || match.teamName)?.substring(0, 2) || 'M')}&background=random&color=fff&size=60`,
+          league: match.leagueGrade ? `${match.leagueGrade}리그` : '',
+          manner: match.teamMannerScore || 0,
+          matchType: match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+          teamSize: this.formatMatchFormat(match.matchFormat),
+          matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
+          matchDay: dayNames[matchDate.getDay()],
+          matchTime: match.matchTime,
+          location: match.stadiumName,
+          date: matchDate,
+        };
+      });
+
+      // 게스트 모집 데이터 로드
+      const guestResponse = await getGuestRecruitmentsByDateRange(startDateStr, endDateStr);
+      const guests = guestResponse.data?.content || guestResponse.data || [];
+      this.guestData = guests.map((guest: any) => {
+        const matchDate = new Date(guest.matchDate);
+        const isFull = guest.currentGuests >= guest.maxGuests;
+        return {
+          uid: guest.uid,
+          name: guest.teamName,
+          logo: guest.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(guest.teamName?.substring(0, 2) || 'G')}&background=random&color=fff&size=60`,
+          league: guest.leagueGrade ? `${guest.leagueGrade}리그` : '',
+          manner: guest.teamMannerScore || 0,
+          matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+          teamSize: this.formatMatchFormat(guest.matchFormat),
+          matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
+          matchDay: dayNames[matchDate.getDay()],
+          matchTime: guest.matchTime,
+          location: guest.stadiumName,
+          date: matchDate,
+          teamLogo: guest.teamLogoUrl,
+          currentMembers: guest.currentGuests,
+          maxMembers: guest.maxGuests,
+          isRecruitmentClosed: isFull,
+        };
+      });
+    } catch (error) {
+      console.error('Failed to load calendar data:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private formatMatchFormat(format: string): string {
+    const formatMap: { [key: string]: string } = {
+      FOUR_VS_FOUR: '4 대 4',
+      FIVE_VS_FIVE: '5 대 5',
+      SIX_VS_SIX: '6 대 6',
+      SEVEN_VS_SEVEN: '7 대 7',
+    };
+    return formatMap[format] || format || '';
+  }
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -275,84 +367,6 @@ export default class extends Vue {
 
     return days;
   }
-
-  private matchData: MatchData[] = [
-    {
-      name: '대성풋살클럽',
-      logo: 'https://ui-avatars.com/api/?name=DS&background=061da1&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.8,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 29일',
-      matchDay: '금',
-      matchTime: 'Pm 07:00',
-      location: '대성풋살장',
-      date: new Date(2025, 10, 29),
-    },
-    {
-      name: '강남FC',
-      logo: 'https://ui-avatars.com/api/?name=GN&background=0066cc&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.5,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 21일',
-      matchDay: '토',
-      matchTime: 'Pm 06:00',
-      location: '강남풋살장',
-      date: new Date(2025, 10, 21),
-    },
-    {
-      name: '서울유나이티드',
-      logo: 'https://ui-avatars.com/api/?name=SU&background=cc0000&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.9,
-      matchType: '친선 경기',
-      teamSize: '6 대 6',
-      matchDate: '11월 21일',
-      matchDay: '일',
-      matchTime: 'Am 10:00',
-      location: '서울풋살장',
-      date: new Date(2025, 10, 21),
-    },
-  ]
-
-  private guestData: MatchData[] = [
-    {
-      name: '인천블루스',
-      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.6,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 22일',
-      matchDay: '월',
-      matchTime: 'Pm 08:00',
-      location: '아란치FC',
-      date: new Date(2025, 10, 22),
-      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      currentMembers: 2,
-      maxMembers: 5,
-    },
-    {
-      name: '경기타이탄',
-      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.7,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 23일',
-      matchDay: '화',
-      matchTime: 'Pm 07:30',
-      location: '아란치FC',
-      date: new Date(2025, 10, 23),
-      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      currentMembers: 5,
-      maxMembers: 5,
-      isRecruitmentClosed: true,
-    },
-  ]
 
   get filteredMatches(): MatchData[] {
     return this.matchData.filter((match) => this.isSameDate(match.date, this.selectedDate));

@@ -46,6 +46,11 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import AuthLayout from '@/Layout/authLayout.vue';
+import {
+  sendPhoneVerification,
+  verifyPhoneCode,
+  findEmail,
+} from '@/api/user';
 
 @Component({
   components: {
@@ -61,7 +66,9 @@ export default class FindId extends Vue {
 
   private isVerified = false;
 
-  private sendVerificationCode() {
+  private foundEmail = '';
+
+  private async sendVerificationCode() {
     if (!this.phoneNumber) {
       this.$message.warning('휴대폰 번호를 입력해주세요.');
       return;
@@ -72,20 +79,28 @@ export default class FindId extends Vue {
       return;
     }
 
-    // TODO: 실제 인증번호 발송 API 호출
-    this.isVerificationSent = true;
-    this.$message.success('인증번호가 발송되었습니다.');
+    try {
+      await sendPhoneVerification(this.phoneNumber);
+      this.isVerificationSent = true;
+      this.$message.success('인증번호가 발송되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
+    }
   }
 
-  private verifyCode() {
+  private async verifyCode() {
     if (!this.verificationCode) {
       this.$message.warning('인증번호를 입력해주세요.');
       return;
     }
 
-    // TODO: 실제 인증번호 확인 API 호출
-    this.isVerified = true;
-    this.$message.success('인증이 완료되었습니다.');
+    try {
+      await verifyPhoneCode(this.phoneNumber, this.verificationCode);
+      this.isVerified = true;
+      this.$message.success('인증이 완료되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호가 올바르지 않습니다.');
+    }
   }
 
   private async handleFindId() {
@@ -105,10 +120,11 @@ export default class FindId extends Vue {
     }
 
     try {
-      // TODO: 실제 아이디 찾기 API 호출
-      this.$message.success('귀하의 아이디는 test@example.com 입니다.');
-    } catch (error) {
-      this.$message.error('아이디 찾기에 실패했습니다.');
+      const response = await findEmail(this.phoneNumber, this.verificationCode);
+      this.foundEmail = response.data.email;
+      this.$message.success(`귀하의 아이디는 ${this.foundEmail} 입니다.`);
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '아이디 찾기에 실패했습니다.');
       console.error(error);
     }
   }

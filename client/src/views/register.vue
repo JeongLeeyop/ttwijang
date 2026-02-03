@@ -178,6 +178,12 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import AuthLayout from '@/Layout/authLayout.vue';
+import {
+  register,
+  RegisterData,
+  sendPhoneVerification,
+  verifyPhoneCode,
+} from '@/api/user';
 
 @Component({
   components: {
@@ -246,7 +252,7 @@ export default class Register extends Vue {
     }
   }
 
-  private sendVerificationCode() {
+  private async sendVerificationCode() {
     if (!this.form.phoneNumber) {
       this.$message.warning('휴대폰 번호를 입력해주세요.');
       return;
@@ -257,20 +263,30 @@ export default class Register extends Vue {
       return;
     }
 
-    // TODO: 실제 인증번호 발송 API 호출
-    this.isVerificationSent = true;
-    this.$message.success('인증번호가 발송되었습니다.');
+    try {
+      // 실제 인증번호 발송 API 호출
+      await sendPhoneVerification(this.form.phoneNumber);
+      this.isVerificationSent = true;
+      this.$message.success('인증번호가 발송되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
+    }
   }
 
-  private verifyCode() {
+  private async verifyCode() {
     if (!this.form.verificationCode) {
       this.$message.warning('인증번호를 입력해주세요.');
       return;
     }
 
-    // TODO: 실제 인증번호 확인 API 호출
-    this.isVerified = true;
-    this.$message.success('인증이 완료되었습니다.');
+    try {
+      // 실제 인증번호 확인 API 호출
+      await verifyPhoneCode(this.form.phoneNumber, this.form.verificationCode);
+      this.isVerified = true;
+      this.$message.success('인증이 완료되었습니다.');
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호가 올바르지 않습니다.');
+    }
   }
 
   private validateForm(): boolean {
@@ -354,18 +370,18 @@ export default class Register extends Vue {
     }
 
     try {
-      // TODO: 실제 회원가입 API 호출
-      const registerData = {
+      // 실제 회원가입 API 호출
+      const registerData: RegisterData = {
         email: this.form.email,
         password: this.form.password,
         name: this.form.name,
         birthDate: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
-        gender: this.form.gender,
+        gender: this.form.gender as '남자' | '여자',
         phoneNumber: this.form.phoneNumber,
         marketingAgreed: this.form.terms.term6,
       };
 
-      // await registerUser(registerData);
+      await register(registerData);
 
       this.$message.success('회원가입이 완료되었습니다.');
 
@@ -373,8 +389,9 @@ export default class Register extends Vue {
       setTimeout(() => {
         this.$router.push({ name: 'EmailLogin' });
       }, 1500);
-    } catch (error) {
-      this.$message.error('회원가입에 실패했습니다.');
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || '회원가입에 실패했습니다.';
+      this.$message.error(errorMsg);
       console.error(error);
     }
   }
