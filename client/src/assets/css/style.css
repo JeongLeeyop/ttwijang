@@ -2210,6 +2210,11 @@
    MyPage Dashboard Styles
    ========================== */
 
+/* MyPage Header Background */
+.mypage-active .header {
+  background: #0a24a0;
+}
+
 .mypage-page .mypage-wrapper {
   margin-top: 73px;
   padding-bottom: 120px;

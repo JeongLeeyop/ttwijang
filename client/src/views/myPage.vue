@@ -194,8 +194,29 @@ export default class MyPage extends Vue {
 
   private isLoading = false;
 
-  async created() {
+  async mounted() {
+    // 마이페이지 헤더 배경색 설정을 위한 클래스 추가
+    const mainLayout = document.querySelector('.main-layout');
+    if (mainLayout) {
+      mainLayout.classList.add('mypage-active');
+    }
+
+    // 로그인 상태 체크
+    if (!this.userModule.isLogin) {
+      this.$message.warning('로그인이 필요한 페이지입니다.');
+      this.$router.replace({ name: 'Login' });
+      return;
+    }
+
     await this.loadUserData();
+  }
+
+  beforeDestroy(): void {
+    // 페이지 벗어날 때 클래스 제거
+    const mainLayout = document.querySelector('.main-layout');
+    if (mainLayout) {
+      mainLayout.classList.remove('mypage-active');
+    }
   }
 
   private async loadUserData(): Promise<void> {
@@ -315,7 +336,7 @@ export default class MyPage extends Vue {
           await this.userModule.LogOut();
           this.$message.success('로그아웃되었습니다.');
           // 로그인 페이지로 이동
-          this.$router.push({ name: 'EmailLogin' });
+          this.$router.push({ name: 'Login' });
         } catch (error) {
           console.error('로그아웃 실패:', error);
           this.$message.error('로그아웃에 실패했습니다.');
