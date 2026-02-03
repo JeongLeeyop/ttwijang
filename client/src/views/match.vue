@@ -99,6 +99,9 @@ import { Vue, Component } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
+import { getTeamByCode, joinTeam } from '@/api/team';
+import { getMatchesByDateRange } from '@/api/match';
+import { getGuestRecruitmentsByDateRange } from '@/api/guest';
 
 interface TeamCard {
   name: string
@@ -467,18 +470,54 @@ export default class extends Vue {
       && this.currentMonthIndex === this.selectedDate.getMonth();
   }
 
-  private joinTeamWithCode(): void {
+  private async joinTeamWithCode(): Promise<void> {
     if (!this.teamCode.trim()) {
       this.$message.warning('팀 코드를 입력해주세요.');
       return;
     }
-    console.log('Joining team with code:', this.teamCode);
-    this.$message.success(`팀 코드 "${this.teamCode}"로 참여 신청했습니다.`);
-    this.teamCode = '';
+
+    try {
+      // 팀 코드로 팀 조회
+      const teamResponse = await getTeamByCode(this.teamCode);
+      const team = teamResponse.data;
+
+      // 팀 가입 신청
+      await joinTeam({
+        teamUid: team.uid,
+        message: '팀 코드를 통한 가입 신청',
+      });
+
+      this.$message.success(`"${team.name}" 팀에 가입 신청했습니다.`);
+      this.teamCode = '';
+    } catch (error: any) {
+      console.error('Team join failed:', error);
+      this.$message.error(error.response?.data?.message || '팀을 찾을 수 없습니다.');
+    }
   }
 
   private goToCreateTeam(): void {
     this.$router.push('/create-team');
+  }
+
+  async created() {
+    await this.loadGuestData();
+  }
+
+  private async loadGuestData(): Promise<void> {
+    try {
+      const today = new Date();
+      const startDate = today.toISOString().split('T')[0];
+      const endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const response = await getGuestRecruitmentsByDateRange(startDate, endDate);
+      if (response.data && response.data.content) {
+        // API 데이터를 기존 guestData 형식에 맞게 변환
+        // 이 부분은 실제 API 연결 시 활성화
+        // this.guestData = response.data.content.map(...);
+      }
+    } catch (error) {
+      console.error('Failed to load guest data:', error);
+    }
   }
 }
 </script>

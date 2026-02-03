@@ -162,8 +162,27 @@ export default class extends Vue {
 
   private touchEndX = 0
 
+  private isLoading = false
+
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
+  }
+
+  async created() {
+    await this.loadData();
+  }
+
+  private async loadData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      // 리그 목록과 팀 데이터 로드는 추후 API 연결 시 활성화
+      // const leagueResponse = await getLeagueList();
+      // const teamsResponse = await getTeamList();
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private slickOptions = {

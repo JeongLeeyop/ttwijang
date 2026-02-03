@@ -1,0 +1,121 @@
+import request from '@/utils/request';
+
+// 매치 목록 조회
+export function getMatchList(params?: {
+  date?: string
+  status?: string
+  region?: string
+  matchType?: string
+  page?: number
+  size?: number
+}) {
+  return request({
+    url: '/api/match',
+    method: 'get',
+    params,
+  });
+}
+
+// 매치 상세 조회
+export function getMatchDetail(uid: string) {
+  return request({
+    url: `/api/match/${uid}`,
+    method: 'get',
+  });
+}
+
+// 캘린더용 매치 조회
+export function getMatchesByDateRange(startDate: string, endDate: string) {
+  return request({
+    url: '/api/match/calendar',
+    method: 'get',
+    params: { startDate, endDate },
+  });
+}
+
+// 매치 생성
+export interface CreateMatchRequest {
+  teamUid: string
+  matchType: 'FRIENDLY' | 'FREE'
+  matchFormat: 'FOUR_VS_FOUR' | 'FIVE_VS_FIVE' | 'SIX_VS_SIX' | 'SEVEN_VS_SEVEN'
+  matchDate: string
+  matchTime: string
+  stadiumName: string
+  stadiumAddress?: string
+  regionSido?: string
+  regionSigungu?: string
+  fee?: number
+  description?: string
+  genderType?: number
+  ageGroups?: number
+}
+
+export function createMatch(data: CreateMatchRequest) {
+  return request({
+    url: '/api/match',
+    method: 'post',
+    data,
+  });
+}
+
+// 매치 신청
+export interface ApplyMatchRequest {
+  matchUid: string
+  teamUid?: string
+  message?: string
+}
+
+export function applyToMatch(data: ApplyMatchRequest) {
+  return request({
+    url: '/api/match/apply',
+    method: 'post',
+    data,
+  });
+}
+
+// 매치 신청 취소
+export function cancelMatchApplication(matchUid: string) {
+  return request({
+    url: `/api/match/${matchUid}/cancel`,
+    method: 'post',
+  });
+}
+
+// 매치 삭제
+export function deleteMatch(uid: string) {
+  return request({
+    url: `/api/match/${uid}`,
+    method: 'delete',
+  });
+}
+
+// 내 팀 매치 목록 조회
+export function getMyTeamMatches(teamUid: string) {
+  return request({
+    url: `/api/match/team/${teamUid}`,
+    method: 'get',
+  });
+}
+
+// 매치 타입 정의
+export interface FutsalMatch {
+  uid: string
+  hostTeamUid: string
+  hostTeamName: string
+  hostTeamLogoUrl?: string
+  opponentTeamUid?: string
+  opponentTeamName?: string
+  opponentTeamLogoUrl?: string
+  matchType: 'FRIENDLY' | 'FREE'
+  matchFormat: 'FOUR_VS_FOUR' | 'FIVE_VS_FIVE' | 'SIX_VS_SIX' | 'SEVEN_VS_SEVEN'
+  matchDate: string
+  matchTime: string
+  stadiumName: string
+  stadiumAddress?: string
+  region: string
+  fee?: number
+  status: 'RECRUITING' | 'MATCHED' | 'COMPLETED' | 'CANCELLED'
+  genderType?: number
+  ageGroups?: number
+  description?: string
+}

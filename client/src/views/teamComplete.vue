@@ -45,6 +45,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { createTeam, CreateTeamRequest } from '@/api/team';
 
 @Component
 export default class TeamCompletePage extends Vue {
@@ -54,9 +55,13 @@ export default class TeamCompletePage extends Vue {
 
   private inviteCode = ''
 
-  mounted() {
+  private teamUid = ''
+
+  private isLoading = false
+
+  async mounted() {
     this.loadTeamData();
-    this.generateInviteCode();
+    await this.submitTeamCreation();
   }
 
   private loadTeamData(): void {
@@ -69,14 +74,59 @@ export default class TeamCompletePage extends Vue {
     }
   }
 
-  private generateInviteCode(): void {
-    // 랜덤 초대 코드 생성 (실제로는 백엔드에서 받아와야 함)
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 8; i += 1) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
+  private async submitTeamCreation(): Promise<void> {
+    try {
+      this.isLoading = true;
+
+      // 세션 스토리지에서 데이터 수집
+      const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');
+      const teamInfoData = JSON.parse(sessionStorage.getItem('teamInfoData') || '{}');
+      const teamLocationData = JSON.parse(sessionStorage.getItem('teamLocationData') || '{}');
+
+      // 나이대 비트마스크 변환
+      const ageGroupMap: { [key: string]: number } = {
+        '10s': 1, '20s': 2, '30s': 4, '40s': 8, '50s': 16, '60s': 32,
+      };
+      let ageGroups = 0;
+      if (teamInfoData.ageRanges) {
+        teamInfoData.ageRanges.forEach((age: string) => {
+          ageGroups += ageGroupMap[age] || 0;
+        });
+      }
+
+      // 성별 변환
+      const genderMap: { [key: string]: number } = {
+        male: 0, female: 1, mixed: 2,
+      };
+
+      const createRequest: CreateTeamRequest = {
+        name: teamFormData.name,
+        teamCode: teamFormData.code,
+        logoUrl: teamFormData.logo,
+        activityDays: teamInfoData.activeDays?.join(','),
+        activityTimes: teamInfoData.activeTimes?.join(','),
+        regionSido: teamLocationData.city,
+        regionSigungu: teamLocationData.district,
+        homeStadium: teamLocationData.stadiumName,
+        genderType: genderMap[teamInfoData.gender] ?? 2,
+        ageGroups,
+      };
+
+      const response = await createTeam(createRequest);
+      this.teamUid = response.data.uid;
+      this.inviteCode = response.data.teamCode;
+
+      // 세션 스토리지 정리
+      sessionStorage.removeItem('teamFormData');
+      sessionStorage.removeItem('teamInfoData');
+      sessionStorage.removeItem('teamLocationData');
+    } catch (error: any) {
+      console.error('Team creation failed:', error);
+      this.$message.error(error.response?.data?.message || '팀 생성에 실패했습니다.');
+      this.$router.push('/create-team');
+    } finally {
+      this.isLoading = false;
     }
-    this.inviteCode = result;
   }
 
   private goToTeamInvite(): void {

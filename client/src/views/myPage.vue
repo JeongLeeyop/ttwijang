@@ -156,6 +156,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { getWallet } from '@/api/cash';
+import { getMyTeams } from '@/api/team';
+import { getUserMannerScore } from '@/api/mannerRating';
 
 @Component({
   name: 'MyPage',
@@ -183,6 +186,33 @@ export default class MyPage extends Vue {
     points: 25000,
     coupons: 3,
   };
+
+  private isLoading = false;
+
+  async created() {
+    await this.loadUserData();
+  }
+
+  private async loadUserData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      // 지갑 정보 로드
+      const walletResponse = await getWallet();
+      if (walletResponse.data) {
+        this.userWallet.points = walletResponse.data.balance || 0;
+      }
+
+      // 내 팀 정보 로드
+      const teamsResponse = await getMyTeams();
+      if (teamsResponse.data && teamsResponse.data.length > 0) {
+        this.userStats.team = teamsResponse.data[0].name;
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
 
   private formatCurrency(value: number): string {
     return value.toLocaleString('ko-KR');
