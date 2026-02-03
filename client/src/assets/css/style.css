@@ -66,11 +66,19 @@
 .el-popover.el-popper.alarm { 
   margin-top: 12px;
   border-radius: 20px;
-  top: 64px !important;
-  left: 300px !important;
+  /* top: 64px !important; */
+  left: 3px !important;
   max-height: 400px;
-  overflow-y: scroll;
-  padding:20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  /* 스크롤바 숨기기 */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.el-popover.el-popper.alarm::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .el-popover.el-popper.alarm::before {

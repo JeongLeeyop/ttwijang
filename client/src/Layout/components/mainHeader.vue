@@ -12,8 +12,8 @@
       </div>
       <div class="header-right">
         <i class="el-icon-date" @click="goToCalendar"></i>
-        <el-popover v-model="showPopover" placement="bottom-end" width="450" trigger="click" popper-class="alarm"
-          :popper-append-to-body="false" :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
+        <el-popover v-model="showPopover" width="450" trigger="click" popper-class="alarm"
+          :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
           <div @click="showPopover = false" class="alarm-close">
             <i class="el-icon-close"></i>
           </div>

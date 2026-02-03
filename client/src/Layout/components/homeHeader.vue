@@ -3,31 +3,6 @@
     <button @click="handleClickBefore()" class="home-header__arrow"><img src="~@/assets/images/arrow-ico.png"
         alt="뒤로가기"></button>
     {{ $route.meta.title || 'ttwijang' }}
-    <el-popover v-model="showPopover" placement="bottom-end" width="450" trigger="click" popper-class="alarm" place-
-      :popper-append-to-body="false" :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
-      <div @click="showPopover = false" class="alarm-close">
-            <i class="el-icon-close"></i>
-          </div>
-      <div v-if="alarmList2.length > 0">
-        <div class="alarm-item-day-wr" v-for="(item, index) in alarmList2" :key="index">
-          <div class="alarm-item-day">{{ item[0].createDate | parseDate('YYYY-MM-DD') }}</div>
-          <div v-if="item.length > 0">
-            <a :href="item2.link" class="alarm-item-wr" v-for="item2 in item" :key="item2.id">
-              <div class="alarm-info">
-                <div class="title">{{ item2.title }}</div>
-                <div class="date">{{ item2.createDate | parseDate('YYYY-MM-DD HH:mm') }}</div>
-              </div>
-              <div class="alarm-content">{{ item2.content }}</div>
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="empty" v-else>
-        <div class="logo"><img src="@/assets/images/logo2.png" /></div>
-        <div class="txt">도착한 알림이 없어요</div>
-      </div>
-      <el-button type="text" slot="reference" class="diary-header__user alarm"></el-button>
-    </el-popover>
     <router-link :to="{ name: 'Mypage' }" class="home-header__user" :class="{'alert': newAlarmCount >= 1}"><img src="~@/assets/images/user.png"
         alt="마이페이지"></router-link>
   </div>
