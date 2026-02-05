@@ -236,6 +236,33 @@ public class LeagueService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 리그 참가 팀 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.LeagueTeamResponse> getLeagueTeams(String leagueUid) {
+        List<LeagueTeam> leagueTeams = leagueTeamRepository.findByLeagueUidOrderByRanking(leagueUid);
+        
+        return leagueTeams.stream()
+                .map(lt -> {
+                    Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
+                    if (team != null) {
+                        League league = leagueRepository.findByUid(leagueUid).orElse(null);
+                        return LeagueDto.LeagueTeamResponse.builder()
+                                .teamUid(team.getUid())
+                                .teamName(team.getName())
+                                .teamLogoUrl(team.getLogoFileUid())
+                                .leagueGrade(league != null ? league.getGrade() : "")
+                                .ranking(lt.getRanking())
+                                .points(lt.getPoints())
+                                .build();
+                    }
+                    return null;
+                })
+                .filter(response -> response != null)
+                .collect(Collectors.toList());
+    }
+
     private LeagueDto.ListResponse toListResponse(League league) {
         return LeagueDto.ListResponse.builder()
                 .uid(league.getUid())

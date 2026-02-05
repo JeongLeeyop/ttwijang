@@ -90,4 +90,11 @@ public class LeagueController {
             @PathVariable String grade) {
         return ResponseEntity.ok(leagueService.getLeaguesByGrade(grade));
     }
+
+    @Operation(summary = "리그 참가 팀 목록 조회")
+    @GetMapping("/{leagueUid}/teams")
+    public ResponseEntity<List<LeagueDto.LeagueTeamResponse>> getLeagueTeams(
+            @PathVariable String leagueUid) {
+        return ResponseEntity.ok(leagueService.getLeagueTeams(leagueUid));
+    }
 }

@@ -246,4 +246,29 @@ public class LeagueDto {
         @Schema(description = "리그 등급 (A, B 등)")
         private String grade;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "리그 참가 팀 응답")
+    public static class LeagueTeamResponse {
+        @Schema(description = "팀 UID")
+        private String teamUid;
+
+        @Schema(description = "팀 이름")
+        private String teamName;
+
+        @Schema(description = "팀 로고 URL")
+        private String teamLogoUrl;
+
+        @Schema(description = "리그 등급")
+        private String leagueGrade;
+
+        @Schema(description = "순위")
+        private Integer ranking;
+
+        @Schema(description = "승점")
+        private Integer points;
+    }
 }

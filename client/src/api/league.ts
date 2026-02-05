@@ -94,12 +94,21 @@ export interface League {
   season: string
   regionSido: string
   regionSigungu?: string
-  status: 'RECRUITING' | 'IN_PROGRESS' | 'FINISHED'
+  status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED'
   maxTeams: number
   currentTeams: number
   startDate?: string
   endDate?: string
   description?: string
+}
+
+export interface LeagueTeamResponse {
+  teamUid: string
+  teamName: string
+  teamLogoUrl?: string
+  leagueGrade: string
+  ranking?: number
+  points?: number
 }
 
 export interface LeagueStanding {

@@ -31,11 +31,19 @@
               <i class="el-icon-circle-plus-outline"></i>
             </button>
           </div>
-          <VueSlickCarousel v-bind="joinTeamSlickOptions" class="join-team-carousel">
+          <div v-if="isLoading" class="loading-container">
+            <i class="el-icon-loading"></i> 로딩 중...
+          </div>
+          <VueSlickCarousel
+            v-else-if="leagueParticipatingTeams.length > 0"
+            v-bind="joinTeamSlickOptions"
+            class="join-team-carousel"
+          >
             <div
-              v-for="(team, index) in joinTeams"
+              v-for="(team, index) in leagueParticipatingTeams"
               :key="index"
               class="join-team-card"
+              @click="navigateToTeam(team.teamUid)"
             >
               <div class="team-badge-wrapper">
                 <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
@@ -46,6 +54,9 @@
               <div class="join-team-name">{{ team.name }}</div>
             </div>
           </VueSlickCarousel>
+          <div v-else class="empty-message">
+            참가 팀이 없습니다.
+          </div>
         </div>
       <div class="league-join-team">
         <div class="join-team-header">
@@ -54,11 +65,19 @@
               <i class="el-icon-circle-plus-outline"></i>
             </button>
           </div>
-          <VueSlickCarousel v-bind="joinTeamSlickOptions" class="join-team-carousel">
+          <div v-if="isLoading" class="loading-container">
+            <i class="el-icon-loading"></i> 로딩 중...
+          </div>
+          <VueSlickCarousel
+            v-else-if="recruitingTeams.length > 0"
+            v-bind="joinTeamSlickOptions"
+            class="join-team-carousel"
+          >
             <div
-              v-for="(team, index) in joinTeams"
+              v-for="(team, index) in recruitingTeams"
               :key="index"
               class="join-team-card"
+              @click="navigateToTeam(team.teamUid)"
             >
               <div class="team-badge-wrapper">
                 <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
@@ -69,6 +88,9 @@
               <div class="join-team-name">{{ team.name }}</div>
             </div>
           </VueSlickCarousel>
+          <div v-else class="empty-message">
+            모집 중인 팀이 없습니다.
+          </div>
         </div>
 
         <!-- League Status Expanded View -->
@@ -102,7 +124,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import { getLeagueList, getLeagueTeams } from '@/api/league';
+import { getLeagueList, getLeagueTeams, LeagueTeamResponse } from '@/api/league';
 import { getTeamList } from '@/api/team';
 
 interface TeamCard {
@@ -145,6 +167,7 @@ interface Match {
 }
 
 interface JoinTeam {
+  teamUid: string
   name: string
   logo: string
   leagueName: string
@@ -171,6 +194,10 @@ export default class extends Vue {
 
   private isLoading = false
 
+  private leagueParticipatingTeams: JoinTeam[] = []
+
+  private recruitingTeams: JoinTeam[] = []
+
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
   }
@@ -182,31 +209,49 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 리그 목록 로드
-      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS' });
-      const leagues = leagueResponse.data || [];
+      const leagueGradeColors: { [key: string]: string } = {
+        A: '#061da1',
+        B: '#ff8800',
+        C: '#e91e63',
+      };
 
-      // 팀 목록 로드 (회원 모집 중인 팀)
-      const teamsResponse = await getTeamList({ page: 0, size: 10 });
-      const teams = teamsResponse.data?.content || [];
+      // 1. 진행 중인 리그 목록 조회
+      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS', page: 0, size: 1 });
+      const leagues = leagueResponse.data?.content || [];
 
-      // 리그 참가 팀 데이터 변환
       if (leagues.length > 0) {
-        const leagueGradeColors: { [key: string]: string } = {
-          A: '#061da1',
-          B: '#ff8800',
-          C: '#e91e63',
-        };
+        const currentLeague = leagues[0];
 
-        this.joinTeams = teams.slice(0, 5).map((team: any) => ({
-          name: team.name,
-          logo: team.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
-          leagueName: team.leagueGrade ? `${team.leagueGrade}리그` : 'B리그',
+        // 2. 리그 참가 팀 목록 조회
+        const leagueTeamsResponse = await getLeagueTeams(currentLeague.uid);
+        const leagueTeamsData: LeagueTeamResponse[] = leagueTeamsResponse.data || [];
+
+        this.leagueParticipatingTeams = leagueTeamsData.map((team: LeagueTeamResponse) => ({
+          teamUid: team.teamUid,
+          name: team.teamName,
+          logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=80`,
+          leagueName: `${team.leagueGrade}리그`,
           leagueColor: leagueGradeColors[team.leagueGrade] || '#ff8800',
         }));
       }
+
+      // 3. 회원 모집 중인 팀 목록 조회
+      const recruitingTeamsResponse = await getTeamList({ page: 0, size: 10 });
+      const teams = recruitingTeamsResponse.data?.content || [];
+
+      this.recruitingTeams = teams
+        .filter((team: any) => team.recruitingMembers === true)
+        .slice(0, 10)
+        .map((team: any) => ({
+          teamUid: team.uid,
+          name: team.name,
+          logo: team.logoFileUid || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
+          leagueName: team.grade ? `${team.grade}리그` : 'B리그',
+          leagueColor: leagueGradeColors[team.grade] || '#ff8800',
+        }));
     } catch (error) {
       console.error('Failed to load data:', error);
+      this.$message.error('데이터를 불러오는데 실패했습니다.');
     } finally {
       this.isLoading = false;
     }
@@ -254,38 +299,7 @@ export default class extends Vue {
     ],
   }
 
-  private joinTeams: JoinTeam[] = [
-    {
-      name: '최강숏FC',
-      logo: 'https://ui-avatars.com/api/?name=CK&background=1a1a1a&color=fff&size=80',
-      leagueName: 'A리그',
-      leagueColor: '#061da1',
-    },
-    {
-      name: '위더스FC',
-      logo: 'https://ui-avatars.com/api/?name=WD&background=1e3c8c&color=fff&size=80',
-      leagueName: 'B리그',
-      leagueColor: '#ff8800',
-    },
-    {
-      name: '아란치FC',
-      logo: 'https://ui-avatars.com/api/?name=AR&background=22c55e&color=fff&size=80',
-      leagueName: 'C리그',
-      leagueColor: '#e91e63',
-    },
-    {
-      name: '라이온FC',
-      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=80',
-      leagueName: 'A리그',
-      leagueColor: '#061da1',
-    },
-    {
-      name: '진주고FC',
-      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=80',
-      leagueName: 'B리그',
-      leagueColor: '#ff8800',
-    },
-  ]
+  private joinTeams: JoinTeam[] = []
 
   private teamCards: TeamCard[] = [
     {
@@ -511,6 +525,10 @@ export default class extends Vue {
   private navigateToMatchDetail(match: Match): void {
     console.log('Navigate to match:', match);
   }
+
+  private navigateToTeam(teamUid: string): void {
+    this.$router.push(`/team/${teamUid}`);
+  }
 }
 </script>
 
@@ -518,5 +536,33 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.loading-container i {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.join-team-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.join-team-card:hover {
+  transform: scale(1.05);
 }
 </style>
