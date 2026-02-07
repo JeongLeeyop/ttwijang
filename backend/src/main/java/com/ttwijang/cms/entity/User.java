@@ -114,8 +114,7 @@ public class User implements Serializable {
         if (password == null)
             this.userPassword = "";
         else {
-            // DelegatingPasswordEncoder 사용하여 {bcrypt} prefix 자동 추가
-            PasswordEncoder passwordEncoder = org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             this.userPassword = passwordEncoder.encode(password);
         }
     }

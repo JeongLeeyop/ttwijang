@@ -319,9 +319,11 @@ export default class Register extends Vue {
         this.startResendTimer();
         this.$message.success('인증번호가 발송되었습니다. 3분 이내에 입력해주세요.');
       } else {
+        this.isVerificationSent = true;
         this.$message.error(response.data.message || '인증번호 발송에 실패했습니다.');
       }
     } catch (error: any) {
+      this.isVerificationSent = true;
       this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
     }
   }

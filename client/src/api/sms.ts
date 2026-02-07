@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 
-const PATH = '/sms';
+const PATH = 'client/sms';
 
 export interface SmsRequest {
   phoneNumber: string

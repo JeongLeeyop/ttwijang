@@ -3,6 +3,7 @@ package com.ttwijang.cms.api.user.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;

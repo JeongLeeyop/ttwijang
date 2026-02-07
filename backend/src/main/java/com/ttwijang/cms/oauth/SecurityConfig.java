@@ -60,8 +60,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // NoOpPasswordEncoder와 BCrypt를 모두 지원하도록 설정
-        return org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        // BCryptPasswordEncoder 사용 (prefix 없이 암호화)
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

@@ -2,7 +2,7 @@ import qs from 'qs';
 import axios from 'axios';
 import request from '@/utils/request';
 
-const PATH = '/user';
+const PATH = '/client/user';
 
 export const tokenCheck = (jwt: any) => {
   const token = {
