@@ -272,7 +272,7 @@ export default class MyPage extends Vue {
 
       // 참여 경기수 로드
       try {
-        const matchesResponse = await getMatchList({ status: 'FINISHED' });
+        const matchesResponse = await getMatchList({ status: 'COMPLETED' });
         if (matchesResponse.data) {
           this.userStats.matches = matchesResponse.data.totalElements || 0;
         }

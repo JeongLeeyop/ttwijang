@@ -6,7 +6,7 @@ export function getNotifications(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/notification',
+    url: '/notification',
     method: 'get',
     params,
   });
@@ -15,7 +15,7 @@ export function getNotifications(params?: {
 // 읽지 않은 알림 개수 조회
 export function getUnreadNotificationCount() {
   return request({
-    url: '/api/notification/unread-count',
+    url: '/notification/unread-count',
     method: 'get',
   });
 }
@@ -23,7 +23,7 @@ export function getUnreadNotificationCount() {
 // 알림 읽음 처리
 export function markNotificationAsRead(uid: string) {
   return request({
-    url: `/api/notification/${uid}/read`,
+    url: `/notification/${uid}/read`,
     method: 'post',
   });
 }
@@ -31,7 +31,7 @@ export function markNotificationAsRead(uid: string) {
 // 전체 알림 읽음 처리
 export function markAllNotificationsAsRead() {
   return request({
-    url: '/api/notification/read-all',
+    url: '/notification/read-all',
     method: 'post',
   });
 }
@@ -39,7 +39,7 @@ export function markAllNotificationsAsRead() {
 // 알림 삭제
 export function deleteNotification(uid: string) {
   return request({
-    url: `/api/notification/${uid}`,
+    url: `/notification/${uid}`,
     method: 'delete',
   });
 }

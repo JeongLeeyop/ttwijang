@@ -3,7 +3,7 @@ import request from '@/utils/request';
 // 시/도 목록 조회
 export function getSidoList() {
   return request({
-    url: '/api/region/sido',
+    url: '/region/sido',
     method: 'get',
   });
 }
@@ -11,7 +11,7 @@ export function getSidoList() {
 // 시/군/구 목록 조회
 export function getSigunguList(sidoCode: string) {
   return request({
-    url: `/api/region/sigungu/${sidoCode}`,
+    url: `/region/sigungu/${sidoCode}`,
     method: 'get',
   });
 }
@@ -19,7 +19,7 @@ export function getSigunguList(sidoCode: string) {
 // 전체 지역 목록 조회
 export function getAllRegions() {
   return request({
-    url: '/api/region',
+    url: '/region',
     method: 'get',
   });
 }

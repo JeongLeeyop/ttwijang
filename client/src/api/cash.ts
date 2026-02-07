@@ -3,7 +3,7 @@ import request from '@/utils/request';
 // 지갑 조회
 export function getWallet() {
   return request({
-    url: '/api/cash/wallet',
+    url: '/cash/wallet',
     method: 'get',
   });
 }
@@ -17,7 +17,7 @@ export interface ChargeRequest {
 
 export function chargeCash(data: ChargeRequest) {
   return request({
-    url: '/api/cash/charge',
+    url: '/cash/charge',
     method: 'post',
     data,
   });
@@ -32,7 +32,7 @@ export interface UseRequest {
 
 export function useCash(data: UseRequest) {
   return request({
-    url: '/api/cash/use',
+    url: '/cash/use',
     method: 'post',
     data,
   });
@@ -44,7 +44,7 @@ export function getTransactions(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/cash/transactions',
+    url: '/cash/transactions',
     method: 'get',
     params,
   });
@@ -56,7 +56,7 @@ export function getTransactionsByDateRange(startDate: string, endDate: string, p
   size?: number
 }) {
   return request({
-    url: '/api/cash/transactions/range',
+    url: '/cash/transactions/range',
     method: 'get',
     params: { startDate, endDate, ...params },
   });
@@ -72,7 +72,7 @@ export interface SponsorshipRequest {
 
 export function sponsorTeam(data: SponsorshipRequest) {
   return request({
-    url: '/api/cash/sponsorship',
+    url: '/cash/sponsorship',
     method: 'post',
     data,
   });
@@ -81,7 +81,7 @@ export function sponsorTeam(data: SponsorshipRequest) {
 // 팀 후원 목록 조회
 export function getTeamSponsorships(teamUid: string) {
   return request({
-    url: `/api/cash/sponsorship/team/${teamUid}`,
+    url: `/cash/sponsorship/team/${teamUid}`,
     method: 'get',
   });
 }
@@ -89,7 +89,7 @@ export function getTeamSponsorships(teamUid: string) {
 // 내 후원 목록 조회
 export function getMySponsorships() {
   return request({
-    url: '/api/cash/sponsorship/my',
+    url: '/cash/sponsorship/my',
     method: 'get',
   });
 }
@@ -97,7 +97,7 @@ export function getMySponsorships() {
 // 팀 후원 요약 조회
 export function getTeamSponsorshipSummary(teamUid: string) {
   return request({
-    url: `/api/cash/sponsorship/team/${teamUid}/summary`,
+    url: `/cash/sponsorship/team/${teamUid}/summary`,
     method: 'get',
   });
 }

@@ -9,7 +9,7 @@ export function getGuestRecruitmentList(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/guest',
+    url: '/guest',
     method: 'get',
     params,
   });
@@ -18,7 +18,7 @@ export function getGuestRecruitmentList(params?: {
 // 게스트 모집 상세 조회
 export function getGuestRecruitmentDetail(uid: string) {
   return request({
-    url: `/api/guest/${uid}`,
+    url: `/guest/${uid}`,
     method: 'get',
   });
 }
@@ -26,7 +26,7 @@ export function getGuestRecruitmentDetail(uid: string) {
 // 캘린더용 게스트 모집 조회
 export function getGuestRecruitmentsByDateRange(startDate: string, endDate: string) {
   return request({
-    url: '/api/guest/calendar',
+    url: '/guest/calendar',
     method: 'get',
     params: { startDate, endDate },
   });
@@ -53,7 +53,7 @@ export interface CreateGuestRecruitmentRequest {
 
 export function createGuestRecruitment(data: CreateGuestRecruitmentRequest) {
   return request({
-    url: '/api/guest',
+    url: '/guest',
     method: 'post',
     data,
   });
@@ -69,7 +69,7 @@ export interface ApplyGuestRequest {
 
 export function applyAsGuest(data: ApplyGuestRequest) {
   return request({
-    url: '/api/guest/apply',
+    url: '/guest/apply',
     method: 'post',
     data,
   });
@@ -83,7 +83,7 @@ export interface ProcessGuestApplicationRequest {
 
 export function processGuestApplication(data: ProcessGuestApplicationRequest) {
   return request({
-    url: '/api/guest/process',
+    url: '/guest/process',
     method: 'post',
     data,
   });
@@ -92,7 +92,7 @@ export function processGuestApplication(data: ProcessGuestApplicationRequest) {
 // 내 게스트 신청 목록 조회
 export function getMyGuestApplications() {
   return request({
-    url: '/api/guest/my-applications',
+    url: '/guest/my-applications',
     method: 'get',
   });
 }

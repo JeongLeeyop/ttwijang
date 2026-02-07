@@ -10,7 +10,7 @@ export function getMatchList(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/match',
+    url: '/match',
     method: 'get',
     params,
   });
@@ -19,7 +19,7 @@ export function getMatchList(params?: {
 // 매치 상세 조회
 export function getMatchDetail(uid: string) {
   return request({
-    url: `/api/match/${uid}`,
+    url: `/match/${uid}`,
     method: 'get',
   });
 }
@@ -27,7 +27,7 @@ export function getMatchDetail(uid: string) {
 // 캘린더용 매치 조회
 export function getMatchesByDateRange(startDate: string, endDate: string) {
   return request({
-    url: '/api/match/calendar',
+    url: '/match/calendar',
     method: 'get',
     params: { startDate, endDate },
   });
@@ -52,7 +52,7 @@ export interface CreateMatchRequest {
 
 export function createMatch(data: CreateMatchRequest) {
   return request({
-    url: '/api/match',
+    url: '/match',
     method: 'post',
     data,
   });
@@ -67,7 +67,7 @@ export interface ApplyMatchRequest {
 
 export function applyToMatch(data: ApplyMatchRequest) {
   return request({
-    url: '/api/match/apply',
+    url: '/match/apply',
     method: 'post',
     data,
   });

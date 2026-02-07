@@ -184,7 +184,7 @@ export default class extends Vue {
       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
       this.recentMatches = matches
-        .filter((match: any) => match.status === 'FINISHED')
+        .filter((match: any) => match.status === 'COMPLETED')
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {

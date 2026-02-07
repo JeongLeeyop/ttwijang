@@ -12,7 +12,7 @@ export interface SubmitMannerRatingRequest {
 
 export function submitMannerRating(data: SubmitMannerRatingRequest) {
   return request({
-    url: '/api/manner-rating',
+    url: '/manner-rating',
     method: 'post',
     data,
   });
@@ -21,7 +21,7 @@ export function submitMannerRating(data: SubmitMannerRatingRequest) {
 // 사용자 매너 점수 조회
 export function getUserMannerScore(userUid: string) {
   return request({
-    url: `/api/manner-rating/user/${userUid}`,
+    url: `/manner-rating/user/${userUid}`,
     method: 'get',
   });
 }
@@ -29,7 +29,7 @@ export function getUserMannerScore(userUid: string) {
 // 팀 매너 점수 조회
 export function getTeamMannerScore(teamUid: string) {
   return request({
-    url: `/api/manner-rating/team/${teamUid}`,
+    url: `/manner-rating/team/${teamUid}`,
     method: 'get',
   });
 }
@@ -37,7 +37,7 @@ export function getTeamMannerScore(teamUid: string) {
 // 내 평가 목록 조회 (내가 받은 평가)
 export function getMyRatings() {
   return request({
-    url: '/api/manner-rating/my',
+    url: '/manner-rating/my',
     method: 'get',
   });
 }

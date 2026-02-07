@@ -9,7 +9,7 @@ export function getTeamList(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/team',
+    url: '/team',
     method: 'get',
     params,
   });
@@ -18,7 +18,7 @@ export function getTeamList(params?: {
 // 내 팀 목록 조회
 export function getMyTeams() {
   return request({
-    url: '/api/team/my',
+    url: '/team/my',
     method: 'get',
   });
 }
@@ -26,7 +26,7 @@ export function getMyTeams() {
 // 팀 상세 조회
 export function getTeamDetail(uid: string) {
   return request({
-    url: `/api/team/${uid}`,
+    url: `/team/${uid}`,
     method: 'get',
   });
 }
@@ -34,7 +34,7 @@ export function getTeamDetail(uid: string) {
 // 팀 코드로 조회
 export function getTeamByCode(teamCode: string) {
   return request({
-    url: `/api/team/code/${teamCode}`,
+    url: `/team/code/${teamCode}`,
     method: 'get',
   });
 }
@@ -58,7 +58,7 @@ export interface CreateTeamRequest {
 
 export function createTeam(data: CreateTeamRequest) {
   return request({
-    url: '/api/team',
+    url: '/team',
     method: 'post',
     data,
   });
@@ -71,7 +71,7 @@ export interface UpdateTeamRequest extends Partial<CreateTeamRequest> {
 
 export function updateTeam(data: UpdateTeamRequest) {
   return request({
-    url: `/api/team/${data.uid}`,
+    url: `/team/${data.uid}`,
     method: 'put',
     data,
   });
@@ -80,7 +80,7 @@ export function updateTeam(data: UpdateTeamRequest) {
 // 팀 삭제
 export function deleteTeam(uid: string) {
   return request({
-    url: `/api/team/${uid}`,
+    url: `/team/${uid}`,
     method: 'delete',
   });
 }
@@ -94,7 +94,7 @@ export interface JoinTeamRequest {
 
 export function joinTeam(data: JoinTeamRequest) {
   return request({
-    url: '/api/team/join',
+    url: '/team/join',
     method: 'post',
     data,
   });
@@ -108,7 +108,7 @@ export interface ProcessJoinRequest {
 
 export function processJoinRequest(data: ProcessJoinRequest) {
   return request({
-    url: '/api/team/process-join',
+    url: '/team/process-join',
     method: 'post',
     data,
   });
@@ -117,7 +117,7 @@ export function processJoinRequest(data: ProcessJoinRequest) {
 // 팀 멤버 목록 조회
 export function getTeamMembers(teamUid: string) {
   return request({
-    url: `/api/team/${teamUid}/members`,
+    url: `/team/${teamUid}/members`,
     method: 'get',
   });
 }
@@ -125,7 +125,7 @@ export function getTeamMembers(teamUid: string) {
 // 팀 탈퇴
 export function leaveTeam(teamUid: string) {
   return request({
-    url: `/api/team/${teamUid}/leave`,
+    url: `/team/${teamUid}/leave`,
     method: 'post',
   });
 }
@@ -133,7 +133,7 @@ export function leaveTeam(teamUid: string) {
 // 운영자 위임
 export function delegateOwner(teamUid: string, newOwnerUid: string) {
   return request({
-    url: `/api/team/${teamUid}/delegate`,
+    url: `/team/${teamUid}/delegate`,
     method: 'post',
     data: { newOwnerUid },
   });
@@ -142,7 +142,7 @@ export function delegateOwner(teamUid: string, newOwnerUid: string) {
 // 팀 코드 중복 확인
 export function checkTeamCode(teamCode: string) {
   return request({
-    url: `/api/team/check-code/${teamCode}`,
+    url: `/team/check-code/${teamCode}`,
     method: 'get',
   });
 }
@@ -150,7 +150,7 @@ export function checkTeamCode(teamCode: string) {
 // 팀 검색
 export function searchTeams(keyword: string) {
   return request({
-    url: '/api/team/search',
+    url: '/team/search',
     method: 'get',
     params: { keyword },
   });

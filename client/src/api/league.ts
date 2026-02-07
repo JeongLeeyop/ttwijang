@@ -9,7 +9,7 @@ export function getLeagueList(params?: {
   size?: number
 }) {
   return request({
-    url: '/api/league',
+    url: '/league',
     method: 'get',
     params,
   });
@@ -18,7 +18,7 @@ export function getLeagueList(params?: {
 // 리그 상세 조회
 export function getLeagueDetail(uid: string) {
   return request({
-    url: `/api/league/${uid}`,
+    url: `/league/${uid}`,
     method: 'get',
   });
 }
@@ -26,7 +26,7 @@ export function getLeagueDetail(uid: string) {
 // 리그 순위표 조회
 export function getLeagueStandings(leagueUid: string) {
   return request({
-    url: `/api/league/${leagueUid}/standings`,
+    url: `/league/${leagueUid}/standings`,
     method: 'get',
   });
 }
@@ -40,7 +40,7 @@ export function getLeagueSchedule(leagueUid: string, params?: {
   size?: number
 }) {
   return request({
-    url: `/api/league/${leagueUid}/schedule`,
+    url: `/league/${leagueUid}/schedule`,
     method: 'get',
     params,
   });
@@ -49,7 +49,7 @@ export function getLeagueSchedule(leagueUid: string, params?: {
 // 리그 참가 신청
 export function applyToLeague(leagueUid: string, teamUid: string) {
   return request({
-    url: `/api/league/${leagueUid}/apply`,
+    url: `/league/${leagueUid}/apply`,
     method: 'post',
     data: { teamUid },
   });
@@ -64,7 +64,7 @@ export interface UpdateMatchResultRequest {
 
 export function updateMatchResult(data: UpdateMatchResultRequest) {
   return request({
-    url: '/api/league/match/result',
+    url: '/league/match/result',
     method: 'post',
     data,
   });
@@ -73,7 +73,7 @@ export function updateMatchResult(data: UpdateMatchResultRequest) {
 // 리그 참여 팀 목록 조회
 export function getLeagueTeams(leagueUid: string) {
   return request({
-    url: `/api/league/${leagueUid}/teams`,
+    url: `/league/${leagueUid}/teams`,
     method: 'get',
   });
 }
@@ -81,7 +81,7 @@ export function getLeagueTeams(leagueUid: string) {
 // 내 팀의 리그 정보 조회
 export function getMyTeamLeagueInfo(teamUid: string) {
   return request({
-    url: `/api/league/my-team/${teamUid}`,
+    url: `/league/my-team/${teamUid}`,
     method: 'get',
   });
 }
@@ -141,5 +141,5 @@ export interface LeagueMatch {
   matchDate: string
   matchTime?: string
   stadiumName?: string
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED'
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 }

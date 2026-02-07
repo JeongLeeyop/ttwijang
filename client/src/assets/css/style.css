@@ -2931,7 +2931,7 @@
   }
 }
 
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
   .profile-section {
     margin: 12px;
     padding: 16px;
@@ -3030,7 +3030,7 @@
   .menu-text {
     font-size: 12px;
   }
-}
+} */
 
 /* Team Code Input Form */
 .team-code-form {

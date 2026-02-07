@@ -229,11 +229,11 @@ export default class extends Vue {
     slidesToScroll: 1,
     arrows: false,
     centerMode: true,
-    centerPadding: '30px',
+    centerPadding: '20px',
     swipeToSlide: true,
     touchThreshold: 5,
     initialSlide: 0,
-    focusOnSelect: true,
+    variableWidth: true,
   }
 
   private teamCards: TeamCard[] = []
@@ -345,13 +345,13 @@ export default class extends Vue {
 
         // 최근 경기 (완료된 경기)
         this.recentMatches = allMatches
-          .filter((m: any) => m.status === 'FINISHED')
+          .filter((m: any) => m.status === 'COMPLETED')
           .slice(0, 5)
           .map((match: any) => this.transformMatch(match, true));
 
         // 예정 경기
         this.upcomingMatches = allMatches
-          .filter((m: any) => m.status !== 'FINISHED')
+          .filter((m: any) => m.status !== 'COMPLETED')
           .slice(0, 5)
           .map((match: any) => this.transformMatch(match, false));
       }

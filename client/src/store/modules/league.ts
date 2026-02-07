@@ -45,7 +45,7 @@ export default class LeagueModule extends VuexModule implements LeagueState {
   }
 
   get completedMatches(): LeagueMatch[] {
-    return this.schedule.filter((match) => match.status === 'FINISHED');
+    return this.schedule.filter((match) => match.status === 'COMPLETED');
   }
 
   @Mutation
