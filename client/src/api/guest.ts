@@ -105,7 +105,7 @@ export function getMyGuestApplications() {
 // 모집의 신청자 목록 조회
 export function getRecruitmentApplications(recruitmentUid: string) {
   return request({
-    url: `/api/guest/${recruitmentUid}/applications`,
+    url: `/guest/${recruitmentUid}/applications`,
     method: 'get',
   });
 }
@@ -113,7 +113,7 @@ export function getRecruitmentApplications(recruitmentUid: string) {
 // 게스트 모집 취소
 export function cancelGuestRecruitment(recruitmentUid: string) {
   return request({
-    url: `/api/guest/${recruitmentUid}`,
+    url: `/guest/${recruitmentUid}`,
     method: 'delete',
   });
 }

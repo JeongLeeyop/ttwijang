@@ -21,16 +21,22 @@
             </div>
             <div class="team-card-right">
               <div class="team-tags">
-                <span class="tag">{{ team.league }}</span>
+                <span class="tag">{{ team.positionLabel }}</span>
                 <span class="tag">매너 {{ team.manner }}점</span>
-                <span class="tag">{{ team.matchType }}</span>
-                <span class="tag">{{ team.teamSize }}</span>
+                <span class="tag">{{ team.feeLabel }}</span>
               </div>
               <div class="team-match-info">
                 {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
               </div>
-              <div class="team-location">
-                {{ team.location }} <i class="el-icon-arrow-right"></i>
+              <div class="guest-location-row">
+                <div class="guest-location">
+                  <span>{{ team.location }}</span>
+                  <i class="el-icon-arrow-right"></i>
+                </div>
+                <div class="guest-members" v-if="team.currentMembers !== undefined && team.maxMembers !== undefined">
+                  <i class="el-icon-user"></i>
+                  <span>{{ team.currentMembers }} / {{ team.maxMembers }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -65,9 +71,12 @@
 
         <!-- Upcoming Match Cards -->
         <div class="match-cards">
-          <div class="guest-list">
+          <div v-if="filteredGuests.length === 0" class="no-guest-message">
+            <p>선택한 날짜에 게스트 모집이 없습니다.</p>
+          </div>
+          <div class="guest-list" v-else>
               <div
-                v-for="(guest, index) in guestData"
+                v-for="(guest, index) in filteredGuests"
                 :key="index"
                 class="team-card"
                 :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
@@ -77,10 +86,10 @@
                 </div>
                 <div class="team-card-right">
                   <div class="team-tags">
-                    <span class="tag">{{ guest.league }}</span>
+                    <span class="tag" v-if="guest.positionLabel">{{ guest.positionLabel }}</span>
                     <span class="tag">매너 {{ guest.manner }}점</span>
-                    <span class="tag">{{ guest.matchType }}</span>
-                    <span class="tag">{{ guest.teamSize }}</span>
+                    <span class="tag" v-if="guest.feeLabel">{{ guest.feeLabel }}</span>
+                    <span class="tag" v-if="guest.guaranteedLabel">{{ guest.guaranteedLabel }}</span>
                   </div>
                   <div class="team-match-info">
                     {{ guest.matchDate }} ({{ guest.matchDay }}) {{ guest.matchTime }}
@@ -122,46 +131,42 @@ import {
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import { getGuestRecruitmentsByDateRange } from '@/api/guest';
-import { getMatchList } from '@/api/match';
+import {
+  getGuestRecruitmentsByDateRange,
+  getGuestRecruitmentList,
+} from '@/api/guest';
 
 interface TeamCard {
   name: string
   logo: string
-  league: string
   manner: number
-  matchType: string
-  teamSize: string
+  positionLabel: string
+  feeLabel: string
   matchDate: string
   matchDay: string
   matchTime: string
   location: string
+  currentMembers: number
+  maxMembers: number
 }
 
-interface LeagueTeam {
+interface GuestItem {
+  uid: string
   name: string
   logo: string
-  played: number
-  wins: number
-  draws: number
-  losses: number
-  points: number
-  goals: number
-  conceded: number
-  difference: number
-}
-
-interface Match {
-  date: string
-  day: string
-  time: string
+  positionLabel: string
+  manner: number
+  feeLabel: string
+  guaranteedLabel: string
+  matchDate: string
+  matchDay: string
+  matchTime: string
   location: string
-  homeTeam: string
-  awayTeam: string
-  homeLogo: string
-  awayLogo: string
-  homeScore?: number
-  awayScore?: number
+  date: Date
+  teamLogo: string | null
+  currentMembers: number
+  maxMembers: number
+  isRecruitmentClosed: boolean
 }
 
 @Component({
@@ -171,8 +176,6 @@ interface Match {
 })
 export default class extends Vue {
   @Prop({ default: '' }) private selectedRegion!: string
-
-  private selectedLeague = 'a-league'
 
   private showLeagueStatus = false
 
@@ -187,7 +190,7 @@ export default class extends Vue {
   private isLoading = false
 
   get currentMonth(): string {
-    return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
+    return `${this.currentYear}.${String(this.currentMonthIndex + 1).padStart(2, '0')}`;
   }
 
   private slickOptions = {
@@ -208,13 +211,7 @@ export default class extends Vue {
 
   private teamCards: TeamCard[] = []
 
-  private leagueTable: LeagueTeam[] = []
-
-  private recentMatches: Match[] = []
-
-  private upcomingMatches: Match[] = []
-
-  private guestData: any[] = []
+  private guestData: GuestItem[] = []
 
   private selectedDate: Date = new Date()
 
@@ -236,7 +233,7 @@ export default class extends Vue {
 
   @Watch('selectedDate')
   async onDateChange() {
-    await this.loadGuestData();
+    // filteredGuests computed will update automatically
   }
 
   private async loadData(): Promise<void> {
@@ -262,34 +259,38 @@ export default class extends Vue {
         params.regionSido = '경남';
         params.regionSigungu = this.selectedRegion;
       }
-      const response = await getMatchList(params);
-      if (response.data && response.data.content) {
-        this.teamCards = response.data.content.slice(0, 5).map((match: any) => ({
-          name: match.teamName || match.team?.name || '팀 모집중',
-          logo: this.getTeamLogo(match.teamName || '팀'),
-          league: match.leagueName || 'A리그',
-          manner: match.teamMannerScore || 4.5,
-          matchType: match.matchType === 'FRIENDLY' ? '친선 경기' : '정규 경기',
-          teamSize: this.formatMatchFormat(match.matchFormat),
-          matchDate: this.formatDate(match.matchDate),
-          matchDay: this.getDayOfWeek(match.matchDate),
-          matchTime: match.matchTime || '',
-          location: match.stadiumName || match.location || '',
-        }));
-      }
-      if (this.teamCards.length === 0) {
-        this.teamCards = this.getDefaultTeamCards();
-      }
+      const response = await getGuestRecruitmentList(params);
+      const recruitments = response.data?.content || response.data || [];
+
+      this.teamCards = recruitments.slice(0, 5).map((guest: any) => {
+        const matchDate = new Date(guest.matchDate);
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+        return {
+          name: guest.teamName || '팀',
+          logo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
+          manner: guest.teamMannerScore || 0,
+          positionLabel: this.formatPositionType(guest.positionType),
+          feeLabel: this.formatFee(guest.fee),
+          matchDate: this.formatDate(guest.matchDate),
+          matchDay: dayNames[matchDate.getDay()],
+          matchTime: this.formatTime(guest.matchTime),
+          location: guest.stadiumName || '',
+          currentMembers: guest.currentGuests || 0,
+          maxMembers: guest.maxGuests || 0,
+        };
+      });
     } catch (error) {
-      console.warn('팀 카드 로드 실패:', error);
-      this.teamCards = this.getDefaultTeamCards();
+      console.warn('추천 카드 로드 실패:', error);
+      this.teamCards = [];
     }
   }
 
   private async loadGuestData(): Promise<void> {
     try {
       const startDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-01`;
-      const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-31`;
+      const lastDay = new Date(this.currentYear, this.currentMonthIndex + 1, 0).getDate();
+      const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
       const regionParams: any = {};
       if (this.selectedRegion) {
@@ -298,31 +299,37 @@ export default class extends Vue {
       }
 
       const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);
-      if (response.data && response.data.content) {
-        this.guestData = response.data.content.map((guest: any) => ({
+      const guests = response.data?.content || response.data || [];
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+      this.guestData = guests.map((guest: any) => {
+        const matchDate = new Date(guest.matchDate);
+        const isFull = (guest.currentGuests || 0) >= (guest.maxGuests || 1)
+          || guest.status === 'COMPLETED'
+          || guest.status === 'CLOSED';
+
+        return {
+          uid: guest.uid,
           name: guest.teamName || '',
-          logo: this.getTeamLogo(guest.teamName),
-          league: guest.leagueName || 'A리그',
-          manner: guest.teamMannerScore || 4.5,
-          matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '정규 경기',
-          teamSize: this.formatPositionType(guest.positionType),
+          logo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
+          positionLabel: this.formatPositionType(guest.positionType),
+          manner: guest.teamMannerScore || 0,
+          feeLabel: this.formatFee(guest.fee),
+          guaranteedLabel: this.formatGuaranteedMinutes(guest.guaranteedMinutes),
           matchDate: this.formatDate(guest.matchDate),
-          matchDay: this.getDayOfWeek(guest.matchDate),
-          matchTime: guest.matchTime || '',
+          matchDay: dayNames[matchDate.getDay()],
+          matchTime: this.formatTime(guest.matchTime),
           location: guest.stadiumName || '',
-          date: new Date(guest.matchDate),
-          teamLogo: this.getTeamLogo(guest.teamName),
+          date: matchDate,
+          teamLogo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
           currentMembers: guest.currentGuests || 0,
-          maxMembers: guest.maxGuests || 5,
-          isRecruitmentClosed: (guest.currentGuests || 0) >= (guest.maxGuests || 5) || guest.status === 'CLOSED',
-        }));
-      }
-      if (this.guestData.length === 0) {
-        this.guestData = this.getDefaultGuestData();
-      }
+          maxMembers: guest.maxGuests || 0,
+          isRecruitmentClosed: isFull,
+        };
+      });
     } catch (error) {
       console.warn('게스트 데이터 로드 실패:', error);
-      this.guestData = this.getDefaultGuestData();
+      this.guestData = [];
     }
   }
 
@@ -341,23 +348,34 @@ export default class extends Vue {
     return days[date.getDay()];
   }
 
-  private formatMatchFormat(format: string): string {
-    const formatMap: Record<string, string> = {
-      FOUR_VS_FOUR: '4 대 4',
-      FIVE_VS_FIVE: '5 대 5',
-      SIX_VS_SIX: '6 대 6',
-      SEVEN_VS_SEVEN: '7 대 7',
-    };
-    return formatMap[format] || '5 대 5';
-  }
-
   private formatPositionType(positionType: string): string {
     const positionMap: Record<string, string> = {
       FIELD: '필드',
       GK: '골키퍼',
       ANY: '포지션 무관',
     };
-    return positionMap[positionType] || '5 대 5';
+    return positionMap[positionType] || '포지션 무관';
+  }
+
+  private formatFee(fee: number | null | undefined): string {
+    if (!fee || fee === 0) return '무료';
+    return `${fee.toLocaleString()}원`;
+  }
+
+  private formatGuaranteedMinutes(minutes: number | null | undefined): string {
+    if (!minutes) return '';
+    return `${minutes}분 보장`;
+  }
+
+  private formatTime(time: string): string {
+    if (!time) return '';
+    const parts = time.split(':');
+    if (parts.length < 2) return time;
+    const hour = parseInt(parts[0], 10);
+    const minute = parts[1];
+    const period = hour < 12 ? 'Am' : 'Pm';
+    const displayHour = hour > 12 ? hour - 12 : hour;
+    return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
   }
 
   private getTeamLogo(teamName: string): string {
@@ -366,93 +384,6 @@ export default class extends Vue {
     const bgColors = ['061da1', '0066cc', 'cc0000', 'ff6600', '00cc66', 'ffd700'];
     const colorIndex = teamName.charCodeAt(0) % bgColors.length;
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${bgColors[colorIndex]}&color=fff&size=60`;
-  }
-
-  private getDefaultTeamCards(): TeamCard[] {
-    return [
-      {
-        name: '대성풋살클럽',
-        logo: this.getTeamLogo('대성풋살클럽'),
-        league: 'B리그',
-        manner: 4.8,
-        matchType: '친선 경기',
-        teamSize: '5 대 5',
-        matchDate: '05월 09일',
-        matchDay: '금',
-        matchTime: 'Pm 07:00',
-        location: '대성풋살장',
-      },
-      {
-        name: '강남FC',
-        logo: this.getTeamLogo('강남FC'),
-        league: 'A리그',
-        manner: 4.5,
-        matchType: '정규 경기',
-        teamSize: '5 대 5',
-        matchDate: '05월 10일',
-        matchDay: '토',
-        matchTime: 'Pm 06:00',
-        location: '강남풋살장',
-      },
-      {
-        name: '서울유나이티드',
-        logo: this.getTeamLogo('서울유나이티드'),
-        league: 'A리그',
-        manner: 4.9,
-        matchType: '친선 경기',
-        teamSize: '6 대 6',
-        matchDate: '05월 11일',
-        matchDay: '일',
-        matchTime: 'Am 10:00',
-        location: '서울풋살장',
-      },
-      {
-        name: '인천블루스',
-        logo: this.getTeamLogo('인천블루스'),
-        league: 'B리그',
-        manner: 4.6,
-        matchType: '정규 경기',
-        teamSize: '5 대 5',
-        matchDate: '05월 12일',
-        matchDay: '월',
-        matchTime: 'Pm 08:00',
-        location: '인천풋살장',
-      },
-      {
-        name: '경기타이탄',
-        logo: this.getTeamLogo('경기타이탄'),
-        league: 'A리그',
-        manner: 4.7,
-        matchType: '친선 경기',
-        teamSize: '5 대 5',
-        matchDate: '05월 13일',
-        matchDay: '화',
-        matchTime: 'Pm 07:30',
-        location: '경기풋살장',
-      },
-    ];
-  }
-
-  private getDefaultGuestData(): any[] {
-    return [
-      {
-        name: '인천블루스',
-        logo: this.getTeamLogo('인천블루스'),
-        league: 'B리그',
-        manner: 4.6,
-        matchType: '정규 경기',
-        teamSize: '5 대 5',
-        matchDate: this.formatDate(new Date().toISOString()),
-        matchDay: this.getDayOfWeek(new Date().toISOString()),
-        matchTime: 'Pm 08:00',
-        location: '아란치FC',
-        date: new Date(),
-        teamLogo: this.getTeamLogo('아란치FC'),
-        currentMembers: 2,
-        maxMembers: 5,
-        isRecruitmentClosed: false,
-      },
-    ];
   }
 
   private toggleLeagueStatus(): void {
@@ -500,11 +431,7 @@ export default class extends Vue {
     }
   }
 
-  private navigateToMatchDetail(match: Match): void {
-    console.log('Navigate to match:', match);
-  }
-
-  get filteredGuests(): any[] {
+  get filteredGuests(): GuestItem[] {
     return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
   }
 
@@ -547,5 +474,12 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+.no-guest-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
 }
 </style>

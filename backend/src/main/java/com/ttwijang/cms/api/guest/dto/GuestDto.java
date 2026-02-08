@@ -93,6 +93,9 @@ public class GuestDto {
         @Schema(description = "팀 로고 URL")
         private String teamLogoUrl;
 
+        @Schema(description = "팀 매너 점수")
+        private Double teamMannerScore;
+
         @Schema(description = "경기 일자")
         private LocalDate matchDate;
 
