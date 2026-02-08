@@ -192,6 +192,30 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamComplete.vue'),
 			},
+			{
+				path: '/profile-edit',
+				name: 'ProfileEdit',
+				meta: {
+					title: '프로필 수정',
+				},
+				component: () => import('@/views/profileEdit.vue'),
+			},
+			{
+				path: '/cash-charge',
+				name: 'CashCharge',
+				meta: {
+					title: '캐쉬 충전',
+				},
+				component: () => import('@/views/cashCharge.vue'),
+			},
+			{
+				path: '/cash-history',
+				name: 'CashHistory',
+				meta: {
+					title: '캐쉬 사용내역',
+				},
+				component: () => import('@/views/cashHistory.vue'),
+			},
 		],
 	},
 ];
