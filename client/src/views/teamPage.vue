@@ -1,5 +1,5 @@
 <template>
-  <div class="main league-page team-page-view">
+  <div class="main league-page team-page-view" :class="{ 'non-owner': !isOwner }">
     <div class="background-wave"></div>
     <!-- Content -->
     <div class="content">
@@ -14,7 +14,7 @@
         </div>
         <h2 class="team-profile-name">{{ teamInfo.name || '팀 이름' }}</h2>
         <p class="team-profile-owner">{{ teamInfo.ownerName || '운영자' }} (운영자)</p>
-        <div class="team-profile-buttons">
+        <div v-if="isOwner" class="team-profile-buttons">
           <button class="team-btn team-btn-outline" @click="goToDashboard">
             대시 보드
           </button>
@@ -318,6 +318,39 @@
         </div>
       </div>
     </div>
+
+    <!-- FAB + Button (Owner only) -->
+    <div v-if="isOwner" class="team-fab" @click="showActionModal = true">
+      <i class="el-icon-plus"></i>
+    </div>
+
+    <!-- Action Modal (Bottom Sheet) -->
+    <transition name="fade">
+      <div v-if="showActionModal" class="action-modal-overlay" @click.self="showActionModal = false">
+        <transition name="slide-up">
+          <div v-if="showActionModal" class="action-modal-sheet">
+            <div class="action-modal-header">
+              <span class="action-modal-title">무엇을 하시겠습니까?</span>
+              <i class="el-icon-close action-modal-close" @click="showActionModal = false"></i>
+            </div>
+            <div class="action-modal-body">
+              <button class="action-modal-btn" @click="handleAction('match')">
+                매치 일정 만들기
+              </button>
+              <button class="action-modal-btn" @click="handleAction('guest')">
+                게스트 모집하기
+              </button>
+              <button class="action-modal-btn" @click="handleAction('recruit')">
+                신규 회원 모집하기
+              </button>
+              <button class="action-modal-btn" @click="handleAction('invite')">
+                초대 링크 복사하기
+              </button>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -328,7 +361,10 @@ import {
   Watch,
   Prop,
 } from 'vue-property-decorator';
-import { getTeamDetail, getTeamMembers, getTeamByCode } from '@/api/team';
+import {
+  getTeamDetail, getTeamMembers, getTeamByCode,
+  checkMembershipStatus, getMyTeams,
+} from '@/api/team';
 import { getMyTeamMatches } from '@/api/match';
 import { getLeaguesByTeam, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 import {
@@ -377,6 +413,10 @@ export default class TeamPage extends Vue {
 
   private isLoading = false
 
+  private showActionModal = false
+
+  private myRole = ''
+
   private tabs: TabItem[] = [
     { key: 'community', label: '커뮤니티' },
     { key: 'match', label: '매치경기' },
@@ -391,6 +431,10 @@ export default class TeamPage extends Vue {
 
   get defaultAvatar(): string {
     return 'https://ui-avatars.com/api/?name=U&background=ccc&color=fff&size=40';
+  }
+
+  get isOwner(): boolean {
+    return this.myRole === 'OWNER';
   }
 
   get filteredMatches(): any[] {
@@ -417,7 +461,6 @@ export default class TeamPage extends Vue {
     } else {
       // 내 팀 조회 시도
       try {
-        const { getMyTeams } = await import('@/api/team');
         const res = await getMyTeams();
         if (res.data && res.data.uid) {
           this.teamUid = res.data.uid;
@@ -453,12 +496,47 @@ export default class TeamPage extends Vue {
     try {
       const res = await getTeamDetail(this.teamUid);
       this.teamInfo = res.data || {};
-      await this.loadOwnerSponsor();
+      await Promise.all([
+        this.loadOwnerSponsor(),
+        this.loadMyRole(),
+      ]);
       await this.loadTabData();
     } catch (error) {
       console.error('팀 정보 로드 실패:', error);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private async loadMyRole(): Promise<void> {
+    try {
+      const membersRes = await getTeamMembers(this.teamUid);
+      const membersList = membersRes.data || [];
+      const statusRes = await checkMembershipStatus();
+      const status = statusRes.data;
+      if (status && status.hasCreatedTeam) {
+        const myTeamsRes = await getMyTeams();
+        const myTeam = Array.isArray(myTeamsRes.data)
+          ? myTeamsRes.data[0]
+          : myTeamsRes.data;
+        if (myTeam && myTeam.uid === this.teamUid) {
+          this.myRole = 'OWNER';
+          return;
+        }
+      }
+      // 팀원으로 가입된 경우 role 확인
+      if (status && status.hasTeam) {
+        const myTeamsRes = await getMyTeams();
+        const myTeam = Array.isArray(myTeamsRes.data)
+          ? myTeamsRes.data[0]
+          : myTeamsRes.data;
+        if (myTeam && myTeam.uid === this.teamUid) {
+          // 팀원 리스트에서 내 역할 찾기 (벡엔드에서 role 리턴된 경우)
+          this.myRole = 'MEMBER';
+        }
+      }
+    } catch (e) {
+      console.warn('내 역할 확인 실패:', e);
     }
   }
 
@@ -485,8 +563,37 @@ export default class TeamPage extends Vue {
   }
 
   private showOwnerInfo(): void {
-    // 구단주 정보 표시 (추후 구현)
     this.$message.info('구단주 정보 기능은 준비 중입니다.');
+  }
+
+  private handleAction(action: string): void {
+    this.showActionModal = false;
+    switch (action) {
+      case 'match':
+        this.$message.info('매치 일정 만들기 기능은 준비 중입니다.');
+        break;
+      case 'guest':
+        this.$message.info('게스트 모집하기 기능은 준비 중입니다.');
+        break;
+      case 'recruit':
+        this.$message.info('신규 회원 모집하기 기능은 준비 중입니다.');
+        break;
+      case 'invite':
+        this.copyInviteLink();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private copyInviteLink(): void {
+    const teamCode = this.teamInfo.teamCode || '';
+    const link = `${window.location.origin}/team/${teamCode}`;
+    navigator.clipboard.writeText(link).then(() => {
+      this.$message.success('초대 링크가 복사되었습니다.');
+    }).catch(() => {
+      this.$message.error('링크 복사에 실패했습니다.');
+    });
   }
 
   private async loadTabData(): Promise<void> {
@@ -1312,15 +1419,6 @@ export default class TeamPage extends Vue {
   color: #061da1;
 }
 
-/* Team Page View Specific */
-.team-page-view .league-section {
-  top: 280px;
-}
-
-.team-page-view .league-section.expanded {
-  top: 70px;
-}
-
 .league-header {
   margin-bottom: 0;
 }
@@ -1328,5 +1426,129 @@ export default class TeamPage extends Vue {
 .team-page-view .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+/* FAB (Floating Action Button) */
+.team-fab {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #061da1;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 14px rgba(6, 29, 161, 0.4);
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-fab:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(6, 29, 161, 0.3);
+}
+
+/* Action Modal Overlay */
+.action-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Action Modal Sheet */
+.action-modal-sheet {
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px calc(32px + 70px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.action-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.action-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.action-modal-close {
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.action-modal-close:active {
+  color: #333;
+}
+
+.action-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.action-modal-btn {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease;
+}
+
+.action-modal-btn:active {
+  background: #f5f5f5;
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-up-leave-active {
+  transition: transform 0.2s ease;
+}
+
+.slide-up-enter {
+  transform: translateY(100%);
+}
+
+.slide-up-leave-to {
+  transform: translateY(100%);
 }
 </style>

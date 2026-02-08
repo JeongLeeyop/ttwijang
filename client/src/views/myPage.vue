@@ -95,7 +95,7 @@
             <span class="menu-text">팀 내역</span>
             <i class="el-icon-arrow-right"></i>
           </div>
-          <div class="menu-item" @click="navigateTo('my-posts')">
+          <div class="menu-item" @click="navigateToCashHistory">
             <div class="menu-icon">
               <i class="el-icon-s-management"></i>
             </div>
@@ -373,11 +373,11 @@ export default class MyPage extends Vue {
   }
 
   private editProfile(): void {
-    this.$message.info('프로필 수정 페이지로 이동합니다');
+    this.$router.push({ name: 'ProfileEdit' });
   }
 
   private chargePoints(): void {
-    this.$message.info('포인트 충전 페이지로 이동합니다');
+    this.$router.push({ name: 'CashCharge' });
   }
 
   private exchangePoints(): void {
@@ -399,6 +399,10 @@ export default class MyPage extends Vue {
 
   private navigateTo(): void {
     this.$message.info('준비중입니다.');
+  }
+
+  private navigateToCashHistory(): void {
+    this.$router.push({ name: 'CashHistory' });
   }
 
   private openGuideDetail(): void {
