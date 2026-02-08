@@ -2133,7 +2133,8 @@
 
 /* Home League Header Specific */
 .league-header .league-title-row .league-select {
-  width: 140px;
+  /* width: 140px; */
+  max-width:250px;
 }
 
 .league-header .league-title-row .league-select .el-input__inner {
