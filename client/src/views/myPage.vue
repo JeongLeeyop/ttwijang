@@ -18,7 +18,7 @@
             <div class="stat-value">{{ userStats.mannerscore }}</div>
           </div>
           <div class="stat-button">
-            <div class="stat-label">소속 팀</div>
+            <div class="stat-label">{{ userStats.teamLabel }}</div>
             <div class="stat-value">{{ userStats.team }}</div>
           </div>
           <div class="stat-button">
@@ -152,7 +152,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
-import { getMyTeams } from '@/api/team';
+import { getMyTeams, checkMembershipStatus } from '@/api/team';
 import { getUserMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMatchList } from '@/api/match';
@@ -180,6 +180,7 @@ export default class MyPage extends Vue {
     ranking: 0,
     mannerscore: 0,
     team: '-',
+    teamLabel: '소속 팀',
   };
 
   private userWallet = {
@@ -291,14 +292,37 @@ export default class MyPage extends Vue {
       // 내 팀 정보 로드
       try {
         const teamsResponse = await getMyTeams();
-        if (teamsResponse.data && teamsResponse.data.length > 0) {
-          this.userStats.team = teamsResponse.data[0].name;
+        const teamData = teamsResponse.data;
+        // /api/team/my 는 단일 객체 또는 배열을 반환할 수 있음
+        let team = null;
+        if (Array.isArray(teamData)) {
+          team = teamData.length > 0 ? teamData[0] : null;
+        } else {
+          team = teamData;
+        }
+        if (team && team.name) {
+          this.userStats.team = team.name;
+          // 팀을 생성했는지 확인
+          try {
+            const statusResponse = await checkMembershipStatus();
+            const hasCreatedTeam = (statusResponse.data as any).hasCreatedTeam || false;
+            if (hasCreatedTeam) {
+              this.userStats.teamLabel = '나의 팀';
+            } else {
+              this.userStats.teamLabel = '소속 팀';
+            }
+          } catch (statusError) {
+            console.warn('팀 생성 여부 확인 실패:', statusError);
+            this.userStats.teamLabel = '소속 팀';
+          }
         } else {
           this.userStats.team = '-';
+          this.userStats.teamLabel = '소속 팀';
         }
       } catch (teamError) {
         console.warn('팀 정보 로드 실패:', teamError);
         this.userStats.team = '-';
+        this.userStats.teamLabel = '소속 팀';
       }
 
       // 참여 경기수 로드
