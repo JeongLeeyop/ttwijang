@@ -156,7 +156,7 @@ import { getMyTeams } from '@/api/team';
 import { getUserMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMatchList } from '@/api/match';
-import { getTokenInfo } from '@/utils/cookies';
+import { getToken, getTokenInfo } from '@/utils/cookies';
 
 @Component({
   name: 'MyPage',
@@ -196,8 +196,15 @@ export default class MyPage extends Vue {
       mainLayout.classList.add('mypage-active');
     }
 
-    // 로그인 상태 체크
-    if (!this.userModule.isLogin) {
+    // 토큰이 있으면 사용자 정보가 로드될 때까지 대기
+    const token = getToken();
+    if (token && !this.userModule.isLogin) {
+      // permission.ts에서 GetUserInfo()를 호출했으므로 잠시 대기
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // 로그인 상태 체크 (토큰도 없고 로그인도 안 되어 있으면)
+    if (!token && !this.userModule.isLogin) {
       this.$message.warning('로그인이 필요한 페이지입니다.');
       this.$router.replace({ name: 'Login' });
       return;
