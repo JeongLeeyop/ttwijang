@@ -4,7 +4,7 @@
     <!-- Content -->
     <div class="content">
       <!-- Team Cards Section -->
-      <div class="team-section">
+      <div v-show="currentView === 'main'" class="team-section">
         <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
         <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
           <div
@@ -34,98 +34,113 @@
       </div>
 
       <!-- League Schedule Section -->
-      <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
-        <div class="league-section-handle" @click="toggleLeagueSection">
+      <div class="league-section" :class="{ 'expanded': currentView !== 'main' || showLeagueStatus }">
+        <!-- Back Button (서브뷰일 때) -->
+        <div v-if="currentView !== 'main'" class="league-back-header">
+          <button class="league-back-btn" @click="goBack">
+            <i class="el-icon-arrow-left"></i>
+            <span>돌아가기</span>
+          </button>
+        </div>
+        <div v-if="currentView === 'main'" class="league-section-handle" @click="toggleLeagueSection">
           <div class="handle-bar"></div>
         </div>
-        <div class="league-section-content">
-        <div class="league-join-team">
-          <div class="join-team-header">
-            <h3 class="join-team-title">리그 참가 팀</h3>
-            <button class="add-team-button">
-              <i class="el-icon-circle-plus-outline"></i>
-            </button>
-          </div>
-          <div v-if="isLoading" class="loading-container">
-            <i class="el-icon-loading"></i> 로딩 중...
-          </div>
-          <VueSlickCarousel
-            v-else-if="leagueParticipatingTeams.length > 0"
-            v-bind="joinTeamSlickOptions"
-            class="join-team-carousel"
-          >
-            <div
-              v-for="(team, index) in leagueParticipatingTeams"
-              :key="index"
-              class="join-team-card"
-              @click="navigateToTeam(team.teamUid)"
-            >
-              <div class="team-badge-wrapper">
-                <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
-                <div class="team-logo-container">
-                  <img :src="team.logo" :alt="team.name" class="join-team-logo">
-                </div>
+        <div class="league-section-content" :class="{ 'sub-view-content': currentView !== 'main' }">
+          <!-- 메인 뷰 -->
+          <template v-if="currentView === 'main'">
+            <div class="league-join-team">
+              <div class="join-team-header">
+                <h3 class="join-team-title">리그 참가 팀</h3>
+                <button class="add-team-button">
+                  <i class="el-icon-circle-plus-outline"></i>
+                </button>
               </div>
-              <div class="join-team-name">{{ team.name }}</div>
-            </div>
-          </VueSlickCarousel>
-          <div v-else class="empty-message">
-            참가 팀이 없습니다.
-          </div>
-        </div>
-      <div class="league-join-team">
-        <div class="join-team-header">
-            <h3 class="join-team-title">팀 회원 모집</h3>
-            <button class="add-team-button">
-              <i class="el-icon-circle-plus-outline"></i>
-            </button>
-          </div>
-          <div v-if="isLoading" class="loading-container">
-            <i class="el-icon-loading"></i> 로딩 중...
-          </div>
-          <VueSlickCarousel
-            v-else-if="recruitingTeams.length > 0"
-            v-bind="joinTeamSlickOptions"
-            class="join-team-carousel"
-          >
-            <div
-              v-for="(team, index) in recruitingTeams"
-              :key="index"
-              class="join-team-card"
-              @click="navigateToTeam(team.teamUid)"
-            >
-              <div class="team-badge-wrapper">
-                <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
-                <div class="team-logo-container">
-                  <img :src="team.logo" :alt="team.name" class="join-team-logo">
-                </div>
+              <div v-if="isLoading" class="loading-container">
+                <i class="el-icon-loading"></i> 로딩 중...
               </div>
-              <div class="join-team-name">{{ team.name }}</div>
+              <VueSlickCarousel
+                v-else-if="leagueParticipatingTeams.length > 0"
+                v-bind="joinTeamSlickOptions"
+                class="join-team-carousel"
+              >
+                <div
+                  v-for="(team, index) in leagueParticipatingTeams"
+                  :key="index"
+                  class="join-team-card"
+                  @click="navigateToTeam(team.teamUid)"
+                >
+                  <div class="team-badge-wrapper">
+                    <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
+                    <div class="team-logo-container">
+                      <img :src="team.logo" :alt="team.name" class="join-team-logo">
+                    </div>
+                  </div>
+                  <div class="join-team-name">{{ team.name }}</div>
+                </div>
+              </VueSlickCarousel>
+              <div v-else class="empty-message">
+                참가 팀이 없습니다.
+              </div>
             </div>
-          </VueSlickCarousel>
-          <div v-else class="empty-message">
-            모집 중인 팀이 없습니다.
-          </div>
-        </div>
+            <div class="league-join-team">
+              <div class="join-team-header">
+                <h3 class="join-team-title">팀 회원 모집</h3>
+                <button class="add-team-button">
+                  <i class="el-icon-circle-plus-outline"></i>
+                </button>
+              </div>
+              <div v-if="isLoading" class="loading-container">
+                <i class="el-icon-loading"></i> 로딩 중...
+              </div>
+              <VueSlickCarousel
+                v-else-if="recruitingTeams.length > 0"
+                v-bind="joinTeamSlickOptions"
+                class="join-team-carousel"
+              >
+                <div
+                  v-for="(team, index) in recruitingTeams"
+                  :key="index"
+                  class="join-team-card"
+                  @click="navigateToTeam(team.teamUid)"
+                >
+                  <div class="team-badge-wrapper">
+                    <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
+                    <div class="team-logo-container">
+                      <img :src="team.logo" :alt="team.name" class="join-team-logo">
+                    </div>
+                  </div>
+                  <div class="join-team-name">{{ team.name }}</div>
+                </div>
+              </VueSlickCarousel>
+              <div v-else class="empty-message">
+                모집 중인 팀이 없습니다.
+              </div>
+            </div>
 
-        <!-- League Status Expanded View -->
+            <div class="match-cards">
+              <div class="league-action-buttons">
+                <button class="league-action-btn" @click="showView('schedule')">
+                  <i class="el-icon-date"></i>
+                  <span>리그 일정</span>
+                </button>
+                <button class="league-action-btn" @click="showView('status')">
+                  <i class="el-icon-s-data"></i>
+                  <span>리그 현황</span>
+                </button>
+              </div>
+            </div>
+          </template>
 
-        <div class="match-cards">
-          <div class="league-action-buttons">
-            <router-link to="/league-schedule" class="league-action-btn-link">
-              <button class="league-action-btn">
-                <i class="el-icon-date"></i>
-                <span>리그 일정</span>
-              </button>
-            </router-link>
-            <router-link to="/league-status" class="league-action-btn-link">
-              <button class="league-action-btn">
-                <i class="el-icon-s-data"></i>
-                <span>리그 현황</span>
-              </button>
-            </router-link>
-          </div>
-        </div>
+          <!-- 리그 일정 뷰 -->
+          <LeagueScheduleView
+            v-if="currentView === 'schedule'"
+            @navigate="showView"
+          />
+
+          <!-- 리그 현황 뷰 -->
+          <LeagueStatusView
+            v-if="currentView === 'status'"
+          />
         </div>
       </div>
     </div>
@@ -141,6 +156,8 @@ import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import { getLeagueList, getLeagueTeams, LeagueTeamResponse } from '@/api/league';
 import { getTeamList } from '@/api/team';
+import LeagueScheduleView from '@/components/league/LeagueScheduleView.vue';
+import LeagueStatusView from '@/components/league/LeagueStatusView.vue';
 
 interface TeamCard {
   name: string
@@ -192,10 +209,14 @@ interface JoinTeam {
 @Component({
   components: {
     VueSlickCarousel,
+    LeagueScheduleView,
+    LeagueStatusView,
   },
 })
 export default class extends Vue {
   private selectedLeague = 'a-league'
+
+  private currentView: 'main' | 'schedule' | 'status' = 'main'
 
   private showLeagueStatus = false
 
@@ -511,6 +532,14 @@ export default class extends Vue {
     },
   ]
 
+  private showView(view: 'schedule' | 'status'): void {
+    this.currentView = view;
+  }
+
+  private goBack(): void {
+    this.currentView = 'main';
+  }
+
   private toggleLeagueStatus(): void {
     this.$router.push('/league-status');
   }
@@ -570,6 +599,51 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+  transition: top 0.4s ease-in-out;
+}
+
+.league-page .league-section.expanded {
+  top: 70px !important;
+  padding-top: 0 !important;
+}
+
+/* 뒤로가기 헤더 */
+.league-back-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px 20px 8px;
+}
+
+.league-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.league-back-btn:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+.league-back-btn i {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 서브뷰 콘텐츠 스크롤 */
+.sub-view-content {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .loading-container {
