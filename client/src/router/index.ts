@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter, { Route, RouteConfig } from 'vue-router';
-import counsultView from '@/views/counsult/view.vue';
 import 'element-ui/lib/theme-chalk/index.css';
 import { UserModule } from '@/store/modules/user';
 import { PermissionModule } from '@/store/modules/permission';

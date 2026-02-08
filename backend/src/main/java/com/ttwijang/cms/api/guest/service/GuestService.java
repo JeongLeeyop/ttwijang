@@ -321,6 +321,8 @@ public class GuestService {
                 .uid(recruitment.getUid())
                 .teamUid(recruitment.getTeamUid())
                 .teamName(team != null ? team.getName() : "")
+                .teamLogoUrl(team != null ? team.getLogoFileUid() : null)
+                .teamMannerScore(team != null ? team.getMannerScore() : 0.0)
                 .matchDate(recruitment.getMatchDate())
                 .matchTime(recruitment.getMatchTime())
                 .stadiumName(recruitment.getStadiumName())

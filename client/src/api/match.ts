@@ -83,7 +83,7 @@ export function applyToMatch(data: ApplyMatchRequest) {
 // 매치 신청 취소
 export function cancelMatchApplication(matchUid: string) {
   return request({
-    url: `/api/match/${matchUid}/cancel`,
+    url: `/match/${matchUid}/cancel`,
     method: 'post',
   });
 }
@@ -91,16 +91,21 @@ export function cancelMatchApplication(matchUid: string) {
 // 매치 삭제
 export function deleteMatch(uid: string) {
   return request({
-    url: `/api/match/${uid}`,
+    url: `/match/${uid}`,
     method: 'delete',
   });
 }
 
 // 내 팀 매치 목록 조회
-export function getMyTeamMatches(teamUid: string) {
+export function getMyTeamMatches(teamUid: string, params?: {
+  matchType?: string
+  page?: number
+  size?: number
+}) {
   return request({
-    url: `/api/match/team/${teamUid}`,
+    url: `/match/team/${teamUid}`,
     method: 'get',
+    params,
   });
 }
 
