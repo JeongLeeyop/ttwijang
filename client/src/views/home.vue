@@ -22,7 +22,6 @@
             <div class="team-card-left">
               <div class="match-vs">
                 <img :src="card.teamLogo" :alt="card.teamName" class="team-logo">
-                <span class="vs-badge">{{ card.cardType === 'MATCH' ? 'VS' : '모집' }}</span>
               </div>
             </div>
             <div class="team-card-right">
@@ -31,17 +30,14 @@
                 <span v-if="card.matchFormat" class="tag">{{ card.matchFormat }}</span>
                 <span v-if="card.positionType" class="tag">{{ card.positionLabel }}</span>
               </div>
-              <div class="match-teams-names">
+              <!-- <div class="match-teams-names">
                 {{ card.teamName }}
-              </div>
+              </div> -->
               <div class="team-match-info">
                 {{ card.matchDate }} ({{ card.matchDay }}) {{ card.matchTime }}
               </div>
               <div class="team-location">
                 {{ card.stadiumName }} <i class="el-icon-arrow-right"></i>
-              </div>
-              <div v-if="card.fee" class="team-fee">
-                참가비 {{ card.fee.toLocaleString() }}원
               </div>
             </div>
           </div>
@@ -252,7 +248,7 @@ export default class extends Vue {
 
   get slickOptions() {
     return {
-      dots: true,
+      // dots: true,
       infinite: this.teamCards.length > 1,
       speed: 500,
       slidesToShow: 1,
@@ -578,6 +574,24 @@ export default class extends Vue {
 <style scoped>
 /* Styles moved to style.css - Home Page Specific Styles section */
 
+.team-card {
+  min-height: 100px;
+  max-height: 120px;
+  padding: 12px 16px !important;
+}
+
+.team-card-left {
+  flex-shrink: 0;
+}
+
+.team-card-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .match-vs {
   display: flex;
   flex-direction: column;
@@ -593,22 +607,51 @@ export default class extends Vue {
 }
 
 .vs-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: #ff6600;
   background: rgba(255, 102, 0, 0.1);
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
+  line-height: 1;
+}
+
+.team-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.team-tags .tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  line-height: 1.2;
 }
 
 .match-teams-names {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.team-match-info {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.3;
+}
+
+.team-location {
+  font-size: 11px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.3;
 }
 
 .tag-match {
@@ -619,13 +662,6 @@ export default class extends Vue {
 .tag-guest {
   background: rgba(0, 180, 100, 0.1) !important;
   color: #00b464 !important;
-}
-
-.team-fee {
-  font-size: 12px;
-  color: #ff6600;
-  font-weight: 600;
-  margin-top: 2px;
 }
 
 .loading-container {
