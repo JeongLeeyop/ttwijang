@@ -4,13 +4,11 @@
       <section class="profile-section">
         <div class="profile-header">
           <div class="profile-info">
-            <h2 class="profile-name">{{ userProfile.name }}</h2>
-            <p class="profile-email">{{ userProfile.email }}</p>
+            <h2 class="profile-name">{{ userProfile.name }}<span class="profile-name-suffix">님</span></h2>
           </div>
-          <button class="wallet-btn charge-btn" @click="chargePoints">
-              <i class="el-icon-edit"></i>
-              프로필 수정
-            </button>
+          <button class="profile-edit-btn" @click="editProfile">
+            프로필 수정
+          </button>
         </div>
 
         <!-- Stats Row Section -->
@@ -32,21 +30,17 @@
         <!-- Cash/Wallet Section -->
         <section class="wallet-section">
         <div class="wallet-card">
-          <div class="wallet-header"><!-- Cash/Wallet Section -->
-            <span class="wallet-label">보유 포인트</span>
-            <i class="el-icon-info"></i>
+          <div class="wallet-header">
+            <span class="wallet-label">나의 캐쉬</span>
           </div>
           <div class="wallet-balance">
             <div class="balance-wrapper">
               <span class="balance-amount">{{ formatCurrency(userWallet.points) }}</span>
-              <span class="balance-unit">포인트</span>
+              <span class="balance-unit">원</span>
             </div>
-            <div class="wallet-actions">
             <button class="wallet-btn charge-btn" @click="chargePoints">
-              <i class="el-icon-plus"></i>
-              캐시 충전
+              캐쉬 충전
             </button>
-            </div>
           </div>
         </div>
         </section>
@@ -162,6 +156,7 @@ import { getMyTeams } from '@/api/team';
 import { getUserMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMatchList } from '@/api/match';
+import { getTokenInfo } from '@/utils/cookies';
 
 @Component({
   name: 'MyPage',
@@ -208,6 +203,14 @@ export default class MyPage extends Vue {
       return;
     }
 
+    // Store에 저장된 기본 정보 먼저 반영
+    if (this.userModule.infoName) {
+      this.userProfile.name = this.userModule.infoName;
+    }
+    if (this.userModule.infoEmail) {
+      this.userProfile.email = this.userModule.infoEmail;
+    }
+
     await this.loadUserData();
   }
 
@@ -222,28 +225,49 @@ export default class MyPage extends Vue {
   private async loadUserData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 사용자 프로필 정보 로드
-      const userInfoResponse = await getUserInfo();
-      if (userInfoResponse.data) {
-        this.userProfile.name = userInfoResponse.data.name || '';
-        this.userProfile.email = userInfoResponse.data.email || '';
-        // 아바타 URL 생성 (이름 기반)
-        if (this.userProfile.name) {
-          const initials = this.userProfile.name.slice(0, 2);
-          this.userProfile.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=061da1&color=fff&size=80&bold=true`;
+      // 사용자 프로필 정보 로드 (API → Store → JWT 순으로 fallback)
+      let userUid = '';
+      try {
+        const userInfoResponse = await getUserInfo();
+        if (userInfoResponse.data) {
+          this.userProfile.name = userInfoResponse.data.actualName || userInfoResponse.data.name || '';
+          this.userProfile.email = userInfoResponse.data.email || '';
+          userUid = userInfoResponse.data.uid || userInfoResponse.data.userId || '';
         }
+      } catch (infoError) {
+        console.warn('사용자 정보 API 호출 실패, Store 데이터 사용:', infoError);
+      }
 
-        // 매너 점수 로드 (사용자 UID 사용)
-        if (userInfoResponse.data.uid) {
-          try {
-            const mannerResponse = await getUserMannerScore(userInfoResponse.data.uid);
-            if (mannerResponse.data) {
-              this.userStats.mannerscore = Math.round(mannerResponse.data.averageScore || 0);
-            }
-          } catch (mannerError) {
-            console.warn('매너 점수 로드 실패:', mannerError);
-            this.userStats.mannerscore = 0;
+      // API로 이름을 못 가져온 경우 Store fallback
+      if (!this.userProfile.name && this.userModule.infoName) {
+        this.userProfile.name = this.userModule.infoName;
+      }
+      if (!this.userProfile.email && this.userModule.infoEmail) {
+        this.userProfile.email = this.userModule.infoEmail;
+      }
+
+      // 여전히 이름이 없으면 JWT에서 시도
+      if (!this.userProfile.name) {
+        try {
+          const tokenData: any = getTokenInfo();
+          if (tokenData && tokenData.name) {
+            this.userProfile.name = tokenData.name;
           }
+        } catch (e) {
+          // JWT 디코딩 실패 시 무시
+        }
+      }
+
+      // 매너 점수 로드
+      if (userUid) {
+        try {
+          const mannerResponse = await getUserMannerScore(userUid);
+          if (mannerResponse.data) {
+            this.userStats.mannerscore = Math.round(mannerResponse.data.averageScore || 0);
+          }
+        } catch (mannerError) {
+          console.warn('매너 점수 로드 실패:', mannerError);
+          this.userStats.mannerscore = 0;
         }
       }
 
