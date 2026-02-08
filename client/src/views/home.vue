@@ -312,13 +312,18 @@ export default class extends Vue {
       }
 
       const leaguesResponse = await getLeagueList(leagueParams);
+      console.log('[HOME] 리그 목록 응답:', leaguesResponse.data);
       if (leaguesResponse.data && leaguesResponse.data.content) {
         this.availableLeagues = leaguesResponse.data.content.map((league: any) => ({
           uid: league.uid,
           name: league.name,
         }));
+        console.log('[HOME] availableLeagues:', this.availableLeagues);
         if (this.availableLeagues.length > 0) {
           this.selectedLeague = this.availableLeagues[0].uid;
+          console.log('[HOME] selectedLeague:', this.selectedLeague);
+          // 리그 데이터 즉시 로드
+          await this.loadLeagueData();
         } else {
           this.selectedLeague = '';
           this.leagueTable = [];
@@ -394,9 +399,11 @@ export default class extends Vue {
   }
 
   private async loadLeagueData(): Promise<void> {
+    console.log('[HOME] loadLeagueData() 호출, selectedLeague:', this.selectedLeague);
     try {
       // 리그 순위표 로드
       const standingsResponse = await getLeagueStandings(this.selectedLeague);
+      console.log('[HOME] 순위표 응답:', standingsResponse.data);
       if (standingsResponse.data && standingsResponse.data.standings) {
         this.leagueTable = standingsResponse.data.standings.map((team: any) => ({
           name: team.teamName,
@@ -413,24 +420,39 @@ export default class extends Vue {
       }
 
       // 리그 일정 로드
-      const startDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-01`;
-      const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-31`;
+      const year = this.currentYear;
+      const month = this.currentMonthIndex + 1;
+      const lastDay = new Date(year, month, 0).getDate(); // 해당 월의 마지막 날
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      console.log('[HOME] 일정 조회 기간:', startDate, '~', endDate);
       const scheduleResponse = await getLeagueSchedule(this.selectedLeague, { startDate, endDate });
+      console.log('[HOME] 일정 응답:', scheduleResponse.data);
 
-      if (scheduleResponse.data && scheduleResponse.data.content) {
-        const allMatches = scheduleResponse.data.content;
+      if (scheduleResponse.data && Array.isArray(scheduleResponse.data)) {
+        const allMatches = scheduleResponse.data;
+        console.log('[HOME] allMatches 개수:', allMatches.length);
+        console.log('[HOME] allMatches 샘플:', allMatches[0]);
 
         // 최근 경기 (완료된 경기)
-        this.recentMatches = allMatches
-          .filter((m: any) => m.status === 'COMPLETED')
+        const completedMatches = allMatches.filter((m: any) => m.status === 'COMPLETED');
+        console.log('[HOME] COMPLETED 매치:', completedMatches.length, '개');
+        this.recentMatches = completedMatches
           .slice(0, 5)
           .map((match: any) => this.transformMatch(match, true));
 
         // 예정 경기
-        this.upcomingMatches = allMatches
-          .filter((m: any) => m.status !== 'COMPLETED')
+        const scheduledMatches = allMatches.filter((m: any) => m.status !== 'COMPLETED');
+        console.log('[HOME] SCHEDULED 매치:', scheduledMatches.length, '개');
+        this.upcomingMatches = scheduledMatches
           .slice(0, 5)
           .map((match: any) => this.transformMatch(match, false));
+        console.log('[HOME] upcomingMatches:', this.upcomingMatches.length, '개');
+        console.log('[HOME] recentMatches:', this.recentMatches.length, '개');
+      } else {
+        console.warn('[HOME] scheduleResponse.data가 비어있거나 배열이 아님');
+        this.upcomingMatches = [];
+        this.recentMatches = [];
       }
     } catch (error) {
       console.warn('리그 데이터 로드 실패:', error);

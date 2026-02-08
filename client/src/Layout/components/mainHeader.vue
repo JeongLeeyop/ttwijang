@@ -1,7 +1,7 @@
 <template>
   <div class="header">
-    <div class="header-left">
-        <i class="el-icon-s-fold"></i>
+      <div class="header-left">
+        <i v-if="showBack" @click="goBack" class="el-icon-s-fold"></i>
         <!-- Region Filter (BR-04) -->
         <el-select
           :popper-append-to-body="false"
