@@ -570,10 +570,16 @@ export default class TeamPage extends Vue {
     this.showActionModal = false;
     switch (action) {
       case 'match':
-        this.$message.info('매치 일정 만들기 기능은 준비 중입니다.');
+        this.$router.push({
+          path: '/match-create',
+          query: { teamUid: this.teamUid },
+        });
         break;
       case 'guest':
-        this.$message.info('게스트 모집하기 기능은 준비 중입니다.');
+        this.$router.push({
+          path: '/guest-recruit',
+          query: { teamUid: this.teamUid },
+        });
         break;
       case 'recruit':
         this.$message.info('신규 회원 모집하기 기능은 준비 중입니다.');

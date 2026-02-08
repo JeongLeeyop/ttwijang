@@ -42,7 +42,7 @@ export function getMatchesByDateRange(startDate: string, endDate: string, params
 
 // 매치 생성
 export interface CreateMatchRequest {
-  teamUid: string
+  hostTeamUid: string
   matchType: 'FRIENDLY' | 'FREE'
   matchFormat: 'FOUR_VS_FOUR' | 'FIVE_VS_FIVE' | 'SIX_VS_SIX' | 'SEVEN_VS_SEVEN'
   matchDate: string

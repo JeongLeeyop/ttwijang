@@ -193,6 +193,22 @@ export const constantRoutes: Array<RouteConfig> = [
 				component: () => import('@/views/teamComplete.vue'),
 			},
 			{
+				path: '/match-create',
+				name: 'MatchCreate',
+				meta: {
+					title: '매치 일정 만들기',
+				},
+				component: () => import('@/views/MatchCreate.vue'),
+			},
+			{
+				path: '/guest-recruit',
+				name: 'GuestRecruit',
+				meta: {
+					title: '게스트 모집',
+				},
+				component: () => import('@/views/GuestRecruit.vue'),
+			},
+			{
 				path: '/profile-edit',
 				name: 'ProfileEdit',
 				meta: {

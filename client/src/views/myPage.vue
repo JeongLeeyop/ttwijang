@@ -20,7 +20,7 @@
               <span v-else>{{ userStats.mannerscore }}</span>
             </div>
           </div>
-          <div class="stat-button">
+          <div class="stat-button" :class="{ 'clickable': myTeamCode }" @click="goToMyTeam">
             <div class="stat-label">
               <i v-if="isLoadingTeam" class="el-icon-loading"></i>
               <span v-else>{{ userStats.teamLabel }}</span>
@@ -208,6 +208,8 @@ export default class MyPage extends Vue {
 
   private isLoadingMatches = true;
 
+  private myTeamCode = '';
+
   async mounted() {
     // 마이페이지 헤더 배경색 설정을 위한 클래스 추가
     const mainLayout = document.querySelector('.main-layout');
@@ -324,6 +326,7 @@ export default class MyPage extends Vue {
         }
         if (team && team.name) {
           this.userStats.team = team.name;
+          this.myTeamCode = team.teamCode || team.uid || '';
           // 팀을 생성했는지 확인
           try {
             const statusResponse = await checkMembershipStatus();
@@ -399,6 +402,14 @@ export default class MyPage extends Vue {
 
   private navigateTo(): void {
     this.$message.info('준비중입니다.');
+  }
+
+  private goToMyTeam(): void {
+    if (this.myTeamCode) {
+      this.$router.push({ name: 'TeamPage', params: { teamCode: this.myTeamCode } });
+    } else {
+      this.$message.info('소속된 팀이 없습니다.');
+    }
   }
 
   private navigateToCashHistory(): void {

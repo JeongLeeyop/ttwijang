@@ -2025,6 +2025,8 @@
 .auth-layout {
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .futsal-layout .header .back-button,
@@ -2582,6 +2584,11 @@
   /* transform: translateY(-2px); */
   /* box-shadow: 0 4px 12px rgba(6, 29, 161, 0.15); */
   /* border-color: #0a24a0; */
+}
+
+.stat-button.clickable:active {
+  transform: scale(0.96);
+  background: linear-gradient(135deg, #e0e8ff 0%, #d8e8ff 100%);
 }
 
 .stat-button .stat-label {
