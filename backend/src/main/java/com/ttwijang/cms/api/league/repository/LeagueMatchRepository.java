@@ -34,4 +34,19 @@ public interface LeagueMatchRepository extends JpaRepository<LeagueMatch, String
 
     @Query("SELECT lm FROM LeagueMatch lm WHERE lm.leagueUid = :leagueUid AND lm.status = 'COMPLETED' ORDER BY lm.matchDate DESC")
     List<LeagueMatch> findCompletedMatchesByLeagueUid(@Param("leagueUid") String leagueUid, Pageable pageable);
+
+    @Query("SELECT lm FROM LeagueMatch lm JOIN League l ON lm.leagueUid = l.uid "
+            + "WHERE l.regionSigungu = :regionSigungu "
+            + "AND lm.matchDate >= :today "
+            + "AND lm.status = 'SCHEDULED' "
+            + "ORDER BY lm.matchDate ASC, lm.matchTime ASC")
+    List<LeagueMatch> findUpcomingByRegionSigungu(@Param("regionSigungu") String regionSigungu,
+                                                  @Param("today") LocalDate today,
+                                                  Pageable pageable);
+
+    @Query("SELECT lm FROM LeagueMatch lm "
+            + "WHERE lm.matchDate >= :today "
+            + "AND lm.status = 'SCHEDULED' "
+            + "ORDER BY lm.matchDate ASC, lm.matchTime ASC")
+    List<LeagueMatch> findUpcomingAll(@Param("today") LocalDate today, Pageable pageable);
 }

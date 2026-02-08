@@ -82,6 +82,18 @@ export function getLeagueTeams(leagueUid: string) {
   });
 }
 
+// 지역별 다가오는 리그 경기 조회
+export function getUpcomingLeagueMatches(params?: {
+  regionCode?: string
+  limit?: number
+}) {
+  return request({
+    url: '/league/upcoming',
+    method: 'get',
+    params,
+  });
+}
+
 // 내 팀의 리그 정보 조회
 export function getMyTeamLeagueInfo(teamUid: string) {
   return request({

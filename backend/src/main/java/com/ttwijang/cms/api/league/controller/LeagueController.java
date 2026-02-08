@@ -49,6 +49,18 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.getLeagueList(regionSido, regionSigungu, status, pageable));
     }
 
+    @Operation(summary = "지역별 다가오는 리그 경기 조회")
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<LeagueDto.MatchResponse>> getUpcomingMatchesByRegion(
+            @RequestParam(required = false) String regionCode,
+            @RequestParam(defaultValue = "20") int limit) {
+        String regionSigungu = null;
+        if (regionCode != null && !regionCode.isEmpty()) {
+            regionSigungu = regionCodeService.resolveRegionName(regionCode);
+        }
+        return ResponseEntity.ok(leagueService.getUpcomingMatchesByRegion(regionSigungu, limit));
+    }
+
     @Operation(summary = "리그 상세 조회")
     @GetMapping("/{uid}")
     public ResponseEntity<LeagueDto.DetailResponse> getLeagueDetail(

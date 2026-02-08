@@ -204,6 +204,9 @@ public class LeagueDto {
 
         @Schema(description = "라운드")
         private Integer round;
+
+        @Schema(description = "리그 이름")
+        private String leagueName;
     }
 
     @Data
