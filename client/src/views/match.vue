@@ -144,6 +144,7 @@ import {
   MembershipStatus,
 } from '@/api/team';
 import { getMyTeamMatches } from '@/api/match';
+import { getGuestRecruitmentsByDateRange } from '@/api/guest';
 
 interface MatchCard {
   uid: string
@@ -195,6 +196,8 @@ interface Match {
   homeScore?: number
   awayScore?: number
 }
+
+type TeamCard = any
 
 @Component({
   components: {
@@ -257,75 +260,13 @@ export default class extends Vue {
     variableWidth: true,
   }
 
-  private teamCards: TeamCard[] = []
-
   private leagueTable: LeagueTeam[] = []
 
   private recentMatches: Match[] = []
 
   private upcomingMatches: Match[] = []
 
-  private toggleLeagueStatus(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
-  }
-
-  private toggleLeagueSection(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
-  }
-
-  private previousMonth(): void {
-    if (this.currentMonthIndex === 0) {
-      this.currentMonthIndex = 11;
-      this.currentYear -= 1;
-    } else {
-      this.currentMonthIndex -= 1;
-    }
-  }
-
-  private nextMonth(): void {
-    if (this.currentMonthIndex === 11) {
-      this.currentMonthIndex = 0;
-      this.currentYear += 1;
-    } else {
-      this.currentMonthIndex += 1;
-    }
-  }
-
-  private handleTouchStart(event: TouchEvent): void {
-    this.touchStartX = event.touches[0].clientX;
-  }
-
-  private handleTouchMove(event: TouchEvent): void {
-    this.touchEndX = event.touches[0].clientX;
-  }
-
-  private handleTouchEnd(): void {
-    const difference = this.touchStartX - this.touchEndX;
-    if (Math.abs(difference) > 50) {
-      // Swipe detected
-    }
-  }
-
-  private navigateToMatchDetail(match: Match): void {
-    this.$router.push({
-      path: `/match-detail/${match.uid}`,
-      query: { type: 'match' },
-    });
-  }
-
-  private goToMatchDetail(guest: any): void {
-    if (guest.isRecruitmentClosed) return;
-    this.$router.push({
-      path: `/match-detail/${guest.uid}`,
-      query: { type: 'guest' },
-    });
-  }
-
   private guestData: any[] = []
-
-  private selectedDate: Date = new Date()
-
-  private selectedDay: number = new Date().getDate()
 
   get filteredGuests(): any[] {
     return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
@@ -359,10 +300,6 @@ export default class extends Vue {
       && this.currentMonthIndex === this.selectedDate.getMonth();
   }
 
-  private toggleLeagueStatus(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
-  }
-
   private toggleLeagueSection(): void {
     this.showLeagueStatus = !this.showLeagueStatus;
   }
@@ -402,6 +339,14 @@ export default class extends Vue {
     if (Math.abs(difference) > 50) {
       // Swipe detected
     }
+  }
+
+  private goToMatchDetail(guest: any): void {
+    if (guest.isRecruitmentClosed) return;
+    this.$router.push({
+      path: `/match-detail/${guest.uid}`,
+      query: { type: 'guest' },
+    });
   }
 
   private async joinTeamWithCode(): Promise<void> {
@@ -453,14 +398,21 @@ export default class extends Vue {
     this.currentMonthIndex = new Date().getMonth();
     this.selectedDay = new Date().getDate();
     this.selectedDate = new Date();
-    await this.loadMembershipStatus();
+
+    this.isInitialLoading = true;
+    try {
+      await Promise.all([
+        this.loadGuestData(),
+        this.loadMembershipStatus(),
+      ]);
+    } finally {
+      this.isInitialLoading = false;
+    }
   }
 
   @Watch('selectedRegion')
   async onRegionChange() {
-    if (this.myTeamInfo) {
-      await this.loadTeamMatches();
-    }
+    await this.loadGuestData();
   }
 
   @Watch('currentMonthIndex')
@@ -594,6 +546,52 @@ export default class extends Vue {
     const period = hour < 12 ? 'Am' : 'Pm';
     const displayHour = hour > 12 ? hour - 12 : hour;
     return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
+  }
+
+  private async loadGuestData(): Promise<void> {
+    try {
+      const today = new Date();
+      const startDate = today.toISOString().split('T')[0];
+      const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const regionParams: any = {};
+      if (this.selectedRegion) {
+        regionParams.regionSido = '경남';
+        regionParams.regionSigungu = this.selectedRegion;
+      }
+
+      const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);
+      if (response.data) {
+        const guests = response.data.content || response.data || [];
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+        this.guestData = guests.map((guest: any) => {
+          const matchDate = new Date(guest.matchDate);
+          const isFull = guest.currentGuests >= guest.maxGuests;
+
+          return {
+            uid: guest.uid,
+            name: guest.teamName,
+            logo: guest.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(guest.teamName?.substring(0, 2) || 'T')}&background=random&color=fff&size=60`,
+            league: '',
+            manner: guest.teamMannerScore || 0,
+            matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+            teamSize: this.formatMatchFormat(guest.matchFormat),
+            matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
+            matchDay: dayNames[matchDate.getDay()],
+            matchTime: guest.matchTime,
+            location: guest.stadiumName,
+            date: matchDate,
+            teamLogo: guest.teamLogoUrl,
+            currentMembers: guest.currentGuests,
+            maxMembers: guest.maxGuests,
+            isRecruitmentClosed: isFull,
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load guest data:', error);
+    }
   }
 }
 </script>

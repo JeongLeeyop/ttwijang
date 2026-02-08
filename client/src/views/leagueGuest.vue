@@ -139,7 +139,6 @@ import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import {
   getGuestRecruitmentsByDateRange,
-  getGuestRecruitmentList,
 } from '@/api/guest';
 import { getUpcomingLeagueMatches } from '@/api/league';
 
@@ -183,6 +182,7 @@ interface GuestItem {
   goals: number
   conceded: number
   difference: number
+  date: Date
 }
 
 interface Match {
@@ -427,7 +427,12 @@ export default class extends Vue {
     const hour = parseInt(parts[0], 10);
     const minute = parts[1];
     const period = hour < 12 ? 'Am' : 'Pm';
-    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+    let displayHour = hour;
+    if (hour > 12) {
+      displayHour = hour - 12;
+    } else if (hour === 0) {
+      displayHour = 12;
+    }
     return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
   }
 
@@ -500,7 +505,7 @@ export default class extends Vue {
   }
 
   get filteredGuests(): any[] {
-    return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
+    return this.guestData.filter((guest) => guest.date && this.isSameDate(guest.date, this.selectedDate));
   }
 
   private isSameDate(date1: Date, date2: Date): boolean {
