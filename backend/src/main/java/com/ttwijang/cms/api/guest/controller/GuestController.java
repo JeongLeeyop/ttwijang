@@ -52,10 +52,16 @@ public class GuestController {
     @GetMapping
     public ResponseEntity<Page<GuestDto.ListResponse>> getRecruitmentList(
             @RequestParam(required = false) String region,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) GuestRecruitment.RecruitmentStatus status,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
-        return ResponseEntity.ok(guestService.getRecruitmentList(region, date, status, pageable));
+        String effectiveRegion = region;
+        if (regionSido != null && regionSigungu != null) {
+            effectiveRegion = regionSido + " " + regionSigungu;
+        }
+        return ResponseEntity.ok(guestService.getRecruitmentList(effectiveRegion, date, status, pageable));
     }
 
     @Operation(summary = "날짜 범위별 게스트 모집 조회 (캘린더용)")
@@ -63,8 +69,14 @@ public class GuestController {
     public ResponseEntity<Page<GuestDto.ListResponse>> getRecruitmentsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
-        return ResponseEntity.ok(guestService.getRecruitmentsByDateRange(startDate, endDate, pageable));
+        String effectiveRegion = null;
+        if (regionSido != null && regionSigungu != null) {
+            effectiveRegion = regionSido + " " + regionSigungu;
+        }
+        return ResponseEntity.ok(guestService.getRecruitmentsByDateRange(startDate, endDate, effectiveRegion, pageable));
     }
 
     @Operation(summary = "게스트 신청", security = @SecurityRequirement(name = "bearerAuth"))

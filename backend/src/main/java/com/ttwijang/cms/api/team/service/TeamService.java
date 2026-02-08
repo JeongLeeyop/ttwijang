@@ -108,13 +108,29 @@ public class TeamService {
     }
 
     /**
-     * 팀 목록 조회
+     * 팀 목록 조회 (지역 필터 지원)
      */
     @Transactional(readOnly = true)
     public Page<TeamDto.ListResponse> getTeamList(String region, Boolean recruiting, Pageable pageable) {
         Page<Team> teams;
+
+        // 지역 필터 파싱
+        String sido = null;
+        String sigungu = null;
+        if (region != null && !region.isEmpty()) {
+            String[] parts = region.split(" ", 2);
+            sido = parts[0];
+            sigungu = parts.length > 1 ? parts[1] : null;
+        }
+
         if (recruiting != null && recruiting) {
-            teams = teamRepository.findByRecruitingMembersTrue(pageable);
+            if (sido != null && sigungu != null) {
+                teams = teamRepository.findByRecruitingMembersTrueAndRegionSidoAndRegionSigungu(sido, sigungu, pageable);
+            } else {
+                teams = teamRepository.findByRecruitingMembersTrue(pageable);
+            }
+        } else if (sido != null) {
+            teams = teamRepository.findActiveByRegion(sido, sigungu, pageable);
         } else {
             teams = teamRepository.findByStatus(Team.TeamStatus.ACTIVE, pageable);
         }
@@ -405,7 +421,6 @@ public class TeamService {
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
                 .description(team.getDescription())
-                .grade(team.getGrade())
                 .mannerScore(team.getMannerScore())
                 .memberCount(team.getMemberCount())
                 .regionSido(team.getRegionSido())
@@ -431,7 +446,6 @@ public class TeamService {
                 .uid(team.getUid())
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
-                .grade(team.getGrade())
                 .mannerScore(team.getMannerScore())
                 .memberCount(team.getMemberCount())
                 .region(team.getRegionSido() + " " + team.getRegionSigungu())

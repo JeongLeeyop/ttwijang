@@ -55,6 +55,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import { getSigunguList, Region } from '@/api/region';
+import { storageKey } from '@/enums/localStorage';
 
 @Component({
   name: 'MainHeader',
@@ -68,7 +69,7 @@ export default class extends Vue {
 
   private selectedRegion = ''
 
-  private regionOptions: Array<{ label: string, value: string }> = []
+  private regionOptions: Array<{ label: string, value: string, code: string }> = []
 
   private showPopover = false;
 
@@ -90,8 +91,8 @@ export default class extends Vue {
   };
 
   mounted() {
-    this.loadRegions();
     this.initializeSampleAlarms();
+    this.loadRegionsAndInitialize();
   }
 
   private goBack() {
@@ -108,6 +109,12 @@ export default class extends Vue {
 
   private onRegionChange(): void {
     // BR-04: 지역 필터 변경 시 이벤트 발생
+    // localStorage에 선택된 지역 저장
+    if (this.selectedRegion) {
+      localStorage.setItem(storageKey.selectedRegion, this.selectedRegion);
+    } else {
+      localStorage.removeItem(storageKey.selectedRegion);
+    }
     this.$emit('region-change', this.selectedRegion);
   }
 
@@ -185,18 +192,40 @@ export default class extends Vue {
     // 페이지 변경 시 알람 리스트 새로고침 (현재는 샘플 데이터 사용)
   }
 
-  private async loadRegions(): Promise<void> {
+  private async loadRegionsAndInitialize(): Promise<void> {
     try {
       const response = await getSigunguList('48'); // 경상남도
       if (response && response.data) {
         this.regionOptions = response.data.map((region: Region) => ({
           label: region.name,
-          value: region.name,
+          value: region.name, // DB에 한글 이름으로 저장되므로 name 사용
+          code: region.code,
         }));
       }
+
+      // 지역 목록 로드 완료 후 선택된 지역 초기화
+      this.initializeSelectedRegion();
     } catch (error) {
       console.error('Failed to load regions:', error);
+      // 에러 발생 시에도 기본값 설정
+      this.initializeSelectedRegion();
     }
+  }
+
+  private initializeSelectedRegion(): void {
+    // localStorage에서 선택된 지역 가져오기
+    const savedRegion = localStorage.getItem(storageKey.selectedRegion);
+    if (savedRegion) {
+      // 저장된 지역이 옵션 목록에 있는지 확인
+      const isValid = this.regionOptions.some((opt) => opt.value === savedRegion);
+      this.selectedRegion = isValid ? savedRegion : '진주시';
+    } else {
+      // 저장된 지역이 없으면 기본값으로 진주시 설정
+      this.selectedRegion = '진주시';
+    }
+    localStorage.setItem(storageKey.selectedRegion, this.selectedRegion);
+    // 초기 로드 시에도 region-change 이벤트 발생
+    this.$emit('region-change', this.selectedRegion);
   }
 }
 </script>

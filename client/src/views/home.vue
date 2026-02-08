@@ -149,7 +149,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue, Component, Watch, Prop,
+} from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
@@ -201,6 +203,8 @@ interface Match {
   },
 })
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private selectedLeague = ''
 
   private availableLeagues: { uid: string, name: string }[] = []
@@ -248,6 +252,11 @@ export default class extends Vue {
     await this.loadHomeData();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadHomeData();
+  }
+
   @Watch('selectedLeague')
   async onLeagueChange() {
     if (this.selectedLeague) {
@@ -265,8 +274,17 @@ export default class extends Vue {
   private async loadHomeData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 리그 목록 로드
-      const leaguesResponse = await getLeagueList({ status: 'IN_PROGRESS' });
+      // 리그 목록 로드 (지역 필터 적용)
+      const params: any = {
+        status: 'IN_PROGRESS',
+      };
+      if (this.selectedRegion) {
+        // 경남 지역의 시/군/구로 필터링
+        params.regionSido = '경남';
+        params.regionSigungu = this.selectedRegion;
+      }
+
+      const leaguesResponse = await getLeagueList(params);
       if (leaguesResponse.data && leaguesResponse.data.content) {
         this.availableLeagues = leaguesResponse.data.content.map((league: any) => ({
           uid: league.uid,
@@ -275,10 +293,16 @@ export default class extends Vue {
         // 첫 번째 리그 선택
         if (this.availableLeagues.length > 0) {
           this.selectedLeague = this.availableLeagues[0].uid;
+        } else {
+          // 선택된 지역에 리그가 없으면 초기화
+          this.selectedLeague = '';
+          this.leagueTable = [];
+          this.upcomingMatches = [];
+          this.recentMatches = [];
         }
       }
 
-      // 추천 팀 카드 로드 (매치 모집 중인 팀들)
+      // 추천 팀 카드 로드 (지역 필터 적용)
       await this.loadTeamCards();
     } catch (error) {
       console.error('홈 데이터 로드 실패:', error);
@@ -289,7 +313,16 @@ export default class extends Vue {
 
   private async loadTeamCards(): Promise<void> {
     try {
-      const matchesResponse = await getMatchList({ status: 'RECRUITING' });
+      const params: any = {
+        status: 'RECRUITING',
+      };
+      if (this.selectedRegion) {
+        // 경남 지역의 시/군/구로 필터링
+        params.regionSido = '경남';
+        params.regionSigungu = this.selectedRegion;
+      }
+
+      const matchesResponse = await getMatchList(params);
       if (matchesResponse.data && matchesResponse.data.content) {
         this.teamCards = matchesResponse.data.content.slice(0, 5).map((match: any) => ({
           name: match.teamName || match.team?.name || '팀 모집중',

@@ -53,7 +53,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue,
+  Component,
+  Watch,
+  Prop,
+} from 'vue-property-decorator';
 import { getLeagueList, getLeagueSchedule } from '@/api/league';
 
 interface LeagueTeam {
@@ -89,6 +94,8 @@ interface LeagueOption {
 
 @Component({})
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private currentYear = 2025
 
   private currentMonthIndex = new Date().getMonth()
@@ -110,6 +117,11 @@ export default class extends Vue {
     await this.loadLeagues();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadLeagues();
+  }
+
   @Watch('selectedLeague')
   async onLeagueChange() {
     if (this.selectedLeague) {
@@ -127,7 +139,14 @@ export default class extends Vue {
   private async loadLeagues(): Promise<void> {
     this.isLoading = true;
     try {
-      const response = await getLeagueList({ status: 'IN_PROGRESS' });
+      const params: any = {
+        status: 'IN_PROGRESS',
+      };
+      if (this.selectedRegion) {
+        params.regionSido = '경남';
+        params.regionSigungu = this.selectedRegion;
+      }
+      const response = await getLeagueList(params);
       const leagueList = response.data?.content || response.data || [];
 
       this.leagues = leagueList.map((league: any) => ({

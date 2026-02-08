@@ -133,9 +133,6 @@ public class MatchDto {
         @Schema(description = "주최 팀 매너 점수")
         private Double hostTeamMannerScore;
 
-        @Schema(description = "주최 팀 등급")
-        private String hostTeamGrade;
-
         @Schema(description = "상대 팀 UID")
         private String guestTeamUid;
 

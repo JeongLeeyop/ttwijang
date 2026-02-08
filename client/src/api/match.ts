@@ -5,6 +5,8 @@ export function getMatchList(params?: {
   date?: string
   status?: string
   region?: string
+  regionSido?: string
+  regionSigungu?: string
   matchType?: string
   page?: number
   size?: number
@@ -25,11 +27,14 @@ export function getMatchDetail(uid: string) {
 }
 
 // 캘린더용 매치 조회
-export function getMatchesByDateRange(startDate: string, endDate: string) {
+export function getMatchesByDateRange(startDate: string, endDate: string, params?: {
+  regionSido?: string
+  regionSigungu?: string
+}) {
   return request({
     url: '/match/calendar',
     method: 'get',
-    params: { startDate, endDate },
+    params: { startDate, endDate, ...params },
   });
 }
 

@@ -28,6 +28,8 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     Page<Team> findByRecruitingMembersTrue(Pageable pageable);
 
+    Page<Team> findByRecruitingMembersTrueAndRegionSidoAndRegionSigungu(String sido, String sigungu, Pageable pageable);
+
     List<Team> findByOwnerUid(String ownerUid);
 
     /**

@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
@@ -179,6 +179,8 @@ interface JoinTeam {
   },
 })
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private selectedLeague = 'a-league'
 
   private showLeagueStatus = false
@@ -205,17 +207,24 @@ export default class extends Vue {
     await this.loadData();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadData();
+  }
+
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const leagueGradeColors: { [key: string]: string } = {
-        A: '#061da1',
-        B: '#ff8800',
-        C: '#e91e63',
+      // 1. 리그 목록 조회 (지역 필터 적용)
+      const leagueParams: any = {
+        status: 'IN_PROGRESS',
+        page: 0,
+        size: 10,
       };
-
-      // 1. 리그 목록 조회
-      const leagueParams: any = { status: 'IN_PROGRESS', page: 0, size: 10 };
+      if (this.selectedRegion) {
+        leagueParams.regionSido = '경남';
+        leagueParams.regionSigungu = this.selectedRegion;
+      }
 
       const leagueResponse = await getLeagueList(leagueParams);
       const leagues = leagueResponse.data?.content || [];
@@ -247,8 +256,15 @@ export default class extends Vue {
         this.leagueParticipatingTeams = [];
       }
 
-      // 3. 회원 모집 중인 팀 목록 조회
-      const teamParams: any = { page: 0, size: 10 };
+      // 3. 회원 모집 중인 팀 목록 조회 (지역 필터 적용)
+      const teamParams: any = {
+        page: 0,
+        size: 10,
+      };
+      if (this.selectedRegion) {
+        teamParams.regionSido = '경남';
+        teamParams.regionSigungu = this.selectedRegion;
+      }
       const recruitingTeamsResponse = await getTeamList(teamParams);
       const teams = recruitingTeamsResponse.data?.content || [];
 

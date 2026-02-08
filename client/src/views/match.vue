@@ -127,7 +127,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import {
+  Vue,
+  Component,
+  Prop,
+  Watch,
+} from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
@@ -138,7 +143,6 @@ import {
   getMyTeams,
   MembershipStatus,
 } from '@/api/team';
-import { getMatchesByDateRange } from '@/api/match';
 import { getGuestRecruitmentsByDateRange } from '@/api/guest';
 
 interface TeamCard {
@@ -193,6 +197,8 @@ interface Match {
   },
 })
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private selectedLeague = 'a-league'
 
   private showLeagueStatus = false
@@ -234,181 +240,13 @@ export default class extends Vue {
     variableWidth: true,
   }
 
-  private teamCards: TeamCard[] = [
-    {
-      name: '대성풋살클럽',
-      logo: 'https://ui-avatars.com/api/?name=DS&background=061da1&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.8,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 09일',
-      matchDay: '금',
-      matchTime: 'Pm 07:00',
-      location: '대성풋살장',
-    },
-    {
-      name: '강남FC',
-      logo: 'https://ui-avatars.com/api/?name=GN&background=0066cc&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.5,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 10일',
-      matchDay: '토',
-      matchTime: 'Pm 06:00',
-      location: '강남풋살장',
-    },
-    {
-      name: '서울유나이티드',
-      logo: 'https://ui-avatars.com/api/?name=SU&background=cc0000&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.9,
-      matchType: '친선 경기',
-      teamSize: '6 대 6',
-      matchDate: '05월 11일',
-      matchDay: '일',
-      matchTime: 'Am 10:00',
-      location: '서울풋살장',
-    },
-    {
-      name: '인천블루스',
-      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.6,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 12일',
-      matchDay: '월',
-      matchTime: 'Pm 08:00',
-      location: '인천풋살장',
-    },
-    {
-      name: '경기타이탄',
-      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.7,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '05월 13일',
-      matchDay: '화',
-      matchTime: 'Pm 07:30',
-      location: '경기풋살장',
-    },
-  ]
+  private teamCards: TeamCard[] = []
 
-  private leagueTable: LeagueTeam[] = [
-    {
-      name: '최강숏FC',
-      logo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      played: 18,
-      wins: 15,
-      draws: 2,
-      losses: 1,
-      points: 47,
-      goals: 45,
-      conceded: 12,
-      difference: 33,
-    },
-    {
-      name: '위더스 FC',
-      logo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      played: 18,
-      wins: 12,
-      draws: 3,
-      losses: 3,
-      points: 39,
-      goals: 38,
-      conceded: 20,
-      difference: 18,
-    },
-    {
-      name: '라이온 FC',
-      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      played: 18,
-      wins: 11,
-      draws: 4,
-      losses: 3,
-      points: 37,
-      goals: 35,
-      conceded: 22,
-      difference: 13,
-    },
-    {
-      name: '아란치 FC',
-      logo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      played: 18,
-      wins: 10,
-      draws: 5,
-      losses: 3,
-      points: 35,
-      goals: 32,
-      conceded: 24,
-      difference: 8,
-    },
-    {
-      name: '진주고 FC',
-      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-      played: 18,
-      wins: 9,
-      draws: 6,
-      losses: 3,
-      points: 33,
-      goals: 30,
-      conceded: 25,
-      difference: 5,
-    },
-  ]
+  private leagueTable: LeagueTeam[] = []
 
-  private recentMatches: Match[] = [
-    {
-      date: '05월 01일',
-      day: '목요일',
-      time: '15:00',
-      location: '송도풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 2,
-      awayScore: 1,
-    },
-    {
-      date: '05월 09일',
-      day: '금요일',
-      time: '18:00',
-      location: '송도풋살장',
-      homeTeam: '최강숏 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 5,
-      awayScore: 2,
-    },
-  ]
+  private recentMatches: Match[] = []
 
-  private upcomingMatches: Match[] = [
-    {
-      date: '05월 10일',
-      day: '토요일',
-      time: '19:00',
-      location: '위더스풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-    },
-    {
-      date: '05월 11일',
-      day: '일요일',
-      time: '14:00',
-      location: '송도풋살장',
-      homeTeam: '라이온 FC',
-      awayTeam: '진주고 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-    },
-  ]
+  private upcomingMatches: Match[] = []
 
   private toggleLeagueStatus(): void {
     this.showLeagueStatus = !this.showLeagueStatus;
@@ -455,41 +293,7 @@ export default class extends Vue {
     console.log('Navigate to match:', match);
   }
 
-  private guestData: any[] = [
-    {
-      name: '인천블루스',
-      logo: 'https://ui-avatars.com/api/?name=IC&background=0099ff&color=fff&size=60',
-      league: 'B리그',
-      manner: 4.6,
-      matchType: '정규 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 22일',
-      matchDay: '월',
-      matchTime: 'Pm 08:00',
-      location: '아란치FC',
-      date: new Date(2025, 10, 22),
-      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      currentMembers: 2,
-      maxMembers: 5,
-    },
-    {
-      name: '경기타이탄',
-      logo: 'https://ui-avatars.com/api/?name=GG&background=ff6600&color=fff&size=60',
-      league: 'A리그',
-      manner: 4.7,
-      matchType: '친선 경기',
-      teamSize: '5 대 5',
-      matchDate: '11월 23일',
-      matchDay: '화',
-      matchTime: 'Pm 07:30',
-      location: '아란치FC',
-      date: new Date(2025, 10, 23),
-      teamLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      currentMembers: 5,
-      maxMembers: 5,
-      isRecruitmentClosed: true,
-    },
-  ]
+  private guestData: any[] = []
 
   private selectedDate: Date = new Date()
 
@@ -580,6 +384,11 @@ export default class extends Vue {
     ]);
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadGuestData();
+  }
+
   private async loadMembershipStatus(): Promise<void> {
     try {
       const response = await checkMembershipStatus();
@@ -618,7 +427,13 @@ export default class extends Vue {
       const startDate = today.toISOString().split('T')[0];
       const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const response = await getGuestRecruitmentsByDateRange(startDate, endDate);
+      const regionParams: any = {};
+      if (this.selectedRegion) {
+        regionParams.regionSido = '경남';
+        regionParams.regionSigungu = this.selectedRegion;
+      }
+
+      const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);
       if (response.data) {
         const guests = response.data.content || response.data || [];
         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];

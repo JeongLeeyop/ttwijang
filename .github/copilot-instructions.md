@@ -1,3 +1,4 @@
+````instructions
 작업해야하는 요구사항은 아래 파일들에 정리되어 있습니다.
 각 파일마다 전체 요구사항이 각각 다른 관점으로 작성되어 있으니, 각 파일의 내용을 비교하면서 부족한 부분은 보충하고, 통합하면서 작업해주세요
 ./request.md
@@ -590,14 +591,47 @@ export const getUser = (id: number) =>
 ```
 
 ### 주요 ESLint 규칙 요약
-- **@typescript-eslint/member-delimiter-style**: 
+- **@typescript-eslint/member-delimiter-style**:
   - 여러 줄(multiline): 구분자 없음
   - 한 줄(singleline): 쉼표(,) 사용
 - **camelcase**: 변수/속성명은 camelCase 사용
 - **implicit-arrow-linebreak**: 화살표 함수는 한 줄 또는 괄호로 감싸기
 - **no-trailing-spaces**: 줄 끝 공백 금지 (모든 코드 라인)
 - **object-property-newline**: 객체 속성은 각 줄에 하나씩 (복잡한 객체)
+- **object-curly-newline**: 객체 리터럴의 중괄호 줄바꿈 규칙
+  - 한 줄 객체: 중괄호 안에 줄바꿈 없음 `{ key: value }`
+  - 여러 줄 객체: 중괄호 뒤/앞에 줄바꿈 필수
 - **lines-between-class-members**: 클래스 멤버 사이 빈 줄 추가
+
+### 객체 리터럴 작성 규칙 (object-curly-newline)
+```typescript
+// ✅ 올바른 방법: 한 줄 객체 (간단한 경우)
+const params = { status: 'active' };
+
+// ✅ 올바른 방법: 여러 줄 객체 (속성이 2개 이상이거나 복잡한 경우)
+const params: any = {
+  status: 'IN_PROGRESS',
+};
+
+const params: any = {
+  status: 'IN_PROGRESS',
+  page: 0,
+  size: 10,
+};
+
+// ❌ 잘못된 방법: 중괄호 줄바꿈 불일치
+const params: any = { status: 'IN_PROGRESS' }; // 타입 지정된 경우 여러 줄로 작성
+
+const params = {
+  status: 'active' }; // 중괄호 불일치
+
+// ✅ import 문에서도 동일 규칙 적용
+import { Vue, Component } from 'vue-property-decorator'; // 2개까지는 한 줄 가능
+
+import {
+  Vue, Component, Watch, Prop,
+} from 'vue-property-decorator'; // 3개 이상은 여러 줄로
+```
 
 ### Vue Template에서 주의사항
 ```html
@@ -619,14 +653,87 @@ export const getUser = (id: number) =>
 </button>
 ```
 
-### ESLint 설정 확인
+### ESLint 설정 확인 및 자동 수정
 프로젝트의 ESLint 설정은 `.eslintrc.js`에서 관리됩니다:
 ```bash
 # ESLint 검사
 npm run lint
 
-# ESLint 자동 수정
+# ESLint 자동 수정 (대부분의 오류 자동 수정)
 npm run lint:fix
+```
+
+### 일반적인 ESLint 오류 및 해결방법
+| 오류 메시지 | 원인 | 해결방법 |
+|------------|------|---------|
+| `Expected a line break after this opening brace` | 객체 중괄호 줄바꿈 누락 | 여러 줄 객체는 `{` 뒤에 줄바꿈 추가 |
+| `Expected a line break before this closing brace` | 객체 중괄호 줄바꿈 누락 | 여러 줄 객체는 `}` 앞에 줄바꿈 추가 |
+| `Trailing spaces not allowed` | 줄 끝에 공백 존재 | 줄 끝 공백 제거 또는 `npm run lint:fix` |
+| `Expected linebreaks to be 'LF' but found 'CRLF'` | 줄바꿈 문자 불일치 | Git 설정 또는 에디터 설정 변경 |
+| `Missing trailing comma` | import 문 마지막 쉼표 누락 | 여러 줄 import는 마지막에 쉼표 추가 |
+
+### VSCode 설정 권장사항
+```json
+{
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.eol": "\n",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}
 ```
 ### 프론트 뷰포트 수정 금지
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+### 공백(Trailing Spaces) 제거 규칙 (no-trailing-spaces)
+```typescript
+// ✅ 올바른 방법: 줄 끝에 공백 없음
+const name = 'John';
+if (isValid) {
+  return true;
+}
+
+// ❌ 잘못된 방법: 줄 끝에 공백 있음 (육안으로는 보이지 않음)
+const name = 'John';   // 여기 공백 있음
+if (isValid) {         // 여기도 공백 있음
+  return true;
+}      // 여기도 공백 있음
+
+// 💡 팁: VSCode 설정으로 자동 제거
+// settings.json에 추가:
+// "files.trimTrailingWhitespace": true
+```
+
+---
+
+## 코드 작성 시 주의사항 체크리스트
+
+### TypeScript/JavaScript
+- [ ] 인터페이스: 여러 줄은 구분자 없음, 한 줄은 쉼표 사용
+- [ ] 변수명: camelCase 사용 (snake_case 금지)
+- [ ] 화살표 함수: 한 줄 또는 괄호로 감싸기
+- [ ] 객체 리터럴: 한 줄이면 중괄호 안에 줄바꿈 없음, 여러 줄이면 줄바꿈 필수
+- [ ] 줄 끝 공백: 모든 라인에서 제거
+- [ ] import 문: 3개 이상이면 여러 줄로 작성
+
+### Vue Template
+- [ ] 태그와 속성 끝에 trailing spaces 없음
+- [ ] 여러 속성은 각 줄에 하나씩 작성
+- [ ] v-for와 :key 함께 사용 필수
+- [ ] v-if와 v-for 동시 사용 금지
+
+### 코드 제출 전 필수 체크
+```bash
+# 1. ESLint 자동 수정 실행
+npm run lint:fix
+
+# 2. 수정되지 않은 오류 확인
+npm run lint
+
+# 3. 수동으로 남은 오류 수정
+
+# 4. 최종 확인
+npm run lint
+```
+````

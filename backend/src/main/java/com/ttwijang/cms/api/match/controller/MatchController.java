@@ -51,10 +51,17 @@ public class MatchController {
     @GetMapping
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchList(
             @RequestParam(required = false) String region,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) FutsalMatch.FutsalMatchStatus status,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
-        return ResponseEntity.ok(matchService.getMatchList(region, date, status, pageable));
+        // regionSido/regionSigungu가 있으면 우선 사용
+        String effectiveRegion = region;
+        if (regionSido != null && regionSigungu != null) {
+            effectiveRegion = regionSido + " " + regionSigungu;
+        }
+        return ResponseEntity.ok(matchService.getMatchList(effectiveRegion, date, status, pageable));
     }
 
     @Operation(summary = "날짜 범위별 매치 조회 (캘린더용)")
@@ -62,8 +69,14 @@ public class MatchController {
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
-        return ResponseEntity.ok(matchService.getMatchesByDateRange(startDate, endDate, pageable));
+        String effectiveRegion = null;
+        if (regionSido != null && regionSigungu != null) {
+            effectiveRegion = regionSido + " " + regionSigungu;
+        }
+        return ResponseEntity.ok(matchService.getMatchesByDateRange(startDate, endDate, effectiveRegion, pageable));
     }
 
     @Operation(summary = "팀별 매치 조회 (BR-06: 소속 팀 매치)")

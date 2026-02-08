@@ -93,9 +93,6 @@ public class Team implements Serializable {
     @Column(columnDefinition = "DECIMAL(3,2) DEFAULT 0.0")
     private Double mannerScore;
 
-    // 팀 등급 (A, B, C 등)
-    private String grade;
-
     // 월 회비
     private Integer monthlyFee;
 

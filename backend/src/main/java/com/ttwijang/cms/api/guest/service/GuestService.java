@@ -93,8 +93,13 @@ public class GuestService {
 
         if (date != null) {
             recruitments = recruitmentRepository.findByMatchDate(date, pageable);
-        } else if (status != null && region != null) {
-            recruitments = recruitmentRepository.findByStatusAndRegion(status, region, pageable);
+        } else if (status != null && region != null && !region.isEmpty()) {
+            String[] parts = region.split(" ", 2);
+            if (parts.length == 2) {
+                recruitments = recruitmentRepository.findByStatusAndRegionSidoAndSigungu(status, parts[0], parts[1], pageable);
+            } else {
+                recruitments = recruitmentRepository.findByStatusAndRegion(status, region, pageable);
+            }
         } else if (status != null) {
             recruitments = recruitmentRepository.findByStatus(status, pageable);
         } else {
@@ -105,13 +110,24 @@ public class GuestService {
     }
 
     /**
-     * 날짜 범위별 게스트 모집 조회 (캘린더용)
+     * 날짜 범위별 게스트 모집 조회 (캘린더용) - 지역 필터 지원
      */
     @Transactional(readOnly = true)
     public Page<GuestDto.ListResponse> getRecruitmentsByDateRange(LocalDate startDate, LocalDate endDate,
-            Pageable pageable) {
-        return recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable)
-                .map(this::toListResponse);
+            String region, Pageable pageable) {
+        Page<GuestRecruitment> recruitments;
+        if (region != null && !region.isEmpty()) {
+            String[] parts = region.split(" ", 2);
+            if (parts.length == 2) {
+                recruitments = recruitmentRepository.findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
+                        startDate, endDate, parts[0], parts[1], pageable);
+            } else {
+                recruitments = recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable);
+            }
+        } else {
+            recruitments = recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable);
+        }
+        return recruitments.map(this::toListResponse);
     }
 
     /**

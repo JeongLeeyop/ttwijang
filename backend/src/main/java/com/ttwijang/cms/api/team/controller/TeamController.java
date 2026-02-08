@@ -57,9 +57,15 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<Page<TeamDto.ListResponse>> getTeamList(
             @RequestParam(required = false) String region,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) Boolean recruiting,
             @PageableDefault(direction = Direction.DESC, sort = "createdDate") Pageable pageable) {
-        return ResponseEntity.ok(teamService.getTeamList(region, recruiting, pageable));
+        String effectiveRegion = region;
+        if (regionSido != null && regionSigungu != null) {
+            effectiveRegion = regionSido + " " + regionSigungu;
+        }
+        return ResponseEntity.ok(teamService.getTeamList(effectiveRegion, recruiting, pageable));
     }
 
     @Operation(summary = "팀 수정", security = @SecurityRequirement(name = "bearerAuth"))

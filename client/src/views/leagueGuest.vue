@@ -113,7 +113,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue,
+  Component,
+  Watch,
+  Prop,
+} from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
@@ -165,6 +170,8 @@ interface Match {
   },
 })
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private selectedLeague = 'a-league'
 
   private showLeagueStatus = false
@@ -217,6 +224,11 @@ export default class extends Vue {
     await this.loadData();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadData();
+  }
+
   @Watch('currentMonthIndex')
   async onMonthChange() {
     await this.loadGuestData();
@@ -243,7 +255,14 @@ export default class extends Vue {
 
   private async loadTeamCards(): Promise<void> {
     try {
-      const response = await getMatchList({ status: 'RECRUITING' });
+      const params: any = {
+        status: 'RECRUITING',
+      };
+      if (this.selectedRegion) {
+        params.regionSido = '경남';
+        params.regionSigungu = this.selectedRegion;
+      }
+      const response = await getMatchList(params);
       if (response.data && response.data.content) {
         this.teamCards = response.data.content.slice(0, 5).map((match: any) => ({
           name: match.teamName || match.team?.name || '팀 모집중',
@@ -272,7 +291,13 @@ export default class extends Vue {
       const startDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-01`;
       const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-31`;
 
-      const response = await getGuestRecruitmentsByDateRange(startDate, endDate);
+      const regionParams: any = {};
+      if (this.selectedRegion) {
+        regionParams.regionSido = '경남';
+        regionParams.regionSigungu = this.selectedRegion;
+      }
+
+      const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);
       if (response.data && response.data.content) {
         this.guestData = response.data.content.map((guest: any) => ({
           name: guest.teamName || '',

@@ -2,4 +2,5 @@
 export enum storageKey {
   pickUpPlace = 'pickUpPlace',
   stationPlace = 'stationPlace',
+  selectedRegion = 'selectedRegion',
 }

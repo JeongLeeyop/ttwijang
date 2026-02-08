@@ -37,4 +37,22 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
     List<GuestRecruitment> findByTeamUidAndDateRange(@Param("teamUid") String teamUid, 
                                                        @Param("startDate") LocalDate startDate, 
                                                        @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.status = :status AND gr.regionSido = :sido AND gr.regionSigungu = :sigungu")
+    Page<GuestRecruitment> findByStatusAndRegionSidoAndSigungu(
+            @Param("status") GuestRecruitment.RecruitmentStatus status,
+            @Param("sido") String sido,
+            @Param("sigungu") String sigungu,
+            Pageable pageable);
+
+    /**
+     * 날짜 범위 + 지역 필터 조회
+     */
+    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.matchDate BETWEEN :startDate AND :endDate AND gr.regionSido = :sido AND gr.regionSigungu = :sigungu")
+    Page<GuestRecruitment> findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("sido") String sido,
+            @Param("sigungu") String sigungu,
+            Pageable pageable);
 }

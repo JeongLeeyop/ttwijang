@@ -3,6 +3,8 @@ import request from '@/utils/request';
 // 게스트 모집 목록 조회
 export function getGuestRecruitmentList(params?: {
   region?: string
+  regionSido?: string
+  regionSigungu?: string
   date?: string
   status?: string
   page?: number
@@ -24,11 +26,14 @@ export function getGuestRecruitmentDetail(uid: string) {
 }
 
 // 캘린더용 게스트 모집 조회
-export function getGuestRecruitmentsByDateRange(startDate: string, endDate: string) {
+export function getGuestRecruitmentsByDateRange(startDate: string, endDate: string, params?: {
+  regionSido?: string
+  regionSigungu?: string
+}) {
   return request({
     url: '/guest/calendar',
     method: 'get',
-    params: { startDate, endDate },
+    params: { startDate, endDate, ...params },
   });
 }
 

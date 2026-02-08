@@ -3,6 +3,8 @@ import request from '@/utils/request';
 // 팀 목록 조회
 export function getTeamList(params?: {
   region?: string
+  regionSido?: string
+  regionSigungu?: string
   activityDay?: string
   ageGroup?: string
   page?: number

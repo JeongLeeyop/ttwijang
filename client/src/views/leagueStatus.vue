@@ -93,7 +93,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue, Component, Watch, Prop,
+} from 'vue-property-decorator';
 import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 
 interface LeagueTeam {
@@ -124,6 +126,8 @@ interface Match {
 
 @Component({})
 export default class extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private currentYear = 2025
 
   private currentMonthIndex = new Date().getMonth()
@@ -149,6 +153,11 @@ export default class extends Vue {
     await this.loadLeagueData();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadLeagueData();
+  }
+
   @Watch('currentMonthIndex')
   async onMonthChange() {
     if (this.currentLeagueUid) {
@@ -165,8 +174,15 @@ export default class extends Vue {
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 모든 진행 중인 리그 조회
-      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS' });
+      // 지역 필터 적용하여 리그 조회
+      const leagueParams: any = {
+        status: 'IN_PROGRESS',
+      };
+      if (this.selectedRegion) {
+        leagueParams.regionSido = '경남';
+        leagueParams.regionSigungu = this.selectedRegion;
+      }
+      const leagueResponse = await getLeagueList(leagueParams);
       const leagues = leagueResponse.data?.content || leagueResponse.data || [];
 
       this.availableLeagues = leagues.map((league: any) => ({

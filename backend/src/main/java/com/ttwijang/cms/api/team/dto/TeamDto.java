@@ -151,9 +151,6 @@ public class TeamDto {
         @Schema(description = "팀 로고 URL")
         private String logoUrl;
 
-        @Schema(description = "팀 등급")
-        private String grade;
-
         @Schema(description = "매너 점수")
         private Double mannerScore;
 
@@ -187,9 +184,6 @@ public class TeamDto {
 
         @Schema(description = "팀 소개")
         private String description;
-
-        @Schema(description = "팀 등급")
-        private String grade;
 
         @Schema(description = "매너 점수")
         private Double mannerScore;
@@ -261,8 +255,8 @@ public class TeamDto {
     @AllArgsConstructor
     @Schema(description = "리그 전적 정보")
     public static class LeagueStatsDto {
-        @Schema(description = "리그 등급")
-        private String leagueGrade;
+        @Schema(description = "리그 이름")
+        private String leagueName;
 
         @Schema(description = "총 경기 수")
         private Integer totalPlayed;

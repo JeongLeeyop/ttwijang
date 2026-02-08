@@ -1,8 +1,6 @@
 package com.ttwijang.cms.api.match.service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,8 +75,13 @@ public class MatchService {
         
         if (date != null) {
             matches = matchRepository.findByMatchDate(date, pageable);
-        } else if (status != null && region != null) {
-            matches = matchRepository.findByStatusAndRegion(status, region, pageable);
+        } else if (status != null && region != null && !region.isEmpty()) {
+            String[] parts = region.split(" ", 2);
+            if (parts.length == 2) {
+                matches = matchRepository.findByStatusAndRegionSidoAndSigungu(status, parts[0], parts[1], pageable);
+            } else {
+                matches = matchRepository.findByStatusAndRegion(status, region, pageable);
+            }
         } else if (status != null) {
             matches = matchRepository.findByStatus(status, pageable);
         } else {
@@ -89,13 +92,25 @@ public class MatchService {
     }
 
     /**
-     * 날짜 범위별 매치 조회 (캘린더용)
+     * 날짜 범위별 매치 조회 (캘린더용) - 지역 필터 지원
      */
     @Transactional(readOnly = true)
-    public Page<MatchDto.ListResponse> getMatchesByDateRange(LocalDate startDate, LocalDate endDate, 
-            Pageable pageable) {
-        return matchRepository.findByMatchDateBetween(startDate, endDate, pageable)
-                .map(this::toListResponse);
+    public Page<MatchDto.ListResponse> getMatchesByDateRange(LocalDate startDate, LocalDate endDate,
+            String region, Pageable pageable) {
+        Page<FutsalMatch> matches;
+        if (region != null && !region.isEmpty()) {
+            // 지역 필터가 있으면 "시도 시군구" 형태에서 파싱하여 regionSido/regionSigungu로 검색
+            String[] parts = region.split(" ", 2);
+            if (parts.length == 2) {
+                matches = matchRepository.findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
+                        startDate, endDate, parts[0], parts[1], pageable);
+            } else {
+                matches = matchRepository.findByMatchDateBetween(startDate, endDate, pageable);
+            }
+        } else {
+            matches = matchRepository.findByMatchDateBetween(startDate, endDate, pageable);
+        }
+        return matches.map(this::toListResponse);
     }
 
     /**
@@ -178,7 +193,6 @@ public class MatchService {
                 .hostTeamUid(match.getHostTeamUid())
                 .hostTeamName(hostTeam != null ? hostTeam.getName() : "")
                 .hostTeamMannerScore(hostTeam != null ? hostTeam.getMannerScore() : 0.0)
-                .hostTeamGrade(hostTeam != null ? hostTeam.getGrade() : "")
                 .guestTeamUid(match.getGuestTeamUid())
                 .guestTeamName(guestTeam != null ? guestTeam.getName() : "")
                 .matchType(match.getMatchType())
