@@ -5,50 +5,40 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <!-- 소속 팀이 있는 경우 팀 정보 표시 -->
-        <template v-if="myTeamInfo">
-          <h2 class="section-title">나의 팀</h2>
-          <div class="my-team-card">
-            <img
-              :src="myTeamInfo.logoUrl || getTeamLogo(myTeamInfo.name)"
-              :alt="myTeamInfo.name"
-              class="my-team-logo"
-            >
-            <div class="my-team-info">
-              <div class="my-team-name">{{ myTeamInfo.name }}</div>
-              <div class="my-team-code">코드: {{ myTeamInfo.teamCode }}</div>
-            </div>
-          </div>
-        </template>
-        <!-- 소속 팀이 없는 경우 팀 생성/가입 영역 -->
-        <template v-else>
-          <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
-          <el-button
-            style="margin-bottom: 15px;"
-            :disabled="!canCreateTeam"
-            @click="goToCreateTeam"
-          >
-            {{ canCreateTeam ? '팀 만들기' : '이미 팀을 생성하였습니다' }}
-          </el-button>
+        <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
+        <el-button
+          :class="{ 'team-enter-button': myTeamInfo !== null }"
+          style="margin-bottom: 15px;"
+          @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
+        >
+          {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
+        </el-button>
 
-          <!-- Team Code Input Form -->
-          <div class="team-code-form">
-            <div class="team-code-input-wrapper">
-              <i class="el-icon-lock"></i>
-              <input
-                v-model="teamCode"
-                type="text"
-                class="team-code-input"
-                placeholder="팀 코드를 입력하세요."
-                :disabled="!canJoinTeam"
-                @keyup.enter="joinTeamWithCode"
-              >
-            </div>
+        <!-- Team Code Input Form -->
+        <div class="team-code-form">
+          <div class="team-code-input-wrapper">
+            <i class="el-icon-lock"></i>
+            <input
+              v-if="myTeamInfo"
+              type="text"
+              class="team-code-input"
+              :placeholder="myTeamInfo.teamCode"
+              readonly
+            >
+            <input
+              v-else
+              v-model="teamCode"
+              type="text"
+              class="team-code-input"
+              placeholder="팀 코드를 입력하세요."
+              :disabled="!canJoinTeam"
+              @keyup.enter="joinTeamWithCode"
+            >
           </div>
-          <p v-if="hasPendingRequest" class="pending-notice">
-            <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
-          </p>
-        </template>
+        </div>
+        <p v-if="hasPendingRequest" class="pending-notice">
+          <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
+        </p>
       </div>
 
       <!-- League Schedule Section -->
@@ -339,6 +329,12 @@ export default class extends Vue {
     this.$router.push('/create-team');
   }
 
+  private enterMyTeam(): void {
+    if (!this.canCreateTeam && this.myTeamInfo) {
+      this.$router.push(`/team/${this.myTeamInfo.uid}`);
+    }
+  }
+
   async created() {
     this.currentYear = new Date().getFullYear();
     this.currentMonthIndex = new Date().getMonth();
@@ -365,21 +361,37 @@ export default class extends Vue {
     try {
       const response = await checkMembershipStatus();
       const status = response.data as MembershipStatus;
+      console.log('Membership Status:', status);
       this.canCreateTeam = status.canCreateTeam;
       this.canJoinTeam = status.canJoinTeam;
       this.hasPendingRequest = status.hasPendingRequest;
 
-      if (status.hasTeam) {
-        const teamsResponse = await getMyTeams();
-        if (teamsResponse.data && teamsResponse.data.length > 0) {
-          const team = teamsResponse.data[0];
-          this.myTeamInfo = {
-            uid: team.uid,
-            name: team.name,
-            teamCode: team.teamCode,
-            logoUrl: team.logoUrl || team.logoFileUid,
-          };
-          await this.loadTeamMatches();
+      const hasCreatedTeam = (status as any).hasCreatedTeam || false;
+
+      // 팀이 있으면 (만들었든 가입했든) 팀 정보 로드
+      if (status.hasTeam || hasCreatedTeam) {
+        try {
+          const teamsResponse = await getMyTeams();
+          console.log('My Teams Response:', teamsResponse.data);
+          // /api/team/my 는 단일 객체 또는 배열을 반환할 수 있음
+          const teamData = teamsResponse.data;
+          let team = null;
+          if (Array.isArray(teamData)) {
+            team = teamData.length > 0 ? teamData[0] : null;
+          } else {
+            team = teamData;
+          }
+          if (team && team.uid) {
+            this.myTeamInfo = {
+              uid: team.uid,
+              name: team.name,
+              teamCode: team.teamCode,
+              logoUrl: team.logoUrl || team.logoFileUid,
+            };
+            console.log('Set myTeamInfo:', this.myTeamInfo);
+          }
+        } catch (error) {
+          console.warn('Failed to load team info:', error);
         }
       }
     } catch (error) {
@@ -557,5 +569,15 @@ export default class extends Vue {
 
 .match-status-tag.status-cancelled {
   color: #f56c6c;
+}
+.team-enter-button {
+  background-color: #f7c600 !important;
+  border-color: #f7c600 !important;
+  color: #ffffff !important;
+}
+
+.team-enter-button:hover {
+  background-color: #e0b400 !important;
+  border-color: #e0b400 !important;
 }
 </style>
