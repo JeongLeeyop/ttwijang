@@ -239,7 +239,13 @@ export default class extends Vue {
   private getDefaultRegionCode(): string {
     // 진주시 코드를 옵션에서 찾기
     const jinju = this.regionOptions.find((opt) => opt.label === '진주시');
-    return jinju ? jinju.value : (this.regionOptions.length > 0 ? this.regionOptions[0].value : '');
+    if (jinju) {
+      return jinju.value;
+    }
+    if (this.regionOptions.length > 0) {
+      return this.regionOptions[0].value;
+    }
+    return '';
   }
 }
 </script>

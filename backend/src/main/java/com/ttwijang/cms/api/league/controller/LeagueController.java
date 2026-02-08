@@ -114,6 +114,13 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.getLeagueTeams(leagueUid));
     }
 
+    @Operation(summary = "팀이 참가 중인 리그 목록 조회")
+    @GetMapping("/team/{teamUid}")
+    public ResponseEntity<List<LeagueDto.ListResponse>> getLeaguesByTeam(
+            @PathVariable String teamUid) {
+        return ResponseEntity.ok(leagueService.getLeaguesByTeam(teamUid));
+    }
+
     // ==================== 최고관리자 전용 API (BR-11, BR-12) ====================
 
     @Operation(summary = "[관리자] 리그 생성 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))

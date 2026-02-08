@@ -102,6 +102,14 @@ export function getMyTeamLeagueInfo(teamUid: string) {
   });
 }
 
+// 팀이 참가 중인 리그 목록 조회
+export function getLeaguesByTeam(teamUid: string) {
+  return request({
+    url: `/league/team/${teamUid}`,
+    method: 'get',
+  });
+}
+
 // 리그 타입 정의
 export interface League {
   uid: string

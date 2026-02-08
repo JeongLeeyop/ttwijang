@@ -74,6 +74,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/match.vue'),
 			},
+			{
+				path: 'team/:teamCode?',
+				name: 'TeamPage',
+				meta: {
+					title: '팀 페이지',
+				},
+				component: () => import('@/views/teamPage.vue'),
+			},
 		],
 	},
 	{
