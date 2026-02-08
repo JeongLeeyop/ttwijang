@@ -71,6 +71,7 @@
                 :key="index"
                 class="team-card"
                 :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
+                @click="goToGuestDetail(guest)"
               >
                 <div class="team-card-left">
                   <img :src="guest.logo" :alt="guest.name" class="team-logo">
@@ -152,6 +153,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -501,7 +503,18 @@ export default class extends Vue {
   }
 
   private navigateToMatchDetail(match: Match): void {
-    console.log('Navigate to match:', match);
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  private goToGuestDetail(guest: any): void {
+    if (guest.isRecruitmentClosed) return;
+    this.$router.push({
+      path: `/match-detail/${guest.uid}`,
+      query: { type: 'guest' },
+    });
   }
 
   get filteredGuests(): any[] {

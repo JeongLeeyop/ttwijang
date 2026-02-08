@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter, { Route, RouteConfig } from 'vue-router';
-import counsultView from '@/views/counsult/view.vue';
 import 'element-ui/lib/theme-chalk/index.css';
 import { UserModule } from '@/store/modules/user';
 import { PermissionModule } from '@/store/modules/permission';
@@ -89,6 +88,14 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '경기 일정',
 				},
 				component: () => import('@/views/calendar.vue'),
+			},
+			{
+				path: '/match-detail/:uid',
+				name: 'MatchDetail',
+				meta: {
+					title: '경기 상세',
+				},
+				component: () => import('@/views/matchDetail.vue'),
 			},
 		],
 	},

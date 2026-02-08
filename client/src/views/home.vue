@@ -185,6 +185,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -415,6 +416,7 @@ export default class extends Vue {
 
   private transformMatch(match: any, includeScore: boolean): Match {
     const matchObj: Match = {
+      uid: match.uid || '',
       date: this.formatDate(match.matchDate),
       day: this.getDayOfWeek(match.matchDate),
       time: match.matchTime || '',
@@ -550,6 +552,7 @@ export default class extends Vue {
   private getDefaultUpcomingMatches(): Match[] {
     return [
       {
+        uid: 'default-upcoming-1',
         date: '05월 10일',
         day: '토요일',
         time: '19:00',
@@ -565,6 +568,7 @@ export default class extends Vue {
   private getDefaultRecentMatches(): Match[] {
     return [
       {
+        uid: 'default-recent-1',
         date: '05월 01일',
         day: '목요일',
         time: '15:00',
@@ -617,7 +621,10 @@ export default class extends Vue {
   }
 
   private navigateToMatchDetail(match: Match): void {
-    console.log('Navigate to match:', match);
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'match' },
+    });
   }
 }
 </script>
