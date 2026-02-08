@@ -2,10 +2,21 @@
   <div class="header">
     <div class="header-left">
         <i class="el-icon-s-fold"></i>
-        <el-select :popper-append-to-body="false" v-model="selectedRegion" placeholder="지역 선택" size="small">
-          <el-option label="서울" value="seoul"></el-option>
-          <el-option label="경기" value="gyeonggi"></el-option>
-          <el-option label="인천" value="incheon"></el-option>
+        <!-- Region Filter (BR-04) -->
+        <el-select
+          :popper-append-to-body="false"
+          v-model="selectedRegion"
+          placeholder="지역 선택"
+          size="small"
+          clearable
+          @change="onRegionChange"
+        >
+          <el-option
+            v-for="region in regionOptions"
+            :key="region.value"
+            :label="region.label"
+            :value="region.value"
+          ></el-option>
         </el-select>
       </div>
       <div class="header-center">
@@ -54,7 +65,26 @@ export default class extends Vue {
 
   @Prop({ default: true }) private showBack!: boolean;
 
-  private selectedRegion = 'seoul'
+  private selectedRegion = ''
+
+  private regionOptions = [
+    { label: '서울', value: '서울' },
+    { label: '경기', value: '경기' },
+    { label: '인천', value: '인천' },
+    { label: '부산', value: '부산' },
+    { label: '대구', value: '대구' },
+    { label: '대전', value: '대전' },
+    { label: '광주', value: '광주' },
+    { label: '울산', value: '울산' },
+    { label: '경남', value: '경남' },
+    { label: '경북', value: '경북' },
+    { label: '충남', value: '충남' },
+    { label: '충북', value: '충북' },
+    { label: '전남', value: '전남' },
+    { label: '전북', value: '전북' },
+    { label: '강원', value: '강원' },
+    { label: '제주', value: '제주' },
+  ]
 
   private showPopover = false;
 
@@ -89,6 +119,11 @@ export default class extends Vue {
 
   private goToCalendar(): void {
     this.$router.push('/calendar');
+  }
+
+  private onRegionChange(): void {
+    // BR-04: 지역 필터 변경 시 이벤트 발생
+    this.$emit('region-change', this.selectedRegion);
   }
 
   private initializeSampleAlarms() {

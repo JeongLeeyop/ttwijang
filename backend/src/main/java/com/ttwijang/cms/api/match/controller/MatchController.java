@@ -66,11 +66,15 @@ public class MatchController {
         return ResponseEntity.ok(matchService.getMatchesByDateRange(startDate, endDate, pageable));
     }
 
-    @Operation(summary = "팀별 매치 조회")
+    @Operation(summary = "팀별 매치 조회 (BR-06: 소속 팀 매치)")
     @GetMapping("/team/{teamUid}")
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchesByTeam(
             @PathVariable String teamUid,
+            @RequestParam(required = false) FutsalMatch.MatchType matchType,
             @PageableDefault(direction = Direction.DESC, sort = "matchDate") Pageable pageable) {
+        if (matchType != null) {
+            return ResponseEntity.ok(matchService.getMatchesByTeamAndType(teamUid, matchType, pageable));
+        }
         return ResponseEntity.ok(matchService.getMatchesByTeam(teamUid, pageable));
     }
 

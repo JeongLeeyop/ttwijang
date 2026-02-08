@@ -7,10 +7,13 @@
       <div class="league-status-section">
         <div class="league-header">
           <div class="league-title-row">
-            <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
-              <el-option label="A리그" value="a-league"></el-option>
-              <el-option label="B리그" value="b-league"></el-option>
-              <el-option label="C리그" value="c-league"></el-option>
+            <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select" @change="onLeagueChange">
+              <el-option
+                v-for="league in leagues"
+                :key="league.uid"
+                :label="league.name"
+                :value="league.uid"
+              ></el-option>
             </el-select>
             <span class="league-title-text">경기 일정</span>
           </div>
@@ -82,7 +85,6 @@ interface Match {
 interface LeagueOption {
   uid: string
   name: string
-  grade: string
 }
 
 @Component({})
@@ -115,6 +117,13 @@ export default class extends Vue {
     }
   }
 
+  @Watch('currentMonthIndex')
+  async onMonthChange() {
+    if (this.selectedLeague) {
+      await this.loadScheduleData();
+    }
+  }
+
   private async loadLeagues(): Promise<void> {
     this.isLoading = true;
     try {
@@ -123,8 +132,7 @@ export default class extends Vue {
 
       this.leagues = leagueList.map((league: any) => ({
         uid: league.uid,
-        name: `${league.grade}리그`,
-        grade: league.grade,
+        name: league.name,
       }));
 
       // 첫 번째 리그 선택
@@ -143,7 +151,10 @@ export default class extends Vue {
 
     this.isLoading = true;
     try {
-      const response = await getLeagueSchedule(this.selectedLeague);
+      const response = await getLeagueSchedule(this.selectedLeague, {
+        year: this.currentYear,
+        month: this.currentMonthIndex + 1,
+      });
       const matches = response.data?.content || response.data || [];
 
       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
@@ -167,6 +178,24 @@ export default class extends Vue {
       console.error('Failed to load schedule data:', error);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private previousMonth(): void {
+    if (this.currentMonthIndex === 0) {
+      this.currentYear -= 1;
+      this.currentMonthIndex = 11;
+    } else {
+      this.currentMonthIndex -= 1;
+    }
+  }
+
+  private nextMonth(): void {
+    if (this.currentMonthIndex === 11) {
+      this.currentYear += 1;
+      this.currentMonthIndex = 0;
+    } else {
+      this.currentMonthIndex += 1;
     }
   }
 }

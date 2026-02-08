@@ -5,23 +5,50 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
-        <el-button style="margin-bottom: 15px;" @click="goToCreateTeam">팀 만들기</el-button>
-
-        <!-- Team Code Input Form -->
-        <div class="team-code-form">
-          <div class="team-code-input-wrapper">
-            <i class="el-icon-lock"></i>
-            <input
-              v-model="teamCode"
-              type="text"
-              class="team-code-input"
-              placeholder="팀 코드를 입력하세요."
-              @keyup.enter="joinTeamWithCode"
+        <!-- 소속 팀이 있는 경우 팀 정보 표시 -->
+        <template v-if="myTeamInfo">
+          <h2 class="section-title">나의 팀</h2>
+          <div class="my-team-card">
+            <img
+              :src="myTeamInfo.logoUrl || getTeamLogo(myTeamInfo.name)"
+              :alt="myTeamInfo.name"
+              class="my-team-logo"
             >
+            <div class="my-team-info">
+              <div class="my-team-name">{{ myTeamInfo.name }}</div>
+              <div class="my-team-code">코드: {{ myTeamInfo.teamCode }}</div>
+            </div>
           </div>
-          <!-- <el-button class="join-team-btn" @click="joinTeamWithCode">참여하기</el-button> -->
-        </div>
+        </template>
+        <!-- 소속 팀이 없는 경우 팀 생성/가입 영역 -->
+        <template v-else>
+          <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
+          <el-button
+            style="margin-bottom: 15px;"
+            :disabled="!canCreateTeam"
+            @click="goToCreateTeam"
+          >
+            {{ canCreateTeam ? '팀 만들기' : '이미 팀을 생성하였습니다' }}
+          </el-button>
+
+          <!-- Team Code Input Form -->
+          <div class="team-code-form">
+            <div class="team-code-input-wrapper">
+              <i class="el-icon-lock"></i>
+              <input
+                v-model="teamCode"
+                type="text"
+                class="team-code-input"
+                placeholder="팀 코드를 입력하세요."
+                :disabled="!canJoinTeam"
+                @keyup.enter="joinTeamWithCode"
+              >
+            </div>
+          </div>
+          <p v-if="hasPendingRequest" class="pending-notice">
+            <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
+          </p>
+        </template>
       </div>
 
       <!-- League Schedule Section -->
@@ -104,7 +131,13 @@ import { Vue, Component } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import { getTeamByCode, joinTeam } from '@/api/team';
+import {
+  getTeamByCode,
+  joinTeam,
+  checkMembershipStatus,
+  getMyTeams,
+  MembershipStatus,
+} from '@/api/team';
 import { getMatchesByDateRange } from '@/api/match';
 import { getGuestRecruitmentsByDateRange } from '@/api/guest';
 
@@ -119,6 +152,13 @@ interface TeamCard {
   matchDay: string
   matchTime: string
   location: string
+}
+
+interface MyTeam {
+  uid: string
+  name: string
+  teamCode: string
+  logoUrl?: string
 }
 
 interface LeagueTeam {
@@ -166,6 +206,14 @@ export default class extends Vue {
   private touchEndX = 0
 
   private teamCode = ''
+
+  private myTeamInfo: MyTeam | null = null
+
+  private canCreateTeam = true
+
+  private canJoinTeam = true
+
+  private hasPendingRequest = false
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -485,6 +533,12 @@ export default class extends Vue {
       return;
     }
 
+    // BR-01/BR-02: 가입 가능 여부 확인
+    if (!this.canJoinTeam) {
+      this.$message.warning('이미 소속된 팀이 있거나, 가입 대기 중인 팀이 있습니다.');
+      return;
+    }
+
     try {
       // 팀 코드로 팀 조회
       const teamResponse = await getTeamByCode(this.teamCode);
@@ -498,6 +552,8 @@ export default class extends Vue {
 
       this.$message.success(`"${team.name}" 팀에 가입 신청했습니다.`);
       this.teamCode = '';
+      this.hasPendingRequest = true;
+      this.canJoinTeam = false;
     } catch (error: any) {
       console.error('Team join failed:', error);
       this.$message.error(error.response?.data?.message || '팀을 찾을 수 없습니다.');
@@ -505,6 +561,11 @@ export default class extends Vue {
   }
 
   private goToCreateTeam(): void {
+    // BR-01: 팀 생성 가능 여부 확인
+    if (!this.canCreateTeam) {
+      this.$message.warning('이미 팀을 생성하였습니다. 1계정 1팀만 생성 가능합니다.');
+      return;
+    }
     this.$router.push('/create-team');
   }
 
@@ -513,7 +574,42 @@ export default class extends Vue {
     this.currentMonthIndex = new Date().getMonth();
     this.selectedDay = new Date().getDate();
     this.selectedDate = new Date();
-    await this.loadGuestData();
+    await Promise.all([
+      this.loadGuestData(),
+      this.loadMembershipStatus(),
+    ]);
+  }
+
+  private async loadMembershipStatus(): Promise<void> {
+    try {
+      const response = await checkMembershipStatus();
+      const status = response.data as MembershipStatus;
+      this.canCreateTeam = status.canCreateTeam;
+      this.canJoinTeam = status.canJoinTeam;
+      this.hasPendingRequest = status.hasPendingRequest;
+
+      // 소속 팀이 있는 경우 팀 정보 로드
+      if (status.hasTeam) {
+        const teamsResponse = await getMyTeams();
+        if (teamsResponse.data && teamsResponse.data.length > 0) {
+          const team = teamsResponse.data[0];
+          this.myTeamInfo = {
+            uid: team.uid,
+            name: team.name,
+            teamCode: team.teamCode,
+            logoUrl: team.logoUrl || team.logoFileUid,
+          };
+        }
+      }
+    } catch (error) {
+      console.warn('Membership status check failed:', error);
+    }
+  }
+
+  private getTeamLogo(teamName: string): string {
+    if (!teamName) return 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=60';
+    const initials = teamName.slice(0, 2);
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=061da1&color=fff&size=60`;
   }
 
   private async loadGuestData(): Promise<void> {
@@ -535,7 +631,7 @@ export default class extends Vue {
             uid: guest.uid,
             name: guest.teamName,
             logo: guest.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(guest.teamName?.substring(0, 2) || 'T')}&background=random&color=fff&size=60`,
-            league: guest.leagueGrade ? `${guest.leagueGrade}리그` : '',
+            league: '',
             manner: guest.teamMannerScore || 0,
             matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
             teamSize: this.formatMatchFormat(guest.matchFormat),
@@ -577,5 +673,48 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+.my-team-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.my-team-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.my-team-info {
+  flex: 1;
+}
+
+.my-team-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.my-team-code {
+  font-size: 13px;
+  color: #999;
+}
+
+.pending-notice {
+  font-size: 13px;
+  color: #e6a23c;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

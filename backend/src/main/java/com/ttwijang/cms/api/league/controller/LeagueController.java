@@ -9,11 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.ttwijang.cms.api.league.dto.LeagueDto;
 import com.ttwijang.cms.api.league.service.LeagueService;
 import com.ttwijang.cms.entity.League;
+import com.ttwijang.cms.oauth.SinghaUser;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,13 +31,14 @@ public class LeagueController {
 
     private final LeagueService leagueService;
 
-    @Operation(summary = "리그 목록 조회")
+    @Operation(summary = "리그 목록 조회 (BR-04: 지역별 리그 전환)")
     @GetMapping
     public ResponseEntity<Page<LeagueDto.ListResponse>> getLeagueList(
-            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) League.LeagueStatus status,
             @PageableDefault(direction = Direction.DESC, sort = "createdDate") Pageable pageable) {
-        return ResponseEntity.ok(leagueService.getLeagueList(region, status, pageable));
+        return ResponseEntity.ok(leagueService.getLeagueList(regionSido, regionSigungu, status, pageable));
     }
 
     @Operation(summary = "리그 상세 조회")
@@ -56,8 +59,8 @@ public class LeagueController {
     @GetMapping("/{leagueUid}/schedule")
     public ResponseEntity<List<LeagueDto.MatchResponse>> getLeagueSchedule(
             @PathVariable String leagueUid,
-            @RequestParam Integer year,
-            @RequestParam Integer month) {
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
         return ResponseEntity.ok(leagueService.getLeagueSchedule(leagueUid, year, month));
     }
 
@@ -84,17 +87,58 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.updateMatchResult(request));
     }
 
-    @Operation(summary = "등급별 리그 조회")
-    @GetMapping("/grade/{grade}")
-    public ResponseEntity<List<LeagueDto.ListResponse>> getLeaguesByGrade(
-            @PathVariable String grade) {
-        return ResponseEntity.ok(leagueService.getLeaguesByGrade(grade));
-    }
-
     @Operation(summary = "리그 참가 팀 목록 조회")
     @GetMapping("/{leagueUid}/teams")
     public ResponseEntity<List<LeagueDto.LeagueTeamResponse>> getLeagueTeams(
             @PathVariable String leagueUid) {
         return ResponseEntity.ok(leagueService.getLeagueTeams(leagueUid));
+    }
+
+    // ==================== 최고관리자 전용 API (BR-11, BR-12) ====================
+
+    @Operation(summary = "[관리자] 리그 생성 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/admin")
+    public ResponseEntity<LeagueDto.DetailResponse> createLeague(
+            @Valid @RequestBody LeagueDto.CreateRequest request) {
+        return ResponseEntity.ok(leagueService.createLeague(request));
+    }
+
+    @Operation(summary = "[관리자] 리그 수정 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/admin/{uid}")
+    public ResponseEntity<LeagueDto.DetailResponse> updateLeague(
+            @PathVariable String uid,
+            @Valid @RequestBody LeagueDto.UpdateRequest request) {
+        return ResponseEntity.ok(leagueService.updateLeague(uid, request));
+    }
+
+    @Operation(summary = "[관리자] 리그 삭제 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/admin/{uid}")
+    public ResponseEntity<Void> deleteLeague(@PathVariable String uid) {
+        leagueService.deleteLeague(uid);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "[관리자] 리그에 팀 추가 (BR-12)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/admin/{leagueUid}/teams/{teamUid}")
+    public ResponseEntity<LeagueDto.LeagueTeamResponse> addTeamToLeague(
+            @PathVariable String leagueUid,
+            @PathVariable String teamUid) {
+        return ResponseEntity.ok(leagueService.addTeamToLeague(leagueUid, teamUid));
+    }
+
+    @Operation(summary = "[관리자] 리그에서 팀 제거 (BR-12)", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/admin/{leagueUid}/teams/{teamUid}")
+    public ResponseEntity<Void> removeTeamFromLeague(
+            @PathVariable String leagueUid,
+            @PathVariable String teamUid) {
+        leagueService.removeTeamFromLeague(leagueUid, teamUid);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "[관리자] 리그 매치 생성", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/admin/match")
+    public ResponseEntity<LeagueDto.MatchResponse> createLeagueMatch(
+            @Valid @RequestBody LeagueDto.CreateMatchRequest request) {
+        return ResponseEntity.ok(leagueService.createLeagueMatch(request));
     }
 }

@@ -39,10 +39,6 @@ public class League implements Serializable {
     @Column(nullable = false, length = 100)
     private String name;
 
-    // 리그 등급 (A, B, C 등)
-    @Column(nullable = false, length = 10)
-    private String grade;
-
     // 리그 설명
     @Column(columnDefinition = "TEXT")
     private String description;

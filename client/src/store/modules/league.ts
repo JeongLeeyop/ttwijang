@@ -81,7 +81,6 @@ export default class LeagueModule extends VuexModule implements LeagueState {
   @Action
   async fetchLeagueList(params?: {
     region?: string
-    grade?: string
     status?: string
   }): Promise<void> {
     this.SET_LOADING(true);

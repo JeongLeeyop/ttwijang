@@ -122,6 +122,21 @@ public class TeamController {
         return ResponseEntity.ok(teamService.generateTeamCode());
     }
 
+    @Operation(summary = "팀 가입/생성 가능 여부 확인 (BR-01, BR-02)", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/membership-status")
+    public ResponseEntity<TeamDto.MembershipStatus> checkMembershipStatus(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(teamService.checkMembershipStatus(userDetails.getUser().getUid()));
+    }
+
+    @Operation(summary = "내 소속 팀 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/my")
+    public ResponseEntity<TeamDto.DetailResponse> getMyTeam(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        TeamDto.DetailResponse myTeam = teamService.getMyTeam(userDetails.getUser().getUid());
+        return ResponseEntity.ok(myTeam);
+    }
+
     @Operation(summary = "운영자 위임", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{teamUid}/delegate/{newOwnerUid}")
     public ResponseEntity<Void> delegateOwner(

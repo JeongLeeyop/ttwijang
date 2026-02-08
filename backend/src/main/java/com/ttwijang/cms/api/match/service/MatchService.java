@@ -99,11 +99,20 @@ public class MatchService {
     }
 
     /**
-     * 팀별 매치 조회
+     * BR-06: 팀별 매치 조회 (주최팀 또는 상대팀으로 참여한 모든 매치)
      */
     @Transactional(readOnly = true)
     public Page<MatchDto.ListResponse> getMatchesByTeam(String teamUid, Pageable pageable) {
-        return matchRepository.findByHostTeamUid(teamUid, pageable)
+        return matchRepository.findByTeamUid(teamUid, pageable)
+                .map(this::toListResponse);
+    }
+
+    /**
+     * BR-06 + BR-08: 팀별 + 매치 타입별 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<MatchDto.ListResponse> getMatchesByTeamAndType(String teamUid, FutsalMatch.MatchType matchType, Pageable pageable) {
+        return matchRepository.findByTeamUidAndMatchType(teamUid, matchType, pageable)
                 .map(this::toListResponse);
     }
 

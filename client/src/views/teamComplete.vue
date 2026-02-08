@@ -45,7 +45,12 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { createTeam, CreateTeamRequest } from '@/api/team';
+import {
+  createTeam,
+  CreateTeamRequest,
+  checkMembershipStatus,
+  MembershipStatus,
+} from '@/api/team';
 
 @Component
 export default class TeamCompletePage extends Vue {
@@ -77,6 +82,18 @@ export default class TeamCompletePage extends Vue {
   private async submitTeamCreation(): Promise<void> {
     try {
       this.isLoading = true;
+
+      // BR-01: 팀 생성 전 최종 검증
+      const statusResponse = await checkMembershipStatus();
+      const status = statusResponse.data as MembershipStatus;
+      if (!status.canCreateTeam) {
+        this.$message.error('이미 팀을 생성하였거나 소속된 팀이 있습니다.');
+        sessionStorage.removeItem('teamFormData');
+        sessionStorage.removeItem('teamInfoData');
+        sessionStorage.removeItem('teamLocationData');
+        this.$router.replace('/match');
+        return;
+      }
 
       // 세션 스토리지에서 데이터 수집
       const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');

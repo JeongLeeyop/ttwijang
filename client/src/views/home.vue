@@ -41,7 +41,7 @@
               <el-option
                 v-for="league in availableLeagues"
                 :key="league.uid"
-                :label="league.name || league.grade + '리그'"
+                :label="league.name"
                 :value="league.uid"
               ></el-option>
             </el-select>
@@ -203,7 +203,7 @@ interface Match {
 export default class extends Vue {
   private selectedLeague = ''
 
-  private availableLeagues: { uid: string, name: string, grade: string }[] = []
+  private availableLeagues: { uid: string, name: string }[] = []
 
   private showLeagueStatus = false
 
@@ -271,7 +271,6 @@ export default class extends Vue {
         this.availableLeagues = leaguesResponse.data.content.map((league: any) => ({
           uid: league.uid,
           name: league.name,
-          grade: league.grade,
         }));
         // 첫 번째 리그 선택
         if (this.availableLeagues.length > 0) {
@@ -290,7 +289,7 @@ export default class extends Vue {
 
   private async loadTeamCards(): Promise<void> {
     try {
-      const matchesResponse = await getMatchList({ status: 'OPEN' });
+      const matchesResponse = await getMatchList({ status: 'RECRUITING' });
       if (matchesResponse.data && matchesResponse.data.content) {
         this.teamCards = matchesResponse.data.content.slice(0, 5).map((match: any) => ({
           name: match.teamName || match.team?.name || '팀 모집중',

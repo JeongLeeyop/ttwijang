@@ -155,3 +155,27 @@ export function searchTeams(keyword: string) {
     params: { keyword },
   });
 }
+
+// BR-01/BR-02: 팀 가입/생성 가능 여부 확인
+export interface MembershipStatus {
+  hasTeam: boolean
+  hasPendingRequest: boolean
+  hasCreatedTeam: boolean
+  canJoinTeam: boolean
+  canCreateTeam: boolean
+}
+
+export function checkMembershipStatus() {
+  return request({
+    url: '/team/membership-status',
+    method: 'get',
+  });
+}
+
+// 초대 코드로 팀 가입
+export function joinTeamByCode(teamCode: string) {
+  return request({
+    url: `/team/join/code/${teamCode}`,
+    method: 'post',
+  });
+}

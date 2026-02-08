@@ -10,10 +10,12 @@ import {
   joinTeam,
   processJoinRequest,
   getTeamMembers,
+  checkMembershipStatus,
   CreateTeamRequest,
   UpdateTeamRequest,
   JoinTeamRequest,
   ProcessJoinRequest,
+  MembershipStatus,
 } from '@/api/team';
 
 export interface Team {
@@ -50,6 +52,7 @@ export interface TeamState {
   myTeams: Team[]
   currentTeam: Team | null
   teamMembers: TeamMember[]
+  membershipStatus: MembershipStatus | null
   loading: boolean
   error: string | null
 }
@@ -64,6 +67,8 @@ export default class TeamModule extends VuexModule implements TeamState {
 
   teamMembers: TeamMember[] = [];
 
+  membershipStatus: MembershipStatus | null = null;
+
   loading = false;
 
   error: string | null = null;
@@ -74,6 +79,14 @@ export default class TeamModule extends VuexModule implements TeamState {
 
   get hasTeam(): boolean {
     return this.myTeams.length > 0;
+  }
+
+  get canCreateTeam(): boolean {
+    return this.membershipStatus?.canCreateTeam ?? true;
+  }
+
+  get canJoinTeam(): boolean {
+    return this.membershipStatus?.canJoinTeam ?? true;
   }
 
   @Mutation
@@ -104,6 +117,11 @@ export default class TeamModule extends VuexModule implements TeamState {
   @Mutation
   SET_ERROR(error: string | null): void {
     this.error = error;
+  }
+
+  @Mutation
+  SET_MEMBERSHIP_STATUS(status: MembershipStatus | null): void {
+    this.membershipStatus = status;
   }
 
   @Action
@@ -226,6 +244,19 @@ export default class TeamModule extends VuexModule implements TeamState {
       throw error;
     } finally {
       this.SET_LOADING(false);
+    }
+  }
+
+  @Action
+  async fetchMembershipStatus(): Promise<MembershipStatus | null> {
+    try {
+      const response = await checkMembershipStatus();
+      const status = response.data as MembershipStatus;
+      this.SET_MEMBERSHIP_STATUS(status);
+      return status;
+    } catch (error: any) {
+      console.error('Failed to check membership status:', error);
+      return null;
     }
   }
 }

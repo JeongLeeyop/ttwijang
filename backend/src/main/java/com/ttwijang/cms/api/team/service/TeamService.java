@@ -30,9 +30,21 @@ public class TeamService {
 
     /**
      * 팀 생성
+     * BR-02: 1계정 1팀 생성 제한 적용
+     * BR-01: 이미 팀에 소속된 경우 팀 생성 불가
      */
     @Transactional
     public TeamDto.DetailResponse createTeam(TeamDto.CreateRequest request, String ownerUid) {
+        // BR-02: 이미 팀을 생성한 적이 있는지 확인
+        if (teamRepository.existsByOwnerUidAndStatus(ownerUid, Team.TeamStatus.ACTIVE)) {
+            throw new IllegalArgumentException("이미 생성한 팀이 있습니다. 계정 하나당 하나의 팀만 생성할 수 있습니다.");
+        }
+
+        // BR-01: 이미 다른 팀에 소속되어 있는지 확인
+        if (teamMemberRepository.existsByUserUidAndStatus(ownerUid, TeamMember.MemberStatus.APPROVED)) {
+            throw new IllegalArgumentException("이미 소속된 팀이 있습니다. 계정 하나당 하나의 팀에만 가입할 수 있습니다.");
+        }
+
         // 팀 코드 중복 확인
         if (teamRepository.existsByTeamCode(request.getTeamCode())) {
             throw new IllegalArgumentException("이미 사용 중인 팀 코드입니다.");
@@ -147,12 +159,23 @@ public class TeamService {
 
     /**
      * 팀 가입 신청
+     * BR-01: 1계정 1팀 가입 제한 적용
      */
     @Transactional
     public TeamMemberDto.Response joinTeam(TeamMemberDto.JoinRequest request, String userUid) {
-        // 이미 가입되어 있는지 확인
+        // BR-01: 이미 다른 팀에 소속되어 있는지 글로벌 확인
+        if (teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.APPROVED)) {
+            throw new IllegalArgumentException("이미 소속된 팀이 있습니다. 계정 하나당 하나의 팀에만 가입할 수 있습니다.");
+        }
+
+        // 해당 팀에 이미 가입 신청 중인지 확인
         if (teamMemberRepository.existsByTeamUidAndUserUid(request.getTeamUid(), userUid)) {
             throw new IllegalArgumentException("이미 가입 신청하였거나 팀원입니다.");
+        }
+
+        // 대기 중인 다른 팀 가입 신청이 있는지 확인
+        if (teamMemberRepository.existsActiveOrPendingMembershipByUserUid(userUid)) {
+            throw new IllegalArgumentException("이미 다른 팀에 가입 신청 중입니다. 기존 신청을 취소 후 다시 시도해주세요.");
         }
 
         Team team = teamRepository.findByUid(request.getTeamUid())
@@ -175,9 +198,20 @@ public class TeamService {
 
     /**
      * 초대 코드로 팀 가입 (즉시 승인)
+     * BR-01: 1계정 1팀 가입 제한 적용
      */
     @Transactional
     public TeamMemberDto.Response joinTeamByCode(String teamCode, String userUid) {
+        // BR-01: 이미 다른 팀에 소속되어 있는지 글로벌 확인
+        if (teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.APPROVED)) {
+            throw new IllegalArgumentException("이미 소속된 팀이 있습니다. 계정 하나당 하나의 팀에만 가입할 수 있습니다.");
+        }
+
+        // 대기 중인 다른 팀 가입 신청이 있는지 확인
+        if (teamMemberRepository.existsActiveOrPendingMembershipByUserUid(userUid)) {
+            throw new IllegalArgumentException("이미 다른 팀에 가입 신청 중입니다. 기존 신청을 취소 후 다시 시도해주세요.");
+        }
+
         Team team = teamRepository.findByTeamCode(teamCode)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 팀 코드입니다."));
 
@@ -203,6 +237,7 @@ public class TeamService {
 
     /**
      * 가입 신청 처리
+     * BR-01: 승인 시 해당 사용자가 다른 팀에 소속되지 않았는지 재검증
      */
     @Transactional
     public TeamMemberDto.Response processJoinRequest(TeamMemberDto.ProcessRequest request, String ownerUid) {
@@ -218,6 +253,11 @@ public class TeamService {
         }
 
         if (request.getApproved()) {
+            // BR-01: 승인 시점에 이미 다른 팀에 소속되었는지 재확인
+            if (teamMemberRepository.existsByUserUidAndStatus(member.getUserUid(), TeamMember.MemberStatus.APPROVED)) {
+                throw new IllegalArgumentException("해당 사용자가 이미 다른 팀에 소속되어 있어 승인할 수 없습니다.");
+            }
+
             member.setStatus(TeamMember.MemberStatus.APPROVED);
             team.setMemberCount(team.getMemberCount() + 1);
             teamRepository.save(team);
@@ -263,6 +303,39 @@ public class TeamService {
      */
     public boolean checkTeamCodeAvailable(String teamCode) {
         return !teamRepository.existsByTeamCode(teamCode);
+    }
+
+    /**
+     * 내 소속 팀 조회
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.DetailResponse getMyTeam(String userUid) {
+        TeamMember membership = teamMemberRepository.findApprovedMembershipByUserUid(userUid)
+                .orElse(null);
+        if (membership == null) {
+            return null;
+        }
+        Team team = teamRepository.findByUid(membership.getTeamUid())
+                .orElse(null);
+        return team != null ? toDetailResponse(team) : null;
+    }
+
+    /**
+     * 팀 가입 가능 여부 확인 (BR-01, BR-02)
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.MembershipStatus checkMembershipStatus(String userUid) {
+        boolean hasApprovedTeam = teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.APPROVED);
+        boolean hasPendingRequest = teamMemberRepository.existsActiveOrPendingMembershipByUserUid(userUid);
+        boolean hasCreatedTeam = teamRepository.existsByOwnerUidAndStatus(userUid, Team.TeamStatus.ACTIVE);
+
+        return TeamDto.MembershipStatus.builder()
+                .hasTeam(hasApprovedTeam)
+                .hasPendingRequest(hasPendingRequest && !hasApprovedTeam)
+                .hasCreatedTeam(hasCreatedTeam)
+                .canJoinTeam(!hasApprovedTeam && !hasPendingRequest)
+                .canCreateTeam(!hasApprovedTeam && !hasCreatedTeam && !hasPendingRequest)
+                .build();
     }
 
     /**

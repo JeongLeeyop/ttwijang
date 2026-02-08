@@ -6,7 +6,6 @@
       <!-- Team Cards Section -->
       <div class="team-section">
         <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
-        <el-button style="margin-bottom: 15px;">더 알아보기</el-button>
         <VueSlickCarousel v-bind="slickOptions" class="team-cards-container">
           <div
             v-for="(team, index) in teamCards"
@@ -215,28 +214,42 @@ export default class extends Vue {
         C: '#e91e63',
       };
 
-      // 1. 진행 중인 리그 목록 조회
-      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS', page: 0, size: 1 });
+      // 1. 리그 목록 조회
+      const leagueParams: any = { status: 'IN_PROGRESS', page: 0, size: 10 };
+
+      const leagueResponse = await getLeagueList(leagueParams);
       const leagues = leagueResponse.data?.content || [];
 
       if (leagues.length > 0) {
-        const currentLeague = leagues[0];
+        // 모든 조회된 리그의 참가 팀 합산 (Promise.all 사용)
+        const teamPromises: Promise<JoinTeam[]>[] = leagues.map((league: any) => getLeagueTeams(league.uid)
+          .then((leagueTeamsResponse): JoinTeam[] => {
+            const leagueTeamsData: LeagueTeamResponse[] = leagueTeamsResponse.data || [];
+            return leagueTeamsData.map((team: LeagueTeamResponse): JoinTeam => ({
+              teamUid: team.teamUid,
+              name: team.teamName,
+              logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=80`,
+              leagueName: team.leagueName || 'B리그',
+              leagueColor: '#ff8800',
+            }));
+          })
+          .catch((err): JoinTeam[] => {
+            console.warn(`Failed to load teams for league ${league.uid}:`, err);
+            return [];
+          }));
 
-        // 2. 리그 참가 팀 목록 조회
-        const leagueTeamsResponse = await getLeagueTeams(currentLeague.uid);
-        const leagueTeamsData: LeagueTeamResponse[] = leagueTeamsResponse.data || [];
-
-        this.leagueParticipatingTeams = leagueTeamsData.map((team: LeagueTeamResponse) => ({
-          teamUid: team.teamUid,
-          name: team.teamName,
-          logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=80`,
-          leagueName: `${team.leagueGrade}리그`,
-          leagueColor: leagueGradeColors[team.leagueGrade] || '#ff8800',
-        }));
+        const allTeamsArrays: JoinTeam[][] = await Promise.all(teamPromises);
+        this.leagueParticipatingTeams = allTeamsArrays.reduce(
+          (acc: JoinTeam[], teams: JoinTeam[]): JoinTeam[] => acc.concat(teams),
+          [],
+        );
+      } else {
+        this.leagueParticipatingTeams = [];
       }
 
       // 3. 회원 모집 중인 팀 목록 조회
-      const recruitingTeamsResponse = await getTeamList({ page: 0, size: 10 });
+      const teamParams: any = { page: 0, size: 10 };
+      const recruitingTeamsResponse = await getTeamList(teamParams);
       const teams = recruitingTeamsResponse.data?.content || [];
 
       this.recruitingTeams = teams
@@ -246,8 +259,8 @@ export default class extends Vue {
           teamUid: team.uid,
           name: team.name,
           logo: team.logoFileUid || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
-          leagueName: team.grade ? `${team.grade}리그` : 'B리그',
-          leagueColor: leagueGradeColors[team.grade] || '#ff8800',
+          leagueName: 'B리그',
+          leagueColor: '#ff8800',
         }));
     } catch (error) {
       console.error('Failed to load data:', error);

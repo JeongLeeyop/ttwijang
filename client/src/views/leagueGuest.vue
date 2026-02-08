@@ -243,7 +243,7 @@ export default class extends Vue {
 
   private async loadTeamCards(): Promise<void> {
     try {
-      const response = await getMatchList({ status: 'OPEN' });
+      const response = await getMatchList({ status: 'RECRUITING' });
       if (response.data && response.data.content) {
         this.teamCards = response.data.content.slice(0, 5).map((match: any) => ({
           name: match.teamName || match.team?.name || '팀 모집중',

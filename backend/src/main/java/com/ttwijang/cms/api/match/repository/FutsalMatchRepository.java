@@ -36,4 +36,26 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
     List<FutsalMatch> findCompletedMatchesByTeamUid(@Param("teamUid") String teamUid);
 
     List<FutsalMatch> findByMatchDateAndStatus(LocalDate matchDate, FutsalMatch.FutsalMatchStatus status);
+
+    /**
+     * BR-06: 소속 팀의 매치 조회 (주최 또는 상대팀)
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid")
+    Page<FutsalMatch> findByTeamUid(@Param("teamUid") String teamUid, Pageable pageable);
+
+    /**
+     * 소속 팀의 매치 조회 + 타입 필터
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) AND m.matchType = :matchType")
+    Page<FutsalMatch> findByTeamUidAndMatchType(@Param("teamUid") String teamUid,
+                                                  @Param("matchType") FutsalMatch.MatchType matchType,
+                                                  Pageable pageable);
+
+    /**
+     * 게스트 모집을 위한 7일 이내 매치 조회
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE m.hostTeamUid = :teamUid AND m.matchDate BETWEEN :startDate AND :endDate AND m.status = 'RECRUITING'")
+    List<FutsalMatch> findUpcomingMatchesForGuest(@Param("teamUid") String teamUid,
+                                                    @Param("startDate") LocalDate startDate,
+                                                    @Param("endDate") LocalDate endDate);
 }

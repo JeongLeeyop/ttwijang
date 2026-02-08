@@ -30,8 +30,21 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     List<Team> findByOwnerUid(String ownerUid);
 
+    /**
+     * BR-02: 사용자가 이미 팀을 생성했는지 확인 (ACTIVE 상태 팀 기준)
+     */
+    boolean existsByOwnerUidAndStatus(String ownerUid, Team.TeamStatus status);
+
     @Query("SELECT t FROM Team t WHERE t.status = :status AND t.regionSido = :sido")
     Page<Team> findByStatusAndRegion(@Param("status") Team.TeamStatus status, 
                                       @Param("sido") String sido, 
                                       Pageable pageable);
+
+    /**
+     * 지역별 팀 목록 조회 (시/군/구 포함)
+     */
+    @Query("SELECT t FROM Team t WHERE t.status = 'ACTIVE' AND t.regionSido = :sido AND (:sigungu IS NULL OR t.regionSigungu = :sigungu)")
+    Page<Team> findActiveByRegion(@Param("sido") String sido, 
+                                   @Param("sigungu") String sigungu, 
+                                   Pageable pageable);
 }

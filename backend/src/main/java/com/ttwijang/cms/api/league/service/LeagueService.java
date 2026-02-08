@@ -34,16 +34,16 @@ public class LeagueService {
 
     /**
      * 리그 목록 조회
+     * BR-04: 지역별 리그 전환 지원 (시/군/구 포함)
      */
     @Transactional(readOnly = true)
-    public Page<LeagueDto.ListResponse> getLeagueList(String region, League.LeagueStatus status, Pageable pageable) {
+    public Page<LeagueDto.ListResponse> getLeagueList(String regionSido, String regionSigungu, 
+            League.LeagueStatus status, Pageable pageable) {
         Page<League> leagues;
-        if (status != null) {
-            if (region != null && !region.isEmpty()) {
-                leagues = leagueRepository.findByRegionSidoAndStatus(region, status, pageable);
-            } else {
-                leagues = leagueRepository.findByStatus(status, pageable);
-            }
+        if (regionSido != null && !regionSido.isEmpty()) {
+            leagues = leagueRepository.findByRegionAndStatus(regionSido, regionSigungu, status, pageable);
+        } else if (status != null) {
+            leagues = leagueRepository.findByStatus(status, pageable);
         } else {
             leagues = leagueRepository.findAll(pageable);
         }
@@ -65,7 +65,6 @@ public class LeagueService {
         return LeagueDto.DetailResponse.builder()
                 .uid(league.getUid())
                 .name(league.getName())
-                .grade(league.getGrade())
                 .description(league.getDescription())
                 .season(league.getSeason())
                 .startDate(league.getStartDate())
@@ -118,7 +117,12 @@ public class LeagueService {
      */
     @Transactional(readOnly = true)
     public List<LeagueDto.MatchResponse> getLeagueSchedule(String leagueUid, Integer year, Integer month) {
-        LocalDate startDate = LocalDate.of(year, month, 1);
+        // year/month가 없으면 현재 월 기준
+        LocalDate now = LocalDate.now();
+        int targetYear = year != null ? year : now.getYear();
+        int targetMonth = month != null ? month : now.getMonthValue();
+        
+        LocalDate startDate = LocalDate.of(targetYear, targetMonth, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
         
         List<LeagueMatch> matches = leagueMatchRepository.findByLeagueUidAndMatchDateBetween(
@@ -227,13 +231,153 @@ public class LeagueService {
     }
 
     /**
-     * 등급별 리그 조회
+     * BR-11: 리그 생성 (최고관리자 전용)
      */
-    @Transactional(readOnly = true)
-    public List<LeagueDto.ListResponse> getLeaguesByGrade(String grade) {
-        return leagueRepository.findByGrade(grade).stream()
-                .map(this::toListResponse)
-                .collect(Collectors.toList());
+    @Transactional
+    public LeagueDto.DetailResponse createLeague(LeagueDto.CreateRequest request) {
+        League league = League.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .season(request.getSeason())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .regionSido(request.getRegionSido())
+                .regionSigungu(request.getRegionSigungu())
+                .maxTeams(request.getMaxTeams())
+                .currentTeams(0)
+                .status(League.LeagueStatus.RECRUITING)
+                .rules(request.getRules())
+                .bannerFileUid(request.getBannerFileUid())
+                .build();
+
+        league = leagueRepository.save(league);
+        return getLeagueDetail(league.getUid());
+    }
+
+    /**
+     * BR-11: 리그 수정 (최고관리자 전용)
+     */
+    @Transactional
+    public LeagueDto.DetailResponse updateLeague(String uid, LeagueDto.UpdateRequest request) {
+        League league = leagueRepository.findByUid(uid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+
+        if (request.getName() != null) league.setName(request.getName());
+        if (request.getDescription() != null) league.setDescription(request.getDescription());
+        if (request.getSeason() != null) league.setSeason(request.getSeason());
+        if (request.getStartDate() != null) league.setStartDate(request.getStartDate());
+        if (request.getEndDate() != null) league.setEndDate(request.getEndDate());
+        if (request.getMaxTeams() != null) league.setMaxTeams(request.getMaxTeams());
+        if (request.getStatus() != null) league.setStatus(request.getStatus());
+        if (request.getRules() != null) league.setRules(request.getRules());
+        if (request.getBannerFileUid() != null) league.setBannerFileUid(request.getBannerFileUid());
+
+        league = leagueRepository.save(league);
+        return getLeagueDetail(league.getUid());
+    }
+
+    /**
+     * BR-11: 리그 삭제 (최고관리자 전용)
+     */
+    @Transactional
+    public void deleteLeague(String uid) {
+        League league = leagueRepository.findByUid(uid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+        leagueRepository.delete(league);
+    }
+
+    /**
+     * BR-12: 리그에 팀 추가 (최고관리자 전용)
+     */
+    @Transactional
+    public LeagueDto.LeagueTeamResponse addTeamToLeague(String leagueUid, String teamUid) {
+        League league = leagueRepository.findByUid(leagueUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        // 이미 등록된 팀인지 확인
+        if (leagueTeamRepository.findByLeagueUidAndTeamUid(leagueUid, teamUid).isPresent()) {
+            throw new IllegalArgumentException("이미 리그에 등록된 팀입니다.");
+        }
+
+        // 최대 팀 수 확인
+        if (league.getCurrentTeams() != null && league.getMaxTeams() != null
+                && league.getCurrentTeams() >= league.getMaxTeams()) {
+            throw new IllegalArgumentException("리그 최대 참가 팀 수를 초과했습니다.");
+        }
+
+        LeagueTeam leagueTeam = LeagueTeam.builder()
+                .leagueUid(leagueUid)
+                .teamUid(teamUid)
+                .ranking(0)
+                .played(0)
+                .wins(0)
+                .draws(0)
+                .losses(0)
+                .goalsFor(0)
+                .goalsAgainst(0)
+                .goalDifference(0)
+                .points(0)
+                .mannerScore(0.0)
+                .build();
+
+        leagueTeamRepository.save(leagueTeam);
+
+        // 참가 팀 수 업데이트
+        league.setCurrentTeams((league.getCurrentTeams() != null ? league.getCurrentTeams() : 0) + 1);
+        leagueRepository.save(league);
+
+        return LeagueDto.LeagueTeamResponse.builder()
+                .teamUid(team.getUid())
+                .teamName(team.getName())
+                .teamLogoUrl(team.getLogoFileUid())
+                .leagueName(league.getName())
+                .ranking(0)
+                .points(0)
+                .build();
+    }
+
+    /**
+     * BR-12: 리그에서 팀 제거 (최고관리자 전용)
+     */
+    @Transactional
+    public void removeTeamFromLeague(String leagueUid, String teamUid) {
+        League league = leagueRepository.findByUid(leagueUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+
+        LeagueTeam leagueTeam = leagueTeamRepository.findByLeagueUidAndTeamUid(leagueUid, teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("리그에 등록되지 않은 팀입니다."));
+
+        leagueTeamRepository.delete(leagueTeam);
+
+        league.setCurrentTeams(Math.max(0, (league.getCurrentTeams() != null ? league.getCurrentTeams() : 0) - 1));
+        leagueRepository.save(league);
+    }
+
+    /**
+     * 리그 매치 생성 (최고관리자 전용)
+     */
+    @Transactional
+    public LeagueDto.MatchResponse createLeagueMatch(LeagueDto.CreateMatchRequest request) {
+        League league = leagueRepository.findByUid(request.getLeagueUid())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+
+        LeagueMatch match = LeagueMatch.builder()
+                .leagueUid(request.getLeagueUid())
+                .homeTeamUid(request.getHomeTeamUid())
+                .awayTeamUid(request.getAwayTeamUid())
+                .matchDate(request.getMatchDate())
+                .matchTime(request.getMatchTime())
+                .durationMinutes(request.getDurationMinutes())
+                .stadiumName(request.getStadiumName())
+                .stadiumAddress(request.getStadiumAddress())
+                .status(LeagueMatch.MatchStatus.SCHEDULED)
+                .round(request.getRound())
+                .build();
+
+        match = leagueMatchRepository.save(match);
+        return toMatchResponse(match);
     }
 
     /**
@@ -252,7 +396,7 @@ public class LeagueService {
                                 .teamUid(team.getUid())
                                 .teamName(team.getName())
                                 .teamLogoUrl(team.getLogoFileUid())
-                                .leagueGrade(league != null ? league.getGrade() : "")
+                                .leagueName(league != null ? league.getName() : "")
                                 .ranking(lt.getRanking())
                                 .points(lt.getPoints())
                                 .build();
@@ -267,7 +411,6 @@ public class LeagueService {
         return LeagueDto.ListResponse.builder()
                 .uid(league.getUid())
                 .name(league.getName())
-                .grade(league.getGrade())
                 .season(league.getSeason())
                 .region(league.getRegionSido() + " " + (league.getRegionSigungu() != null ? league.getRegionSigungu() : ""))
                 .currentTeams(league.getCurrentTeams())

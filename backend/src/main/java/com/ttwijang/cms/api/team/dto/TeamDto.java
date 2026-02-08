@@ -279,4 +279,29 @@ public class TeamDto {
         @Schema(description = "승률")
         private Double winRate;
     }
+
+    /**
+     * 팀 가입/생성 가능 여부 응답 (BR-01, BR-02)
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 가입 상태 응답")
+    public static class MembershipStatus {
+        @Schema(description = "소속 팀 있음")
+        private boolean hasTeam;
+
+        @Schema(description = "가입 대기 중 신청 있음")
+        private boolean hasPendingRequest;
+
+        @Schema(description = "이미 팀 생성함")
+        private boolean hasCreatedTeam;
+
+        @Schema(description = "팀 가입 가능 여부")
+        private boolean canJoinTeam;
+
+        @Schema(description = "팀 생성 가능 여부")
+        private boolean canCreateTeam;
+    }
 }

@@ -6,6 +6,24 @@
       <!-- League Status View -->
       <div class="league-status-section">
         <h3 class="status-title">리그 현황</h3>
+        <!-- League Select Filter -->
+        <div class="league-filter-row">
+          <el-select
+            v-model="selectedLeagueUid"
+            :popper-append-to-body="false"
+            placeholder="리그 선택"
+            size="small"
+            class="league-filter-select"
+            @change="onLeagueSelect"
+          >
+            <el-option
+              v-for="league in availableLeagues"
+              :key="league.uid"
+              :label="league.name"
+              :value="league.uid"
+            ></el-option>
+          </el-select>
+        </div>
         <!-- Calendar Navigation -->
         <div class="calendar-nav">
           <i class="el-icon-arrow-left" @click="previousMonth"></i>
@@ -114,6 +132,10 @@ export default class extends Vue {
 
   private currentLeagueUid = ''
 
+  private selectedLeagueUid = ''
+
+  private availableLeagues: { uid: string, name: string }[] = []
+
   private leagueTable: LeagueTeam[] = []
 
   private recentMatches: Match[] = []
@@ -134,39 +156,57 @@ export default class extends Vue {
     }
   }
 
+  private async onLeagueSelect(): Promise<void> {
+    this.currentLeagueUid = this.selectedLeagueUid;
+    await this.loadStandingsData();
+    await this.loadScheduleData();
+  }
+
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 현재 진행 중인 리그 조회
+      // 모든 진행 중인 리그 조회
       const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS' });
       const leagues = leagueResponse.data?.content || leagueResponse.data || [];
 
+      this.availableLeagues = leagues.map((league: any) => ({
+        uid: league.uid,
+        name: league.name,
+      }));
+
       if (leagues.length > 0) {
         this.currentLeagueUid = leagues[0].uid;
+        this.selectedLeagueUid = leagues[0].uid;
 
-        // 순위표 조회
-        const standingsResponse = await getLeagueStandings(this.currentLeagueUid);
-        const standings = standingsResponse.data || [];
-
-        this.leagueTable = standings.map((team: any) => ({
-          name: team.teamName,
-          logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
-          played: team.matchesPlayed,
-          wins: team.wins,
-          draws: team.draws,
-          losses: team.losses,
-          points: team.points,
-          goals: team.goalsScored,
-          conceded: team.goalsConceded,
-          difference: team.goalDifference,
-        }));
-
+        await this.loadStandingsData();
         await this.loadScheduleData();
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private async loadStandingsData(): Promise<void> {
+    try {
+      const standingsResponse = await getLeagueStandings(this.currentLeagueUid);
+      const standings = standingsResponse.data || [];
+
+      this.leagueTable = standings.map((team: any) => ({
+        name: team.teamName,
+        logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
+        played: team.matchesPlayed,
+        wins: team.wins,
+        draws: team.draws,
+        losses: team.losses,
+        points: team.points,
+        goals: team.goalsScored,
+        conceded: team.goalsConceded,
+        difference: team.goalDifference,
+      }));
+    } catch (error) {
+      console.error('Failed to load standings data:', error);
     }
   }
 
@@ -240,5 +280,18 @@ export default class extends Vue {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.league-filter-row {
+  margin-bottom: 8px;
+}
+
+.league-filter-select {
+  width: 100%;
+}
+
+::v-deep .league-filter-select .el-input__inner {
+  border-radius: 8px;
+  font-size: 13px;
 }
 </style>
