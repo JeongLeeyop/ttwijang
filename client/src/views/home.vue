@@ -207,6 +207,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -439,6 +440,7 @@ export default class extends Vue {
 
   private transformMatch(match: any, includeScore: boolean): Match {
     const matchObj: Match = {
+      uid: match.uid || '',
       date: this.formatDate(match.matchDate),
       day: this.getDayOfWeek(match.matchDate),
       time: match.matchTime || '',
@@ -539,7 +541,10 @@ export default class extends Vue {
   }
 
   private navigateToMatchDetail(match: Match): void {
-    console.log('Navigate to match:', match);
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'match' },
+    });
   }
 }
 </script>

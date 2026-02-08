@@ -5,40 +5,49 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
-        <el-button
-          :class="{ 'team-enter-button': myTeamInfo !== null }"
-          style="margin-bottom: 15px;"
-          @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
-        >
-          {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
-        </el-button>
-
-        <!-- Team Code Input Form -->
-        <div class="team-code-form">
-          <div class="team-code-input-wrapper">
-            <i class="el-icon-lock"></i>
-            <input
-              v-if="myTeamInfo"
-              type="text"
-              class="team-code-input"
-              :placeholder="myTeamInfo.teamCode"
-              readonly
-            >
-            <input
-              v-else
-              v-model="teamCode"
-              type="text"
-              class="team-code-input"
-              placeholder="팀 코드를 입력하세요."
-              :disabled="!canJoinTeam"
-              @keyup.enter="joinTeamWithCode"
-            >
-          </div>
+        <!-- Loading State for Team Section -->
+        <div v-if="isInitialLoading" class="loading-container">
+          <i class="el-icon-loading loading-icon"></i>
+          <p class="loading-text">팀 정보를 불러오는 중...</p>
         </div>
-        <p v-if="hasPendingRequest" class="pending-notice">
-          <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
-        </p>
+
+        <!-- Team Section Content -->
+        <template v-else>
+          <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
+          <el-button
+            :class="{ 'team-enter-button': myTeamInfo !== null }"
+            style="margin-bottom: 15px;"
+            @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
+          >
+            {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
+          </el-button>
+
+          <!-- Team Code Input Form -->
+          <div class="team-code-form">
+            <div class="team-code-input-wrapper">
+              <i class="el-icon-lock"></i>
+              <input
+                v-if="myTeamInfo"
+                type="text"
+                class="team-code-input"
+                :placeholder="myTeamInfo.teamCode"
+                readonly
+              >
+              <input
+                v-else
+                v-model="teamCode"
+                type="text"
+                class="team-code-input"
+                placeholder="팀 코드를 입력하세요."
+                :disabled="!canJoinTeam"
+                @keyup.enter="joinTeamWithCode"
+              >
+            </div>
+          </div>
+          <p v-if="hasPendingRequest" class="pending-notice">
+            <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
+          </p>
+        </template>
       </div>
 
       <!-- League Schedule Section -->
@@ -80,7 +89,8 @@
                 v-for="(match, index) in filteredMatches"
                 :key="index"
                 class="team-card"
-                :class="{ 'recruitment-closed': match.isCompleted }"
+                :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
+                @click="goToMatchDetail(guest)"
               >
                 <div class="team-card-left">
                   <img :src="match.logo" :alt="match.name" class="team-logo">
@@ -159,6 +169,33 @@ interface MyTeam {
   logoUrl?: string
 }
 
+interface LeagueTeam {
+  name: string
+  logo: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  goals: number
+  conceded: number
+  difference: number
+}
+
+interface Match {
+  uid: string
+  date: string
+  day: string
+  time: string
+  location: string
+  homeTeam: string
+  awayTeam: string
+  homeLogo: string
+  awayLogo: string
+  homeScore?: number
+  awayScore?: number
+}
+
 @Component({
   components: {
     VueSlickCarousel,
@@ -195,6 +232,8 @@ export default class extends Vue {
 
   private selectedDay: number = new Date().getDate()
 
+  private isInitialLoading = true
+
   get currentMonth(): string {
     return `${this.currentYear}.${String(this.currentMonthIndex + 1).padStart(2, '0')}`;
   }
@@ -216,6 +255,80 @@ export default class extends Vue {
     touchThreshold: 5,
     initialSlide: 0,
     variableWidth: true,
+  }
+
+  private teamCards: TeamCard[] = []
+
+  private leagueTable: LeagueTeam[] = []
+
+  private recentMatches: Match[] = []
+
+  private upcomingMatches: Match[] = []
+
+  private toggleLeagueStatus(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
+  private toggleLeagueSection(): void {
+    this.showLeagueStatus = !this.showLeagueStatus;
+  }
+
+  private previousMonth(): void {
+    if (this.currentMonthIndex === 0) {
+      this.currentMonthIndex = 11;
+      this.currentYear -= 1;
+    } else {
+      this.currentMonthIndex -= 1;
+    }
+  }
+
+  private nextMonth(): void {
+    if (this.currentMonthIndex === 11) {
+      this.currentMonthIndex = 0;
+      this.currentYear += 1;
+    } else {
+      this.currentMonthIndex += 1;
+    }
+  }
+
+  private handleTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  private handleTouchMove(event: TouchEvent): void {
+    this.touchEndX = event.touches[0].clientX;
+  }
+
+  private handleTouchEnd(): void {
+    const difference = this.touchStartX - this.touchEndX;
+    if (Math.abs(difference) > 50) {
+      // Swipe detected
+    }
+  }
+
+  private navigateToMatchDetail(match: Match): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'match' },
+    });
+  }
+
+  private goToMatchDetail(guest: any): void {
+    if (guest.isRecruitmentClosed) return;
+    this.$router.push({
+      path: `/match-detail/${guest.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  private guestData: any[] = []
+
+  private selectedDate: Date = new Date()
+
+  private selectedDay: number = new Date().getDate()
+
+  get filteredGuests(): any[] {
+    return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
   }
 
   private isSameDate(date1: Date, date2: Date): boolean {
@@ -494,6 +607,28 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+/* Loading State */
+.team-section .loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+}
+
+.team-section .loading-icon {
+  font-size: 36px;
+  color: #409eff;
+  margin-bottom: 12px;
+}
+
+.team-section .loading-text {
+  font-size: 14px;
+  color: #606266;
+  margin: 0;
 }
 
 .my-team-card {

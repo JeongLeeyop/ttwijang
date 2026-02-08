@@ -97,6 +97,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/calendar.vue'),
 			},
+			{
+				path: '/match-detail/:uid',
+				name: 'MatchDetail',
+				meta: {
+					title: '경기 상세',
+				},
+				component: () => import('@/views/matchDetail.vue'),
+			},
 		],
 	},
 	{

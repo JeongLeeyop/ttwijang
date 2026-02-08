@@ -209,6 +209,8 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
+  leagueUid?: string
   date: string
   day: string
   time: string
@@ -486,6 +488,7 @@ export default class extends Vue {
 
   private recentMatches: Match[] = [
     {
+      uid: 'recent-1',
       date: '05월 01일',
       day: '목요일',
       time: '15:00',
@@ -498,6 +501,7 @@ export default class extends Vue {
       awayScore: 1,
     },
     {
+      uid: 'recent-2',
       date: '05월 09일',
       day: '금요일',
       time: '18:00',
@@ -513,6 +517,7 @@ export default class extends Vue {
 
   private upcomingMatches: Match[] = [
     {
+      uid: 'upcoming-1',
       date: '05월 10일',
       day: '토요일',
       time: '19:00',
@@ -523,6 +528,7 @@ export default class extends Vue {
       awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
     },
     {
+      uid: 'upcoming-2',
       date: '05월 11일',
       day: '일요일',
       time: '14:00',
@@ -610,7 +616,10 @@ export default class extends Vue {
   }
 
   private navigateToMatchDetail(match: Match): void {
-    console.log('Navigate to match:', match);
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'league', leagueUid: match.leagueUid || '' },
+    });
   }
 
   private navigateToTeam(teamUid: string): void {

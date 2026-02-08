@@ -85,6 +85,7 @@
                 :key="index"
                 class="team-card"
                 :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
+                @click="goToGuestDetail(guest)"
               >
                 <div class="team-card-left">
                   <img :src="guest.logo" :alt="guest.name" class="team-logo">
@@ -174,15 +175,22 @@ interface GuestItem {
   uid: string
   name: string
   logo: string
-  positionLabel: string
-  manner: number
-  feeLabel: string
-  guaranteedLabel: string
-  matchDate: string
-  matchDay: string
-  matchTime: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  goals: number
+  conceded: number
+  difference: number
+}
+
+interface Match {
+  uid: string
+  date: string
+  day: string
+  time: string
   location: string
-  date: Date
   teamLogo: string | null
   currentMembers: number
   maxMembers: number
@@ -476,7 +484,22 @@ export default class extends Vue {
     }
   }
 
-  get filteredGuests(): GuestItem[] {
+  private navigateToMatchDetail(match: Match): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  private goToGuestDetail(guest: any): void {
+    if (guest.isRecruitmentClosed) return;
+    this.$router.push({
+      path: `/match-detail/${guest.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  get filteredGuests(): any[] {
     return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
   }
 
