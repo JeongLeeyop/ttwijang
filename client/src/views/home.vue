@@ -225,19 +225,25 @@ export default class extends Vue {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
   }
 
-  private slickOptions = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    centerMode: true,
-    centerPadding: '20px',
-    swipeToSlide: true,
-    touchThreshold: 5,
-    initialSlide: 0,
-    variableWidth: true,
+  get slickOptions() {
+    return {
+      dots: true,
+      infinite: this.teamCards.length > 1,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: false,
+      centerMode: true,
+      centerPadding: '60px',
+      swipeToSlide: true,
+      touchThreshold: 5,
+      initialSlide: 0,
+      variableWidth: false,
+      autoplay: this.teamCards.length > 1,
+      autoplaySpeed: 3000,
+      draggable: true,
+      swipe: true,
+    };
   }
 
   private teamCards: TeamCard[] = []
@@ -474,6 +480,18 @@ export default class extends Vue {
         location: '대성풋살장',
       },
       {
+        name: '강남FC',
+        logo: this.getTeamLogo('강남FC'),
+        league: 'A리그',
+        manner: 4.5,
+        matchType: '정규 경기',
+        teamSize: '5 대 5',
+        matchDate: '05월 10일',
+        matchDay: '토',
+        matchTime: 'Pm 06:00',
+        location: '강남풋살장',
+      },
+       {
         name: '강남FC',
         logo: this.getTeamLogo('강남FC'),
         league: 'A리그',
