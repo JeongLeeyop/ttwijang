@@ -143,10 +143,23 @@ public class LeagueService {
     public List<LeagueDto.MatchResponse> getUpcomingMatches(String leagueUid, int limit) {
         Page<LeagueMatch> matches = leagueMatchRepository.findByLeagueUidOrderByMatchDateAscMatchTimeAsc(
                 leagueUid, PageRequest.of(0, limit));
-        
+
         return matches.getContent().stream()
                 .filter(m -> m.getStatus() == LeagueMatch.MatchStatus.SCHEDULED)
                 .map(this::toMatchResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 팀이 참가 중인 리그 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.ListResponse> getLeaguesByTeam(String teamUid) {
+        List<LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
+        return leagueTeams.stream()
+                .map(lt -> leagueRepository.findByUid(lt.getLeagueUid()).orElse(null))
+                .filter(league -> league != null)
+                .map(this::toListResponse)
                 .collect(Collectors.toList());
     }
 

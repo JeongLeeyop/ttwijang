@@ -331,7 +331,7 @@ export default class extends Vue {
 
   private enterMyTeam(): void {
     if (!this.canCreateTeam && this.myTeamInfo) {
-      this.$router.push(`/team/${this.myTeamInfo.uid}`);
+      this.$router.push(`/team/${this.myTeamInfo.teamCode}`);
     }
   }
 

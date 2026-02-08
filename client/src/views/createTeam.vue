@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { checkMembershipStatus, MembershipStatus } from '@/api/team';
+import { checkMembershipStatus, MembershipStatus, checkTeamCode } from '@/api/team';
 
 @Component
 export default class CreateTeam extends Vue {
@@ -102,8 +102,7 @@ export default class CreateTeam extends Vue {
     this.$router.go(-1);
   }
 
-  private submitForm(): void {
-    // ...existing validation and logic...
+  private async submitForm(): Promise<void> {
     if (!this.teamName.trim()) {
       this.$message.warning('팀 이름을 입력해주세요.');
       return;
@@ -112,6 +111,20 @@ export default class CreateTeam extends Vue {
       this.$message.warning('팀 코드를 입력해주세요.');
       return;
     }
+
+    // 팀 코드 중복 체크
+    try {
+      const codeRes = await checkTeamCode(this.teamCode);
+      const isAvailable = codeRes.data;
+      if (!isAvailable) {
+        this.$message.error('이미 사용 중인 팀 코드입니다. 다른 코드를 입력해주세요.');
+        return;
+      }
+    } catch (error) {
+      this.$message.error('팀 코드 확인 중 오류가 발생했습니다.');
+      return;
+    }
+
     if (!this.sponsorAccount.bank.trim()) {
       this.$message.warning('은행명을 입력해주세요.');
       return;
