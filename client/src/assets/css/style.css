@@ -584,9 +584,14 @@
   top: 70px;
 }
 
-/* 팀 페이지: 팀 프로필 아래 */
+/* 팀 페이지: 운영자 (버튼 있음) */
 .team-page-view .league-section {
-  top: 260px;
+  top: 280px;
+}
+
+/* 팀 페이지: 비운영자 (버튼 없음) */
+.team-page-view.non-owner .league-section {
+  top: 240px;
 }
 
 .team-page-view .league-section.expanded {
