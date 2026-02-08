@@ -44,6 +44,19 @@ public class RegionCodeService {
     }
 
     /**
+     * 지역 코드로 시/군/구 이름 조회
+     * @param code 지역 코드 (시/군/구 레벨)
+     * @return 지역명 (예: "진주시"), 없으면 null
+     */
+    public String resolveRegionName(String code) {
+        if (code == null || code.isEmpty()) {
+            return null;
+        }
+        RegionCode regionCode = regionCodeRepository.findByCode(code);
+        return regionCode != null ? regionCode.getName() : null;
+    }
+
+    /**
      * Entity to DTO
      */
     private RegionCodeDto.Response toResponse(RegionCode regionCode) {

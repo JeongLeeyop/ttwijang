@@ -92,6 +92,25 @@ public class MatchService {
     }
 
     /**
+     * 매치 목록 조회 - 시/군/구 이름으로만 조회 (도 필터 없이, regionCode 사용 시)
+     */
+    @Transactional(readOnly = true)
+    public Page<MatchDto.ListResponse> getMatchListBySigungu(String sigungu, LocalDate date,
+            FutsalMatch.FutsalMatchStatus status, Pageable pageable) {
+        Page<FutsalMatch> matches;
+        if (date != null) {
+            matches = matchRepository.findByMatchDate(date, pageable);
+        } else if (status != null && sigungu != null && !sigungu.isEmpty()) {
+            matches = matchRepository.findByStatusAndSigungu(status, sigungu, pageable);
+        } else if (status != null) {
+            matches = matchRepository.findByStatus(status, pageable);
+        } else {
+            matches = matchRepository.findAll(pageable);
+        }
+        return matches.map(this::toListResponse);
+    }
+
+    /**
      * 날짜 범위별 매치 조회 (캘린더용) - 지역 필터 지원
      */
     @Transactional(readOnly = true)
@@ -107,6 +126,22 @@ public class MatchService {
             } else {
                 matches = matchRepository.findByMatchDateBetween(startDate, endDate, pageable);
             }
+        } else {
+            matches = matchRepository.findByMatchDateBetween(startDate, endDate, pageable);
+        }
+        return matches.map(this::toListResponse);
+    }
+
+    /**
+     * 날짜 범위별 매치 조회 - 시/군/구 이름으로만 조회 (도 필터 없이, regionCode 사용 시)
+     */
+    @Transactional(readOnly = true)
+    public Page<MatchDto.ListResponse> getMatchesByDateRangeBySigungu(LocalDate startDate, LocalDate endDate,
+            String sigungu, Pageable pageable) {
+        Page<FutsalMatch> matches;
+        if (sigungu != null && !sigungu.isEmpty()) {
+            matches = matchRepository.findByMatchDateBetweenAndRegionSigungu(
+                    startDate, endDate, sigungu, pageable);
         } else {
             matches = matchRepository.findByMatchDateBetween(startDate, endDate, pageable);
         }

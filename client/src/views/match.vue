@@ -429,8 +429,7 @@ export default class extends Vue {
 
       const regionParams: any = {};
       if (this.selectedRegion) {
-        regionParams.regionSido = '경남';
-        regionParams.regionSigungu = this.selectedRegion;
+        regionParams.regionCode = this.selectedRegion;
       }
 
       const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);

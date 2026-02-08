@@ -143,8 +143,7 @@ export default class extends Vue {
         status: 'IN_PROGRESS',
       };
       if (this.selectedRegion) {
-        params.regionSido = '경남';
-        params.regionSigungu = this.selectedRegion;
+        params.regionCode = this.selectedRegion;
       }
       const response = await getLeagueList(params);
       const leagueList = response.data?.content || response.data || [];

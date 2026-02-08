@@ -39,4 +39,12 @@ public interface LeagueRepository extends JpaRepository<League, String>, Queryds
                                          @Param("sigungu") String sigungu,
                                          @Param("status") League.LeagueStatus status,
                                          Pageable pageable);
+
+    /**
+     * 시/군/구 이름으로 리그 조회 (도 필터 없이)
+     */
+    @Query("SELECT l FROM League l WHERE l.regionSigungu = :sigungu AND (:status IS NULL OR l.status = :status)")
+    Page<League> findBySigunguAndStatus(@Param("sigungu") String sigungu,
+                                         @Param("status") League.LeagueStatus status,
+                                         Pageable pageable);
 }

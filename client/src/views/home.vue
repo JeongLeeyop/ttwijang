@@ -285,9 +285,8 @@ export default class extends Vue {
         status: 'IN_PROGRESS',
       };
       if (this.selectedRegion) {
-        // 경남 지역의 시/군/구로 필터링
-        params.regionSido = '경남';
-        params.regionSigungu = this.selectedRegion;
+        // 지역 코드로 필터링
+        params.regionCode = this.selectedRegion;
       }
 
       const leaguesResponse = await getLeagueList(params);
@@ -323,9 +322,8 @@ export default class extends Vue {
         status: 'RECRUITING',
       };
       if (this.selectedRegion) {
-        // 경남 지역의 시/군/구로 필터링
-        params.regionSido = '경남';
-        params.regionSigungu = this.selectedRegion;
+        // 지역 코드로 필터링
+        params.regionCode = this.selectedRegion;
       }
 
       const matchesResponse = await getMatchList(params);

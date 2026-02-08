@@ -138,6 +138,26 @@ public class TeamService {
     }
 
     /**
+     * 팀 목록 조회 - 시/군/구 이름으로만 조회 (도 필터 없이, regionCode 사용 시)
+     */
+    @Transactional(readOnly = true)
+    public Page<TeamDto.ListResponse> getTeamListBySigungu(String sigungu, Boolean recruiting, Pageable pageable) {
+        Page<Team> teams;
+        if (sigungu == null || sigungu.isEmpty()) {
+            if (recruiting != null && recruiting) {
+                teams = teamRepository.findByRecruitingMembersTrue(pageable);
+            } else {
+                teams = teamRepository.findByStatus(Team.TeamStatus.ACTIVE, pageable);
+            }
+        } else if (recruiting != null && recruiting) {
+            teams = teamRepository.findByRecruitingMembersTrueAndRegionSigungu(sigungu, pageable);
+        } else {
+            teams = teamRepository.findActiveBySigungu(sigungu, pageable);
+        }
+        return teams.map(this::toListResponse);
+    }
+
+    /**
      * 팀 수정
      */
     @Transactional

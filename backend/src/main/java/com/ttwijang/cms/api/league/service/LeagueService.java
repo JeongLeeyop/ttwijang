@@ -42,6 +42,9 @@ public class LeagueService {
         Page<League> leagues;
         if (regionSido != null && !regionSido.isEmpty()) {
             leagues = leagueRepository.findByRegionAndStatus(regionSido, regionSigungu, status, pageable);
+        } else if (regionSigungu != null && !regionSigungu.isEmpty()) {
+            // regionCode로 조회 시: 도 필터 없이 시/군/구 이름으로만 조회
+            leagues = leagueRepository.findBySigunguAndStatus(regionSigungu, status, pageable);
         } else if (status != null) {
             leagues = leagueRepository.findByStatus(status, pageable);
         } else {

@@ -2,6 +2,7 @@ import request from '@/utils/request';
 
 // 리그 목록 조회 (BR-04: 지역별 리그 전환)
 export function getLeagueList(params?: {
+  regionCode?: string
   regionSido?: string
   regionSigungu?: string
   region?: string

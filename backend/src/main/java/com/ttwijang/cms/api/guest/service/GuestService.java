@@ -110,6 +110,25 @@ public class GuestService {
     }
 
     /**
+     * 게스트 모집 목록 조회 - 시/군/구 이름으로만 조회 (도 필터 없이, regionCode 사용 시)
+     */
+    @Transactional(readOnly = true)
+    public Page<GuestDto.ListResponse> getRecruitmentListBySigungu(String sigungu, LocalDate date,
+            GuestRecruitment.RecruitmentStatus status, Pageable pageable) {
+        Page<GuestRecruitment> recruitments;
+        if (date != null) {
+            recruitments = recruitmentRepository.findByMatchDate(date, pageable);
+        } else if (status != null && sigungu != null && !sigungu.isEmpty()) {
+            recruitments = recruitmentRepository.findByStatusAndSigungu(status, sigungu, pageable);
+        } else if (status != null) {
+            recruitments = recruitmentRepository.findByStatus(status, pageable);
+        } else {
+            recruitments = recruitmentRepository.findAll(pageable);
+        }
+        return recruitments.map(this::toListResponse);
+    }
+
+    /**
      * 날짜 범위별 게스트 모집 조회 (캘린더용) - 지역 필터 지원
      */
     @Transactional(readOnly = true)
@@ -124,6 +143,22 @@ public class GuestService {
             } else {
                 recruitments = recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable);
             }
+        } else {
+            recruitments = recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable);
+        }
+        return recruitments.map(this::toListResponse);
+    }
+
+    /**
+     * 날짜 범위별 게스트 모집 조회 - 시/군/구 이름으로만 조회 (도 필터 없이, regionCode 사용 시)
+     */
+    @Transactional(readOnly = true)
+    public Page<GuestDto.ListResponse> getRecruitmentsByDateRangeBySigungu(LocalDate startDate, LocalDate endDate,
+            String sigungu, Pageable pageable) {
+        Page<GuestRecruitment> recruitments;
+        if (sigungu != null && !sigungu.isEmpty()) {
+            recruitments = recruitmentRepository.findByMatchDateBetweenAndRegionSigungu(
+                    startDate, endDate, sigungu, pageable);
         } else {
             recruitments = recruitmentRepository.findByMatchDateBetween(startDate, endDate, pageable);
         }
