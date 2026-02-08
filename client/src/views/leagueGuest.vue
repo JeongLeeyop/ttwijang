@@ -22,17 +22,12 @@
             <div class="team-card-left">
               <div class="match-vs">
                 <img :src="match.homeTeamLogo" :alt="match.homeTeamName" class="team-logo">
-                <span class="vs-badge">VS</span>
-                <img :src="match.awayTeamLogo" :alt="match.awayTeamName" class="team-logo">
               </div>
             </div>
             <div class="team-card-right">
               <div class="team-tags">
                 <span class="tag">{{ match.leagueName }}</span>
                 <span v-if="match.round" class="tag">{{ match.round }}R</span>
-              </div>
-              <div class="match-teams-names">
-                {{ match.homeTeamName }} vs {{ match.awayTeamName }}
               </div>
               <div class="team-match-info">
                 {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
