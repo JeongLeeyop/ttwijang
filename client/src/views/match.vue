@@ -89,8 +89,7 @@
                 v-for="(match, index) in filteredMatches"
                 :key="index"
                 class="team-card"
-                :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
-                @click="goToMatchDetail(guest)"
+                @click="goToMatchDetail(match)"
               >
                 <div class="team-card-left">
                   <img :src="match.logo" :alt="match.name" class="team-logo">
@@ -341,11 +340,10 @@ export default class extends Vue {
     }
   }
 
-  private goToMatchDetail(guest: any): void {
-    if (guest.isRecruitmentClosed) return;
+  private goToMatchDetail(match: any): void {
     this.$router.push({
-      path: `/match-detail/${guest.uid}`,
-      query: { type: 'guest' },
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'match' },
     });
   }
 

@@ -34,6 +34,7 @@
         v-for="(match, index) in upcomingMatches"
         :key="index"
         class="match-card"
+        @click="goToMatchDetail(match)"
       >
         <i class="el-icon-arrow-right match-arrow"></i>
         <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
@@ -59,6 +60,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 import { getLeagueList, getLeagueSchedule } from '@/api/league';
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -99,6 +101,16 @@ export default class LeagueScheduleView extends Vue {
     if (this.selectedLeague) {
       await this.loadScheduleData();
     }
+  }
+
+  private goToMatchDetail(match: Match): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: {
+        type: 'league',
+        leagueUid: this.selectedLeague,
+      },
+    });
   }
 
   @Watch('currentMonthIndex')
@@ -147,6 +159,7 @@ export default class LeagueScheduleView extends Vue {
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {
+            uid: match.uid,
             date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
             day: dayNames[matchDate.getDay()],
             time: match.matchTime,

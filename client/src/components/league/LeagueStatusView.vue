@@ -68,7 +68,7 @@
         <div v-if="recentMatches.length === 0" class="empty-message">
           최근 경기 결과가 없습니다.
         </div>
-        <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
+        <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card" @click="goToMatchDetail(match)">
           <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
           <div class="past-match-teams">
             <div class="past-team">
@@ -109,6 +109,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -158,6 +159,16 @@ export default class LeagueStatusView extends Vue {
     this.currentLeagueUid = this.selectedLeagueUid;
     await this.loadStandingsData();
     await this.loadScheduleData();
+  }
+
+  private goToMatchDetail(match: Match): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: {
+        type: 'league',
+        leagueUid: this.currentLeagueUid,
+      },
+    });
   }
 
   private async loadLeagueData(): Promise<void> {
@@ -225,6 +236,7 @@ export default class LeagueStatusView extends Vue {
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {
+            uid: match.uid,
             date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
             day: dayNames[matchDate.getDay()],
             time: match.matchTime,

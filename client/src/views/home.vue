@@ -18,6 +18,7 @@
             v-for="(card, index) in teamCards"
             :key="index"
             class="team-card"
+            @click="navigateToCardDetail(card)"
           >
             <div class="team-card-left">
               <div class="match-vs">
@@ -111,7 +112,7 @@
 
           <!-- Past Match Results -->
           <div class="past-matches">
-            <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
+            <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card" @click="navigateToMatchDetail(match)">
               <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
               <div class="past-match-teams">
                 <div class="past-team">
@@ -138,6 +139,7 @@
             v-for="(match, index) in upcomingMatches"
             :key="index"
             class="match-card"
+            @click="navigateToMatchDetail(match)"
           >
             <i class="el-icon-arrow-right match-arrow"></i>
             <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
@@ -566,6 +568,14 @@ export default class extends Vue {
     this.$router.push({
       path: `/match-detail/${match.uid}`,
       query: { type: 'match' },
+    });
+  }
+
+  private navigateToCardDetail(card: HomeCard): void {
+    const type = card.cardType === 'GUEST' ? 'guest' : 'match';
+    this.$router.push({
+      path: `/match-detail/${card.uid}`,
+      query: { type },
     });
   }
 }

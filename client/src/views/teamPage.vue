@@ -105,6 +105,7 @@
               :key="match.uid"
               class="match-item"
               :class="{ 'completed': match.status === 'COMPLETED' }"
+              @click="goToMatchDetail(match)"
             >
               <div class="match-item-date">
                 {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
@@ -599,6 +600,13 @@ export default class TeamPage extends Vue {
       this.$message.success('초대 링크가 복사되었습니다.');
     }).catch(() => {
       this.$message.error('링크 복사에 실패했습니다.');
+    });
+  }
+
+  private goToMatchDetail(match: any): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'match' },
     });
   }
 

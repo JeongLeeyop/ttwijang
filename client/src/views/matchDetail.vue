@@ -802,7 +802,7 @@ export default class MatchDetail extends Vue {
 /* Info Card */
 .info-card {
   background: #fff;
-  margin: -20px 16px 16px;
+  /* margin: -20px 16px 16px; */
   border-radius: 16px;
   padding: 20px;
   position: relative;
@@ -852,9 +852,8 @@ export default class MatchDetail extends Vue {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
   background: #fff;
-  margin: 0 16px 16px;
+  /* margin: 0 16px 16px; */
   border-radius: 16px;
   padding: 24px 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -1205,7 +1204,7 @@ export default class MatchDetail extends Vue {
 
 /* Apply Button (Fixed bottom) */
 .apply-button-wrapper {
-  position: fixed;
+  /* position: fixed; */
   bottom: 60px;
   left: 0;
   right: 0;

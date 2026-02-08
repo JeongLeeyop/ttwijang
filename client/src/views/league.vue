@@ -34,6 +34,7 @@
             v-for="(match, index) in upcomingMatchCards"
             :key="index"
             class="team-card"
+            @click="navigateToMatchDetail(match)"
           >
             <div class="team-card-left">
               <div class="match-vs">
