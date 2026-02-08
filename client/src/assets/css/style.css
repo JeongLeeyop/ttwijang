@@ -4283,67 +4283,992 @@
   margin: 4px 0;
 }
 
-/* Responsive - Team Complete Page */
-@media (max-width: 600px) {
-  .team-complete-page .content {
-    padding: 30px 20px;
-  }
-
-  .team-complete-page .team-logo-large {
-    width: 130px;
-    height: 130px;
-  }
-
-  .team-complete-page .team-name-title {
-    font-size: 28px;
-    margin-bottom: 32px;
-  }
-
-  .team-complete-page .message-title {
-    font-size: 22px;
-  }
-
-  .team-complete-page .message-text {
-    font-size: 14px;
-  }
+/* ==========================
+   Profile Edit Page Styles
+   ========================== */
+.auth-layout .profile-edit-page .form-container {
+  padding: 20px;
 }
 
-@media (max-width: 480px) {
-  .team-complete-page .content {
-    padding: 24px 16px;
-  }
+.auth-layout .profile-edit-page .form-group {
+  margin-bottom: 20px;
+}
 
-  .team-complete-page .team-logo-large {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 20px;
-  }
+.auth-layout .profile-edit-page .form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
 
-  .team-complete-page .team-logo-large .logo-placeholder {
-    font-size: 50px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
 
-  .team-complete-page .team-name-title {
-    font-size: 26px;
-    margin-bottom: 28px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"]:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
 
-  .team-complete-page .message-title {
-    font-size: 20px;
-    margin-bottom: 12px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"]::placeholder {
+  color: #aaa;
+}
 
-  .team-complete-page .message-text {
-    font-size: 13px;
-  }
+.auth-layout .profile-edit-page .birth-date-group {
+  display: flex;
+  gap: 8px;
+}
 
-  .team-complete-page .btn-primary,
-  .team-complete-page .btn-secondary {
-    padding: 14px;
-    font-size: 15px;
-  }
+.auth-layout .profile-edit-page .birth-date-group .birth-select {
+  flex: 1;
+  padding: 12px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
 
-  .team-complete-page .info-text {
-    font-size: 12px;
-  }
+.auth-layout .profile-edit-page .birth-date-group .birth-select:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .gender-group {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button:hover {
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .input-with-button input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.auth-layout .profile-edit-page .verify-button {
+  flex-shrink: 0;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid #0a24a0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a24a0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.auth-layout .profile-edit-page .verify-button:hover:not(:disabled) {
+  background: #0a24a0;
+  color: #fff;
+}
+
+.auth-layout .profile-edit-page .verify-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-layout .profile-edit-page .submit-button {
+  width: 100%;
+  padding: 14px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.auth-layout .profile-edit-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .profile-edit-page .submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Cash Charge Page Styles
+   ========================== */
+.auth-layout .cash-charge-page .form-container {
+  padding: 20px;
+}
+
+.auth-layout .cash-charge-page .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+.auth-layout .cash-charge-page .charge-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.auth-layout .cash-charge-page .amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.auth-layout .cash-charge-page .amount-button {
+  padding: 14px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .amount-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .amount-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .current-cash {
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-layout .cash-charge-page .current-cash strong {
+  color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .payment-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .payment-methods {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .cash-charge-page .payment-button {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 600;
+}
+
+.auth-layout .cash-charge-page .submit-button {
+  width: 100%;
+  padding: 16px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .cash-charge-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .cash-charge-page .submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Cash History Page Styles
+   ========================== */
+.auth-layout .cash-history-page .history-container {
+  padding: 20px;
+  width: 100%;
+}
+
+.cash-history-page .balance-card {
+  background: linear-gradient(135deg, #0a24a0 0%, #1230b8 100%);
+  border-radius: 12px;
+  padding: 24px 20px;
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(10, 36, 160, 0.3);
+}
+
+.cash-history-page .balance-label {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.cash-history-page .balance-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cash-history-page .balance-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.cash-history-page .balance-unit {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.cash-history-page .balance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-history-page .action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.cash-history-page .refund-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .refund-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .charge-btn {
+  background: #ff8202;
+  color: #fff;
+}
+
+.cash-history-page .charge-btn:hover {
+  background: #e67400;
+}
+
+.cash-history-page .filter-section {
+  margin-bottom: 16px;
+}
+
+.cash-history-page .filter-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.cash-history-page .filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.cash-history-page .filter-tab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cash-history-page .filter-tab:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.cash-history-page .filter-tab.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.cash-history-page .transaction-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cash-history-page .transaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cash-history-page .transaction-item:last-child {
+  border-bottom: none;
+}
+
+.cash-history-page .transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cash-history-page .transaction-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.cash-history-page .transaction-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.cash-history-page .transaction-amount {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cash-history-page .transaction-amount.positive {
+  color: #0a24a0;
+}
+
+.cash-history-page .transaction-amount.negative {
+  color: #ff4d4f;
+}
+
+.cash-history-page .loading-state,
+.cash-history-page .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.cash-history-page .loading-state i,
+.cash-history-page .empty-state i {
+  font-size: 36px;
+  color: #ccc;
+}
+
+.cash-history-page .load-more {
+  padding: 16px;
+  text-align: center;
+}
+
+.cash-history-page .load-more-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cash-history-page .load-more-btn:hover {
+  background: #eee;
+  border-color: #ccc;
+}
+
+/* ===========================
+   Global Styles for Cash and Profile Pages
+   ========================== */
+.auth-layout .cash-charge-page,
+.auth-layout .cash-history-page {
+  padding: 20px;
+}
+
+.auth-layout .cash-charge-page .section-title,
+.auth-layout .cash-history-page .filter-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+.auth-layout .cash-charge-page .charge-section,
+.auth-layout .cash-history-page .filter-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.auth-layout .cash-charge-page .amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.auth-layout .cash-charge-page .amount-button,
+.auth-layout .cash-history-page .payment-button {
+  padding: 14px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .amount-button:hover,
+.auth-layout .cash-history-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .amount-button.active,
+.auth-layout .cash-history-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .current-cash {
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-layout .cash-charge-page .current-cash strong {
+  color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .payment-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .payment-methods {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .cash-charge-page .payment-button {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 600;
+}
+
+.auth-layout .cash-charge-page .submit-button {
+  width: 100%;
+  padding: 16px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .cash-charge-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .cash-charge-page .submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cash-history-page .balance-card {
+  background: linear-gradient(135deg, #0a24a0 0%, #1230b8 100%);
+  border-radius: 12px;
+  padding: 24px 20px;
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(10, 36, 160, 0.3);
+}
+
+.cash-history-page .balance-label {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.cash-history-page .balance-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cash-history-page .balance-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.cash-history-page .balance-unit {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.cash-history-page .balance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-history-page .action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.cash-history-page .refund-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .refund-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .charge-btn {
+  background: #ff8202;
+  color: #fff;
+}
+
+.cash-history-page .charge-btn:hover {
+  background: #e67400;
+}
+
+.cash-history-page .filter-section {
+  margin-bottom: 16px;
+}
+
+.cash-history-page .filter-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.cash-history-page .filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.cash-history-page .filter-tab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cash-history-page .filter-tab:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.cash-history-page .filter-tab.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.cash-history-page .transaction-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cash-history-page .transaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cash-history-page .transaction-item:last-child {
+  border-bottom: none;
+}
+
+.cash-history-page .transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cash-history-page .transaction-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.cash-history-page .transaction-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.cash-history-page .transaction-amount {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cash-history-page .transaction-amount.positive {
+  color: #0a24a0;
+}
+
+.cash-history-page .transaction-amount.negative {
+  color: #ff4d4f;
+}
+
+.cash-history-page .loading-state,
+.cash-history-page .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.cash-history-page .loading-state i,
+.cash-history-page .empty-state i {
+  font-size: 36px;
+  color: #ccc;
+}
+
+.cash-history-page .load-more {
+  padding: 16px;
+  text-align: center;
+}
+
+.cash-history-page .load-more-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* ===========================
+   Profile Edit Page Styles
+   ========================== */
+.auth-layout .profile-edit-page .form-container {
+  padding: 20px;
+}
+
+.auth-layout .profile-edit-page .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-layout .profile-edit-page .form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"]:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"]::placeholder {
+  color: #aaa;
+}
+
+.auth-layout .profile-edit-page .birth-date-group {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .birth-date-group .birth-select {
+  flex: 1;
+  padding: 12px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.auth-layout .profile-edit-page .birth-date-group .birth-select:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .gender-group {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button:hover {
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .input-with-button input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.auth-layout .profile-edit-page .verify-button {
+  flex-shrink: 0;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid #0a24a0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a24a0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.auth-layout .profile-edit-page .verify-button:hover:not(:disabled) {
+  background: #0a24a0;
+  color: #fff;
+}
+
+.auth-layout .profile-edit-page .verify-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-layout .profile-edit-page .submit-button {
+  width: 100%;
+  padding: 14px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
 }
