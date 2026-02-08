@@ -12,7 +12,23 @@
             :key="index"
             class="team-card"
           >
-            배너 영역
+            <div class="team-card-left">
+              <img :src="team.logo" :alt="team.name" class="team-logo">
+            </div>
+            <div class="team-card-right">
+              <div class="team-tags">
+                <span class="tag">{{ team.league }}</span>
+                <span class="tag">매너 {{ team.manner }}점</span>
+                <span class="tag">{{ team.matchType }}</span>
+                <span class="tag">{{ team.teamSize }}</span>
+              </div>
+              <div class="team-match-info">
+                {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
+              </div>
+              <div class="team-location">
+                {{ team.location }} <i class="el-icon-arrow-right"></i>
+              </div>
+            </div>
           </div>
         </VueSlickCarousel>
       </div>
@@ -270,20 +286,25 @@ export default class extends Vue {
     }
   }
 
-  private slickOptions = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    centerMode: true,
-    centerPadding: '20px',
-    swipeToSlide: true,
-    touchThreshold: 5,
-    initialSlide: 0,
-    variableWidth: true,
-    autoPlay: true,
+  get slickOptions() {
+    return {
+      dots: true,
+      infinite: this.teamCards.length > 1,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: false,
+      centerMode: true,
+      centerPadding: '60px',
+      swipeToSlide: true,
+      touchThreshold: 5,
+      initialSlide: 0,
+      variableWidth: false,
+      autoplay: this.teamCards.length > 1,
+      autoplaySpeed: 3000,
+      draggable: true,
+      swipe: true,
+    };
   }
 
   private joinTeamSlickOptions = {

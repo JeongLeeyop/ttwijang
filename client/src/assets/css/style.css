@@ -211,12 +211,12 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0 0 25px 0;
+  padding: 0 20px;
+  width: 100%;
 }
 
 /* Team Card Styles */
 .team-card {
-  width: 100% !important;
-  /* height: 100px !important; */
   background: #fff;
   border-radius: 12px;
   padding: 12px 16px;
@@ -398,28 +398,63 @@
   top: 70px;
 }
 
-/* 게스트 페이지 슬릭 캐러셀 스타일 */
-.guest-page .team-section .slick-slider {
+/* 슬릭 캐러셀 공통 스타일 - 모든 페이지 */
+.team-section .slick-slider {
   position: relative;
   width: 100%;
   max-width: 100%;
   overflow: visible;
 }
 
+.team-section .slick-slider .slick-list {
+  overflow: visible !important;
+  margin: 0 auto;
+  display: block;
+}
+
+.team-section .slick-slider .slick-track {
+  display: flex !important;
+  align-items: center;
+  gap: 0;
+}
+
+.team-section .slick-slider .slick-slide {
+  float: none !important;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+  padding: 0 4px;
+}
+
+.team-section .slick-slider .slick-slide.slick-center {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 10;
+}
+
+.team-section .slick-slider .slick-slide > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.team-section .slick-slider .slick-slide .team-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100px;
+  box-sizing: border-box;
+  display: flex !important;
+}
+
+/* 게스트 페이지만의 추가 스타일 (centerMode) */
 .guest-page .team-section .slick-slider .slick-list {
   overflow: visible !important;
 }
 
-.guest-page .team-section .slick-slider .slick-track {
-  display: flex !important;
-  align-items: center;
-}
-
 .guest-page .team-section .slick-slider .slick-slide {
-  float: none !important;
   opacity: 0.5;
-  transition: all 0.3s ease;
   transform: scale(0.9);
+  padding: 0;
 }
 
 .guest-page .team-section .slick-slider .slick-slide.slick-center {
@@ -428,19 +463,10 @@
   z-index: 10;
 }
 
-.guest-page .team-section .slick-slider .slick-slide > div {
-  padding: 0;
-  display: flex;
-  justify-content: center;
-}
-
 .guest-page .team-section .slick-slider .slick-slide .team-card {
   width: 350px !important;
   min-width: 350px;
   max-width: 350px;
-  min-height: 100px;
-  box-sizing: border-box;
-  display: flex !important;
 }
 
 /* Slick Dots 스타일 */
@@ -549,9 +575,9 @@
   display: none;
 }
 
-/* 매치 페이지: 팀 코드 입력 바로 아래 (헤더 73px + 팀만들기 + 코드입력 약 230px) */
+/* 매치 페이지: 팀 코드 입력 바로 아래 */
 .match-page .league-section {
-  top: 233px;
+  top: 280px;
 }
 
 .match-page .league-section.expanded {
@@ -2038,55 +2064,22 @@
   margin-bottom: 54px;
   padding: 0;
   overflow: visible;
-}
-
-/* Slick Carousel Styles - Fixed width issue */
-.team-section .slick-slider {
-  position: relative;
   width: 100%;
-  max-width: 100%;
-  overflow: visible;
 }
 
-.team-section .slick-slider .slick-list {
-  overflow: visible !important;
+.team-cards-container {
+  width: 100%;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.team-section .slick-slider .slick-track {
-  display: flex !important;
-  align-items: center;
+.team-cards-container:active {
+  cursor: grabbing;
 }
 
-.team-section .slick-slider .slick-slide {
-  float: none !important;
-  opacity: 0.5;
-  transition: all 0.3s ease;
-  transform: scale(0.9);
-}
-
-.team-section .slick-slider .slick-slide.slick-center {
-  opacity: 1;
-  transform: scale(1);
-  z-index: 10;
-}
-
-.team-section .slick-slider .slick-slide > div {
-  padding: 0;
-  display: flex;
-  justify-content: center;
-}
-
-.team-section .slick-slider .slick-slide .team-card {
-  width: 320px !important;
-  min-width: 320px;
-  max-width: 320px;
-  min-height: 100px;
-  box-sizing: border-box;
-  display: flex !important;
-}
-
-/* Slick Dots 스타일 - 일반 team-section */
-.team-section .team-cards-container .slick-dots {
+/* Slick Dots 스타일 - team-cards-container */
+.team-cards-container .slick-dots {
   position: relative;
   bottom: 0;
   display: flex !important;
@@ -2098,7 +2091,7 @@
   width: 100%;
 }
 
-.team-section .team-cards-container .slick-dots li {
+.team-cards-container .slick-dots li {
   position: relative;
   display: inline-block;
   width: 8px;
@@ -2108,7 +2101,7 @@
   cursor: pointer;
 }
 
-.team-section .team-cards-container .slick-dots li button {
+.team-cards-container .slick-dots li button {
   font-size: 0;
   line-height: 0;
   display: block;
@@ -2124,28 +2117,18 @@
   transition: all 0.3s ease;
 }
 
-.team-section .team-cards-container .slick-dots li button:hover,
-.team-section .team-cards-container .slick-dots li button:focus {
+.team-cards-container .slick-dots li button:hover,
+.team-cards-container .slick-dots li button:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.6);
 }
 
-.team-section .team-cards-container .slick-dots li.slick-active button {
+.team-cards-container .slick-dots li.slick-active button {
   background: #fff;
 }
 
-.team-section .team-cards-container .slick-dots li button:before {
+.team-cards-container .slick-dots li button:before {
   display: none;
-}
-
-.team-cards-container {
-  cursor: grab;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.team-cards-container:active {
-  cursor: grabbing;
 }
 
 /* Home League Header Specific */
