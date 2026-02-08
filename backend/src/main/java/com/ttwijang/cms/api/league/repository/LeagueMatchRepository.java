@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ttwijang.cms.entity.LeagueMatch;
+import com.ttwijang.cms.entity.Team;
 
 @Repository
 public interface LeagueMatchRepository extends JpaRepository<LeagueMatch, String>, QuerydslPredicateExecutor<LeagueMatch> {
@@ -35,8 +36,13 @@ public interface LeagueMatchRepository extends JpaRepository<LeagueMatch, String
     @Query("SELECT lm FROM LeagueMatch lm WHERE lm.leagueUid = :leagueUid AND lm.status = 'COMPLETED' ORDER BY lm.matchDate DESC")
     List<LeagueMatch> findCompletedMatchesByLeagueUid(@Param("leagueUid") String leagueUid, Pageable pageable);
 
-    @Query("SELECT lm FROM LeagueMatch lm JOIN League l ON lm.leagueUid = l.uid "
-            + "WHERE l.regionSigungu = :regionSigungu "
+    /**
+     * 지역별 다가오는 리그 매치 조회 — 참여 팀(홈/어웨이)의 지역 기준
+     */
+    @Query("SELECT DISTINCT lm FROM LeagueMatch lm "
+            + "LEFT JOIN Team ht ON lm.homeTeamUid = ht.uid "
+            + "LEFT JOIN Team awt ON lm.awayTeamUid = awt.uid "
+            + "WHERE (ht.regionSigungu = :regionSigungu OR awt.regionSigungu = :regionSigungu) "
             + "AND lm.matchDate >= :today "
             + "AND lm.status = 'SCHEDULED' "
             + "ORDER BY lm.matchDate ASC, lm.matchTime ASC")

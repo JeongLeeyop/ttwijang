@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.Team;
 
 @Repository
 public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String>, QuerydslPredicateExecutor<FutsalMatch> {
@@ -27,9 +28,13 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
 
     Page<FutsalMatch> findByHostTeamUid(String hostTeamUid, Pageable pageable);
 
-    @Query("SELECT m FROM FutsalMatch m WHERE m.status = :status AND m.regionSido = :sido")
-    Page<FutsalMatch> findByStatusAndRegion(@Param("status") FutsalMatch.FutsalMatchStatus status, 
-                                             @Param("sido") String sido, 
+    /**
+     * 지역(시/도)으로 상태별 매치 조회 — 호스트 팀의 지역 기준
+     */
+    @Query("SELECT m FROM FutsalMatch m JOIN Team t ON m.hostTeamUid = t.uid "
+            + "WHERE m.status = :status AND t.regionSido = :sido")
+    Page<FutsalMatch> findByStatusAndRegion(@Param("status") FutsalMatch.FutsalMatchStatus status,
+                                             @Param("sido") String sido,
                                              Pageable pageable);
 
     @Query("SELECT m FROM FutsalMatch m WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) AND m.status = 'COMPLETED'")
@@ -59,16 +64,21 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
                                                     @Param("startDate") LocalDate startDate,
                                                     @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT m FROM FutsalMatch m WHERE m.status = :status AND m.regionSido = :sido AND m.regionSigungu = :sigungu")
+    /**
+     * 지역(시/도 + 시/군/구)으로 상태별 매치 조회 — 호스트 팀의 지역 기준
+     */
+    @Query("SELECT m FROM FutsalMatch m JOIN Team t ON m.hostTeamUid = t.uid "
+            + "WHERE m.status = :status AND t.regionSido = :sido AND t.regionSigungu = :sigungu")
     Page<FutsalMatch> findByStatusAndRegionSidoAndSigungu(@Param("status") FutsalMatch.FutsalMatchStatus status,
                                                           @Param("sido") String sido,
                                                           @Param("sigungu") String sigungu,
                                                           Pageable pageable);
 
     /**
-     * 날짜 범위 + 지역 필터 조회
+     * 날짜 범위 + 지역 필터 조회 — 호스트 팀의 지역 기준
      */
-    @Query("SELECT m FROM FutsalMatch m WHERE m.matchDate BETWEEN :startDate AND :endDate AND m.regionSido = :sido AND m.regionSigungu = :sigungu")
+    @Query("SELECT m FROM FutsalMatch m JOIN Team t ON m.hostTeamUid = t.uid "
+            + "WHERE m.matchDate BETWEEN :startDate AND :endDate AND t.regionSido = :sido AND t.regionSigungu = :sigungu")
     Page<FutsalMatch> findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -77,17 +87,19 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
             Pageable pageable);
 
     /**
-     * 시/군/구 이름으로 상태별 조회 (도 필터 없이)
+     * 시/군/구 이름으로 상태별 조회 (도 필터 없이) — 호스트 팀의 지역 기준
      */
-    @Query("SELECT m FROM FutsalMatch m WHERE m.status = :status AND m.regionSigungu = :sigungu")
+    @Query("SELECT m FROM FutsalMatch m JOIN Team t ON m.hostTeamUid = t.uid "
+            + "WHERE m.status = :status AND t.regionSigungu = :sigungu")
     Page<FutsalMatch> findByStatusAndSigungu(@Param("status") FutsalMatch.FutsalMatchStatus status,
                                               @Param("sigungu") String sigungu,
                                               Pageable pageable);
 
     /**
-     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이)
+     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이) — 호스트 팀의 지역 기준
      */
-    @Query("SELECT m FROM FutsalMatch m WHERE m.matchDate BETWEEN :startDate AND :endDate AND m.regionSigungu = :sigungu")
+    @Query("SELECT m FROM FutsalMatch m JOIN Team t ON m.hostTeamUid = t.uid "
+            + "WHERE m.matchDate BETWEEN :startDate AND :endDate AND t.regionSigungu = :sigungu")
     Page<FutsalMatch> findByMatchDateBetweenAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

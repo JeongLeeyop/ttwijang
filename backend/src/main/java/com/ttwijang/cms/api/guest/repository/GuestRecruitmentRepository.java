@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ttwijang.cms.entity.GuestRecruitment;
+import com.ttwijang.cms.entity.Team;
 
 @Repository
 public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitment, String>, QuerydslPredicateExecutor<GuestRecruitment> {
@@ -27,18 +28,26 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
 
     Page<GuestRecruitment> findByTeamUid(String teamUid, Pageable pageable);
 
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.status = :status AND gr.regionSido = :sido")
-    Page<GuestRecruitment> findByStatusAndRegion(@Param("status") GuestRecruitment.RecruitmentStatus status, 
-                                                   @Param("sido") String sido, 
+    /**
+     * 지역(시/도)으로 상태별 게스트 모집 조회 — 모집 팀의 지역 기준
+     */
+    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.status = :status AND t.regionSido = :sido")
+    Page<GuestRecruitment> findByStatusAndRegion(@Param("status") GuestRecruitment.RecruitmentStatus status,
+                                                   @Param("sido") String sido,
                                                    Pageable pageable);
 
     // 7일 이내 모집만 가능한 조건 확인
     @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.teamUid = :teamUid AND gr.matchDate BETWEEN :startDate AND :endDate")
-    List<GuestRecruitment> findByTeamUidAndDateRange(@Param("teamUid") String teamUid, 
-                                                       @Param("startDate") LocalDate startDate, 
+    List<GuestRecruitment> findByTeamUidAndDateRange(@Param("teamUid") String teamUid,
+                                                       @Param("startDate") LocalDate startDate,
                                                        @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.status = :status AND gr.regionSido = :sido AND gr.regionSigungu = :sigungu")
+    /**
+     * 지역(시/도 + 시/군/구)으로 상태별 게스트 모집 조회 — 모집 팀의 지역 기준
+     */
+    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.status = :status AND t.regionSido = :sido AND t.regionSigungu = :sigungu")
     Page<GuestRecruitment> findByStatusAndRegionSidoAndSigungu(
             @Param("status") GuestRecruitment.RecruitmentStatus status,
             @Param("sido") String sido,
@@ -46,9 +55,10 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
             Pageable pageable);
 
     /**
-     * 날짜 범위 + 지역 필터 조회
+     * 날짜 범위 + 지역 필터 조회 — 모집 팀의 지역 기준
      */
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.matchDate BETWEEN :startDate AND :endDate AND gr.regionSido = :sido AND gr.regionSigungu = :sigungu")
+    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate AND t.regionSido = :sido AND t.regionSigungu = :sigungu")
     Page<GuestRecruitment> findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -57,18 +67,20 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
             Pageable pageable);
 
     /**
-     * 시/군/구 이름으로 상태별 조회 (도 필터 없이)
+     * 시/군/구 이름으로 상태별 조회 (도 필터 없이) — 모집 팀의 지역 기준
      */
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.status = :status AND gr.regionSigungu = :sigungu")
+    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.status = :status AND t.regionSigungu = :sigungu")
     Page<GuestRecruitment> findByStatusAndSigungu(
             @Param("status") GuestRecruitment.RecruitmentStatus status,
             @Param("sigungu") String sigungu,
             Pageable pageable);
 
     /**
-     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이)
+     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이) — 모집 팀의 지역 기준
      */
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.matchDate BETWEEN :startDate AND :endDate AND gr.regionSigungu = :sigungu")
+    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate AND t.regionSigungu = :sigungu")
     Page<GuestRecruitment> findByMatchDateBetweenAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

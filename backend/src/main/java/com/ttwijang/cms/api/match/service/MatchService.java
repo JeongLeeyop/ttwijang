@@ -252,6 +252,11 @@ public class MatchService {
 
     private MatchDto.ListResponse toListResponse(FutsalMatch match) {
         Team hostTeam = teamRepository.findByUid(match.getHostTeamUid()).orElse(null);
+        String region = "";
+        if (hostTeam != null) {
+            region = (hostTeam.getRegionSido() != null ? hostTeam.getRegionSido() : "")
+                    + " " + (hostTeam.getRegionSigungu() != null ? hostTeam.getRegionSigungu() : "");
+        }
 
         return MatchDto.ListResponse.builder()
                 .uid(match.getUid())
@@ -264,7 +269,7 @@ public class MatchService {
                 .matchDate(match.getMatchDate())
                 .matchTime(match.getMatchTime())
                 .stadiumName(match.getStadiumName())
-                .region(match.getRegionSido() + " " + (match.getRegionSigungu() != null ? match.getRegionSigungu() : ""))
+                .region(region.trim())
                 .fee(match.getFee())
                 .status(match.getStatus())
                 .build();

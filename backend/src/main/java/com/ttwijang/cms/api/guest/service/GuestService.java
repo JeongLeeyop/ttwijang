@@ -316,6 +316,11 @@ public class GuestService {
 
     private GuestDto.ListResponse toListResponse(GuestRecruitment recruitment) {
         Team team = teamRepository.findByUid(recruitment.getTeamUid()).orElse(null);
+        String region = "";
+        if (team != null) {
+            region = (team.getRegionSido() != null ? team.getRegionSido() : "")
+                    + " " + (team.getRegionSigungu() != null ? team.getRegionSigungu() : "");
+        }
 
         return GuestDto.ListResponse.builder()
                 .uid(recruitment.getUid())
@@ -326,7 +331,7 @@ public class GuestService {
                 .matchDate(recruitment.getMatchDate())
                 .matchTime(recruitment.getMatchTime())
                 .stadiumName(recruitment.getStadiumName())
-                .region(recruitment.getRegionSido() + " " + (recruitment.getRegionSigungu() != null ? recruitment.getRegionSigungu() : ""))
+                .region(region.trim())
                 .positionType(recruitment.getPositionType())
                 .maxGuests(recruitment.getMaxGuests())
                 .currentGuests(recruitment.getCurrentGuests())
