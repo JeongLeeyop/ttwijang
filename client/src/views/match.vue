@@ -5,40 +5,49 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
-        <el-button
-          :class="{ 'team-enter-button': myTeamInfo !== null }"
-          style="margin-bottom: 15px;"
-          @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
-        >
-          {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
-        </el-button>
-
-        <!-- Team Code Input Form -->
-        <div class="team-code-form">
-          <div class="team-code-input-wrapper">
-            <i class="el-icon-lock"></i>
-            <input
-              v-if="myTeamInfo"
-              type="text"
-              class="team-code-input"
-              :placeholder="myTeamInfo.teamCode"
-              readonly
-            >
-            <input
-              v-else
-              v-model="teamCode"
-              type="text"
-              class="team-code-input"
-              placeholder="팀 코드를 입력하세요."
-              :disabled="!canJoinTeam"
-              @keyup.enter="joinTeamWithCode"
-            >
-          </div>
+        <!-- Loading State for Team Section -->
+        <div v-if="isInitialLoading" class="loading-container">
+          <i class="el-icon-loading loading-icon"></i>
+          <p class="loading-text">팀 정보를 불러오는 중...</p>
         </div>
-        <p v-if="hasPendingRequest" class="pending-notice">
-          <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
-        </p>
+
+        <!-- Team Section Content -->
+        <template v-else>
+          <h2 class="section-title">나의 팀을 만들어 보세요!</h2>
+          <el-button
+            :class="{ 'team-enter-button': myTeamInfo !== null }"
+            style="margin-bottom: 15px;"
+            @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
+          >
+            {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
+          </el-button>
+
+          <!-- Team Code Input Form -->
+          <div class="team-code-form">
+            <div class="team-code-input-wrapper">
+              <i class="el-icon-lock"></i>
+              <input
+                v-if="myTeamInfo"
+                type="text"
+                class="team-code-input"
+                :placeholder="myTeamInfo.teamCode"
+                readonly
+              >
+              <input
+                v-else
+                v-model="teamCode"
+                type="text"
+                class="team-code-input"
+                placeholder="팀 코드를 입력하세요."
+                :disabled="!canJoinTeam"
+                @keyup.enter="joinTeamWithCode"
+              >
+            </div>
+          </div>
+          <p v-if="hasPendingRequest" class="pending-notice">
+            <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
+          </p>
+        </template>
       </div>
 
       <!-- League Schedule Section -->
@@ -212,6 +221,8 @@ export default class extends Vue {
   private canJoinTeam = true
 
   private hasPendingRequest = false
+
+  private isInitialLoading = true
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -387,10 +398,16 @@ export default class extends Vue {
     this.currentMonthIndex = new Date().getMonth();
     this.selectedDay = new Date().getDate();
     this.selectedDate = new Date();
-    await Promise.all([
-      this.loadGuestData(),
-      this.loadMembershipStatus(),
-    ]);
+
+    this.isInitialLoading = true;
+    try {
+      await Promise.all([
+        this.loadGuestData(),
+        this.loadMembershipStatus(),
+      ]);
+    } finally {
+      this.isInitialLoading = false;
+    }
   }
 
   @Watch('selectedRegion')
@@ -513,6 +530,28 @@ export default class extends Vue {
 .league-page .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+}
+
+/* Loading State */
+.team-section .loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+}
+
+.team-section .loading-icon {
+  font-size: 36px;
+  color: #409eff;
+  margin-bottom: 12px;
+}
+
+.team-section .loading-text {
+  font-size: 14px;
+  color: #606266;
+  margin: 0;
 }
 
 .my-team-card {
