@@ -31,6 +31,13 @@
         <div class="handle-bar"></div>
       </div>
       <div class="league-section-content">
+        <!-- 구단주 Info Bar -->
+        <div class="team-owner-bar">
+          <span class="owner-bar-text">
+            구단주 : {{ ownerSponsorName || 'OOO' }} ({{ teamInfo.name || '팀명' }})
+          </span>
+          <span class="owner-bar-link" @click="showOwnerInfo">구단주 정보</span>
+        </div>
         <!-- Tab Nav -->
         <div class="team-tab-nav">
           <div
@@ -730,38 +737,37 @@ export default class TeamPage extends Vue {
 }
 
 .team-btn-outline {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: #fff;
+  color: #333;
+  border: 1.5px solid #fff;
 }
 
 .team-btn-outline:active {
-  background: rgba(255, 255, 255, 0.25);
+  background: #f0f0f0;
 }
 
 .team-btn-primary {
-  background: #4caf50;
+  background: #f7c600;
   color: #fff;
-  border: 1.5px solid #4caf50;
+  border: 1.5px solid #f7c600;
 }
 
 .team-btn-primary:active {
-  background: #43a047;
+  background: #e0b400;
 }
 
-/* 구단주 Info Bar */
+/* 구단주 Info Bar (inside white section) */
 .team-owner-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 14px 16px 0;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
+  margin: 0 16px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
 }
 
 .owner-bar-text {
-  color: #fff;
+  color: #333;
   font-size: 13px;
   font-weight: 500;
 }
@@ -771,6 +777,9 @@ export default class TeamPage extends Vue {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  padding: 4px 10px;
+  background: #fff8e1;
+  border-radius: 12px;
 }
 
 .owner-bar-link:active {

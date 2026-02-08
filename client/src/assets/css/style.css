@@ -584,9 +584,9 @@
   top: 70px;
 }
 
-/* 팀 페이지: 팀 프로필 + 구단주바 아래 */
+/* 팀 페이지: 팀 프로필 아래 */
 .team-page-view .league-section {
-  top: 310px;
+  top: 260px;
 }
 
 .team-page-view .league-section.expanded {
