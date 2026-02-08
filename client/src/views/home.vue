@@ -15,36 +15,39 @@
           class="team-cards-container"
         >
           <div
-            v-for="(team, index) in teamCards"
+            v-for="(card, index) in teamCards"
             :key="index"
             class="team-card"
           >
             <div class="team-card-left">
               <div class="match-vs">
-                <img :src="team.homeTeamLogo" :alt="team.homeTeamName" class="team-logo">
-                <span class="vs-badge">VS</span>
-                <img :src="team.awayTeamLogo" :alt="team.awayTeamName" class="team-logo">
+                <img :src="card.teamLogo" :alt="card.teamName" class="team-logo">
+                <span class="vs-badge">{{ card.cardType === 'MATCH' ? 'VS' : '모집' }}</span>
               </div>
             </div>
             <div class="team-card-right">
               <div class="team-tags">
-                <span class="tag">{{ team.leagueName }}</span>
-                <span v-if="team.round" class="tag">{{ team.round }}R</span>
+                <span class="tag" :class="card.cardType === 'MATCH' ? 'tag-match' : 'tag-guest'">{{ card.cardType === 'MATCH' ? '매치' : '게스트' }}</span>
+                <span v-if="card.matchFormat" class="tag">{{ card.matchFormat }}</span>
+                <span v-if="card.positionType" class="tag">{{ card.positionLabel }}</span>
               </div>
               <div class="match-teams-names">
-                {{ team.homeTeamName }} vs {{ team.awayTeamName }}
+                {{ card.teamName }}
               </div>
               <div class="team-match-info">
-                {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
+                {{ card.matchDate }} ({{ card.matchDay }}) {{ card.matchTime }}
               </div>
               <div class="team-location">
-                {{ team.stadiumName }} <i class="el-icon-arrow-right"></i>
+                {{ card.stadiumName }} <i class="el-icon-arrow-right"></i>
+              </div>
+              <div v-if="card.fee" class="team-fee">
+                참가비 {{ card.fee.toLocaleString() }}원
               </div>
             </div>
           </div>
         </VueSlickCarousel>
         <div v-else class="empty-message">
-          예정된 리그 경기가 없습니다.
+          모집 중인 매치가 없습니다.
         </div>
       </div>
 
@@ -170,20 +173,24 @@ import {
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import { getLeagueList, getLeagueStandings, getLeagueSchedule, getUpcomingLeagueMatches } from '@/api/league';
+import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
+import { getMatchList } from '@/api/match';
+import { getGuestRecruitmentList } from '@/api/guest';
 
-interface UpcomingMatchCard {
+interface HomeCard {
   uid: string
-  leagueName: string
-  homeTeamName: string
-  homeTeamLogo: string
-  awayTeamName: string
-  awayTeamLogo: string
+  cardType: 'MATCH' | 'GUEST'
+  teamName: string
+  teamLogo: string
   matchDate: string
   matchDay: string
   matchTime: string
+  matchDateRaw: string
   stadiumName: string
-  round?: number
+  matchFormat?: string
+  fee?: number
+  positionType?: string
+  positionLabel?: string
 }
 
 interface LeagueTeam {
@@ -236,7 +243,7 @@ export default class extends Vue {
 
   private isLoading = false
 
-  private teamCards: UpcomingMatchCard[] = []
+  private teamCards: HomeCard[] = []
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -319,7 +326,7 @@ export default class extends Vue {
         }
       }
 
-      // 팀 카드 로드 (지역별 다가오는 리그 경기)
+      // 팀 카드 로드 (일반 매치 + 게스트 모집)
       await this.loadTeamCards();
     } catch (error) {
       console.error('홈 데이터 로드 실패:', error);
@@ -330,30 +337,55 @@ export default class extends Vue {
 
   private async loadTeamCards(): Promise<void> {
     try {
-      const params: any = {
-        limit: 20,
-      };
+      const regionParams: any = {};
       if (this.selectedRegion) {
-        params.regionCode = this.selectedRegion;
+        regionParams.regionCode = this.selectedRegion;
       }
-      const response = await getUpcomingLeagueMatches(params);
-      const matches = response.data || [];
-      this.teamCards = matches.map((m: any): UpcomingMatchCard => {
+
+      // 일반 매치 + 게스트 모집 동시 호출
+      const [matchRes, guestRes] = await Promise.all([
+        getMatchList({ ...regionParams, status: 'RECRUITING', size: 10 }),
+        getGuestRecruitmentList({ ...regionParams, status: 'RECRUITING', size: 10 }),
+      ]);
+
+      const matchCards: HomeCard[] = (matchRes.data?.content || []).map((m: any): HomeCard => {
         const dateInfo = this.formatMatchDate(m.matchDate);
         return {
           uid: m.uid,
-          leagueName: m.leagueName || '',
-          homeTeamName: m.homeTeamName || '',
-          homeTeamLogo: m.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.homeTeamName || 'H').substring(0, 2))}&background=061da1&color=fff&size=60`,
-          awayTeamName: m.awayTeamName || '',
-          awayTeamLogo: m.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.awayTeamName || 'A').substring(0, 2))}&background=ff6600&color=fff&size=60`,
+          cardType: 'MATCH',
+          teamName: m.hostTeamName || '',
+          teamLogo: m.hostTeamLogoUrl || this.getTeamLogo(m.hostTeamName || ''),
           matchDate: dateInfo.date,
           matchDay: dateInfo.day,
           matchTime: this.formatMatchTime(m.matchTime),
+          matchDateRaw: m.matchDate || '',
           stadiumName: m.stadiumName || '',
-          round: m.round,
+          matchFormat: m.matchFormat || '',
+          fee: m.fee || 0,
         };
       });
+
+      const guestCards: HomeCard[] = (guestRes.data?.content || []).map((g: any): HomeCard => {
+        const dateInfo = this.formatMatchDate(g.matchDate);
+        const posLabels: Record<string, string> = { FIELD: '필드', GK: '골키퍼', ANY: '포지션 무관' };
+        return {
+          uid: g.uid,
+          cardType: 'GUEST',
+          teamName: g.teamName || '',
+          teamLogo: g.teamLogoUrl || this.getTeamLogo(g.teamName || ''),
+          matchDate: dateInfo.date,
+          matchDay: dateInfo.day,
+          matchTime: this.formatMatchTime(g.matchTime),
+          matchDateRaw: g.matchDate || '',
+          stadiumName: g.stadiumName || '',
+          fee: g.fee || 0,
+          positionType: g.positionType || '',
+          positionLabel: posLabels[g.positionType] || '',
+        };
+      });
+
+      // 날짜순 정렬
+      this.teamCards = [...matchCards, ...guestCards].sort((a, b) => a.matchDateRaw.localeCompare(b.matchDateRaw));
     } catch (error) {
       console.warn('팀 카드 로드 실패:', error);
       this.teamCards = [];
@@ -546,6 +578,23 @@ export default class extends Vue {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tag-match {
+  background: rgba(6, 29, 161, 0.1) !important;
+  color: #061da1 !important;
+}
+
+.tag-guest {
+  background: rgba(0, 180, 100, 0.1) !important;
+  color: #00b464 !important;
+}
+
+.team-fee {
+  font-size: 12px;
+  color: #ff6600;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
 .loading-container {
