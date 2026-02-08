@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ttwijang.cms.api.match.dto.MatchDto;
 import com.ttwijang.cms.api.match.service.MatchService;
+import com.ttwijang.cms.api.region.service.RegionCodeService;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.oauth.SinghaUser;
 
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class MatchController {
 
     private final MatchService matchService;
+    private final RegionCodeService regionCodeService;
 
     @Operation(summary = "매치 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
@@ -50,12 +52,18 @@ public class MatchController {
     @Operation(summary = "매치 목록 조회")
     @GetMapping
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchList(
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) FutsalMatch.FutsalMatchStatus status,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            String sigunguName = regionCodeService.resolveRegionName(regionCode);
+            return ResponseEntity.ok(matchService.getMatchListBySigungu(sigunguName, date, status, pageable));
+        }
         // regionSido/regionSigungu가 있으면 우선 사용
         String effectiveRegion = region;
         if (regionSido != null && regionSigungu != null) {
@@ -69,9 +77,15 @@ public class MatchController {
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            String sigunguName = regionCodeService.resolveRegionName(regionCode);
+            return ResponseEntity.ok(matchService.getMatchesByDateRangeBySigungu(startDate, endDate, sigunguName, pageable));
+        }
         String effectiveRegion = null;
         if (regionSido != null && regionSigungu != null) {
             effectiveRegion = regionSido + " " + regionSigungu;

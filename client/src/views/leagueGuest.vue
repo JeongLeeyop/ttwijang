@@ -256,8 +256,7 @@ export default class extends Vue {
         status: 'RECRUITING',
       };
       if (this.selectedRegion) {
-        params.regionSido = '경남';
-        params.regionSigungu = this.selectedRegion;
+        params.regionCode = this.selectedRegion;
       }
       const response = await getGuestRecruitmentList(params);
       const recruitments = response.data?.content || response.data || [];
@@ -294,8 +293,7 @@ export default class extends Vue {
 
       const regionParams: any = {};
       if (this.selectedRegion) {
-        regionParams.regionSido = '경남';
-        regionParams.regionSigungu = this.selectedRegion;
+        regionParams.regionCode = this.selectedRegion;
       }
 
       const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);

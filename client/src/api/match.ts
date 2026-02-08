@@ -4,6 +4,7 @@ import request from '@/utils/request';
 export function getMatchList(params?: {
   date?: string
   status?: string
+  regionCode?: string
   region?: string
   regionSido?: string
   regionSigungu?: string
@@ -28,6 +29,7 @@ export function getMatchDetail(uid: string) {
 
 // 캘린더용 매치 조회
 export function getMatchesByDateRange(startDate: string, endDate: string, params?: {
+  regionCode?: string
   regionSido?: string
   regionSigungu?: string
 }) {

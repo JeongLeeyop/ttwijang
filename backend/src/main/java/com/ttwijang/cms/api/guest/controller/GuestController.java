@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ttwijang.cms.api.guest.dto.GuestDto;
 import com.ttwijang.cms.api.guest.service.GuestService;
+import com.ttwijang.cms.api.region.service.RegionCodeService;
 import com.ttwijang.cms.entity.GuestRecruitment;
 import com.ttwijang.cms.oauth.SinghaUser;
 
@@ -32,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class GuestController {
 
     private final GuestService guestService;
+    private final RegionCodeService regionCodeService;
 
     @Operation(summary = "게스트 모집 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
@@ -51,12 +53,18 @@ public class GuestController {
     @Operation(summary = "게스트 모집 목록 조회")
     @GetMapping
     public ResponseEntity<Page<GuestDto.ListResponse>> getRecruitmentList(
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) GuestRecruitment.RecruitmentStatus status,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            String sigunguName = regionCodeService.resolveRegionName(regionCode);
+            return ResponseEntity.ok(guestService.getRecruitmentListBySigungu(sigunguName, date, status, pageable));
+        }
         String effectiveRegion = region;
         if (regionSido != null && regionSigungu != null) {
             effectiveRegion = regionSido + " " + regionSigungu;
@@ -69,9 +77,15 @@ public class GuestController {
     public ResponseEntity<Page<GuestDto.ListResponse>> getRecruitmentsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            String sigunguName = regionCodeService.resolveRegionName(regionCode);
+            return ResponseEntity.ok(guestService.getRecruitmentsByDateRangeBySigungu(startDate, endDate, sigunguName, pageable));
+        }
         String effectiveRegion = null;
         if (regionSido != null && regionSigungu != null) {
             effectiveRegion = regionSido + " " + regionSigungu;

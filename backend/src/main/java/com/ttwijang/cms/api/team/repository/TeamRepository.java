@@ -49,4 +49,15 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
     Page<Team> findActiveByRegion(@Param("sido") String sido, 
                                    @Param("sigungu") String sigungu, 
                                    Pageable pageable);
+
+    /**
+     * 시/군/구 이름으로 팀 조회 (도 필터 없이)
+     */
+    @Query("SELECT t FROM Team t WHERE t.status = 'ACTIVE' AND t.regionSigungu = :sigungu")
+    Page<Team> findActiveBySigungu(@Param("sigungu") String sigungu, Pageable pageable);
+
+    /**
+     * 시/군/구 이름으로 모집 중인 팀 조회 (도 필터 없이)
+     */
+    Page<Team> findByRecruitingMembersTrueAndRegionSigungu(String sigungu, Pageable pageable);
 }

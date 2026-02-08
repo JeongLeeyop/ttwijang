@@ -2491,73 +2491,50 @@
 
 .mypage-page .profile-header {
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: start;
-  position: relative;
-}
-
-.mypage-page.profile-image-wrapper {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.mypage-page .profile-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #061da1;
-}
-
-.mypage-page .profile-badge {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #ffd700;
-  color: #061da1;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 20px;
-  border: 2px solid #fff;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .mypage-page .profile-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   text-align: left;
 }
 
 .mypage-page .profile-name {
   margin: 0;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #1a1a1a;
+  line-height: 1.2;
 }
 
-.mypage-page .profile-email {
-  margin: 0;
-  font-size: 13px;
+.mypage-page .profile-name-suffix {
+  font-size: 20px;
+  font-weight: 400;
   color: #666;
+  margin-left: 2px;
 }
 
 .mypage-page .profile-edit-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 20px;
-  color: #0a24a0;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #fff;
+  background: #ff8202;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 600;
+  min-width: 90px;
 }
 
 .mypage-page .profile-edit-btn:hover {
-  transform: scale(1.2);
-  color: #042d80;
+  background: #e67400;
 }
 
 /* Stats Row Section */
@@ -2730,18 +2707,15 @@
 }
 
 .wallet-btn {
-  flex: 1;
-  padding: 10px 12px;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 90px;
 }
 
 .charge-btn {
@@ -2750,7 +2724,7 @@
 }
 
 .charge-btn:hover {
-  background: #3eb8b0;
+  background: #e67400;
 }
 
 .exchange-btn {

@@ -75,4 +75,22 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
             @Param("sido") String sido,
             @Param("sigungu") String sigungu,
             Pageable pageable);
+
+    /**
+     * 시/군/구 이름으로 상태별 조회 (도 필터 없이)
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE m.status = :status AND m.regionSigungu = :sigungu")
+    Page<FutsalMatch> findByStatusAndSigungu(@Param("status") FutsalMatch.FutsalMatchStatus status,
+                                              @Param("sigungu") String sigungu,
+                                              Pageable pageable);
+
+    /**
+     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이)
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE m.matchDate BETWEEN :startDate AND :endDate AND m.regionSigungu = :sigungu")
+    Page<FutsalMatch> findByMatchDateBetweenAndRegionSigungu(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("sigungu") String sigungu,
+            Pageable pageable);
 }

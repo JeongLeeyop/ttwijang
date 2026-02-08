@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ttwijang.cms.api.team.dto.TeamDto;
 import com.ttwijang.cms.api.team.dto.TeamMemberDto;
 import com.ttwijang.cms.api.team.service.TeamService;
+import com.ttwijang.cms.api.region.service.RegionCodeService;
 import com.ttwijang.cms.oauth.SinghaUser;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class TeamController {
 
     private final TeamService teamService;
+    private final RegionCodeService regionCodeService;
 
     @Operation(summary = "팀 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
@@ -56,11 +58,17 @@ public class TeamController {
     @Operation(summary = "팀 목록 조회")
     @GetMapping
     public ResponseEntity<Page<TeamDto.ListResponse>> getTeamList(
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) Boolean recruiting,
             @PageableDefault(direction = Direction.DESC, sort = "createdDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            String sigunguName = regionCodeService.resolveRegionName(regionCode);
+            return ResponseEntity.ok(teamService.getTeamListBySigungu(sigunguName, recruiting, pageable));
+        }
         String effectiveRegion = region;
         if (regionSido != null && regionSigungu != null) {
             effectiveRegion = regionSido + " " + regionSigungu;

@@ -198,7 +198,7 @@ export default class extends Vue {
       if (response && response.data) {
         this.regionOptions = response.data.map((region: Region) => ({
           label: region.name,
-          value: region.name, // DB에 한글 이름으로 저장되므로 name 사용
+          value: region.code, // 코드값으로 검색하도록 변경
           code: region.code,
         }));
       }
@@ -213,19 +213,33 @@ export default class extends Vue {
   }
 
   private initializeSelectedRegion(): void {
-    // localStorage에서 선택된 지역 가져오기
+    // localStorage에서 선택된 지역 코드 가져오기
     const savedRegion = localStorage.getItem(storageKey.selectedRegion);
     if (savedRegion) {
-      // 저장된 지역이 옵션 목록에 있는지 확인
+      // 저장된 지역 코드가 옵션 목록에 있는지 확인
       const isValid = this.regionOptions.some((opt) => opt.value === savedRegion);
-      this.selectedRegion = isValid ? savedRegion : '진주시';
+      if (isValid) {
+        this.selectedRegion = savedRegion;
+      } else {
+        // 기존 한글 이름이 저장되어 있는 경우 코드로 변환 시도
+        const matchByName = this.regionOptions.find((opt) => opt.label === savedRegion);
+        this.selectedRegion = matchByName
+          ? matchByName.value
+          : this.getDefaultRegionCode();
+      }
     } else {
-      // 저장된 지역이 없으면 기본값으로 진주시 설정
-      this.selectedRegion = '진주시';
+      // 저장된 지역이 없으면 기본값으로 진주시 코드 설정
+      this.selectedRegion = this.getDefaultRegionCode();
     }
     localStorage.setItem(storageKey.selectedRegion, this.selectedRegion);
     // 초기 로드 시에도 region-change 이벤트 발생
     this.$emit('region-change', this.selectedRegion);
+  }
+
+  private getDefaultRegionCode(): string {
+    // 진주시 코드를 옵션에서 찾기
+    const jinju = this.regionOptions.find((opt) => opt.label === '진주시');
+    return jinju ? jinju.value : (this.regionOptions.length > 0 ? this.regionOptions[0].value : '');
   }
 }
 </script>

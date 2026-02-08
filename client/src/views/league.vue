@@ -264,8 +264,7 @@ export default class extends Vue {
         size: 10,
       };
       if (this.selectedRegion) {
-        leagueParams.regionSido = '경남';
-        leagueParams.regionSigungu = this.selectedRegion;
+        leagueParams.regionCode = this.selectedRegion;
       }
 
       const leagueResponse = await getLeagueList(leagueParams);
@@ -304,8 +303,7 @@ export default class extends Vue {
         size: 10,
       };
       if (this.selectedRegion) {
-        teamParams.regionSido = '경남';
-        teamParams.regionSigungu = this.selectedRegion;
+        teamParams.regionCode = this.selectedRegion;
       }
       const recruitingTeamsResponse = await getTeamList(teamParams);
       const teams = recruitingTeamsResponse.data?.content || [];

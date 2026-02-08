@@ -2,6 +2,7 @@ import request from '@/utils/request';
 
 // 팀 목록 조회
 export function getTeamList(params?: {
+  regionCode?: string
   region?: string
   regionSido?: string
   regionSigungu?: string

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ttwijang.cms.api.league.dto.LeagueDto;
 import com.ttwijang.cms.api.league.service.LeagueService;
+import com.ttwijang.cms.api.region.service.RegionCodeService;
 import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.oauth.SinghaUser;
 
@@ -30,14 +31,21 @@ import lombok.RequiredArgsConstructor;
 public class LeagueController {
 
     private final LeagueService leagueService;
+    private final RegionCodeService regionCodeService;
 
     @Operation(summary = "리그 목록 조회 (BR-04: 지역별 리그 전환)")
     @GetMapping
     public ResponseEntity<Page<LeagueDto.ListResponse>> getLeagueList(
+            @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
             @RequestParam(required = false) League.LeagueStatus status,
             @PageableDefault(direction = Direction.DESC, sort = "createdDate") Pageable pageable) {
+        // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
+        if (regionCode != null && !regionCode.isEmpty()) {
+            regionSigungu = regionCodeService.resolveRegionName(regionCode);
+            regionSido = null;
+        }
         return ResponseEntity.ok(leagueService.getLeagueList(regionSido, regionSigungu, status, pageable));
     }
 

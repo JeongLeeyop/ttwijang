@@ -55,4 +55,23 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
             @Param("sido") String sido,
             @Param("sigungu") String sigungu,
             Pageable pageable);
+
+    /**
+     * 시/군/구 이름으로 상태별 조회 (도 필터 없이)
+     */
+    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.status = :status AND gr.regionSigungu = :sigungu")
+    Page<GuestRecruitment> findByStatusAndSigungu(
+            @Param("status") GuestRecruitment.RecruitmentStatus status,
+            @Param("sigungu") String sigungu,
+            Pageable pageable);
+
+    /**
+     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이)
+     */
+    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.matchDate BETWEEN :startDate AND :endDate AND gr.regionSigungu = :sigungu")
+    Page<GuestRecruitment> findByMatchDateBetweenAndRegionSigungu(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("sigungu") String sigungu,
+            Pageable pageable);
 }
