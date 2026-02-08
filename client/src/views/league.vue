@@ -6,9 +6,25 @@
       <!-- Team Cards Section -->
       <div v-show="currentView === 'main'" class="team-section">
         <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
-        <div v-if="isLoading && upcomingMatchCards.length === 0" class="loading-container">
+        <div v-if="isLoading && upcomingMatchCards.length === 0 && banners.length === 0" class="loading-container">
           <i class="el-icon-loading"></i> 로딩 중...
         </div>
+        <!-- 배너 우선 표시 -->
+        <VueSlickCarousel
+          v-else-if="banners.length > 0"
+          v-bind="slickOptions"
+          class="team-cards-container banner-carousel"
+        >
+          <div
+            v-for="(banner, index) in banners"
+            :key="banner.uid"
+            class="banner-card"
+            @click="handleBannerClick(banner)"
+          >
+            <img :src="banner.imageUrl" :alt="banner.title" class="banner-image">
+          </div>
+        </VueSlickCarousel>
+        <!-- 배너 없으면 매치 카드 표시 -->
         <VueSlickCarousel
           v-else-if="upcomingMatchCards.length > 0"
           v-bind="slickOptions"
@@ -44,7 +60,7 @@
           </div>
         </VueSlickCarousel>
         <div v-else class="empty-message">
-          예정된 리그 경기가 없습니다.
+          예정된 배너 및 리그 경기가 없습니다.
         </div>
       </div>
 
@@ -178,8 +194,18 @@ import {
   getLeagueList, getLeagueTeams, LeagueTeamResponse, getUpcomingLeagueMatches,
 } from '@/api/league';
 import { getTeamList } from '@/api/team';
+import { getActiveBanners } from '@/api/banner';
 import LeagueScheduleView from '@/components/league/LeagueScheduleView.vue';
 import LeagueStatusView from '@/components/league/LeagueStatusView.vue';
+
+interface Banner {
+  uid: string
+  title: string
+  imageUrl: string
+  linkUrl?: string
+  displayOrder: number
+  targetPage: string
+}
 
 interface UpcomingMatchCard {
   uid: string
@@ -257,6 +283,8 @@ export default class extends Vue {
 
   private isLoading = false
 
+  private banners: Banner[] = []
+
   private leagueParticipatingTeams: JoinTeam[] = []
 
   private recruitingTeams: JoinTeam[] = []
@@ -277,7 +305,51 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 0. 다가오는 리그 경기 조회 (지역 필터 적용)
+      // 0. 배너 조회 (샘플 데이터 사용)
+      this.banners = [
+        {
+          uid: 'banner-sample-1',
+          title: '2026 봄 시즌 리그 참가 모집',
+          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          linkUrl: '/league',
+          displayOrder: 1,
+          targetPage: 'LEAGUE',
+        },
+        {
+          uid: 'banner-sample-2',
+          title: '진주 풋살장 오픈 기념 이벤트',
+          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          linkUrl: 'https://example.com/event',
+          displayOrder: 2,
+          targetPage: 'LEAGUE',
+        },
+        {
+          uid: 'banner-sample-3',
+          title: '뛰장 리그 우승팀 시상식',
+          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          linkUrl: '/league-status',
+          displayOrder: 3,
+          targetPage: 'LEAGUE',
+        },
+        {
+          uid: 'banner-sample-4',
+          title: '신규 회원 가입 이벤트',
+          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          linkUrl: '/join',
+          displayOrder: 4,
+          targetPage: 'LEAGUE',
+        },
+        {
+          uid: 'banner-sample-5',
+          title: '팀 매칭 서비스 오픈!',
+          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          linkUrl: '/match',
+          displayOrder: 5,
+          targetPage: 'LEAGUE',
+        },
+      ];
+
+      // 1. 다가오는 리그 경기 조회 (지역 필터 적용)
       const upcomingParams: any = {
         limit: 20,
       };
@@ -303,7 +375,7 @@ export default class extends Vue {
         };
       });
 
-      // 1. 리그 목록 조회 (지역 필터 적용)
+      // 2. 리그 목록 조회 (지역 필터 적용)
       const leagueParams: any = {
         status: 'IN_PROGRESS',
         page: 0,
@@ -630,6 +702,22 @@ export default class extends Vue {
   private navigateToTeam(teamUid: string): void {
     this.$router.push(`/team/${teamUid}`);
   }
+
+  private async resolveRegionName(regionCode: string): Promise<string> {
+    // 간단하게 localStorage나 API에서 가져온 지역명 사용
+    // 실제로는 RegionCodeService처럼 코드 → 이름 변환 필요
+    return '진주시'; // 임시
+  }
+
+  private handleBannerClick(banner: Banner): void {
+    if (banner.linkUrl) {
+      if (banner.linkUrl.startsWith('http')) {
+        window.open(banner.linkUrl, '_blank');
+      } else {
+        this.$router.push(banner.linkUrl);
+      }
+    }
+  }
 }
 </script>
 
@@ -743,5 +831,40 @@ export default class extends Vue {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 배너 스타일 */
+.banner-carousel {
+  margin-bottom: 20px;
+}
+
+.banner-card {
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.banner-card:hover {
+  transform: scale(1.02);
+}
+
+.banner-image {
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-title {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
 }
 </style>
