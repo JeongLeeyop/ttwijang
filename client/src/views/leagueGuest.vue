@@ -5,42 +5,47 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">추천 매치를 확인해 보세요!</h2>
+        <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
+        <div v-if="isLoading && upcomingMatchCards.length === 0" class="loading-container">
+          <i class="el-icon-loading"></i> 로딩 중...
+        </div>
         <VueSlickCarousel
-          v-if="teamCards.length > 0"
+          v-else-if="upcomingMatchCards.length > 0"
           v-bind="slickOptions"
           class="team-cards-container"
         >
           <div
-            v-for="(team, index) in teamCards"
+            v-for="(match, index) in upcomingMatchCards"
             :key="index"
             class="team-card"
           >
             <div class="team-card-left">
-              <img :src="team.logo" :alt="team.name" class="team-logo">
+              <div class="match-vs">
+                <img :src="match.homeTeamLogo" :alt="match.homeTeamName" class="team-logo">
+                <span class="vs-badge">VS</span>
+                <img :src="match.awayTeamLogo" :alt="match.awayTeamName" class="team-logo">
+              </div>
             </div>
             <div class="team-card-right">
               <div class="team-tags">
-                <span class="tag">{{ team.positionLabel }}</span>
-                <span class="tag">매너 {{ team.manner }}점</span>
-                <span class="tag">{{ team.feeLabel }}</span>
+                <span class="tag">{{ match.leagueName }}</span>
+                <span v-if="match.round" class="tag">{{ match.round }}R</span>
+              </div>
+              <div class="match-teams-names">
+                {{ match.homeTeamName }} vs {{ match.awayTeamName }}
               </div>
               <div class="team-match-info">
-                {{ team.matchDate }} ({{ team.matchDay }}) {{ team.matchTime }}
+                {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
               </div>
-              <div class="guest-location-row">
-                <div class="guest-location">
-                  <span>{{ team.location }}</span>
-                  <i class="el-icon-arrow-right"></i>
-                </div>
-                <div class="guest-members" v-if="team.currentMembers !== undefined && team.maxMembers !== undefined">
-                  <i class="el-icon-user"></i>
-                  <span>{{ team.currentMembers }} / {{ team.maxMembers }}</span>
-                </div>
+              <div class="team-location">
+                {{ match.stadiumName }} <i class="el-icon-arrow-right"></i>
               </div>
             </div>
           </div>
         </VueSlickCarousel>
+        <div v-else class="empty-message">
+          예정된 리그 경기가 없습니다.
+        </div>
       </div>
 
       <!-- League Schedule Section -->
@@ -80,6 +85,7 @@
                 :key="index"
                 class="team-card"
                 :class="{ 'recruitment-closed': guest.isRecruitmentClosed }"
+                @click="goToGuestDetail(guest)"
               >
                 <div class="team-card-left">
                   <img :src="guest.logo" :alt="guest.name" class="team-logo">
@@ -135,6 +141,21 @@ import {
   getGuestRecruitmentsByDateRange,
   getGuestRecruitmentList,
 } from '@/api/guest';
+import { getUpcomingLeagueMatches } from '@/api/league';
+
+interface UpcomingMatchCard {
+  uid: string
+  leagueName: string
+  homeTeamName: string
+  homeTeamLogo: string
+  awayTeamName: string
+  awayTeamLogo: string
+  matchDate: string
+  matchDay: string
+  matchTime: string
+  stadiumName: string
+  round?: number
+}
 
 interface TeamCard {
   name: string
@@ -154,15 +175,22 @@ interface GuestItem {
   uid: string
   name: string
   logo: string
-  positionLabel: string
-  manner: number
-  feeLabel: string
-  guaranteedLabel: string
-  matchDate: string
-  matchDay: string
-  matchTime: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  goals: number
+  conceded: number
+  difference: number
+}
+
+interface Match {
+  uid: string
+  date: string
+  day: string
+  time: string
   location: string
-  date: Date
   teamLogo: string | null
   currentMembers: number
   maxMembers: number
@@ -193,21 +221,28 @@ export default class extends Vue {
     return `${this.currentYear}.${String(this.currentMonthIndex + 1).padStart(2, '0')}`;
   }
 
-  private slickOptions = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    centerMode: true,
-    centerPadding: '20px',
-    swipeToSlide: true,
-    touchThreshold: 5,
-    initialSlide: 0,
-    variableWidth: true,
-    autoPlay: true,
+  get slickOptions() {
+    return {
+      dots: true,
+      infinite: this.upcomingMatchCards.length > 1,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: false,
+      centerMode: true,
+      centerPadding: '60px',
+      swipeToSlide: true,
+      touchThreshold: 5,
+      initialSlide: 0,
+      variableWidth: false,
+      autoplay: this.upcomingMatchCards.length > 1,
+      autoplaySpeed: 3000,
+      draggable: true,
+      swipe: true,
+    };
   }
+
+  private upcomingMatchCards: UpcomingMatchCard[] = []
 
   private teamCards: TeamCard[] = []
 
@@ -240,7 +275,7 @@ export default class extends Vue {
     this.isLoading = true;
     try {
       await Promise.all([
-        this.loadTeamCards(),
+        this.loadUpcomingMatches(),
         this.loadGuestData(),
       ]);
     } catch (error) {
@@ -250,38 +285,35 @@ export default class extends Vue {
     }
   }
 
-  private async loadTeamCards(): Promise<void> {
+  private async loadUpcomingMatches(): Promise<void> {
     try {
-      const params: any = {
-        status: 'RECRUITING',
+      const upcomingParams: any = {
+        limit: 20,
       };
       if (this.selectedRegion) {
-        params.regionCode = this.selectedRegion;
+        upcomingParams.regionCode = this.selectedRegion;
       }
-      const response = await getGuestRecruitmentList(params);
-      const recruitments = response.data?.content || response.data || [];
-
-      this.teamCards = recruitments.slice(0, 5).map((guest: any) => {
-        const matchDate = new Date(guest.matchDate);
-        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-
+      const upcomingResponse = await getUpcomingLeagueMatches(upcomingParams);
+      const upcomingMatches = upcomingResponse.data || [];
+      this.upcomingMatchCards = upcomingMatches.map((m: any): UpcomingMatchCard => {
+        const dateInfo = this.formatMatchDate(m.matchDate);
         return {
-          name: guest.teamName || '팀',
-          logo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
-          manner: guest.teamMannerScore || 0,
-          positionLabel: this.formatPositionType(guest.positionType),
-          feeLabel: this.formatFee(guest.fee),
-          matchDate: this.formatDate(guest.matchDate),
-          matchDay: dayNames[matchDate.getDay()],
-          matchTime: this.formatTime(guest.matchTime),
-          location: guest.stadiumName || '',
-          currentMembers: guest.currentGuests || 0,
-          maxMembers: guest.maxGuests || 0,
+          uid: m.uid,
+          leagueName: m.leagueName || '',
+          homeTeamName: m.homeTeamName || '',
+          homeTeamLogo: m.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.homeTeamName || 'H').substring(0, 2))}&background=061da1&color=fff&size=60`,
+          awayTeamName: m.awayTeamName || '',
+          awayTeamLogo: m.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.awayTeamName || 'A').substring(0, 2))}&background=ff6600&color=fff&size=60`,
+          matchDate: dateInfo.date,
+          matchDay: dateInfo.day,
+          matchTime: this.formatMatchTime(m.matchTime),
+          stadiumName: m.stadiumName || '',
+          round: m.round,
         };
       });
     } catch (error) {
-      console.warn('추천 카드 로드 실패:', error);
-      this.teamCards = [];
+      console.warn('리그 일정 로드 실패:', error);
+      this.upcomingMatchCards = [];
     }
   }
 
@@ -376,6 +408,29 @@ export default class extends Vue {
     return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
   }
 
+  private formatMatchDate(dateStr: string): { date: string, day: string } {
+    if (!dateStr) return { date: '', day: '' };
+    const date = new Date(dateStr);
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return {
+      date: `${month}월 ${day}일`,
+      day: dayNames[date.getDay()],
+    };
+  }
+
+  private formatMatchTime(timeStr: string): string {
+    if (!timeStr) return '';
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return timeStr;
+    const hour = parseInt(parts[0], 10);
+    const minute = parts[1];
+    const period = hour < 12 ? 'Am' : 'Pm';
+    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+    return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
+  }
+
   private getTeamLogo(teamName: string): string {
     if (!teamName) return 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=60';
     const initials = teamName.slice(0, 2);
@@ -429,7 +484,22 @@ export default class extends Vue {
     }
   }
 
-  get filteredGuests(): GuestItem[] {
+  private navigateToMatchDetail(match: Match): void {
+    this.$router.push({
+      path: `/match-detail/${match.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  private goToGuestDetail(guest: any): void {
+    if (guest.isRecruitmentClosed) return;
+    this.$router.push({
+      path: `/match-detail/${guest.uid}`,
+      query: { type: 'guest' },
+    });
+  }
+
+  get filteredGuests(): any[] {
     return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
   }
 
@@ -479,5 +549,69 @@ export default class extends Vue {
   padding: 40px 20px;
   color: #999;
   font-size: 14px;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.loading-container i {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.match-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.match-vs .team-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.vs-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6600;
+  background: rgba(255, 102, 0, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.match-teams-names {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.team-location i {
+  font-size: 12px;
 }
 </style>

@@ -15,21 +15,21 @@ module.exports = {
     port: devPort,
     proxy: {
       [process.env.VUE_APP_COMMON_API]: {
-        target: 'http://localhost:8081/api',
+        target: 'http://localhost:8080/api',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_COMMON_API}`]: '',
         },
       },
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8081/api',
+        target: 'http://localhost:8080/api',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_BASE_API}`]: '',
         },
       },
       [process.env.VUE_APP_OAUTH_API]: {
-        target: 'http://localhost:8081/oauth',
+        target: 'http://localhost:8080/oauth',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_OAUTH_API}`]: '',

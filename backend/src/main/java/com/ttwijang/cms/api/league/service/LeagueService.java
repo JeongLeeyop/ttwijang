@@ -423,6 +423,26 @@ public class LeagueService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 지역별 다가오는 리그 경기 조회 (모든 리그 통합)
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.MatchResponse> getUpcomingMatchesByRegion(String regionSigungu, int limit) {
+        LocalDate today = LocalDate.now();
+        Pageable pageable = PageRequest.of(0, limit);
+        List<LeagueMatch> matches;
+
+        if (regionSigungu != null && !regionSigungu.isEmpty()) {
+            matches = leagueMatchRepository.findUpcomingByRegionSigungu(regionSigungu, today, pageable);
+        } else {
+            matches = leagueMatchRepository.findUpcomingAll(today, pageable);
+        }
+
+        return matches.stream()
+                .map(this::toMatchResponse)
+                .collect(Collectors.toList());
+    }
+
     private LeagueDto.ListResponse toListResponse(League league) {
         return LeagueDto.ListResponse.builder()
                 .uid(league.getUid())
@@ -438,10 +458,12 @@ public class LeagueService {
     private LeagueDto.MatchResponse toMatchResponse(LeagueMatch match) {
         Team homeTeam = teamRepository.findByUid(match.getHomeTeamUid()).orElse(null);
         Team awayTeam = teamRepository.findByUid(match.getAwayTeamUid()).orElse(null);
+        League league = leagueRepository.findByUid(match.getLeagueUid()).orElse(null);
 
         return LeagueDto.MatchResponse.builder()
                 .uid(match.getUid())
                 .leagueUid(match.getLeagueUid())
+                .leagueName(league != null ? league.getName() : "")
                 .homeTeamUid(match.getHomeTeamUid())
                 .homeTeamName(homeTeam != null ? homeTeam.getName() : "")
                 .awayTeamUid(match.getAwayTeamUid())

@@ -15,15 +15,27 @@
         <section class="stats-row-section">
           <div class="stat-button">
             <div class="stat-label">매너점수</div>
-            <div class="stat-value">{{ userStats.mannerscore }}</div>
+            <div class="stat-value">
+              <i v-if="isLoadingStats" class="el-icon-loading"></i>
+              <span v-else>{{ userStats.mannerscore }}</span>
+            </div>
           </div>
           <div class="stat-button">
-            <div class="stat-label">{{ userStats.teamLabel }}</div>
-            <div class="stat-value">{{ userStats.team }}</div>
+            <div class="stat-label">
+              <i v-if="isLoadingTeam" class="el-icon-loading"></i>
+              <span v-else>{{ userStats.teamLabel }}</span>
+            </div>
+            <div class="stat-value">
+              <i v-if="isLoadingTeam" class="el-icon-loading"></i>
+              <span v-else>{{ userStats.team }}</span>
+            </div>
           </div>
           <div class="stat-button">
             <div class="stat-label">참여 경기수</div>
-            <div class="stat-value">{{ userStats.matches }}</div>
+            <div class="stat-value">
+              <i v-if="isLoadingMatches" class="el-icon-loading"></i>
+              <span v-else>{{ userStats.matches }}</span>
+            </div>
           </div>
         </section>
 
@@ -190,6 +202,12 @@ export default class MyPage extends Vue {
 
   private isLoading = false;
 
+  private isLoadingStats = true;
+
+  private isLoadingTeam = true;
+
+  private isLoadingMatches = true;
+
   async mounted() {
     // 마이페이지 헤더 배경색 설정을 위한 클래스 추가
     const mainLayout = document.querySelector('.main-layout');
@@ -276,7 +294,11 @@ export default class MyPage extends Vue {
         } catch (mannerError) {
           console.warn('매너 점수 로드 실패:', mannerError);
           this.userStats.mannerscore = 0;
+        } finally {
+          this.isLoadingStats = false;
         }
+      } else {
+        this.isLoadingStats = false;
       }
 
       // 지갑 정보 로드
@@ -323,6 +345,8 @@ export default class MyPage extends Vue {
         console.warn('팀 정보 로드 실패:', teamError);
         this.userStats.team = '-';
         this.userStats.teamLabel = '소속 팀';
+      } finally {
+        this.isLoadingTeam = false;
       }
 
       // 참여 경기수 로드
@@ -333,6 +357,8 @@ export default class MyPage extends Vue {
         }
       } catch (matchError) {
         console.warn('경기 정보 로드 실패:', matchError);
+      } finally {
+        this.isLoadingMatches = false;
       }
     } catch (error) {
       console.error('사용자 데이터 로드 실패:', error);
