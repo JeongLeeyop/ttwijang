@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    <div class="footer-item">
+    <router-link to="/league" class="footer-item" :class="{ 'active': isActive('league') }">
       <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
         <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <path d="M12 2 L12 22 M2 12 L22 12" stroke="currentColor" stroke-width="1"/>
@@ -8,19 +8,19 @@
         <path d="M5 7 Q8 12 5 17 M19 7 Q16 12 19 17" fill="none" stroke="currentColor" stroke-width="1"/>
       </svg>
       <span>리그</span>
-    </div>
-    <div class="footer-item">
+    </router-link>
+    <router-link to="/match" class="footer-item" :class="{ 'active': isActive('match') }">
       <svg class="footer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="5" width="18" height="14" rx="2"/>
         <path d="M3 10 L21 10"/>
         <circle cx="12" cy="14" r="2" fill="currentColor"/>
       </svg>
       <span>매치</span>
-    </div>
-    <div class="footer-item footer-home" @click="goHome">
+    </router-link>
+    <router-link to="/" class="footer-item footer-home" :class="{ 'active': isActive('home') }">
       <i class="el-icon-s-home"></i>
-    </div>
-    <div class="footer-item">
+    </router-link>
+    <router-link to="/league-guest" class="footer-item" :class="{ 'active': isActive('guest') }">
       <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
         <circle cx="12" cy="7" r="3"/>
         <path d="M12 12 C8 12 5 14 5 17 L19 17 C19 14 16 12 12 12 Z"/>
@@ -30,11 +30,11 @@
         <path d="M18 12 C20.5 12 22 13.5 22 15.5 L17 15.5" opacity="0.7"/>
       </svg>
       <span>게스트</span>
-    </div>
-    <div class="footer-item">
+    </router-link>
+    <router-link to="/mypage" class="footer-item" :class="{ 'active': isActive('mypage') }">
       <i class="el-icon-user-solid"></i>
       <span>MY</span>
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -43,8 +43,22 @@ import { Vue, Component } from 'vue-property-decorator';
 
 @Component
 export default class FooterNav extends Vue {
-  private goHome(): void {
-    this.$router.push('/');
+  private isActive(section: string): boolean {
+    const path = this.$route.path;
+    switch (section) {
+      case 'league':
+        return path === '/league' || path === '/league-status' || path === '/league-schedule';
+      case 'match':
+        return path === '/match';
+      case 'home':
+        return path === '/' || path === '';
+      case 'guest':
+        return path === '/league-guest';
+      case 'mypage':
+        return path === '/mypage';
+      default:
+        return false;
+    }
   }
 }
 </script>
@@ -73,6 +87,7 @@ export default class FooterNav extends Vue {
     gap: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
 
     i {
       font-size: 30px;
@@ -91,6 +106,12 @@ export default class FooterNav extends Vue {
     }
 
     &:hover {
+      i, span, .footer-icon {
+        color: #061da1;
+      }
+    }
+
+    &.active {
       i, span, .footer-icon {
         color: #061da1;
       }

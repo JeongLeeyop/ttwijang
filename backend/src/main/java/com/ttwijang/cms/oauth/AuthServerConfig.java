@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -44,9 +45,12 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Qualifier("oauth")
     private DataSource dataSourceOAuth;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer configurer) throws Exception {
-        configurer.jdbc(dataSourceOAuth);
+        configurer.jdbc(dataSourceOAuth).passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -62,8 +66,10 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        security.checkTokenAccess("isAuthenticated()").tokenKeyAccess("permitAll()");
-
+        security
+            .tokenKeyAccess("permitAll()")
+            .checkTokenAccess("isAuthenticated()")
+            .allowFormAuthenticationForClients();  // Form 기반 client 인증 허용
     }
 
     @Bean

@@ -52,18 +52,21 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http
+			.httpBasic().disable()  // HTTP Basic Authentication 비활성화
+			.csrf().disable()       // CSRF 비활성화
 			.headers().frameOptions().disable()
 			.and()
 			.authorizeRequests()
+			.antMatchers("/oauth/**").permitAll()  // 모든 OAuth 엔드포인트 허용
 			.antMatchers("/api/attached-file/**").permitAll()
 			.antMatchers("/api/post/upload").permitAll()
 			.antMatchers("/api/client/**").permitAll()
-			.antMatchers("/oauth/naver/login").permitAll()
-			.antMatchers("/oauth/naver/me").permitAll()
-			.antMatchers("/oauth/naver/access").permitAll()
-			.antMatchers("/oauth/apple/login").permitAll()
 			.antMatchers("/api/bank/info").permitAll()
 			.antMatchers("/api/admin/**").permitAll()
+			.antMatchers("/swagger-ui/**").permitAll()
+			.antMatchers("/swagger-ui.html").permitAll()
+			.antMatchers("/api-docs/**").permitAll()
+			.antMatchers("/v3/api-docs/**").permitAll()
 			.anyRequest().authenticated();
 	}
 }
