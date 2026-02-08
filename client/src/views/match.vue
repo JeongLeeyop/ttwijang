@@ -196,6 +196,8 @@ interface Match {
   awayScore?: number
 }
 
+type TeamCard = any
+
 @Component({
   components: {
     VueSlickCarousel,
@@ -264,72 +266,6 @@ export default class extends Vue {
   private recentMatches: Match[] = []
 
   private upcomingMatches: Match[] = []
-
-  private toggleLeagueStatus(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
-  }
-
-  private toggleLeagueSection(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
-  }
-
-  private previousMonth(): void {
-    if (this.currentMonthIndex === 0) {
-      this.currentMonthIndex = 11;
-      this.currentYear -= 1;
-    } else {
-      this.currentMonthIndex -= 1;
-    }
-  }
-
-  private nextMonth(): void {
-    if (this.currentMonthIndex === 11) {
-      this.currentMonthIndex = 0;
-      this.currentYear += 1;
-    } else {
-      this.currentMonthIndex += 1;
-    }
-  }
-
-  private handleTouchStart(event: TouchEvent): void {
-    this.touchStartX = event.touches[0].clientX;
-  }
-
-  private handleTouchMove(event: TouchEvent): void {
-    this.touchEndX = event.touches[0].clientX;
-  }
-
-  private handleTouchEnd(): void {
-    const difference = this.touchStartX - this.touchEndX;
-    if (Math.abs(difference) > 50) {
-      // Swipe detected
-    }
-  }
-
-  private navigateToMatchDetail(match: Match): void {
-    this.$router.push({
-      path: `/match-detail/${match.uid}`,
-      query: { type: 'match' },
-    });
-  }
-
-  private goToMatchDetail(guest: any): void {
-    if (guest.isRecruitmentClosed) return;
-    this.$router.push({
-      path: `/match-detail/${guest.uid}`,
-      query: { type: 'guest' },
-    });
-  }
-
-  private guestData: any[] = []
-
-  private selectedDate: Date = new Date()
-
-  private selectedDay: number = new Date().getDate()
-
-  get filteredGuests(): any[] {
-    return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
-  }
 
   private isSameDate(date1: Date, date2: Date): boolean {
     return date1.getFullYear() === date2.getFullYear()

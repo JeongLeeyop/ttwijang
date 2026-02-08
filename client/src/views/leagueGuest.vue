@@ -183,6 +183,7 @@ interface GuestItem {
   goals: number
   conceded: number
   difference: number
+  date: Date
 }
 
 interface Match {
