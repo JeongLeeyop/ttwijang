@@ -558,7 +558,12 @@ export default class extends Vue {
     const hour = parseInt(parts[0], 10);
     const minute = parts[1];
     const period = hour < 12 ? 'Am' : 'Pm';
-    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+    let displayHour = hour;
+    if (hour > 12) {
+      displayHour = hour - 12;
+    } else if (hour === 0) {
+      displayHour = 12;
+    }
     return `${period} ${String(displayHour).padStart(2, '0')}:${minute}`;
   }
 
