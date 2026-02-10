@@ -33,7 +33,6 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-import homeFooter from '@/Layout/components/homeFooter.vue';
 import { UserModule } from '@/store/modules/user';
 import { getUserInfo } from '@/api/user';
 import { storageKey } from '@/enums/localStorage';
@@ -41,7 +40,6 @@ import { storageKey } from '@/enums/localStorage';
 @Component({
   components: {
     VueSlickCarousel,
-    homeFooter,
   },
 })
 
@@ -52,7 +50,6 @@ export default class extends Vue {
       (window as any).flutter_inappwebview.callHandler('fcmToken').then((result: any) => {
           this.fcmToken.token = result.fcmToken;
         });
-      // (window as any).flutter_inappwebview.callHandler('AppMessage', '############hello#############');
     });
     this.loginProcess();
   }

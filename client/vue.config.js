@@ -22,7 +22,7 @@ module.exports = {
         },
       },
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8080/api/client',
+        target: 'http://localhost:8080/api',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_BASE_API}`]: '',

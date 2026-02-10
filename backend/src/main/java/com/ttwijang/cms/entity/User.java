@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -95,46 +96,14 @@ public class User implements Serializable {
     // 가입여부
     private boolean joinStatus;
 
-    // 식단관리 경험 여부
-    private boolean dietExperience;
-
-    // 키
-    private String height;
-
-    // 체중
-    private String weight;
-
-    // 목표 체중
-    private String goalWeight;
-
-    // 목표달성 희망일자
-    private LocalDate goalDate;
-
-    // 활동수준(1: 비활동적, 2: 저활동적, 3: 활동적, 4: 매우 활동적)
-    private Integer activityLevel;
-
-    // 식단관리 목적
-    private String dietPurpose;
-
-    // 식단 제공 시 유의사항
-    private String dietPrecaution;
-
     // 마케팅 동의 여부
     private boolean marketingStatus;
 
-    // 상점 고유값(상점관리자 일때)
-    private Integer shopIdx;
-    
-    private Integer stationIdx;
-
     private Integer point;
-
-    private boolean registerInfoStatus;
-
-    private boolean missionInquiryStatus;
 
     // 등록일자
     @CreationTimestamp
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

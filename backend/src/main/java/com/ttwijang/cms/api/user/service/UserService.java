@@ -175,7 +175,6 @@ class UserServiceImpl implements UserService {
 		user.setJoinStatus(true);
 		user.setEnabled(true);
 		user.setNotLocked(true);
-		user.setShopIdx(shopIdx);
 		user.setPoint(0);
 		if (!userIdCheck(user.getUserId())) throw new UserDuplicateException("이미 사용중인 아이디 입니다.");
 

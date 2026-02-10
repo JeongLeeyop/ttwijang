@@ -39,7 +39,7 @@ import com.ttwijang.cms.oauth.SinghaUser;
 import lombok.AllArgsConstructor;
 
 public interface ClientUserService {
-    void join(ClientUserDto.join dto, SinghaUser authUser);
+void join(ClientUserDto.join dto);
 
     ClientUserDto.info info(SinghaUser authUser);
 
@@ -48,6 +48,14 @@ public interface ClientUserService {
 	void withdraw(ClientUserDto.withdraw dto, SinghaUser authUser);
 
 	Map<String, String> findLatLon(String address);
+
+	boolean checkPhoneNumberDuplicate(String phoneNumber);
+
+	String findEmailByPhoneNumber(String phoneNumber);
+
+	String requestPasswordReset(String email, String phoneNumber);
+
+	boolean resetPassword(String resetToken, String newPassword);
 }
 
 @Service
@@ -63,31 +71,82 @@ class ClientUserServiceImpl implements ClientUserService {
 	
 	private final UserFcmTokenRepository userFcmTokenRepository;
 
+	// 임시 비밀번호 재설정 토큰 저장소 (실제 운영환경에서는 Redis 등 사용 권장)
+	private final Map<String, PasswordResetToken> resetTokenStore = new HashMap<>();
+
+	// 비밀번호 재설정 토큰 내부 클래스
+	private static class PasswordResetToken {
+		private final String email;
+		private final String phoneNumber;
+		private final long expirationTime;
+
+		public PasswordResetToken(String email, String phoneNumber) {
+			this.email = email;
+			this.phoneNumber = phoneNumber;
+			this.expirationTime = System.currentTimeMillis() + (30 * 60 * 1000); // 30분 유효
+		}
+
+		public boolean isExpired() {
+			return System.currentTimeMillis() > expirationTime;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public String getPhoneNumber() {
+			return phoneNumber;
+		}
+	}
+
 	@Transactional
 	@Override
-	public void join(ClientUserDto.join dto, SinghaUser authUser) {
-		User user = authUser.getUser();
+	public void join(ClientUserDto.join dto) {
+		// 이메일 중복 체크
+		if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+			throw new BadRequestException(BadRequest.DUPLICATE_EMAIL);
+		}
 
-		if (user.isJoinStatus()) throw new BadRequestException(BadRequest.ALREADY_JOIN_USER);
+		// 휴대폰 번호 중복 체크
+		if (userRepository.existsByConcatNumber(dto.getConcatNumber())) {
+			throw new BadRequestException(BadRequest.DUPLICATE_PHONE_NUMBER);
+		}
 
-		user = ClientUserMapper.INSTANCE.joinDtoToEntity(dto, user);
+		// 새로운 User 엔티티 생성
+		User user = new User();
+		user.setUserId(dto.getEmail());
+		user.setEmail(dto.getEmail());
+		user.setUserPassword(dto.getPassword());
+		user.setEnabled(true);
+		user.setNotLocked(true);
 		user.setJoinStatus(true);
 		user.setPoint(0);
 
-		Map<String, String> map = this.findLatLon(user.getAddress());
-		if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
-		if(map.containsKey("Lon")) user.setLon(map.get("Lon"));
+		// DTO에서 데이터 매핑
+		user.setActualName(dto.getActualName());
+		user.setConcatNumber(dto.getConcatNumber());
+		user.setBirth(dto.getBirth());
+		user.setGender(dto.getGender());
+		user.setMarketingStatus(dto.isMarketingStatus());
+
+		// 주소 정보
+		if (dto.getPostCode() != null) user.setPostCode(dto.getPostCode());
+		if (dto.getAddress() != null) {
+			user.setAddress(dto.getAddress());
+			// 주소가 있을 경우에만 좌표 조회
+			Map<String, String> map = this.findLatLon(dto.getAddress());
+			if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
+			if(map.containsKey("Lon")) user.setLon(map.get("Lon"));
+		}
+		if (dto.getAddressDetail() != null) user.setAddressDetail(dto.getAddressDetail());
+		
 		userRepository.save(user);
 
+		// 사용자 권한 추가
 		UserRole userRole = new UserRole();
 		userRole.setUserUid(user.getUid());
 		userRole.setRoleCode("ROLE_USER");
 		userRoleRepository.save(userRole);
-
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("singha_oauth", user.getUserId());
-		for (OAuth2AccessToken token : tokens) {
-			tokenStore.removeAccessToken(token);
-		}
 	}
 
 	@Transactional
@@ -107,7 +166,6 @@ class ClientUserServiceImpl implements ClientUserService {
 		user = ClientUserMapper.INSTANCE.updateDtoToEntity(updateDto, user);
 		
 		user.setJoinStatus(true);
-		user.setRegisterInfoStatus(true);
 
 		Map<String, String> map = this.findLatLon(user.getAddress());
 		if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
@@ -199,5 +257,68 @@ class ClientUserServiceImpl implements ClientUserService {
         }
 		return null;
     }
+
+	@Override
+	public boolean checkPhoneNumberDuplicate(String phoneNumber) {
+		return userRepository.existsByConcatNumber(phoneNumber);
+	}
+
+	@Override
+	public String findEmailByPhoneNumber(String phoneNumber) {
+		User user = userRepository.findByConcatNumber(phoneNumber)
+			.orElseThrow(() -> new NotFoundException("해당 휴대폰 번호로 가입된 계정을 찾을 수 없습니다."));
+		return user.getEmail();
+	}
+
+	@Override
+	public String requestPasswordReset(String email, String phoneNumber) {
+		// 이메일과 휴대폰 번호로 사용자 조회
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new NotFoundException("해당 이메일로 가입된 계정을 찾을 수 없습니다."));
+
+		// 휴대폰 번호 일치 여부 확인
+		if (!user.getConcatNumber().equals(phoneNumber)) {
+			throw new BadRequestException(BadRequest.PASSWORD_RESET_MISMATCH);
+		}
+
+		// 재설정 토큰 생성 (UUID 사용)
+		String resetToken = java.util.UUID.randomUUID().toString();
+		resetTokenStore.put(resetToken, new PasswordResetToken(email, phoneNumber));
+
+		return resetToken;
+	}
+
+	@Transactional
+	@Override
+	public boolean resetPassword(String resetToken, String newPassword) {
+		// 토큰 검증
+		PasswordResetToken tokenData = resetTokenStore.get(resetToken);
+		if (tokenData == null) {
+			throw new BadRequestException(BadRequest.INVALID_RESET_TOKEN);
+		}
+
+		if (tokenData.isExpired()) {
+			resetTokenStore.remove(resetToken);
+			throw new BadRequestException(BadRequest.EXPIRED_RESET_TOKEN);
+		}
+
+		// 사용자 조회 및 비밀번호 변경
+		User user = userRepository.findByEmail(tokenData.getEmail())
+			.orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+
+		user.setUserPassword(newPassword);
+		userRepository.save(user);
+
+		// 사용된 토큰 삭제
+		resetTokenStore.remove(resetToken);
+
+		// 기존 토큰 무효화
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("singha_oauth", user.getUserId());
+		for (OAuth2AccessToken token : tokens) {
+			tokenStore.removeAccessToken(token);
+		}
+
+		return true;
+	}
 
 }

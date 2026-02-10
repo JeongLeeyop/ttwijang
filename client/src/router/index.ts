@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter, { Route, RouteConfig } from 'vue-router';
-import counsultView from '@/views/counsult/view.vue';
 import 'element-ui/lib/theme-chalk/index.css';
 import { UserModule } from '@/store/modules/user';
 import { PermissionModule } from '@/store/modules/permission';
@@ -75,6 +74,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/match.vue'),
 			},
+			{
+				path: 'team/:teamCode?',
+				name: 'TeamPage',
+				meta: {
+					title: '팀 페이지',
+				},
+				component: () => import('@/views/teamPage.vue'),
+			},
 		],
 	},
 	{
@@ -89,6 +96,14 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '경기 일정',
 				},
 				component: () => import('@/views/calendar.vue'),
+			},
+			{
+				path: '/match-detail/:uid',
+				name: 'MatchDetail',
+				meta: {
+					title: '경기 상세',
+				},
+				component: () => import('@/views/matchDetail.vue'),
 			},
 		],
 	},
@@ -176,6 +191,46 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '팀 생성 완료',
 				},
 				component: () => import('@/views/teamComplete.vue'),
+			},
+			{
+				path: '/match-create',
+				name: 'MatchCreate',
+				meta: {
+					title: '매치 일정 만들기',
+				},
+				component: () => import('@/views/MatchCreate.vue'),
+			},
+			{
+				path: '/guest-recruit',
+				name: 'GuestRecruit',
+				meta: {
+					title: '게스트 모집',
+				},
+				component: () => import('@/views/GuestRecruit.vue'),
+			},
+			{
+				path: '/profile-edit',
+				name: 'ProfileEdit',
+				meta: {
+					title: '프로필 수정',
+				},
+				component: () => import('@/views/profileEdit.vue'),
+			},
+			{
+				path: '/cash-charge',
+				name: 'CashCharge',
+				meta: {
+					title: '캐쉬 충전',
+				},
+				component: () => import('@/views/cashCharge.vue'),
+			},
+			{
+				path: '/cash-history',
+				name: 'CashHistory',
+				meta: {
+					title: '캐쉬 사용내역',
+				},
+				component: () => import('@/views/cashHistory.vue'),
 			},
 		],
 	},

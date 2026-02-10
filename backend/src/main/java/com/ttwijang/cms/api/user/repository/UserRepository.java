@@ -18,6 +18,8 @@ import com.ttwijang.cms.oauth.soical.SocialType;
 public interface UserRepository extends JpaRepository<User, String>, QuerydslPredicateExecutor<User>{
 	Optional<User> findByUserId(String userId);
 
+	Optional<User> findByEmail(String email);
+
 	Page<User> findAll(Predicate search, Pageable pageable);
 
 	Optional<User> findByUid(String uid);
@@ -29,5 +31,9 @@ public interface UserRepository extends JpaRepository<User, String>, QuerydslPre
     Optional<User> findByUserIdAndUserPassword(String username, String password);
 
     List<User> findAllByBirth(LocalDate birth);
+
+    Optional<User> findByConcatNumber(String concatNumber);
+
+    boolean existsByConcatNumber(String concatNumber);
 
 }

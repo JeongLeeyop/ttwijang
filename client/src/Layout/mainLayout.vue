@@ -1,7 +1,7 @@
 <template>
   <div class="main-layout">
-    <main-header />
-    <router-view :newAlarmCount="newAlarmCount" @child="refreshAlarm" />
+    <main-header @region-change="handleRegionChange" />
+    <router-view :key="$route.fullPath" :newAlarmCount="newAlarmCount" :selected-region="selectedRegion" @child="refreshAlarm" />
     <main-footer />
   </div>
 </template>
@@ -18,7 +18,19 @@ import MainFooter from './components/mainFooter.vue';
     MainFooter,
   },
 })
-export default class extends Vue {}
+export default class extends Vue {
+  private selectedRegion = ''
+
+  private newAlarmCount = 0
+
+  private handleRegionChange(region: string): void {
+    this.selectedRegion = region;
+  }
+
+  private refreshAlarm(): void {
+    // Placeholder for alarm refresh
+  }
+}
 </script>
 
 <style scoped>

@@ -19,7 +19,7 @@ service.interceptors.response.use(
   (error) => {
     const res = error.response;
     if (res.status === 401) {
-      window.location.replace('/login');
+      // window.location.replace('/login');
       return;
     }
     // alert(res.data.message || '사용자 요청을 실패했습니다.');
