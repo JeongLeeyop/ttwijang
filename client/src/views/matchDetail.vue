@@ -26,7 +26,7 @@
 
     <!-- Content -->
     <div v-else class="detail-content">
-      <!-- Hero Section: Stadium Image + Badge -->
+      <!-- Hero Section: Stadium Image + Badges -->
       <div class="hero-section">
         <div class="hero-image">
           <img
@@ -38,232 +38,402 @@
         </div>
         <div class="hero-badges">
           <span class="badge badge--type">{{ matchTypeBadge }}</span>
-          <span v-if="matchFormatBadge" class="badge badge--format">{{ matchFormatBadge }}</span>
-          <span v-if="statusBadge" class="badge badge--status" :class="statusBadgeClass">{{ statusBadge }}</span>
+          <span
+            v-if="matchFormatBadge"
+            class="badge badge--format"
+          >{{ matchFormatBadge }}</span>
         </div>
       </div>
 
-      <!-- Match Info Card -->
+      <!-- Date / Stadium / Fee Card -->
       <div class="info-card">
-        <div class="info-card__datetime">
+        <div class="info-row">
           <i class="el-icon-date"></i>
-          <span>{{ formattedDate }}</span>
-          <span v-if="formattedTime" class="info-card__time">{{ formattedTime }}</span>
+          <span>{{ formattedDateTime }}</span>
         </div>
-        <div class="info-card__stadium">
+        <div class="info-row">
           <i class="el-icon-location-outline"></i>
-          <span>{{ stadiumName }}</span>
+          <span class="stadium-name-text">{{ stadiumName }}</span>
         </div>
-        <div v-if="stadiumAddress" class="info-card__address">
+        <div
+          v-if="stadiumAddress"
+          class="info-row info-row--sub"
+        >
           <span>{{ stadiumAddress }}</span>
         </div>
-        <div v-if="displayFee !== null" class="info-card__fee">
-          <i class="el-icon-money"></i>
-          <span>{{ displayFee === 0 ? '무료' : `${displayFee.toLocaleString()}원` }}</span>
-          <span v-if="feeLabel" class="fee-label">{{ feeLabel }}</span>
+        <div
+          v-if="displayFee !== null"
+          class="info-row info-row--fee"
+        >
+          <span class="fee-value">{{ displayFee === 0 ? '무료' : `${displayFee.toLocaleString()}원` }}</span>
+          <span class="fee-label">/ {{ feeLabel }}</span>
+          <span
+            v-if="statusBadge"
+            class="status-chip"
+            :class="statusBadgeClass"
+          >{{ statusBadge }}</span>
         </div>
       </div>
 
-      <!-- ==================== 리그 매치 (FR-27) ==================== -->
+      <!-- =============== 리그 매치 =============== -->
       <template v-if="detailType === 'league'">
-        <div class="versus-section">
-          <div class="versus-team">
-            <img :src="homeTeamLogo" alt="홈팀" class="versus-logo">
-            <span class="versus-name">{{ homeTeamName }}</span>
-            <span v-if="homeScore !== null" class="versus-score">{{ homeScore }}</span>
-          </div>
-          <div class="versus-vs">
-            <span v-if="homeScore !== null && awayScore !== null">{{ homeScore }} : {{ awayScore }}</span>
-            <span v-else>VS</span>
-          </div>
-          <div class="versus-team">
-            <img :src="awayTeamLogo" alt="원정팀" class="versus-logo">
-            <span class="versus-name">{{ awayTeamName }}</span>
-            <span v-if="awayScore !== null" class="versus-score">{{ awayScore }}</span>
-          </div>
-        </div>
-
-        <!-- Accordion: 구장 정보 -->
-        <div class="accordion-section">
-          <div
-            class="accordion-header"
-            @click="toggleAccordion('stadium')"
-          >
-            <span>구장 정보</span>
-            <i :class="accordionOpen.stadium ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-          </div>
-          <div v-show="accordionOpen.stadium" class="accordion-body">
-            <div class="accordion-item">
-              <span class="accordion-label">구장명</span>
-              <span class="accordion-value">{{ stadiumName }}</span>
+        <!-- 팀 정보 -->
+        <div class="section-block">
+          <h3 class="section-title">팀 정보</h3>
+          <div class="versus-row">
+            <div class="versus-team">
+              <img
+                :src="homeTeamLogo"
+                alt="홈팀"
+                class="versus-logo"
+              >
+              <span class="versus-name">{{ homeTeamName }}</span>
             </div>
-            <div v-if="stadiumAddress" class="accordion-item">
-              <span class="accordion-label">주소</span>
-              <span class="accordion-value">{{ stadiumAddress }}</span>
+            <div class="versus-vs">
+              <template v-if="homeScore !== null && awayScore !== null">
+                {{ homeScore }} : {{ awayScore }}
+              </template>
+              <template v-else>VS</template>
+            </div>
+            <div class="versus-team">
+              <img
+                :src="awayTeamLogo"
+                alt="원정팀"
+                class="versus-logo"
+              >
+              <span class="versus-name">{{ awayTeamName }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Accordion: 리그 규칙 -->
-        <div v-if="leagueRules" class="accordion-section">
-          <div
-            class="accordion-header"
-            @click="toggleAccordion('rules')"
-          >
-            <span>리그 규칙</span>
-            <i :class="accordionOpen.rules ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-          </div>
-          <div v-show="accordionOpen.rules" class="accordion-body">
-            <div class="accordion-text" v-html="leagueRules"></div>
+        <!-- 리그 매치 상세 정보 -->
+        <div class="section-block">
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">- 팀 명</span>
+              <span class="info-list-value">{{ homeTeamName }} vs {{ awayTeamName }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 홈 구장</span>
+              <span class="info-list-value">{{ stadiumName }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 팀 회원수</span>
+              <span class="info-list-value">{{ detailData?.homeTeamMemberCount || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 평균 나이</span>
+              <span class="info-list-value">{{ detailData?.averageAge || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 전적 (전체)</span>
+              <span class="info-list-value">{{ leagueRecord }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 리그 전적</span>
+              <span class="info-list-value">{{ leagueStandingRecord }}</span>
+            </div>
           </div>
         </div>
       </template>
 
-      <!-- ==================== 친선 경기 (FR-28) ==================== -->
+      <!-- =============== 친선 경기 =============== -->
       <template v-if="detailType === 'friendly'">
-        <div class="versus-section">
-          <div class="versus-team">
-            <img :src="hostTeamLogo" alt="주최팀" class="versus-logo">
-            <span class="versus-name">{{ hostTeamName }}</span>
-          </div>
-          <div class="versus-vs">VS</div>
-          <div class="versus-team">
-            <div v-if="opponentTeamName" class="versus-team-filled">
-              <img :src="opponentTeamLogo" alt="상대팀" class="versus-logo">
-              <span class="versus-name">{{ opponentTeamName }}</span>
-            </div>
-            <div v-else class="versus-team-empty">
-              <div class="empty-logo">?</div>
-              <span class="versus-name">대전 상대 모집중</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="team-stats-section">
-          <h3 class="section-heading">주최 팀 정보</h3>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">매너 점수</span>
-              <span class="stat-value">{{ hostMannerScore }}점</span>
-            </div>
-            <div v-if="matchFormat" class="stat-item">
-              <span class="stat-label">매치 방식</span>
-              <span class="stat-value">{{ matchFormatBadge }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="additionalInfo" class="additional-info-section">
-          <h3 class="section-heading">추가 안내</h3>
-          <p class="additional-text">{{ additionalInfo }}</p>
-        </div>
-      </template>
-
-      <!-- ==================== 자유(소셜) 경기 (FR-29) ==================== -->
-      <template v-if="detailType === 'free'">
-        <div class="host-profile-section">
-          <h3 class="section-heading">주최자 정보</h3>
-          <div class="host-profile-card">
-            <img :src="hostTeamLogo" alt="주최자" class="host-avatar">
+        <!-- 매치 정보 -->
+        <div class="section-block">
+          <h3 class="section-title">매치 정보</h3>
+          <div class="match-host-card">
+            <img
+              :src="hostTeamLogo"
+              alt="주최팀"
+              class="host-logo"
+            >
             <div class="host-info">
               <span class="host-name">{{ hostTeamName }}</span>
-              <div class="host-details">
-                <span v-if="hostMannerScore" class="host-detail-item">
-                  <i class="el-icon-star-on"></i> 매너 {{ hostMannerScore }}점
-                </span>
-              </div>
+              <span
+                v-if="hostMannerScore"
+                class="host-manner"
+              >매너 {{ hostMannerScore }}점</span>
             </div>
           </div>
-        </div>
-
-        <div class="recruitment-status-section">
-          <h3 class="section-heading">모집 현황</h3>
-          <div class="recruitment-bar-wrapper">
-            <div class="recruitment-bar">
-              <div
-                class="recruitment-bar-fill"
-                :style="{ width: recruitmentPercent + '%' }"
-              ></div>
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">- 성별</span>
+              <span class="info-list-value">{{ genderText || '-' }}</span>
             </div>
-            <span class="recruitment-count">{{ currentMembers }} / {{ maxMembers }}명</span>
+            <div class="info-list-item">
+              <span class="info-list-label">- 연령대</span>
+              <span class="info-list-value">{{ ageGroupsText || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 시간</span>
+              <span class="info-list-value">{{ durationText }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 수</span>
+              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 매너 점수</span>
+              <span class="info-list-value">{{ hostMannerScore || '-' }}점</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 리그 등급</span>
+              <span class="info-list-value">{{ detailData?.leagueGrade || '-' }}</span>
+            </div>
           </div>
-        </div>
-
-        <div v-if="additionalInfo" class="additional-info-section">
-          <h3 class="section-heading">추가 안내</h3>
-          <p class="additional-text">{{ additionalInfo }}</p>
         </div>
       </template>
 
-      <!-- ==================== 게스트 모집 (FR-30) ==================== -->
+      <!-- =============== 자유(소셜) 경기 =============== -->
+      <template v-if="detailType === 'free'">
+        <!-- 매치 정보 -->
+        <div class="section-block">
+          <h3 class="section-title">매치 정보</h3>
+          <div class="match-host-card">
+            <div class="host-avatar-circle">
+              <img
+                :src="hostTeamLogo"
+                alt="주최자"
+                class="host-logo"
+              >
+            </div>
+            <div class="host-info">
+              <span class="host-name">{{ hostTeamName }}</span>
+            </div>
+          </div>
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">- 성별</span>
+              <span class="info-list-value">{{ genderText || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 연령대</span>
+              <span class="info-list-value">{{ ageGroupsText || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 시간</span>
+              <span class="info-list-value">{{ durationText }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 수</span>
+              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 필드/골키퍼</span>
+              <span class="info-list-value">{{ positionLabel }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- =============== 게스트 모집 =============== -->
       <template v-if="detailType === 'guest'">
-        <div class="guest-team-section">
-          <h3 class="section-heading">모집 팀 정보</h3>
-          <div class="guest-team-card">
-            <img :src="hostTeamLogo" alt="팀" class="guest-team-logo">
-            <div class="guest-team-info">
-              <span class="guest-team-name">{{ hostTeamName }}</span>
-              <span v-if="hostMannerScore" class="guest-team-manner">
-                <i class="el-icon-star-on"></i> 매너 {{ hostMannerScore }}점
-              </span>
+        <!-- 매치 정보 -->
+        <div class="section-block">
+          <h3 class="section-title">매치 정보</h3>
+          <div class="match-host-card">
+            <img
+              :src="hostTeamLogo"
+              alt="모집팀"
+              class="host-logo"
+            >
+            <div class="host-info">
+              <span class="host-name">{{ hostTeamName }}</span>
+              <span
+                v-if="hostMannerScore"
+                class="host-manner"
+              >매너 {{ hostMannerScore }}점</span>
             </div>
           </div>
-        </div>
-
-        <div class="guest-recruit-details">
-          <div class="recruit-detail-item">
-            <span class="recruit-label">모집 포지션</span>
-            <span class="recruit-value">{{ positionLabel }}</span>
-          </div>
-          <div class="recruit-detail-item">
-            <span class="recruit-label">참가비</span>
-            <span class="recruit-value">{{ guestFeeDisplay }}</span>
-          </div>
-          <div v-if="guaranteedMinutes" class="recruit-detail-item">
-            <span class="recruit-label">보장 시간</span>
-            <span class="recruit-value">{{ guaranteedMinutes }}분</span>
-          </div>
-          <div class="recruit-detail-item">
-            <span class="recruit-label">모집 인원</span>
-            <span class="recruit-value">{{ currentMembers }} / {{ maxMembers }}명</span>
-          </div>
-        </div>
-
-        <!-- Accordion: 모집 정보 -->
-        <div v-if="additionalInfo" class="accordion-section">
-          <div
-            class="accordion-header"
-            @click="toggleAccordion('recruitInfo')"
-          >
-            <span>추가 안내 사항</span>
-            <i :class="accordionOpen.recruitInfo ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-          </div>
-          <div v-show="accordionOpen.recruitInfo" class="accordion-body">
-            <p class="accordion-text">{{ additionalInfo }}</p>
-          </div>
-        </div>
-
-        <!-- Accordion: 구장 정보 -->
-        <div class="accordion-section">
-          <div
-            class="accordion-header"
-            @click="toggleAccordion('stadium')"
-          >
-            <span>구장 정보</span>
-            <i :class="accordionOpen.stadium ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-          </div>
-          <div v-show="accordionOpen.stadium" class="accordion-body">
-            <div class="accordion-item">
-              <span class="accordion-label">구장명</span>
-              <span class="accordion-value">{{ stadiumName }}</span>
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">- 성별</span>
+              <span class="info-list-value">{{ genderText || '-' }}</span>
             </div>
-            <div v-if="stadiumAddress" class="accordion-item">
-              <span class="accordion-label">주소</span>
-              <span class="accordion-value">{{ stadiumAddress }}</span>
+            <div class="info-list-item">
+              <span class="info-list-label">- 연령대</span>
+              <span class="info-list-value">{{ ageGroupsText || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 시간</span>
+              <span class="info-list-value">{{ durationText }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 수</span>
+              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 매너 점수</span>
+              <span class="info-list-value">{{ hostMannerScore || '-' }}점</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 리그 등급</span>
+              <span class="info-list-value">{{ detailData?.leagueGrade || '-' }}</span>
             </div>
           </div>
         </div>
       </template>
+
+      <!-- =============== 참여자 명단 (공통) =============== -->
+      <div class="section-block">
+        <h3 class="section-title">참여자 명단</h3>
+        <div
+          v-if="participants.length > 0"
+          class="participant-grid"
+        >
+          <div
+            v-for="p in participants"
+            :key="p.uid || p.name"
+            class="participant-item"
+          >
+            <div
+              class="participant-avatar"
+              :style="{ background: getAvatarColor(p.name) }"
+            >
+              {{ getInitial(p.name) }}
+            </div>
+            <span class="participant-name">{{ p.name }}</span>
+          </div>
+        </div>
+        <div
+          v-else
+          class="empty-participants"
+        >
+          <span>아직 참여자가 없습니다.</span>
+        </div>
+      </div>
+
+      <!-- =============== Accordions (공통) =============== -->
+      <!-- 모집 정보 (게스트만) -->
+      <div
+        v-if="detailType === 'guest'"
+        class="accordion-section"
+      >
+        <div
+          class="accordion-header"
+          @click="toggleAccordion('recruitInfo')"
+        >
+          <span>모집 정보</span>
+          <i class="el-icon-heart"></i>
+        </div>
+        <div
+          v-show="accordionOpen.recruitInfo"
+          class="accordion-body"
+        >
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">모집 포지션</span>
+              <span class="info-list-value">{{ positionLabel }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">참가비</span>
+              <span class="info-list-value">{{ guestFeeDisplay }}</span>
+            </div>
+            <div
+              v-if="guaranteedMinutes"
+              class="info-list-item"
+            >
+              <span class="info-list-label">보장 시간</span>
+              <span class="info-list-value">{{ guaranteedMinutes }}분</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">모집 인원</span>
+              <span class="info-list-value">{{ currentMembers }} / {{ maxMembers }}명</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 구장 정보 -->
+      <div class="accordion-section">
+        <div
+          class="accordion-header"
+          @click="toggleAccordion('stadium')"
+        >
+          <span>구장 정보</span>
+          <i class="el-icon-heart"></i>
+        </div>
+        <div
+          v-show="accordionOpen.stadium"
+          class="accordion-body"
+        >
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">구장명</span>
+              <span class="info-list-value">{{ stadiumName }}</span>
+            </div>
+            <!-- <div
+              v-if="stadiumAddress"
+              class="info-list-item"
+            >
+              <span class="info-list-label">주소</span>
+              <span class="info-list-value">{{ stadiumAddress }}</span>
+            </div> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 리그 규칙 (리그만) / 매치 규칙 (나머지) -->
+      <div
+        v-if="detailType === 'league' && leagueRules"
+        class="accordion-section"
+      >
+        <div
+          class="accordion-header"
+          @click="toggleAccordion('rules')"
+        >
+          <span>리그 규칙</span>
+          <i class="el-icon-heart"></i>
+        </div>
+        <div
+          v-show="accordionOpen.rules"
+          class="accordion-body"
+        >
+          <div
+            class="accordion-text"
+            v-html="leagueRules"
+          ></div>
+        </div>
+      </div>
+      <div
+        v-if="detailType !== 'league'"
+        class="accordion-section"
+      >
+        <div
+          class="accordion-header"
+          @click="toggleAccordion('rules')"
+        >
+          <span>매치 규칙</span>
+          <i class="el-icon-heart"></i>
+        </div>
+        <div
+          v-show="accordionOpen.rules"
+          class="accordion-body"
+        >
+          <p class="accordion-text">{{ detailData?.matchRules || '별도의 특별한 규칙은 없습니다.' }}</p>
+        </div>
+      </div>
+
+      <!-- 추가 사항 (리그 제외) -->
+      <div
+        v-if="detailType !== 'league' && additionalInfo"
+        class="accordion-section"
+      >
+        <div
+          class="accordion-header"
+          @click="toggleAccordion('additional')"
+        >
+          <span>추가 사항</span>
+          <i class="el-icon-heart"></i>
+        </div>
+        <div
+          v-show="accordionOpen.additional"
+          class="accordion-body"
+        >
+          <p class="accordion-text">{{ additionalInfo }}</p>
+        </div>
+      </div>
 
       <!-- Apply Button (Fixed Bottom) -->
       <div class="apply-button-wrapper">
@@ -303,6 +473,7 @@ interface AccordionState {
   stadium: boolean
   rules: boolean
   recruitInfo: boolean
+  additional: boolean
 }
 
 @Component
@@ -323,7 +494,13 @@ export default class MatchDetail extends Vue {
     stadium: false,
     rules: false,
     recruitInfo: false,
+    additional: false,
   }
+
+  private avatarColors = [
+    '#061da1', '#e74c3c', '#27ae60', '#f39c12',
+    '#8e44ad', '#16a085', '#d35400', '#2c3e50',
+  ]
 
   // ==================== Computed Properties ====================
 
@@ -383,30 +560,27 @@ export default class MatchDetail extends Vue {
   get statusBadgeClass(): string {
     const status = this.detailData?.status;
     if (!status) return '';
-    if (status === 'RECRUITING' || status === 'SCHEDULED') return 'badge--active';
-    if (status === 'COMPLETED' || status === 'EXPIRED' || status === 'CANCELLED') return 'badge--inactive';
-    return 'badge--progress';
+    if (status === 'RECRUITING' || status === 'SCHEDULED') return 'status--active';
+    if (status === 'COMPLETED' || status === 'EXPIRED' || status === 'CANCELLED') return 'status--inactive';
+    return 'status--progress';
   }
 
-  get formattedDate(): string {
+  get formattedDateTime(): string {
     const date = this.detailData?.matchDate;
     if (!date) return '';
     const d = new Date(date);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const year = d.getFullYear();
+    const year = String(d.getFullYear()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const dayName = days[d.getDay()];
-    return `${year}.${month}.${day} (${dayName})`;
-  }
-
-  get formattedTime(): string {
+    let result = `${year}월 ${month}월 ${day}일 (${dayName}요일)`;
     const time = this.detailData?.matchTime;
-    if (!time) return '';
-    if (typeof time === 'string' && time.includes(':')) {
-      return time.substring(0, 5);
+    if (time) {
+      const t = typeof time === 'string' && time.includes(':') ? time.substring(0, 5) : String(time);
+      result += ` ${t}`;
     }
-    return String(time);
+    return result;
   }
 
   get stadiumName(): string {
@@ -424,9 +598,9 @@ export default class MatchDetail extends Vue {
   }
 
   get feeLabel(): string {
-    if (this.detailType === 'guest') return '/ 1인';
-    if (this.detailType === 'friendly' || this.detailType === 'league') return '/ 팀';
-    return '';
+    if (this.detailType === 'guest') return '게스트 당';
+    if (this.detailType === 'free') return '개인 당';
+    return '팀 당';
   }
 
   // League match fields
@@ -557,6 +731,60 @@ export default class MatchDetail extends Vue {
     return '신청하기';
   }
 
+  /* eslint-disable no-bitwise */
+  get genderText(): string {
+    const val = this.detailData?.genderType;
+    if (val === 0) return '남자';
+    if (val === 1) return '여자';
+    if (val === 2) return '남녀무관';
+    return '';
+  }
+
+  get ageGroupsText(): string {
+    const val = this.detailData?.ageGroups;
+    if (!val) return '';
+    if (val === 31) return '나이 무관';
+    const labels = ['10대', '20대', '30대', '40대', '50대 이상'];
+    const ages: string[] = [];
+    labels.forEach((label, i) => {
+      if (val & (1 << i)) ages.push(label);
+    });
+    return ages.join(', ');
+  }
+  /* eslint-enable no-bitwise */
+
+  get durationText(): string {
+    const hours = this.detailData?.durationHours;
+    if (!hours) return '-';
+    return `${hours}시간`;
+  }
+
+  get leagueRecord(): string {
+    const d = this.detailData;
+    if (!d) return '-';
+    const wins = d.totalWins || 0;
+    const draws = d.totalDraws || 0;
+    const losses = d.totalLosses || 0;
+    return `${wins}승 ${draws}무 ${losses}패`;
+  }
+
+  get leagueStandingRecord(): string {
+    if (!this.leagueData?.standings?.length) return '-';
+    const home = this.leagueData.standings.find((s: any) => s.teamUid === this.detailData?.homeTeamUid);
+    if (!home) return '-';
+    return `${home.wins || 0}승 ${home.draws || 0}무 ${home.losses || 0}패`;
+  }
+
+  get participants(): any[] {
+    const d = this.detailData;
+    if (!d) return [];
+    if (d.participants && Array.isArray(d.participants)) return d.participants;
+    if (d.guests && Array.isArray(d.guests)) return d.guests;
+    if (d.members && Array.isArray(d.members)) return d.members;
+    // Generate sample participants from names if available
+    return [];
+  }
+
   // ==================== Lifecycle ====================
 
   async created(): Promise<void> {
@@ -577,6 +805,18 @@ export default class MatchDetail extends Vue {
 
   private toggleAccordion(key: keyof AccordionState): void {
     this.accordionOpen[key] = !this.accordionOpen[key];
+  }
+
+  private getInitial(name: string): string {
+    return (name || '?').substring(0, 1);
+  }
+
+  private getAvatarColor(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < (name || '').length; i += 1) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash); // eslint-disable-line no-bitwise
+    }
+    return this.avatarColors[Math.abs(hash) % this.avatarColors.length];
   }
 
   private async loadDetail(): Promise<void> {
@@ -767,14 +1007,13 @@ export default class MatchDetail extends Vue {
   left: 16px;
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .badge {
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 4px 14px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
 }
 
@@ -783,80 +1022,102 @@ export default class MatchDetail extends Vue {
 }
 
 .badge--format {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(4px);
-}
-
-.badge--status.badge--active {
-  background: #67c23a;
-}
-
-.badge--status.badge--inactive {
-  background: #909399;
-}
-
-.badge--status.badge--progress {
-  background: #e6a23c;
 }
 
 /* Info Card */
 .info-card {
   background: #fff;
-  /* margin: -20px 16px 16px; */
-  border-radius: 16px;
-  padding: 20px;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 18px 20px;
 }
 
-.info-card > div {
+.info-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
   font-size: 14px;
   color: #333;
+  margin-bottom: 6px;
 }
 
-.info-card > div:last-child {
+.info-row:last-child {
   margin-bottom: 0;
 }
 
-.info-card i {
+.info-row i {
   color: #061da1;
   font-size: 16px;
-  width: 20px;
+  width: 18px;
   text-align: center;
+  flex-shrink: 0;
 }
 
-.info-card__time {
-  color: #666;
-  margin-left: 4px;
-}
-
-.info-card__address {
-  padding-left: 28px;
+.info-row--sub {
+  padding-left: 26px;
   font-size: 13px;
-  color: #999;
+  color: #888;
+}
+
+.info-row--fee {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.fee-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #061da1;
 }
 
 .fee-label {
-  font-size: 12px;
-  color: #999;
+  font-size: 13px;
+  color: #888;
   margin-left: 4px;
 }
 
-/* Versus Section */
-.versus-section {
+.status-chip {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.status--active {
+  background: #67c23a;
+}
+
+.status--inactive {
+  background: #909399;
+}
+
+.status--progress {
+  background: #e6a23c;
+}
+
+/* Section Block */
+.section-block {
+  background: #fff;
+  margin-top: 10px;
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 14px;
+}
+
+/* Versus Row (리그) */
+.versus-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  /* margin: 0 16px 16px; */
-  border-radius: 16px;
-  padding: 24px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 10px 0 16px;
 }
 
 .versus-team {
@@ -868,280 +1129,145 @@ export default class MatchDetail extends Vue {
 }
 
 .versus-logo {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #eee;
 }
 
 .versus-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #333;
   text-align: center;
-  word-break: keep-all;
-}
-
-.versus-score {
-  font-size: 28px;
-  font-weight: 800;
-  color: #061da1;
 }
 
 .versus-vs {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: #ccc;
   flex-shrink: 0;
+  padding: 0 12px;
 }
 
-.versus-team-empty .empty-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #eee;
+/* Match Host Card (친선/자유/게스트) */
+.match-host-card {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #bbb;
-  font-weight: bold;
-}
-
-/* Team Stats */
-.section-heading {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 12px;
-}
-
-.team-stats-section {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #999;
-}
-
-.stat-value {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-}
-
-/* Host Profile (Free match) */
-.host-profile-section {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.host-profile-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.host-avatar {
-  width: 56px;
-  height: 56px;
+.host-logo {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #eee;
 }
 
 .host-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .host-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #333;
-  display: block;
-  margin-bottom: 4px;
 }
 
-.host-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.host-detail-item {
-  font-size: 13px;
-  color: #666;
-  display: flex;
+.host-manner {
+  font-size: 12px;
+  color: #061da1;
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  background: #f0f2ff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  width: fit-content;
 }
 
-.host-detail-item i {
-  color: #f7c600;
-  font-size: 14px;
-}
-
-/* Recruitment Status */
-.recruitment-status-section {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.recruitment-bar-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.recruitment-bar {
-  flex: 1;
-  height: 12px;
-  background: #eee;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.recruitment-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #061da1, #4a7cff);
-  border-radius: 6px;
-  transition: width 0.4s ease;
-}
-
-.recruitment-count {
-  font-size: 14px;
-  font-weight: 700;
-  color: #333;
-  white-space: nowrap;
-}
-
-/* Guest Team Section */
-.guest-team-section {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.guest-team-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.guest-team-logo {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #eee;
-}
-
-.guest-team-info {
-  flex: 1;
+/* Info List (label-value rows) */
+.info-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-.guest-team-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
-}
-
-.guest-team-manner {
-  font-size: 13px;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.guest-team-manner i {
-  color: #f7c600;
-}
-
-/* Guest Recruit Details */
-.guest-recruit-details {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.recruit-detail-item {
+.info-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 7px 0;
 }
 
-.recruit-detail-item:last-child {
-  border-bottom: none;
-}
-
-.recruit-label {
-  font-size: 14px;
+.info-list-label {
+  font-size: 13px;
   color: #666;
 }
 
-.recruit-value {
-  font-size: 14px;
+.info-list-value {
+  font-size: 13px;
   font-weight: 600;
   color: #333;
+  text-align: right;
+  max-width: 60%;
 }
 
-/* Additional Info */
-.additional-info-section {
-  background: #fff;
-  margin: 0 16px 16px;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+/* Participant Grid */
+.participant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 64px);
+  gap: 12px;
+  justify-content: start;
 }
 
-.additional-text {
-  font-size: 14px;
+.participant-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.participant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.participant-name {
+  font-size: 11px;
   color: #555;
-  line-height: 1.6;
-  white-space: pre-wrap;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
+}
+
+.empty-participants {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 13px;
+  color: #bbb;
 }
 
 /* Accordion */
 .accordion-section {
   background: #fff;
-  margin: 0 16px 12px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-top: 10px;
 }
 
 .accordion-header {
@@ -1154,45 +1280,15 @@ export default class MatchDetail extends Vue {
   font-weight: 600;
   color: #333;
   user-select: none;
-  transition: background 0.2s;
-}
-
-.accordion-header:hover {
-  background: #fafafa;
 }
 
 .accordion-header i {
-  color: #999;
+  color: #e74c3c;
   font-size: 14px;
-  transition: transform 0.2s;
 }
 
 .accordion-body {
   padding: 0 20px 16px;
-}
-
-.accordion-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.accordion-item:last-child {
-  border-bottom: none;
-}
-
-.accordion-label {
-  font-size: 13px;
-  color: #999;
-}
-
-.accordion-value {
-  font-size: 13px;
-  color: #333;
-  font-weight: 500;
-  text-align: right;
-  max-width: 60%;
 }
 
 .accordion-text {
@@ -1204,25 +1300,25 @@ export default class MatchDetail extends Vue {
 
 /* Apply Button (Fixed bottom) */
 .apply-button-wrapper {
-  /* position: fixed; */
-  bottom: 60px;
+  position: fixed;
+  bottom: 0;
   left: 0;
   right: 0;
   padding: 12px 16px;
-  background: linear-gradient(transparent, #f5f5f7 20%);
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
   z-index: 99;
 }
 
 .apply-button {
   width: 100%;
-  height: 52px;
-  border-radius: 14px;
+  height: 50px;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
   background: #061da1 !important;
   border-color: #061da1 !important;
   color: #fff !important;
-  box-shadow: 0 4px 12px rgba(6, 29, 161, 0.3);
 }
 
 .apply-button:hover {
@@ -1234,7 +1330,6 @@ export default class MatchDetail extends Vue {
   background: #ccc !important;
   border-color: #ccc !important;
   color: #fff !important;
-  box-shadow: none;
 }
 
 .apply-button--closed:hover {
