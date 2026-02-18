@@ -51,8 +51,16 @@
       </div>
 
       <!-- League Schedule Section -->
-      <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
-        <div class="league-section-handle" @click="toggleLeagueSection">
+      <div
+        class="league-section"
+        :class="{ 'expanded': isExpanded, 'dragging': isDragging }"
+        :style="sectionStyle"
+      >
+        <div
+          class="league-section-handle"
+          @touchstart.prevent="onDragStart"
+          @mousedown.prevent="onDragStart"
+        >
           <div class="handle-bar"></div>
         </div>
         <div class="league-section-content">
@@ -206,7 +214,19 @@ type TeamCard = any
 export default class extends Vue {
   @Prop({ default: '' }) private selectedRegion!: string
 
-  private showLeagueStatus = false
+  private isExpanded = false
+
+  private isDragging = false
+
+  private dragStartY = 0
+
+  private dragStartTop = 0
+
+  private sectionTop: number | null = null
+
+  private collapsedTop = 280
+
+  private expandedTop = 70
 
   private currentYear = new Date().getFullYear()
 
@@ -299,8 +319,51 @@ export default class extends Vue {
       && this.currentMonthIndex === this.selectedDate.getMonth();
   }
 
-  private toggleLeagueSection(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
+  get sectionStyle(): Record<string, string> {
+    if (this.sectionTop !== null) {
+      return { top: `${this.sectionTop}px`, transition: this.isDragging ? 'none' : 'top 0.3s ease' };
+    }
+    return {};
+  }
+
+  private onDragStart(e: TouchEvent | MouseEvent): void {
+    this.isDragging = true;
+    this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const el = (e.target as HTMLElement).closest('.league-section') as HTMLElement;
+    if (el) {
+      this.dragStartTop = el.getBoundingClientRect().top;
+    }
+    document.addEventListener('touchmove', this.onDragMove, { passive: false });
+    document.addEventListener('mousemove', this.onDragMove);
+    document.addEventListener('touchend', this.onDragEnd);
+    document.addEventListener('mouseup', this.onDragEnd);
+  }
+
+  private onDragMove(e: TouchEvent | MouseEvent): void {
+    if (!this.isDragging) return;
+    if ('cancelable' in e && e.cancelable) e.preventDefault();
+    const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+    const delta = clientY - this.dragStartY;
+    let newTop = this.dragStartTop + delta;
+    newTop = Math.max(this.expandedTop, Math.min(newTop, this.collapsedTop));
+    this.sectionTop = newTop;
+  }
+
+  private onDragEnd(): void {
+    this.isDragging = false;
+    document.removeEventListener('touchmove', this.onDragMove);
+    document.removeEventListener('mousemove', this.onDragMove);
+    document.removeEventListener('touchend', this.onDragEnd);
+    document.removeEventListener('mouseup', this.onDragEnd);
+    if (this.sectionTop === null) return;
+    const mid = (this.collapsedTop + this.expandedTop) / 2;
+    if (this.sectionTop < mid) {
+      this.sectionTop = this.expandedTop;
+      this.isExpanded = true;
+    } else {
+      this.sectionTop = this.collapsedTop;
+      this.isExpanded = false;
+    }
   }
 
   private previousMonth(): void {

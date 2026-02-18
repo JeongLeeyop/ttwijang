@@ -16,7 +16,7 @@
           class="team-cards-container banner-carousel"
         >
           <div
-            v-for="(banner, index) in banners"
+            v-for="banner in banners"
             :key="banner.uid"
             class="banner-card"
             @click="handleBannerClick(banner)"
@@ -66,7 +66,11 @@
       </div>
 
       <!-- League Schedule Section -->
-      <div class="league-section" :class="{ 'expanded': currentView !== 'main' || showLeagueStatus }">
+      <div
+        class="league-section"
+        :class="{ 'expanded': currentView !== 'main' || isExpanded, 'dragging': isDragging }"
+        :style="currentView === 'main' ? sectionStyle : {}"
+      >
         <!-- Back Button (서브뷰일 때) -->
         <div v-if="currentView !== 'main'" class="league-back-header">
           <button class="league-back-btn" @click="goBack">
@@ -74,7 +78,12 @@
             <span>돌아가기</span>
           </button>
         </div>
-        <div v-if="currentView === 'main'" class="league-section-handle" @click="toggleLeagueSection">
+        <div
+          v-if="currentView === 'main'"
+          class="league-section-handle"
+          @touchstart.prevent="onDragStart"
+          @mousedown.prevent="onDragStart"
+        >
           <div class="handle-bar"></div>
         </div>
         <div class="league-section-content" :class="{ 'sub-view-content': currentView !== 'main' }">
@@ -195,7 +204,6 @@ import {
   getLeagueList, getLeagueTeams, LeagueTeamResponse, getUpcomingLeagueMatches,
 } from '@/api/league';
 import { getTeamList } from '@/api/team';
-import { getActiveBanners } from '@/api/banner';
 import LeagueScheduleView from '@/components/league/LeagueScheduleView.vue';
 import LeagueStatusView from '@/components/league/LeagueStatusView.vue';
 
@@ -272,7 +280,19 @@ export default class extends Vue {
 
   private currentView: 'main' | 'schedule' | 'status' = 'main'
 
-  private showLeagueStatus = false
+  private isExpanded = false
+
+  private isDragging = false
+
+  private dragStartY = 0
+
+  private dragStartTop = 0
+
+  private sectionTop: number | null = null
+
+  private collapsedTop = 290
+
+  private expandedTop = 70
 
   private currentYear = 2025
 
@@ -652,8 +672,61 @@ export default class extends Vue {
     this.$router.push('/league-status');
   }
 
+  get sectionStyle(): Record<string, string> {
+    if (this.sectionTop !== null) {
+      return { top: `${this.sectionTop}px`, transition: this.isDragging ? 'none' : 'top 0.3s ease' };
+    }
+    return {};
+  }
+
+  private onDragStart(e: TouchEvent | MouseEvent): void {
+    this.isDragging = true;
+    this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const el = (e.target as HTMLElement).closest('.league-section') as HTMLElement;
+    if (el) {
+      this.dragStartTop = el.getBoundingClientRect().top;
+    }
+    document.addEventListener('touchmove', this.onDragMove, { passive: false });
+    document.addEventListener('mousemove', this.onDragMove);
+    document.addEventListener('touchend', this.onDragEnd);
+    document.addEventListener('mouseup', this.onDragEnd);
+  }
+
+  private onDragMove(e: TouchEvent | MouseEvent): void {
+    if (!this.isDragging) return;
+    if ('cancelable' in e && e.cancelable) e.preventDefault();
+    const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+    const delta = clientY - this.dragStartY;
+    let newTop = this.dragStartTop + delta;
+    newTop = Math.max(this.expandedTop, Math.min(newTop, this.collapsedTop));
+    this.sectionTop = newTop;
+  }
+
+  private onDragEnd(): void {
+    this.isDragging = false;
+    document.removeEventListener('touchmove', this.onDragMove);
+    document.removeEventListener('mousemove', this.onDragMove);
+    document.removeEventListener('touchend', this.onDragEnd);
+    document.removeEventListener('mouseup', this.onDragEnd);
+    if (this.sectionTop === null) return;
+    const mid = (this.collapsedTop + this.expandedTop) / 2;
+    if (this.sectionTop < mid) {
+      this.sectionTop = this.expandedTop;
+      this.isExpanded = true;
+    } else {
+      this.sectionTop = this.collapsedTop;
+      this.isExpanded = false;
+    }
+  }
+
   private toggleLeagueSection(): void {
-    this.showLeagueStatus = !this.showLeagueStatus;
+    if (this.isExpanded) {
+      this.sectionTop = this.collapsedTop;
+      this.isExpanded = false;
+    } else {
+      this.sectionTop = this.expandedTop;
+      this.isExpanded = true;
+    }
   }
 
   private goToSchedule(): void {
@@ -704,7 +777,7 @@ export default class extends Vue {
     this.$router.push(`/team/${teamUid}`);
   }
 
-  private async resolveRegionName(regionCode: string): Promise<string> {
+  private async resolveRegionName(): Promise<string> {
     // 간단하게 localStorage나 API에서 가져온 지역명 사용
     // 실제로는 RegionCodeService처럼 코드 → 이름 변환 필요
     return '진주시'; // 임시
