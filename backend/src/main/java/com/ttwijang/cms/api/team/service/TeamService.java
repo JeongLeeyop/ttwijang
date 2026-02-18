@@ -466,10 +466,14 @@ public class TeamService {
     }
 
     private TeamDto.ListResponse toListResponse(Team team) {
+        String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
+                ? "/api/attached-file/" + team.getLogoFileUid()
+                : null;
         return TeamDto.ListResponse.builder()
                 .uid(team.getUid())
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
+                .logoUrl(logoUrl)
                 .mannerScore(team.getMannerScore())
                 .memberCount(team.getMemberCount())
                 .region(team.getRegionSido() + " " + team.getRegionSigungu())
