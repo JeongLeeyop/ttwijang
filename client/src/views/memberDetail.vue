@@ -78,7 +78,7 @@
         </div>
 
         <!-- Manner Score Card -->
-        <div class="info-card manner-card">
+        <!-- <div class="info-card manner-card">
           <div class="info-card-header">
             <span class="info-card-title">매너점수</span>
           </div>
@@ -86,7 +86,7 @@
             <span class="manner-score-value">{{ memberInfo.mannerScore || 0 }}</span>
             <span class="manner-score-unit">점</span>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <!-- Not Found -->
@@ -294,7 +294,6 @@ export default class MemberDetail extends Vue {
 }
 
 .profile-name {
-  color: #fff;
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 8px;
@@ -306,7 +305,6 @@ export default class MemberDetail extends Vue {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
 
   &.badge-owner {
     background: #ff9800;

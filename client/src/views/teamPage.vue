@@ -13,7 +13,7 @@
           >
         </div>
         <h2 class="team-profile-name">{{ teamInfo.name || '팀 이름' }}</h2>
-        <p class="team-profile-owner">{{ teamInfo.ownerName || '운영자' }} (운영자)</p>
+        <p class="team-profile-owner">{{ teamInfo.ownerName || '운영자' }} ({{ myRoleLabel }})</p>
         <div v-if="isOwner" class="team-profile-buttons">
           <button class="team-btn team-btn-outline" @click="goToDashboard">
             대시 보드
@@ -739,6 +739,15 @@ export default class TeamPage extends Vue {
     return this.myRole === 'OWNER';
   }
 
+  get myRoleLabel(): string {
+    switch (this.myRole) {
+      case 'OWNER': return '운영자';
+      case 'MANAGER': return '구단주';
+      case 'MEMBER': return '구단원';
+      default: return '운영자';
+    }
+  }
+
   get isMember(): boolean {
     return this.myRole === 'MEMBER' || this.myRole === 'MANAGER';
   }
@@ -1140,14 +1149,14 @@ export default class TeamPage extends Vue {
 
   private getMaxPlayers(format: string): number {
     const formatMap: Record<string, number> = {
-      '4vs4': 10,
-      '5vs5': 13,
-      '6vs6': 16,
-      '7vs7': 18,
-      FOUR_VS_FOUR: 10,
-      FIVE_VS_FIVE: 13,
-      SIX_VS_SIX: 16,
-      SEVEN_VS_SEVEN: 18,
+      '4vs4': 8,
+      '5vs5': 10,
+      '6vs6': 12,
+      '7vs7': 14,
+      FOUR_VS_FOUR: 8,
+      FIVE_VS_FIVE: 10,
+      SIX_VS_SIX: 12,
+      SEVEN_VS_SEVEN: 14,
     };
     return formatMap[format] || 10;
   }

@@ -696,11 +696,17 @@ export default class MatchDetail extends Vue {
   }
 
   get currentMembers(): number {
-    return this.detailData?.currentGuests || 0;
+    if (this.detailType === 'guest') {
+      return this.detailData?.currentGuests || 0;
+    }
+    return this.detailData?.currentPlayers || 0;
   }
 
   get maxMembers(): number {
-    return this.detailData?.maxGuests || 0;
+    if (this.detailType === 'guest') {
+      return this.detailData?.maxGuests || 0;
+    }
+    return this.detailData?.maxPlayers || 0;
   }
 
   get recruitmentPercent(): number {
@@ -713,8 +719,8 @@ export default class MatchDetail extends Vue {
     if (status === 'COMPLETED' || status === 'CANCELLED' || status === 'EXPIRED' || status === 'MATCHED') {
       return true;
     }
-    if (this.detailType === 'guest' || this.detailType === 'free') {
-      return this.currentMembers >= this.maxMembers;
+    if (this.detailType === 'guest' || this.detailType === 'free' || this.detailType === 'friendly') {
+      return this.maxMembers > 0 && this.currentMembers >= this.maxMembers;
     }
     return false;
   }
