@@ -1,5 +1,6 @@
 package com.ttwijang.cms.api.team.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
@@ -69,6 +70,15 @@ public class TeamMemberDto {
 
         @Schema(description = "가입일")
         private LocalDateTime createdDate;
+
+        @Schema(description = "성별 (0: 남, 1: 여)")
+        private Integer gender;
+
+        @Schema(description = "생년월일")
+        private LocalDate birth;
+
+        @Schema(description = "매너점수")
+        private Integer mannerScore;
     }
 
     @Data
