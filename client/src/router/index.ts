@@ -82,14 +82,6 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamPage.vue'),
 			},
-			{
-				path: 'team-recruit',
-				name: 'TeamRecruit',
-				meta: {
-					title: '회원 모집',
-				},
-				component: () => import('@/views/teamRecruit.vue'),
-			},
 		],
 	},
 	{
@@ -255,6 +247,14 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '팀 모집 상세',
 				},
 				component: () => import('@/views/teamRecruitDetail.vue'),
+			},
+			{
+				path: '/team-recruit',
+				name: 'TeamRecruit',
+				meta: {
+					title: '회원 모집',
+				},
+				component: () => import('@/views/teamRecruit.vue'),
 			},
 		],
 	},

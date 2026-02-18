@@ -126,7 +126,7 @@
             <div class="league-join-team">
               <div class="join-team-header">
                 <h3 class="join-team-title">팀 회원 모집</h3>
-                <button class="add-team-button">
+                <button class="add-team-button" @click="$router.push('/team-recruit')">
                   <i class="el-icon-circle-plus-outline"></i>
                 </button>
               </div>
@@ -142,7 +142,7 @@
                   v-for="(team, index) in recruitingTeams"
                   :key="index"
                   class="join-team-card"
-                  @click="navigateToTeam(team.teamCode)"
+                  @click="$router.push(`/team-recruit-detail/${team.teamUid}`)"
                 >
                   <div class="team-badge-wrapper">
                     <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>

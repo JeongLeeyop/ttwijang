@@ -5,7 +5,7 @@
     </div>
     <template v-else-if="team">
       <!-- Team Photo -->
-      <div class="team-photo-section">
+      <!-- <div class="team-photo-section">
         <img
           v-if="team.teamPhotoUrl"
           :src="team.teamPhotoUrl"
@@ -21,7 +21,7 @@
           >
           <i v-else class="el-icon-football placeholder-icon"></i>
         </div>
-      </div>
+      </div> -->
 
       <!-- Team Info Header -->
       <div class="detail-header">
@@ -264,6 +264,7 @@ export default class TeamRecruitDetail extends Vue {
   min-height: 100vh;
   background: #fff;
   padding-bottom: 80px;
+  margin-top: 60px;
 }
 
 .loading-container {
@@ -357,6 +358,7 @@ export default class TeamRecruitDetail extends Vue {
 }
 
 .team-name {
+  text-align: left;
   font-size: 20px;
   font-weight: 700;
   color: #333;

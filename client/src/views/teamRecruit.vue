@@ -346,6 +346,7 @@ export default class TeamRecruit extends Vue {
   min-height: 100vh;
   background: #f5f5f5;
   padding-bottom: 80px;
+  margin-top:60px;
 }
 
 .recruit-header {
