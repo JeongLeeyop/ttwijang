@@ -436,10 +436,14 @@ public class TeamService {
     }
 
     private TeamDto.DetailResponse toDetailResponse(Team team) {
+        String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
+                ? "/api/attached-file/" + team.getLogoFileUid()
+                : null;
         return TeamDto.DetailResponse.builder()
                 .uid(team.getUid())
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
+                .logoUrl(logoUrl)
                 .description(team.getDescription())
                 .mannerScore(team.getMannerScore())
                 .memberCount(team.getMemberCount())
