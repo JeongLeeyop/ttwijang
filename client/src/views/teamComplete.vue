@@ -119,7 +119,7 @@ export default class TeamCompletePage extends Vue {
       const createRequest: CreateTeamRequest = {
         name: teamFormData.name,
         teamCode: teamFormData.code,
-        logoUrl: teamFormData.logo,
+        logoFileUid: teamFormData.logoFileUid,
         activityDays: teamInfoData.activeDays?.join(','),
         activityTimes: teamInfoData.activeTimes?.join(','),
         regionSido: teamLocationData.city,

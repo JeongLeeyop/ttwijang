@@ -99,6 +99,7 @@ public class LeagueService {
                 standings.add(LeagueDto.LeagueStandingResponse.builder()
                         .ranking(ranking++)
                         .teamUid(team.getUid())
+                        .teamCode(team.getTeamCode())
                         .teamName(team.getName())
                         .played(lt.getPlayed())
                         .wins(lt.getWins())
@@ -410,6 +411,7 @@ public class LeagueService {
                         League league = leagueRepository.findByUid(leagueUid).orElse(null);
                         return LeagueDto.LeagueTeamResponse.builder()
                                 .teamUid(team.getUid())
+                                .teamCode(team.getTeamCode())
                                 .teamName(team.getName())
                                 .teamLogoUrl(team.getLogoFileUid())
                                 .leagueName(league != null ? league.getName() : "")

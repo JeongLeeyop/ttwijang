@@ -60,6 +60,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 			.antMatchers("/oauth/**").permitAll()  // 모든 OAuth 엔드포인트 허용
 			.antMatchers("/api/attached-file/**").permitAll()
 			.antMatchers("/api/post/upload").permitAll()
+			.antMatchers("/api/team/upload").permitAll()
 			.antMatchers("/api/client/**").permitAll()
 			.antMatchers("/api/bank/info").permitAll()
 			.antMatchers("/api/admin/**").permitAll()

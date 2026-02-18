@@ -11,11 +11,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.ttwijang.cms.api.attached_file.service.AttachedFileService;
 import com.ttwijang.cms.api.team.dto.TeamDto;
 import com.ttwijang.cms.api.team.dto.TeamMemberDto;
 import com.ttwijang.cms.api.team.service.TeamService;
 import com.ttwijang.cms.api.region.service.RegionCodeService;
+import com.ttwijang.cms.entity.AttachedFile;
 import com.ttwijang.cms.oauth.SinghaUser;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +35,13 @@ public class TeamController {
 
     private final TeamService teamService;
     private final RegionCodeService regionCodeService;
+    private final AttachedFileService attachedFileService;
+
+    @Operation(summary = "팀 관련 파일 업로드 (로고, 단체사진, 커뮤니티 이미지 등)")
+    @PostMapping("/upload")
+    public ResponseEntity<AttachedFile> fileUpload(MultipartFile file) {
+        return ResponseEntity.ok(attachedFileService.save(file, "team"));
+    }
 
     @Operation(summary = "팀 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
