@@ -67,20 +67,26 @@
 
         <!-- Date Selector Row -->
         <div class="date-selector-row">
+          <div class="date-item all-btn"
+               :class="{ 'selected': showAllMonth }"
+               @click="selectAll">
+            <div class="day-number">전체</div>
+          </div>
           <div class="date-item"
                v-for="day in getDaysInMonth(currentYear, currentMonthIndex)"
                :key="day"
-               :class="{ 'selected': isSelectedDate(day) }"
+               :class="{ 'selected': !showAllMonth && isSelectedDate(day), 'has-guest': hasGuestOnDay(day) }"
                @click="selectDate(day)">
             <div class="day-label">{{ getDayLabel(day) }}</div>
             <div class="day-number">{{ day }}</div>
+            <div v-if="hasGuestOnDay(day)" class="match-dot"></div>
           </div>
         </div>
 
         <!-- Upcoming Match Cards -->
         <div class="match-cards">
           <div v-if="filteredGuests.length === 0" class="no-guest-message">
-            <p>선택한 날짜에 게스트 모집이 없습니다.</p>
+            <p>{{ showAllMonth ? '이번 달 게스트 모집이 없습니다.' : '선택한 날짜에 게스트 모집이 없습니다.' }}</p>
           </div>
           <div class="guest-list" v-else>
               <div
@@ -267,6 +273,8 @@ export default class extends Vue {
 
   private selectedDay: number = new Date().getDate()
 
+  private showAllMonth = true
+
   async created() {
     await this.loadData();
   }
@@ -344,7 +352,8 @@ export default class extends Vue {
       }
 
       const response = await getGuestRecruitmentsByDateRange(startDate, endDate, regionParams);
-      const guests = response.data?.content || response.data || [];
+      const allGuests = response.data?.content || response.data || [];
+      const guests = allGuests.filter((g: any) => g.status === 'RECRUITING');
       const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
       this.guestData = guests.map((guest: any) => {
@@ -353,10 +362,17 @@ export default class extends Vue {
           || guest.status === 'COMPLETED'
           || guest.status === 'CLOSED';
 
+        const logoUrl = (() => {
+          const url = guest.teamLogoUrl;
+          if (!url) return this.getTeamLogo(guest.teamName);
+          if (url.startsWith('http') || url.startsWith('/')) return url;
+          return `/api/attached-file/${url}`;
+        })();
+
         return {
           uid: guest.uid,
           name: guest.teamName || '',
-          logo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
+          logo: logoUrl,
           positionLabel: this.formatPositionType(guest.positionType),
           manner: guest.teamMannerScore || 0,
           feeLabel: this.formatFee(guest.fee),
@@ -366,7 +382,7 @@ export default class extends Vue {
           matchTime: this.formatTime(guest.matchTime),
           location: guest.stadiumName || '',
           date: matchDate,
-          teamLogo: guest.teamLogoUrl || this.getTeamLogo(guest.teamName),
+          teamLogo: logoUrl,
           currentMembers: guest.currentGuests || 0,
           maxMembers: guest.maxGuests || 0,
           isRecruitmentClosed: isFull,
@@ -533,6 +549,7 @@ export default class extends Vue {
     } else {
       this.currentMonthIndex -= 1;
     }
+    this.showAllMonth = true;
     this.selectedDay = 1;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, 1);
   }
@@ -544,6 +561,7 @@ export default class extends Vue {
     } else {
       this.currentMonthIndex += 1;
     }
+    this.showAllMonth = true;
     this.selectedDay = 1;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, 1);
   }
@@ -578,7 +596,30 @@ export default class extends Vue {
     });
   }
 
+  get guestDaysSet(): Set<number> {
+    const days = new Set<number>();
+    this.guestData.forEach((g: any) => {
+      if (g.date
+        && g.date.getFullYear() === this.currentYear
+        && g.date.getMonth() === this.currentMonthIndex) {
+        days.add(g.date.getDate());
+      }
+    });
+    return days;
+  }
+
+  private hasGuestOnDay(day: number): boolean {
+    return this.guestDaysSet.has(day);
+  }
+
   get filteredGuests(): any[] {
+    if (this.showAllMonth) {
+      return this.guestData
+        .filter((g: any) => g.date
+          && g.date.getFullYear() === this.currentYear
+          && g.date.getMonth() === this.currentMonthIndex)
+        .sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+    }
     return this.guestData.filter((guest) => guest.date && this.isSameDate(guest.date, this.selectedDate));
   }
 
@@ -599,7 +640,12 @@ export default class extends Vue {
     return days[date.getDay()];
   }
 
+  private selectAll(): void {
+    this.showAllMonth = true;
+  }
+
   private selectDate(day: number): void {
+    this.showAllMonth = false;
     this.selectedDay = day;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, day);
   }
@@ -628,6 +674,50 @@ export default class extends Vue {
   padding: 40px 20px;
   color: #999;
   font-size: 14px;
+}
+
+/* All button in date selector */
+.date-item.all-btn {
+  min-width: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  left: 0;
+  z-index: 2;
+  background: #f5f5f5;
+}
+
+.date-item.all-btn .day-number {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.date-item.all-btn.selected {
+  background: #061da1;
+}
+
+.date-item.all-btn.selected .day-number {
+  color: #fff;
+}
+
+/* Match dot indicator on calendar dates */
+.date-item {
+  position: relative;
+}
+
+.match-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #061da1;
+  margin: 2px auto 0;
+}
+
+.date-item.selected .match-dot {
+  background: #fff;
+}
+
+.date-item.has-guest .day-number {
+  font-weight: 700;
 }
 
 .loading-container {

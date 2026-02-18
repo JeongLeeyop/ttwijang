@@ -610,7 +610,9 @@ export default class MatchDetail extends Vue {
 
   get homeTeamLogo(): string {
     const url = this.detailData?.homeTeamLogoUrl;
-    if (url) return url;
+    if (url) {
+      return (url.startsWith('http') || url.startsWith('/')) ? url : `/api/attached-file/${url}`;
+    }
     return this.generateAvatar(this.homeTeamName);
   }
 
@@ -620,7 +622,9 @@ export default class MatchDetail extends Vue {
 
   get awayTeamLogo(): string {
     const url = this.detailData?.awayTeamLogoUrl;
-    if (url) return url;
+    if (url) {
+      return (url.startsWith('http') || url.startsWith('/')) ? url : `/api/attached-file/${url}`;
+    }
     return this.generateAvatar(this.awayTeamName);
   }
 
@@ -647,7 +651,9 @@ export default class MatchDetail extends Vue {
 
   get hostTeamLogo(): string {
     const url = this.detailData?.hostTeamLogoUrl || this.detailData?.teamLogoUrl;
-    if (url) return url;
+    if (url) {
+      return (url.startsWith('http') || url.startsWith('/')) ? url : `/api/attached-file/${url}`;
+    }
     return this.generateAvatar(this.hostTeamName);
   }
 
@@ -659,7 +665,9 @@ export default class MatchDetail extends Vue {
 
   get opponentTeamLogo(): string {
     const url = this.detailData?.guestTeamLogoUrl || this.detailData?.opponentTeamLogoUrl;
-    if (url) return url;
+    if (url) {
+      return (url.startsWith('http') || url.startsWith('/')) ? url : `/api/attached-file/${url}`;
+    }
     return this.generateAvatar(this.opponentTeamName);
   }
 
