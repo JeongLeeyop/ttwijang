@@ -526,7 +526,13 @@
                   rows="6"
                 ></textarea>
               </div>
-              <div class="write-image-field">
+              <div v-if="isOwner || isManager" class="write-notice-field">
+                <label class="notice-checkbox">
+                  <input v-model="writeForm.isNotice" type="checkbox">
+                  <span>📢 공지사항으로 등록</span>
+                </label>
+              </div>
+              <div v-if="!writeForm.isNotice" class="write-image-field">
                 <div v-if="writeForm.imagePreview" class="write-image-preview">
                   <img :src="writeForm.imagePreview" alt="미리보기">
                   <span class="remove-image" @click="removeImage">
@@ -542,12 +548,6 @@
                     style="display:none"
                     @change="handleImageUpload"
                   >
-                </label>
-              </div>
-              <div v-if="isOwner" class="write-notice-field">
-                <label class="notice-checkbox">
-                  <input v-model="writeForm.isNotice" type="checkbox">
-                  <span>공지사항으로 등록</span>
                 </label>
               </div>
             </div>
@@ -750,6 +750,10 @@ export default class TeamPage extends Vue {
 
   get isMember(): boolean {
     return this.myRole === 'MEMBER' || this.myRole === 'MANAGER';
+  }
+
+  get isManager(): boolean {
+    return this.myRole === 'MANAGER';
   }
 
   get filteredMatches(): any[] {
@@ -999,6 +1003,10 @@ export default class TeamPage extends Vue {
   private getPostImage(post: any): string {
     if (post.fileList && post.fileList.length > 0) {
       const file = post.fileList[0];
+      // fileList는 문자열(fileUid) 배열로 반환됨
+      if (typeof file === 'string' && file) {
+        return `${process.env.VUE_APP_COMMON_API || ''}/attached-file/${file}`;
+      }
       if (file.fileUrl) return file.fileUrl;
       if (file.fileUid) {
         return `${process.env.VUE_APP_COMMON_API || ''}/attached-file/${file.fileUid}`;
@@ -1021,11 +1029,17 @@ export default class TeamPage extends Vue {
 
   private editPost(post: any): void {
     this.editingPost = post;
+    // fileList는 문자열(fileUid) 배열로 반환됨
+    let existingFileUid = '';
+    if (post.fileList && post.fileList.length > 0) {
+      const file = post.fileList[0];
+      existingFileUid = typeof file === 'string' ? file : (file.fileUid || '');
+    }
     this.writeForm = {
       title: post.title || '',
       content: post.content || '',
       imagePreview: this.getPostImage(post),
-      imageFileUid: post.fileList?.[0]?.fileUid || '',
+      imageFileUid: existingFileUid,
       isNotice: post.noticeStatus || false,
     };
     this.showWriteModal = true;
@@ -1064,13 +1078,21 @@ export default class TeamPage extends Vue {
     this.writeForm.imageFileUid = '';
   }
 
+  @Watch('writeForm.isNotice')
+  onNoticeChanged(val: boolean): void {
+    if (val) {
+      this.writeForm.imagePreview = '';
+      this.writeForm.imageFileUid = '';
+    }
+  }
+
   private async submitWriteForm(): Promise<void> {
     if (!this.writeForm.title.trim()) {
       this.$message.warning('제목을 입력하세요.');
       return;
     }
     try {
-      const fileList = this.writeForm.imageFileUid
+      const fileList = (this.writeForm.imageFileUid && !this.writeForm.isNotice)
         ? [{ fileUid: this.writeForm.imageFileUid }] : [];
       if (this.editingPost) {
         await updateTeamPost(this.editingPost.uid, {
@@ -1924,6 +1946,7 @@ export default class TeamPage extends Vue {
   justify-content: center;
   gap: 6px;
   margin-top: 16px;
+  margin-bottom:30px;
   padding: 12px;
   background: #f5f7ff;
   border: 1px dashed #061da1;
@@ -2750,6 +2773,10 @@ export default class TeamPage extends Vue {
 
 .write-notice-field {
   margin-bottom: 14px;
+  padding: 10px 14px;
+  background: #f0f3ff;
+  border-radius: 10px;
+  border: 1px solid #dde3ff;
 }
 
 .notice-checkbox {

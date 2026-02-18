@@ -82,6 +82,10 @@ public class PostDto {
 		private boolean replyStatus;
 		private List<String> tags = new ArrayList<String>();
 		private String createDate;
+		private boolean noticeStatus;
+		private int commentCount;
+		private String userUid;
+		private boolean hasAuthority;
 	}
 	
 	@Data
