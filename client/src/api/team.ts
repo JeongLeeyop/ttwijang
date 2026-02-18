@@ -49,14 +49,22 @@ export interface CreateTeamRequest {
   description?: string
   logoFileUid?: string
   establishedYear?: number
-  activityDays?: string
-  activityTimes?: string
+  activeDays?: number
+  activeTimeSlots?: number
   regionSido?: string
   regionSigungu?: string
   homeStadium?: string
+  homeStadiumAddress?: string
   ageGroups?: number
   genderType?: number
   skillLevel?: number
+  bankName?: string
+  bankAccount?: string
+  monthlyFee?: number
+  featureTags?: string
+  recruitingMembers?: boolean
+  recruitmentDescription?: string
+  teamPhotoFileUid?: string
 }
 
 export function createTeam(data: CreateTeamRequest) {

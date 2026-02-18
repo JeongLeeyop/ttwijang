@@ -294,7 +294,7 @@ export default class MemberDetail extends Vue {
 }
 
 .profile-name {
-  color: #fff;
+  //color: #fff;
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 8px;

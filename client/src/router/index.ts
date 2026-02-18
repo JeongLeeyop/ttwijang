@@ -264,6 +264,30 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamRecruit.vue'),
 			},
+			{
+				path: '/team-dashboard',
+				name: 'TeamDashboard',
+				meta: {
+					title: '팀 대시보드',
+				},
+				component: () => import('@/views/teamDashboard.vue'),
+			},
+			{
+				path: '/team-settings',
+				name: 'TeamSettings',
+				meta: {
+					title: '팀 설정',
+				},
+				component: () => import('@/views/teamSettings.vue'),
+			},
+			{
+				path: '/team-profile-edit',
+				name: 'TeamProfileEdit',
+				meta: {
+					title: '팀 프로필 수정',
+				},
+				component: () => import('@/views/teamProfileEdit.vue'),
+			},
 		],
 	},
 ];

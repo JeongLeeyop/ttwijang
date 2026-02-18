@@ -89,7 +89,7 @@
               class="form-input"
               placeholder="진주풋살장"
             >
-            <i class="el-icon-search input-icon"></i>
+            <!-- <i class="el-icon-search input-icon"></i> -->
           </div>
         </div>
 

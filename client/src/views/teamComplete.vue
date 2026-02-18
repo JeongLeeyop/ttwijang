@@ -116,12 +116,34 @@ export default class TeamCompletePage extends Vue {
         male: 0, female: 1, mixed: 2,
       };
 
+      // 활동 요일 비트마스크 변환
+      const dayBitmask: Record<string, number> = {
+        mon: 1, tue: 2, wed: 4, thu: 8, fri: 16, sat: 32, sun: 64,
+      };
+      let activeDays = 0;
+      if (teamInfoData.activeDays) {
+        teamInfoData.activeDays.forEach((day: string) => {
+          activeDays += dayBitmask[day] || 0;
+        });
+      }
+
+      // 활동 시간 비트마스크 변환
+      const timeBitmask: Record<string, number> = {
+        dawn: 1, morning: 2, afternoon: 4, evening: 8, night: 16,
+      };
+      let activeTimeSlots = 0;
+      if (teamInfoData.activeTimes) {
+        teamInfoData.activeTimes.forEach((time: string) => {
+          activeTimeSlots += timeBitmask[time] || 0;
+        });
+      }
+
       const createRequest: CreateTeamRequest = {
         name: teamFormData.name,
         teamCode: teamFormData.code,
         logoFileUid: teamFormData.logoFileUid,
-        activityDays: teamInfoData.activeDays?.join(','),
-        activityTimes: teamInfoData.activeTimes?.join(','),
+        activeDays: activeDays || undefined,
+        activeTimeSlots: activeTimeSlots || undefined,
         regionSido: teamLocationData.city,
         regionSigungu: teamLocationData.district,
         homeStadium: teamLocationData.stadiumName,

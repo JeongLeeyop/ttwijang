@@ -224,6 +224,18 @@ public class TeamDto {
         @Schema(description = "월 회비")
         private Integer monthlyFee;
 
+        @Schema(description = "후원 계좌 은행명")
+        private String bankName;
+
+        @Schema(description = "후원 계좌 번호")
+        private String bankAccount;
+
+        @Schema(description = "환불 계좌 은행명")
+        private String refundBankName;
+
+        @Schema(description = "환불 계좌 번호")
+        private String refundBankAccount;
+
         @Schema(description = "운영자 UID")
         private String ownerUid;
 
