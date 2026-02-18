@@ -1,6 +1,6 @@
 # 서버설정
 server:
-  port: 8080
+  port: 8081
   # error.include-stacktrace: never
 # 인코딩
   servlet:
@@ -109,7 +109,7 @@ sms:
 
 ---   
 server:
-  port: 8080
+  port: 8081
 spring:
   profiles: development
   config:
@@ -119,15 +119,17 @@ spring:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
+        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
         username: ttwijang
         password: ttwijang1!
+        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
         # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
+        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
         username: ttwijang
         password: ttwijang1!
+        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
       # resource:
       #   driver-class-name: com.mysql.cj.jdbc.Driver
       #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
