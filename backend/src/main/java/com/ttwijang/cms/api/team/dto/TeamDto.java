@@ -131,6 +131,12 @@ public class TeamDto {
 
         @Schema(description = "회원 모집 중 여부")
         private Boolean recruitingMembers;
+
+        @Schema(description = "회원 모집 추가사항")
+        private String recruitmentDescription;
+
+        @Schema(description = "팀 단체 사진 파일 UID")
+        private String teamPhotoFileUid;
     }
 
     @Data
@@ -239,6 +245,15 @@ public class TeamDto {
         @Schema(description = "팀 상태")
         private Team.TeamStatus status;
 
+        @Schema(description = "회원 모집 추가사항")
+        private String recruitmentDescription;
+
+        @Schema(description = "팀 단체 사진 파일 UID")
+        private String teamPhotoFileUid;
+
+        @Schema(description = "팀 단체 사진 URL")
+        private String teamPhotoUrl;
+
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
 
@@ -297,5 +312,94 @@ public class TeamDto {
 
         @Schema(description = "팀 생성 가능 여부")
         private boolean canCreateTeam;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "회원 모집 설정 요청")
+    public static class RecruitmentRequest {
+        @Schema(description = "팀 특징 태그 (JSON 배열)")
+        private String featureTags;
+
+        @Schema(description = "활동 요일 (비트마스크)")
+        private Integer activeDays;
+
+        @Schema(description = "활동 시간대 (비트마스크)")
+        private Integer activeTimeSlots;
+
+        @Schema(description = "활동 지역 - 도/시")
+        private String regionSido;
+
+        @Schema(description = "활동 지역 - 시/군/구")
+        private String regionSigungu;
+
+        @Schema(description = "월 회비")
+        private Integer monthlyFee;
+
+        @Schema(description = "성별 타입 (0: 남자, 1: 여자, 2: 혼성)")
+        private Integer genderType;
+
+        @Schema(description = "연령대 (비트마스크)")
+        private Integer ageGroups;
+
+        @Schema(description = "팀 단체 사진 파일 UID")
+        private String teamPhotoFileUid;
+
+        @Schema(description = "회원 모집 추가사항")
+        private String recruitmentDescription;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "회원 모집 팀 목록 응답")
+    public static class RecruitmentListResponse {
+        @Schema(description = "팀 UID")
+        private String uid;
+
+        @Schema(description = "팀 이름")
+        private String name;
+
+        @Schema(description = "팀 코드")
+        private String teamCode;
+
+        @Schema(description = "팀 로고 URL")
+        private String logoUrl;
+
+        @Schema(description = "매너 점수")
+        private Double mannerScore;
+
+        @Schema(description = "회원 수")
+        private Integer memberCount;
+
+        @Schema(description = "활동 지역")
+        private String region;
+
+        @Schema(description = "성별 타입")
+        private Integer genderType;
+
+        @Schema(description = "연령대")
+        private Integer ageGroups;
+
+        @Schema(description = "활동 요일")
+        private Integer activeDays;
+
+        @Schema(description = "활동 시간대")
+        private Integer activeTimeSlots;
+
+        @Schema(description = "월 회비")
+        private Integer monthlyFee;
+
+        @Schema(description = "팀 특징 태그")
+        private String featureTags;
+
+        @Schema(description = "조회수")
+        private Long viewCount;
+
+        @Schema(description = "신청수")
+        private Long applicationCount;
     }
 }

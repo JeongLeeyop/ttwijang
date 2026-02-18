@@ -48,6 +48,34 @@
         </div>
       </div>
 
+      <!-- Recruiting Teams Section -->
+      <div v-if="recruitingTeams.length > 0" class="recruit-section">
+        <div class="recruit-section-header">
+          <h2 class="section-title">팀 회원 모집</h2>
+          <button class="see-all-btn" @click="$router.push('/team-recruit')">전체보기</button>
+        </div>
+        <div class="recruit-cards-scroll">
+          <div
+            v-for="rt in recruitingTeams"
+            :key="rt.uid"
+            class="recruit-mini-card"
+            @click="$router.push(`/team-recruit-detail/${rt.uid}`)"
+          >
+            <div class="recruit-mini-logo">
+              <img
+                v-if="rt.logoUrl"
+                :src="rt.logoUrl"
+                alt="로고"
+                class="mini-logo-img"
+              >
+              <i v-else class="el-icon-football mini-logo-icon"></i>
+            </div>
+            <span class="recruit-mini-name">{{ rt.name }}</span>
+            <span class="recruit-mini-region">{{ rt.region || '' }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- League Schedule Section -->
       <div
         class="league-section"
@@ -187,6 +215,7 @@ import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 import { getMatchList } from '@/api/match';
 import { getGuestRecruitmentList } from '@/api/guest';
+import { getRecruitingTeams } from '@/api/team';
 
 interface HomeCard {
   uid: string
@@ -270,6 +299,8 @@ export default class extends Vue {
   private isLoading = false
 
   private teamCards: HomeCard[] = []
+
+  private recruitingTeams: any[] = []
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -420,6 +451,21 @@ export default class extends Vue {
     } catch (error) {
       console.warn('팀 카드 로드 실패:', error);
       this.teamCards = [];
+    }
+
+    // 모집 중인 팀 로드
+    try {
+      const recruitParams: any = {
+        size: 10,
+      };
+      if (this.selectedRegion) {
+        recruitParams.regionCode = this.selectedRegion;
+      }
+      const recruitRes = await getRecruitingTeams(recruitParams);
+      const data = recruitRes.data || recruitRes;
+      this.recruitingTeams = data.content || [];
+    } catch (e) {
+      this.recruitingTeams = [];
     }
   }
 
@@ -769,5 +815,100 @@ export default class extends Vue {
   padding: 40px;
   color: #999;
   font-size: 14px;
+}
+
+/* Recruiting Teams Section */
+.recruit-section {
+  padding: 16px 20px;
+}
+
+.recruit-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.recruit-section-header .section-title {
+  margin: 0;
+}
+
+.see-all-btn {
+  background: none;
+  border: none;
+  color: #061da1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.recruit-cards-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.recruit-cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.recruit-mini-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  max-width: 80px;
+  cursor: pointer;
+}
+
+.recruit-mini-card:active {
+  opacity: 0.7;
+}
+
+.recruit-mini-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.mini-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-logo-icon {
+  font-size: 24px;
+  color: #adb5bd;
+}
+
+.recruit-mini-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.recruit-mini-region {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 </style>

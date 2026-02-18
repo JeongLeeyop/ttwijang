@@ -603,7 +603,10 @@ export default class TeamPage extends Vue {
         });
         break;
       case 'recruit':
-        this.$message.info('신규 회원 모집하기 기능은 준비 중입니다.');
+        this.$router.push({
+          path: '/recruitment-create',
+          query: { teamUid: this.teamUid },
+        });
         break;
       case 'invite':
         this.copyInviteLink();

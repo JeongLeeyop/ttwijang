@@ -82,6 +82,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamPage.vue'),
 			},
+			{
+				path: 'team-recruit',
+				name: 'TeamRecruit',
+				meta: {
+					title: '회원 모집',
+				},
+				component: () => import('@/views/teamRecruit.vue'),
+			},
 		],
 	},
 	{
@@ -231,6 +239,22 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '캐쉬 사용내역',
 				},
 				component: () => import('@/views/cashHistory.vue'),
+			},
+			{
+				path: '/recruitment-create',
+				name: 'RecruitmentCreate',
+				meta: {
+					title: '회원 모집하기',
+				},
+				component: () => import('@/views/recruitmentCreate.vue'),
+			},
+			{
+				path: '/team-recruit-detail/:teamUid',
+				name: 'TeamRecruitDetail',
+				meta: {
+					title: '팀 모집 상세',
+				},
+				component: () => import('@/views/teamRecruitDetail.vue'),
 			},
 		],
 	},
