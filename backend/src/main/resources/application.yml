@@ -119,14 +119,15 @@ spring:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
         username: ttwijang
+        # password: dhkfh2026!@#
         password: ttwijang1!
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
         # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
         username: ttwijang
+        # password: dhkfh2026!@#
         password: ttwijang1!
       # resource:
       #   driver-class-name: com.mysql.cj.jdbc.Driver
@@ -152,14 +153,14 @@ spring:
   datasource:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: welit_db
-        password: welit22031@
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        username: ttwijang
+        password: dhkfh2026!@#
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: welit_db
-        password: welit22031@
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        username: ttwijang
+        password: dhkfh2026!@#
 
 # logging:
   # level:
