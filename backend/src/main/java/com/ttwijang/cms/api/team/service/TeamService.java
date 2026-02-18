@@ -190,6 +190,8 @@ public class TeamService {
         if (request.getMonthlyFee() != null) team.setMonthlyFee(request.getMonthlyFee());
         if (request.getFeatureTags() != null) team.setFeatureTags(request.getFeatureTags());
         if (request.getRecruitingMembers() != null) team.setRecruitingMembers(request.getRecruitingMembers());
+        if (request.getRecruitmentDescription() != null) team.setRecruitmentDescription(request.getRecruitmentDescription());
+        if (request.getTeamPhotoFileUid() != null) team.setTeamPhotoFileUid(request.getTeamPhotoFileUid());
 
         team = teamRepository.save(team);
         return toDetailResponse(team);
@@ -437,6 +439,74 @@ public class TeamService {
         teamRepository.save(team);
     }
 
+    /**
+     * 회원 모집 설정 저장
+     */
+    @Transactional
+    public TeamDto.DetailResponse saveRecruitment(String teamUid, TeamDto.RecruitmentRequest request, String userUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (!team.getOwnerUid().equals(userUid)) {
+            throw new IllegalArgumentException("팀 수정 권한이 없습니다.");
+        }
+
+        if (request.getFeatureTags() != null) team.setFeatureTags(request.getFeatureTags());
+        if (request.getActiveDays() != null) team.setActiveDays(request.getActiveDays());
+        if (request.getActiveTimeSlots() != null) team.setActiveTimeSlots(request.getActiveTimeSlots());
+        if (request.getRegionSido() != null) team.setRegionSido(request.getRegionSido());
+        if (request.getRegionSigungu() != null) team.setRegionSigungu(request.getRegionSigungu());
+        if (request.getMonthlyFee() != null) team.setMonthlyFee(request.getMonthlyFee());
+        if (request.getGenderType() != null) team.setGenderType(request.getGenderType());
+        if (request.getAgeGroups() != null) team.setAgeGroups(request.getAgeGroups());
+        if (request.getTeamPhotoFileUid() != null) team.setTeamPhotoFileUid(request.getTeamPhotoFileUid());
+        if (request.getRecruitmentDescription() != null) team.setRecruitmentDescription(request.getRecruitmentDescription());
+        team.setRecruitingMembers(true);
+
+        team = teamRepository.save(team);
+        return toDetailResponse(team);
+    }
+
+    /**
+     * 회원 모집 중인 팀 목록 조회 (필터링)
+     */
+    @Transactional(readOnly = true)
+    public Page<TeamDto.RecruitmentListResponse> getRecruitingTeams(
+            String regionSido, String regionSigungu,
+            Integer genderType, Integer ageGroups,
+            Integer activeDays, Integer activeTimeSlots,
+            String featureTag,
+            Pageable pageable) {
+
+        // native query 사용 시 Pageable sort 의 Java 필드명이 그대로 SQL에 추가되어 오류 발생.
+        // ORDER BY 는 native query 내부에 이미 정의되어 있으므로 sort 없는 Pageable 로 교체.
+        Pageable unsorted = org.springframework.data.domain.PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<Team> teams = teamRepository.findRecruitingTeams(
+                regionSido, regionSigungu,
+                genderType, ageGroups,
+                activeDays, activeTimeSlots,
+                featureTag,
+                unsorted);
+
+        return teams.map(this::toRecruitmentListResponse);
+    }
+
+    /**
+     * 회원 모집 종료
+     */
+    @Transactional
+    public void stopRecruitment(String teamUid, String userUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+        if (!team.getOwnerUid().equals(userUid)) {
+            throw new IllegalArgumentException("팀 수정 권한이 없습니다.");
+        }
+        team.setRecruitingMembers(false);
+        teamRepository.save(team);
+    }
+
     private TeamDto.DetailResponse toDetailResponse(Team team) {
         String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
                 ? "/api/attached-file/" + team.getLogoFileUid()
@@ -466,6 +536,8 @@ public class TeamService {
                 .sponsorOwnerUid(team.getSponsorOwnerUid())
                 .featureTags(team.getFeatureTags())
                 .recruitingMembers(team.getRecruitingMembers())
+                .recruitmentDescription(team.getRecruitmentDescription())
+                .teamPhotoFileUid(team.getTeamPhotoFileUid())
                 .status(team.getStatus())
                 .createdDate(team.getCreatedDate())
                 .build();
@@ -484,6 +556,33 @@ public class TeamService {
                 .memberCount(team.getMemberCount())
                 .region(team.getRegionSido() + " " + team.getRegionSigungu())
                 .recruitingMembers(team.getRecruitingMembers())
+                .build();
+    }
+
+    private TeamDto.RecruitmentListResponse toRecruitmentListResponse(Team team) {
+        String region = "";
+        if (team.getRegionSido() != null) {
+            region = team.getRegionSido();
+            if (team.getRegionSigungu() != null) {
+                region += " " + team.getRegionSigungu();
+            }
+        }
+        long applicationCount = teamMemberRepository.countByTeamUidAndStatus(team.getUid(), TeamMember.MemberStatus.PENDING);
+
+        return TeamDto.RecruitmentListResponse.builder()
+                .uid(team.getUid())
+                .name(team.getName())
+                .teamCode(team.getTeamCode())
+                .mannerScore(team.getMannerScore())
+                .memberCount(team.getMemberCount())
+                .region(region)
+                .genderType(team.getGenderType())
+                .ageGroups(team.getAgeGroups())
+                .activeDays(team.getActiveDays())
+                .activeTimeSlots(team.getActiveTimeSlots())
+                .monthlyFee(team.getMonthlyFee())
+                .featureTags(team.getFeatureTags())
+                .applicationCount(applicationCount)
                 .build();
     }
 

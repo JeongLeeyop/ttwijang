@@ -126,7 +126,7 @@
             <div class="league-join-team">
               <div class="join-team-header">
                 <h3 class="join-team-title">팀 회원 모집</h3>
-                <button class="add-team-button">
+                <button class="add-team-button" @click="$router.push('/team-recruit')">
                   <i class="el-icon-circle-plus-outline"></i>
                 </button>
               </div>
@@ -142,7 +142,7 @@
                   v-for="(team, index) in recruitingTeams"
                   :key="index"
                   class="join-team-card"
-                  @click="navigateToTeam(team.teamCode)"
+                  @click="$router.push(`/team-recruit-detail/${team.teamUid}`)"
                 >
                   <div class="team-badge-wrapper">
                     <!-- <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span> -->
@@ -203,7 +203,7 @@ import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import {
   getLeagueList, getLeagueTeams, LeagueTeamResponse, getUpcomingLeagueMatches,
 } from '@/api/league';
-import { getTeamList } from '@/api/team';
+import { getRecruitingTeams } from '@/api/team';
 import LeagueScheduleView from '@/components/league/LeagueScheduleView.vue';
 import LeagueStatusView from '@/components/league/LeagueStatusView.vue';
 
@@ -439,26 +439,25 @@ export default class extends Vue {
       }
 
       // 3. 회원 모집 중인 팀 목록 조회 (지역 필터 적용)
-      const teamParams: any = {
+      const recruitParams: any = {
         page: 0,
         size: 10,
       };
       if (this.selectedRegion) {
-        teamParams.regionCode = this.selectedRegion;
+        recruitParams.regionCode = this.selectedRegion;
       }
-      const recruitingTeamsResponse = await getTeamList(teamParams);
-      const teams = recruitingTeamsResponse.data?.content || [];
+      const recruitingTeamsResponse = await getRecruitingTeams(recruitParams);
+      const recruitData = recruitingTeamsResponse.data || recruitingTeamsResponse;
+      const recruitList = recruitData.content || [];
 
-      this.recruitingTeams = teams
-        .filter((team: any) => team.recruitingMembers === true)
+      this.recruitingTeams = recruitList
         .slice(0, 10)
         .map((team: any) => ({
-          teamUid: team.uid,
-          teamCode: team.teamCode || team.uid,
-          name: team.name,
-          logo: team.logoFileUid || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
-          leagueName: 'B리그',
-          leagueColor: '#ff8800',
+          teamUid: team.teamUid || team.uid,
+          name: team.name || team.teamName,
+          logo: team.logoUrl || team.teamPhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((team.name || team.teamName || '').substring(0, 2))}&background=random&color=fff&size=80`,
+          leagueName: team.leagueName || 'B리그',
+          leagueColor: team.leagueColor || '#ff8800',
         }));
     } catch (error) {
       console.error('Failed to load data:', error);

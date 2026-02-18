@@ -119,6 +119,11 @@ public class Team implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String featureTags;
 
+    @Column(columnDefinition = "TEXT")
+    private String recruitmentDescription;
+
+    private String teamPhotoFileUid;
+
     @CreationTimestamp
     private LocalDateTime createdDate;
 

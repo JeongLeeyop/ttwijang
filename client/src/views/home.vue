@@ -48,8 +48,48 @@
         </div>
       </div>
 
+      <!-- Recruiting Teams Section -->
+      <div v-if="recruitingTeams.length > 0" class="recruit-section">
+        <div class="recruit-section-header">
+          <h2 class="section-title">팀 회원 모집</h2>
+          <button class="see-all-btn" @click="$router.push('/team-recruit')">전체보기</button>
+        </div>
+        <div class="recruit-cards-scroll">
+          <div
+            v-for="rt in recruitingTeams"
+            :key="rt.uid"
+            class="recruit-mini-card"
+            @click="$router.push(`/team-recruit-detail/${rt.uid}`)"
+          >
+            <div class="recruit-mini-logo">
+              <img
+                v-if="rt.logoUrl"
+                :src="rt.logoUrl"
+                alt="로고"
+                class="mini-logo-img"
+              >
+              <i v-else class="el-icon-football mini-logo-icon"></i>
+            </div>
+            <span class="recruit-mini-name">{{ rt.name }}</span>
+            <span class="recruit-mini-region">{{ rt.region || '' }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- League Schedule Section -->
-      <div class="league-section" :class="{ 'expanded': showLeagueStatus }">
+      <div
+        class="league-section"
+        :class="{ 'expanded': isExpanded, 'dragging': isDragging }"
+        :style="sectionStyle"
+      >
+        <div
+          class="league-section-handle"
+          @touchstart.prevent="onDragStart"
+          @mousedown.prevent="onDragStart"
+        >
+          <div class="handle-bar"></div>
+        </div>
+        <div class="league-section-content">
         <div class="league-header">
           <div class="league-title-row">
             <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
@@ -157,6 +197,7 @@
             </div>
           </div>
         </div>
+        </div>
       </div>
     </div>
 
@@ -174,6 +215,7 @@ import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 import { getMatchList } from '@/api/match';
 import { getGuestRecruitmentList } from '@/api/guest';
+import { getRecruitingTeams } from '@/api/team';
 
 interface HomeCard {
   uid: string
@@ -232,6 +274,20 @@ export default class extends Vue {
 
   private showLeagueStatus = false
 
+  private isExpanded = false
+
+  private isDragging = false
+
+  private dragStartY = 0
+
+  private dragStartTop = 0
+
+  private sectionTop: number | null = null
+
+  private collapsedTop = 290
+
+  private expandedTop = 70
+
   private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
@@ -243,6 +299,8 @@ export default class extends Vue {
   private isLoading = false
 
   private teamCards: HomeCard[] = []
+
+  private recruitingTeams: any[] = []
 
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
@@ -394,6 +452,21 @@ export default class extends Vue {
       console.warn('팀 카드 로드 실패:', error);
       this.teamCards = [];
     }
+
+    // 모집 중인 팀 로드
+    try {
+      const recruitParams: any = {
+        size: 10,
+      };
+      if (this.selectedRegion) {
+        recruitParams.regionCode = this.selectedRegion;
+      }
+      const recruitRes = await getRecruitingTeams(recruitParams);
+      const data = recruitRes.data || recruitRes;
+      this.recruitingTeams = data.content || [];
+    } catch (e) {
+      this.recruitingTeams = [];
+    }
   }
 
   private async loadLeagueData(): Promise<void> {
@@ -529,6 +602,57 @@ export default class extends Vue {
 
   private toggleLeagueStatus(): void {
     this.showLeagueStatus = !this.showLeagueStatus;
+    if (this.showLeagueStatus) {
+      this.sectionTop = this.expandedTop;
+      this.isExpanded = true;
+    }
+  }
+
+  get sectionStyle(): Record<string, string> {
+    if (this.sectionTop !== null) {
+      return { top: `${this.sectionTop}px`, transition: this.isDragging ? 'none' : 'top 0.3s ease' };
+    }
+    return {};
+  }
+
+  private onDragStart(e: TouchEvent | MouseEvent): void {
+    this.isDragging = true;
+    this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const el = (e.target as HTMLElement).closest('.league-section') as HTMLElement;
+    if (el) {
+      this.dragStartTop = el.getBoundingClientRect().top;
+    }
+    document.addEventListener('touchmove', this.onDragMove, { passive: false });
+    document.addEventListener('mousemove', this.onDragMove);
+    document.addEventListener('touchend', this.onDragEnd);
+    document.addEventListener('mouseup', this.onDragEnd);
+  }
+
+  private onDragMove(e: TouchEvent | MouseEvent): void {
+    if (!this.isDragging) return;
+    if ('cancelable' in e && e.cancelable) e.preventDefault();
+    const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+    const delta = clientY - this.dragStartY;
+    let newTop = this.dragStartTop + delta;
+    newTop = Math.max(this.expandedTop, Math.min(newTop, this.collapsedTop));
+    this.sectionTop = newTop;
+  }
+
+  private onDragEnd(): void {
+    this.isDragging = false;
+    document.removeEventListener('touchmove', this.onDragMove);
+    document.removeEventListener('mousemove', this.onDragMove);
+    document.removeEventListener('touchend', this.onDragEnd);
+    document.removeEventListener('mouseup', this.onDragEnd);
+    if (this.sectionTop === null) return;
+    const mid = (this.collapsedTop + this.expandedTop) / 2;
+    if (this.sectionTop < mid) {
+      this.sectionTop = this.expandedTop;
+      this.isExpanded = true;
+    } else {
+      this.sectionTop = this.collapsedTop;
+      this.isExpanded = false;
+    }
   }
 
   private previousMonth(): void {
@@ -691,5 +815,100 @@ export default class extends Vue {
   padding: 40px;
   color: #999;
   font-size: 14px;
+}
+
+/* Recruiting Teams Section */
+.recruit-section {
+  padding: 16px 20px;
+}
+
+.recruit-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.recruit-section-header .section-title {
+  margin: 0;
+}
+
+.see-all-btn {
+  background: none;
+  border: none;
+  color: #061da1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.recruit-cards-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.recruit-cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.recruit-mini-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  max-width: 80px;
+  cursor: pointer;
+}
+
+.recruit-mini-card:active {
+  opacity: 0.7;
+}
+
+.recruit-mini-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.mini-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-logo-icon {
+  font-size: 24px;
+  color: #adb5bd;
+}
+
+.recruit-mini-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.recruit-mini-region {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 </style>

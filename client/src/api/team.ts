@@ -182,3 +182,65 @@ export function joinTeamByCode(teamCode: string) {
     method: 'post',
   });
 }
+
+// 회원 모집 설정 저장
+export interface RecruitmentRequest {
+  featureTags?: string
+  activeDays?: number
+  activeTimeSlots?: number
+  regionSido?: string
+  regionSigungu?: string
+  monthlyFee?: number
+  genderType?: number
+  ageGroups?: number
+  teamPhotoFileUid?: string
+  recruitmentDescription?: string
+}
+
+export function saveRecruitment(teamUid: string, data: RecruitmentRequest) {
+  return request({
+    url: `/team/${teamUid}/recruitment`,
+    method: 'post',
+    data,
+  });
+}
+
+// 회원 모집 중인 팀 목록 조회
+export function getRecruitingTeams(params?: {
+  regionCode?: string
+  regionSido?: string
+  regionSigungu?: string
+  genderType?: number
+  ageGroups?: number
+  activeDays?: number
+  activeTimeSlots?: number
+  featureTag?: string
+  page?: number
+  size?: number
+}) {
+  return request({
+    url: '/team/recruiting',
+    method: 'get',
+    params,
+  });
+}
+
+// 회원 모집 종료
+export function stopRecruitment(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/recruitment/stop`,
+    method: 'post',
+  });
+}
+
+// 팀 사진 업로드
+export function uploadTeamPhoto(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request({
+    url: '/team/upload',
+    method: 'post',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}

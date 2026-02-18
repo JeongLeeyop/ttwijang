@@ -35,13 +35,7 @@ public class TeamController {
 
     private final TeamService teamService;
     private final RegionCodeService regionCodeService;
-    private final AttachedFileService attachedFileService;
-
-    @Operation(summary = "팀 관련 파일 업로드 (로고, 단체사진, 커뮤니티 이미지 등)")
-    @PostMapping("/upload")
-    public ResponseEntity<AttachedFile> fileUpload(MultipartFile file) {
-        return ResponseEntity.ok(attachedFileService.save(file, "team"));
-    }
+    private final com.ttwijang.cms.api.attached_file.service.AttachedFileService attachedFileService;
 
     @Operation(summary = "팀 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
@@ -178,5 +172,52 @@ public class TeamController {
             @AuthenticationPrincipal SinghaUser userDetails) {
         teamService.deleteTeam(teamUid, userDetails.getUser().getUid());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "회원 모집 설정 저장", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/recruitment")
+    public ResponseEntity<TeamDto.DetailResponse> saveRecruitment(
+            @PathVariable String teamUid,
+            @Valid @RequestBody TeamDto.RecruitmentRequest request,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(teamService.saveRecruitment(teamUid, request, userDetails.getUser().getUid()));
+    }
+
+    @Operation(summary = "회원 모집 중인 팀 목록 조회")
+    @GetMapping("/recruiting")
+    public ResponseEntity<Page<TeamDto.RecruitmentListResponse>> getRecruitingTeams(
+            @RequestParam(required = false) String regionCode,
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
+            @RequestParam(required = false) Integer genderType,
+            @RequestParam(required = false) Integer ageGroups,
+            @RequestParam(required = false) Integer activeDays,
+            @RequestParam(required = false) Integer activeTimeSlots,
+            @RequestParam(required = false) String featureTag,
+            @PageableDefault(direction = Direction.DESC, sort = "createdDate") Pageable pageable) {
+        // regionCode가 제공되면 시/군/구 이름으로 변환하여 필터링
+        String effectiveSigungu = regionSigungu;
+        if (regionCode != null && !regionCode.isEmpty()) {
+            effectiveSigungu = regionCodeService.resolveRegionName(regionCode);
+        }
+        return ResponseEntity.ok(teamService.getRecruitingTeams(
+                regionSido, effectiveSigungu, genderType, ageGroups,
+                activeDays, activeTimeSlots, featureTag, pageable));
+    }
+
+    @Operation(summary = "회원 모집 종료", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/recruitment/stop")
+    public ResponseEntity<Void> stopRecruitment(
+            @PathVariable String teamUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        teamService.stopRecruitment(teamUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "팀 사진 업로드", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/upload")
+    public ResponseEntity<com.ttwijang.cms.entity.AttachedFile> uploadTeamPhoto(
+            org.springframework.web.multipart.MultipartFile file) {
+        return ResponseEntity.ok(attachedFileService.save(file, "team"));
     }
 }
