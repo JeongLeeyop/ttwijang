@@ -43,7 +43,7 @@
             </div>
           </div>
           <div class="empty" v-else>
-            <div class="logo"><img src="@/assets/images/logo2.png" /></div>
+            <!-- <div class="logo"><img src="@/assets/images/logo2.png" /></div> -->
             <div class="txt">도착한 알림이 없어요</div>
           </div>
           <el-button type="text" slot="reference" class="el-icon-bell header__bell alarm" :class="{'alert': newAlarmCount >= 1}"></el-button>
@@ -120,43 +120,7 @@ export default class extends Vue {
 
   private initializeSampleAlarms() {
     // 샘플 알람 데이터 생성
-    const sampleAlarms = [
-      {
-        id: 1,
-        title: '리그 경기 예정',
-        content: '내일 오후 7시에 경기가 있습니다.',
-        createDate: '2025-11-04 14:30:00',
-        link: '#',
-      },
-      {
-        id: 2,
-        title: '팀 가입 신청 승인',
-        content: '팀 "강남FC"의 가입 신청이 승인되었습니다.',
-        createDate: '2025-11-04 10:15:00',
-        link: '#',
-      },
-      {
-        id: 3,
-        title: '경기 결과 등록',
-        content: '지난 경기의 결과가 등록되었습니다. 확인해주세요.',
-        createDate: '2025-11-03 18:45:00',
-        link: '#',
-      },
-      {
-        id: 4,
-        title: '매너점수 변경',
-        content: '경기에서의 매너점수가 변경되었습니다. (4.8점)',
-        createDate: '2025-11-03 17:20:00',
-        link: '#',
-      },
-      {
-        id: 5,
-        title: '공지사항',
-        content: '플랫폼 점검이 11월 10일 예정되어 있습니다.',
-        createDate: '2025-11-02 09:00:00',
-        link: '#',
-      },
-    ];
+    const sampleAlarms: any = [];
 
     this.alarmList = sampleAlarms;
     this.newAlarmCount = 3;
