@@ -219,11 +219,11 @@ class ClientPostServiceImpl implements ClientPostService {
 	@Transactional
 	@Override
 	public PostDto.ClientDetail update(Post post, PostDto.Update postUpdateDto, SinghaUser authUser) {
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
-		
-		authCheck(board, authUser, "WRITE");
-
-		validate(board.getFieldList(), postUpdateDto.getDataList());
+		if (StringUtils.hasText(post.getBoardUid())) {
+			Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
+			authCheck(board, authUser, "WRITE");
+			validate(board.getFieldList(), postUpdateDto.getDataList());
+		}
 		postAuthCheck(post, authUser);
 		// Post updatedPost = update(post, postUpdateDto);
 
@@ -239,9 +239,10 @@ class ClientPostServiceImpl implements ClientPostService {
 		optional.orElseThrow(() -> new PostNotFoundException());
 		Post post = optional.get();
 
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
-		
-		authCheck(board, authUser, "DELETE");
+		if (StringUtils.hasText(post.getBoardUid())) {
+			Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
+			authCheck(board, authUser, "DELETE");
+		}
 		postAuthCheck(post, authUser);
         /*
 		post.getFileList().forEach(file -> attachedFileService.changeState(file.getFile().getUid(), false));
