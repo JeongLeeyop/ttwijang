@@ -22,6 +22,11 @@ spring:
       max-request-size: 100MB
   main:
     allow-circular-references: true
+# Redis 설정
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 3000ms
 # URL설정
   mvc:
     view.prefix: /WEB-INF/views/
@@ -82,12 +87,26 @@ springdoc:
 
 #첨부파일 경로
 attached-file:
-  upload-directory: /home/ubuntu/web/attached-file
-  # upload-directory: ./attached-file
+  # upload-directory: /home/ubuntu/web/attached-file
+  upload-directory: ./attached-file
 
 security:
   jwt:
     resource-ids: SinghaOAuthResourceIds
+    token:
+      secret-key: ttwijang-jwt-secret-key-2026-spring-security-oauth2
+      access-token-validity-seconds: 86400     # 24시간
+      refresh-token-validity-seconds: 2592000  # 30일
+
+# 문자알리고 SMS API 설정
+sms:
+  aligo:
+    api-url: https://apis.aligo.in
+    api-key: 8tfm95prlsz7mckj0z5l9k2mcmtkvg52
+    user-id: leeyop12
+    sender: "01044493118"
+    testmode: Y
+
 ---   
 server:
   port: 8080
@@ -100,13 +119,17 @@ spring:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
         username: ttwijang
         password: ttwijang1!
-      # oauth:
-      #   driver-class-name: com.mysql.cj.jdbc.Driver
-      #   jdbc-url: jdbc:mysql://localhost:3306/ttwijang_oauth
-      #   username: ttwijang
-      #   password: ttwijang1!
+        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+      oauth:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
+        username: ttwijang
+        password: ttwijang1!
+        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
       # resource:
       #   driver-class-name: com.mysql.cj.jdbc.Driver
       #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
@@ -131,14 +154,14 @@ spring:
   datasource:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: welit_db
-        password: welit22031@
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        username: ttwijang
+        password: dhkfh2026!@#
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://13.124.7.144:3306/ttwijang_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: welit_db
-        password: welit22031@
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        username: ttwijang
+        password: dhkfh2026!@#
 
 # logging:
   # level:

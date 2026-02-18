@@ -94,9 +94,22 @@
               type="text"
               placeholder="휴대폰 번호를 입력하세요."
               maxlength="11"
+              :disabled="isVerified"
             />
-            <button class="verify-button" @click="sendVerificationCode">
-              인증 요청
+            <button
+              class="verify-button"
+              :disabled="isVerified || resendTimer > 0"
+              @click="sendVerificationCode"
+            >
+              <template v-if="isVerified">
+                인증완료
+              </template>
+              <template v-else-if="resendTimer > 0">
+                재발송 ({{ resendTimer }}초)
+              </template>
+              <template v-else>
+                {{ isVerificationSent ? '재발송' : '인증 요청' }}
+              </template>
             </button>
           </div>
         </div>
@@ -110,9 +123,14 @@
               type="text"
               placeholder="인증 번호를 입력하세요."
               maxlength="6"
+              :disabled="isVerified"
             />
-            <button class="verify-button" @click="verifyCode">
-              인증 확인
+            <button
+              class="verify-button"
+              :disabled="isVerified"
+              @click="verifyCode"
+            >
+              {{ isVerified ? '인증완료' : '인증 확인' }}
             </button>
           </div>
         </div>
@@ -178,6 +196,12 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import AuthLayout from '@/Layout/authLayout.vue';
+import {
+  register,
+  RegisterData,
+  checkPhoneNumberDuplicate,
+} from '@/api/user';
+import { sendVerificationCode, verifyCode } from '@/api/sms';
 
 @Component({
   components: {
@@ -209,6 +233,21 @@ export default class Register extends Vue {
   private isVerificationSent = false;
 
   private isVerified = false;
+
+  private resendTimer = 0;
+
+  private timerInterval: number | null = null;
+
+  @Watch('form.phoneNumber')
+  onPhoneNumberChange() {
+    // 휴대폰 번호 변경 시 인증 상태 초기화
+    if (this.isVerified || this.isVerificationSent) {
+      this.isVerified = false;
+      this.isVerificationSent = false;
+      this.form.verificationCode = '';
+      this.clearTimer();
+    }
+  }
 
   private get years(): number[] {
     const currentYear = new Date().getFullYear();
@@ -246,7 +285,7 @@ export default class Register extends Vue {
     }
   }
 
-  private sendVerificationCode() {
+  private async sendVerificationCode() {
     if (!this.form.phoneNumber) {
       this.$message.warning('휴대폰 번호를 입력해주세요.');
       return;
@@ -257,20 +296,89 @@ export default class Register extends Vue {
       return;
     }
 
-    // TODO: 실제 인증번호 발송 API 호출
-    this.isVerificationSent = true;
-    this.$message.success('인증번호가 발송되었습니다.');
+    if (this.resendTimer > 0) {
+      this.$message.warning(`${this.resendTimer}초 후에 다시 시도해주세요.`);
+      return;
+    }
+
+    try {
+      // 휴대폰 번호 중복 체크
+      const duplicateResponse = await checkPhoneNumberDuplicate(this.form.phoneNumber);
+      if (duplicateResponse.data.isDuplicate) {
+        this.$message.error('이미 해당 휴대폰 번호로 가입된 계정이 존재합니다.');
+        return;
+      }
+
+      // SMS 인증번호 발송 API 호출
+      const response = await sendVerificationCode({
+        phoneNumber: this.form.phoneNumber,
+      });
+
+      if (response.data.success) {
+        this.isVerificationSent = true;
+        this.startResendTimer();
+        this.$message.success('인증번호가 발송되었습니다. 3분 이내에 입력해주세요.');
+      } else {
+        this.isVerificationSent = true;
+        this.$message.error(response.data.message || '인증번호 발송에 실패했습니다.');
+      }
+    } catch (error: any) {
+      this.isVerificationSent = true;
+      this.$message.error(error.response?.data?.message || '인증번호 발송에 실패했습니다.');
+    }
   }
 
-  private verifyCode() {
+  private async verifyCode() {
     if (!this.form.verificationCode) {
       this.$message.warning('인증번호를 입력해주세요.');
       return;
     }
 
-    // TODO: 실제 인증번호 확인 API 호출
-    this.isVerified = true;
-    this.$message.success('인증이 완료되었습니다.');
+    if (this.form.verificationCode.length !== 6) {
+      this.$message.warning('인증번호는 6자리입니다.');
+      return;
+    }
+
+    try {
+      // SMS 인증번호 검증 API 호출
+      const response = await verifyCode({
+        phoneNumber: this.form.phoneNumber,
+        verificationCode: this.form.verificationCode,
+      });
+
+      if (response.data.success) {
+        this.isVerified = true;
+        this.$message.success('인증이 완료되었습니다.');
+      } else {
+        this.$message.error(response.data.message || '인증번호가 올바르지 않습니다.');
+      }
+    } catch (error: any) {
+      this.$message.error(error.response?.data?.message || '인증번호가 올바르지 않거나 만료되었습니다.');
+    }
+  }
+
+  private startResendTimer(): void {
+    this.clearTimer();
+    this.resendTimer = 60; // 60초 대기
+
+    this.timerInterval = window.setInterval(() => {
+      this.resendTimer -= 1;
+      if (this.resendTimer <= 0) {
+        this.clearTimer();
+      }
+    }, 1000);
+  }
+
+  private clearTimer(): void {
+    if (this.timerInterval !== null) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.resendTimer = 0;
+  }
+
+  beforeDestroy(): void {
+    this.clearTimer();
   }
 
   private validateForm(): boolean {
@@ -325,8 +433,14 @@ export default class Register extends Vue {
       return false;
     }
 
+    // 인증 완료 여부 강화 검증
     if (!this.isVerified) {
-      this.$message.warning('휴대폰 인증을 완료해주세요.');
+      this.$message.error('휴대폰 인증을 완료해주세요.');
+      return false;
+    }
+
+    if (!this.isVerificationSent) {
+      this.$message.error('인증번호를 먼저 요청해주세요.');
       return false;
     }
 
@@ -354,27 +468,28 @@ export default class Register extends Vue {
     }
 
     try {
-      // TODO: 실제 회원가입 API 호출
-      const registerData = {
+      // 실제 회원가입 API 호출
+      const registerData: RegisterData = {
         email: this.form.email,
         password: this.form.password,
-        name: this.form.name,
-        birthDate: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
-        gender: this.form.gender,
-        phoneNumber: this.form.phoneNumber,
-        marketingAgreed: this.form.terms.term6,
+        actualName: this.form.name,
+        birth: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
+        gender: this.form.gender === '남자' ? 0 : 1, // 0: 남성, 1: 여성
+        concatNumber: this.form.phoneNumber,
+        marketingStatus: this.form.terms.term6,
       };
 
-      // await registerUser(registerData);
+      await register(registerData);
 
       this.$message.success('회원가입이 완료되었습니다.');
 
       // 로그인 페이지로 이동
       setTimeout(() => {
-        this.$router.push({ name: 'EmailLogin' });
+        this.$router.push({ name: 'Login' });
       }, 1500);
-    } catch (error) {
-      this.$message.error('회원가입에 실패했습니다.');
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || '회원가입에 실패했습니다.';
+      this.$message.error(errorMsg);
       console.error(error);
     }
   }

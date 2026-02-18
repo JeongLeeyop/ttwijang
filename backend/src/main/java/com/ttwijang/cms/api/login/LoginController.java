@@ -3,6 +3,8 @@ package com.ttwijang.cms.api.login;
 import java.security.Principal;
 import java.util.Map;
 
+import javax.annotation.security.PermitAll;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@PermitAll()
 public class LoginController {
 
     @Autowired

@@ -36,16 +36,20 @@ public class PostQuery {
         sql.append("    p.hidden_status, \n"); // 6
         sql.append("    (SELECT COUNT(*) FROM post_like pl WHERE pl.post_uid = p.uid) as like_count, \n"); // 7
         sql.append("    (SELECT COUNT(*) FROM post_like pl WHERE pl.post_uid = p.uid AND pl.user_uid = :userUid), \n"); // 8
-        sql.append("    (SELECT GROUP_CONCAT(bc.name) FROM board_category bc WHERE bc.uid = pc.category_uid), \n"); // 9
+        sql.append("    (SELECT GROUP_CONCAT(bc.name) FROM post_category pc2 JOIN board_category bc ON bc.uid = pc2.category_uid WHERE pc2.post_uid = p.uid), \n"); // 9
         sql.append("    (SELECT COUNT(*) FROM post WHERE parent_uid = p.uid), \n"); // 10
-        sql.append("    GROUP_CONCAT(DISTINCT(pf.file_uid)), \n"); // 11
+        sql.append("    (SELECT GROUP_CONCAT(DISTINCT pf.file_uid) FROM post_file pf WHERE pf.post_uid = p.uid), \n"); // 11
         sql.append("    (SELECT GROUP_CONCAT(tag) FROM post_tag WHERE post_uid = p.uid), \n"); // 12
-        sql.append("    p.create_date \n"); // 13
+        sql.append("    p.create_date, \n"); // 13
+        sql.append("    p.notice_status, \n"); // 14
+        sql.append("    (SELECT COUNT(*) FROM comment c WHERE c.post_uid = p.uid), \n"); // 15
+        sql.append("    p.user_uid \n"); // 16
         sql.append("FROM post p \n");
-        sql.append("LEFT JOIN post_category pc ON pc.post_uid = p.uid \n");
-        sql.append("LEFT JOIN post_file pf ON pf.post_uid = p.uid \n");
-        sql.append("LEFT JOIN post_tag pt ON pt.post_uid = p.uid \n");
-        sql.append("WHERE p.board_uid = :boardUid \n");
+        if (StringUtils.hasText(search.getTeamUid())) {
+            sql.append("WHERE p.team_uid = :teamUid \n");
+        } else {
+            sql.append("WHERE p.board_uid = :boardUid \n");
+        }
         sql.append("AND p.parent_uid is null AND p.delete_status = 0 \n");
         
         sql.append("AND ((p.hidden_status = 1 AND p.user_uid = :userUid) OR p.hidden_status = 0) \n");
@@ -69,10 +73,8 @@ public class PostQuery {
         }
 
         if (search.getCategoryList().size() > 0) {
-            sql.append("AND pc.category_uid IN :categoryList \n");
+            sql.append("AND EXISTS (SELECT 1 FROM post_category pc WHERE pc.post_uid = p.uid AND pc.category_uid IN :categoryList) \n");
         }
-
-        sql.append("GROUP BY p.uid, pc.category_uid \n");
 
         if (StringUtils.hasText(search.getSort()) && search.getSort().equals("hot")) {
             sql.append("ORDER BY like_count DESC, p.create_date DESC \n");
@@ -82,7 +84,11 @@ public class PostQuery {
         sql.append("LIMIT :startLimit, :endLimit");
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        query.setParameter("boardUid", search.getBoardUid());
+        if (StringUtils.hasText(search.getTeamUid())) {
+            query.setParameter("teamUid", search.getTeamUid());
+        } else {
+            query.setParameter("boardUid", search.getBoardUid());
+        }
         query.setParameter("startLimit", pageable.getPageNumber() * pageable.getPageSize());
         query.setParameter("endLimit", pageable.getPageSize());
         if (authUser != null) query.setParameter("userUid", authUser.getUser().getUid());
@@ -118,6 +124,17 @@ public class PostQuery {
             if (row[++index] != null) data.setFileList(Arrays.asList(row[index].toString().split(",")));
             if (row[++index] != null) data.setTags(Arrays.asList(row[index].toString().split(",")));
             if (row[++index] != null) data.setCreateDate(row[index].toString());
+            if (row[++index] != null) data.setNoticeStatus(row[index].toString().equals("1") || row[index].toString().equalsIgnoreCase("true"));
+            if (row[++index] != null) data.setCommentCount(Integer.parseInt(row[index].toString()));
+            String postUserUid = null;
+            if (row[++index] != null) {
+                postUserUid = row[index].toString();
+                data.setUserUid(postUserUid);
+            }
+            // hasAuthority: 본인 게시글인지 확인
+            if (authUser != null && postUserUid != null) {
+                data.setHasAuthority(postUserUid.equals(authUser.getUser().getUid()));
+            }
             
             datas.add(data);
         }
@@ -133,7 +150,11 @@ public class PostQuery {
         sql.append("LEFT JOIN post_category pc ON pc.post_uid = p.uid \n");
         // sql.append("LEFT JOIN post_file pf ON pf.post_uid = p.uid \n");
         sql.append("LEFT JOIN post_tag pt ON pt.post_uid = p.uid \n");
-        sql.append("WHERE p.board_uid = :boardUid \n");
+        if (StringUtils.hasText(search.getTeamUid())) {
+            sql.append("WHERE p.team_uid = :teamUid \n");
+        } else {
+            sql.append("WHERE p.board_uid = :boardUid \n");
+        }
         sql.append("AND p.parent_uid is null AND p.delete_status = 0 \n");
         sql.append("AND ((p.hidden_status = 1 AND p.user_uid = :userUid) OR p.hidden_status = 0) \n");
 
@@ -157,7 +178,11 @@ public class PostQuery {
         }
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        query.setParameter("boardUid", search.getBoardUid());
+        if (StringUtils.hasText(search.getTeamUid())) {
+            query.setParameter("teamUid", search.getTeamUid());
+        } else {
+            query.setParameter("boardUid", search.getBoardUid());
+        }
         if (authUser != null) query.setParameter("userUid", authUser.getUser().getUid());
         else query.setParameter("userUid", "");
 

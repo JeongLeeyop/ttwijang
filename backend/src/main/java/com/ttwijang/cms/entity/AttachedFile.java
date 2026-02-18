@@ -55,10 +55,11 @@ public class AttachedFile{
 	public AttachedFile(String fileUid, MultipartFile file, String path) {
 		this.uid = fileUid;
 		this.originalName = file.getOriginalFilename();
+		this.fileName = fileUid + "_" + file.getOriginalFilename();
 		this.fileSize = file.getSize();
 		this.fileType = file.getContentType();
 		this.useYn = 'Y';
 		this.filePath = path;
 		this.createDate = LocalDateTime.now();
 	}
-}		
+}

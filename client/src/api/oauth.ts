@@ -1,12 +1,37 @@
 import axios from 'axios';
 import qs from 'qs';
 
+// OAuth2 Basic Authorization Header (base64 encoded 'singha_oauth:singhascrect!@#$')
+const OAUTH_AUTH_HEADER = 'Basic c2luZ2hhX29hdXRoOnNpbmdoYXNjcmVjdCFAIyQ=';
+
+/**
+ * 이메일/비밀번호 로그인
+ * OAuth2 password grant type 사용
+ */
+export const emailLogin = (email: string, password: string) => {
+  const data = qs.stringify({
+    grant_type: 'password',
+    username: email,
+    password,
+  });
+
+  return axios({
+    url: '/oauth/token',
+    method: 'post',
+    headers: {
+      Authorization: OAUTH_AUTH_HEADER,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data,
+  });
+};
+
 export const getKakaoLogin = (accessToken: any) => {
   return axios({
     url: '/oauth/token',
     method: 'post',
     headers: {
-      Authorization: 'Basic c2luZ2hhX29hdXRoOnNpbmdoYXNjcmVjdCFAIyQ=',
+      Authorization: OAUTH_AUTH_HEADER,
       'x-auth-token': `Kakao ${accessToken}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
@@ -58,7 +83,7 @@ export const getNiceLogin = (encodeData: any) => {
     url: '/oauth/token',
     method: 'post',
     headers: {
-      Authorization: 'Basic c2luZ2hhX29hdXRoOnNpbmdoYXNjcmVjdCFAIyQ=',
+      Authorization: OAUTH_AUTH_HEADER,
       'x-auth-token': `Nice ${encodeData}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },

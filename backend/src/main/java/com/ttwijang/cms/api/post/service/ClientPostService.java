@@ -58,6 +58,26 @@ class ClientPostServiceImpl implements ClientPostService {
 
 	@Override
 	public Page<PostDto.ClientList> list(PostSearch search, Pageable pageable, SinghaUser authUser) {
+		// 팀 커뮤니티 게시글 조회 (teamUid 기반)
+		if (StringUtils.hasText(search.getTeamUid())) {
+			int page = pageable.getPageNumber();
+			int size = pageable.getPageSize();
+			PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Direction.DESC, "createDate"));
+			if (StringUtils.hasText(search.getSort()) && search.getSort().equals("hot")) {
+				pageRequest = PageRequest.of(page, size, Sort.by(Sort.Order.desc("likeCount"), Sort.Order.asc("createDate")));
+			}
+			search.setAdminStatus(false);
+			if (authUser != null) {
+				if (authUser.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))) {
+					search.setAdminStatus(true);
+				}
+			}
+			List<PostDto.ClientList> list = postQuery.list(search, pageRequest, authUser);
+			int count = postQuery.getTotalCount(search, pageRequest, authUser);
+			return new PageImpl<>(list, pageRequest, count);
+		}
+
+		// 기존 게시판 기반 조회
 		if (!StringUtils.hasText(search.getBoardUid())) throw new PostSearchNotValidExcpetion("게시판고유값을 입력하세요.");
 		Board board = boardRepository.findById(search.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
 		authCheck(board, authUser, "READ");
@@ -110,9 +130,13 @@ class ClientPostServiceImpl implements ClientPostService {
 	@Transactional
 	public PostDto.ClientDetail addViewCount(String uid, SinghaUser authUser) {
 		Post post = postRepository.findById(uid).orElseThrow(() -> new PostNotFoundException());
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
-		authCheck(board, authUser, "READ");
-		if (board.isSecretState()) postAuthCheck(post, authUser);
+
+		// 팀 커뮤니티 게시글은 게시판 권한 체크 스킵
+		if (!StringUtils.hasText(post.getTeamUid())) {
+			Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
+			authCheck(board, authUser, "READ");
+			if (board.isSecretState()) postAuthCheck(post, authUser);
+		}
 
 		int viewCount = post.getViewCount();
 		post.setViewCount(viewCount + 1);
@@ -137,11 +161,32 @@ class ClientPostServiceImpl implements ClientPostService {
 	@Override
 	public PostDto.ClientDetail add(PostDto.Add addDto, SinghaUser authUser) {
 		Post post = PostMapper.INSTANCE.addDtoToEntity(addDto);
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
 
 		if (authUser != null) {
 			post.setUserUid(authUser.getUser().getUid());
 		}
+
+		// 팀 커뮤니티 게시글 (boardUid 없이 teamUid로 작성)
+		if (StringUtils.hasText(addDto.getTeamUid()) && !StringUtils.hasText(addDto.getBoardUid())) {
+			if (authUser == null) throw new PostAccessDenyException();
+			post.setTeamUid(addDto.getTeamUid());
+			post.setParentUid(null);
+
+			int viewOrder = 0;
+			Optional<Post> optional = postRepository.findTopByOrderByViewOrderDesc();
+			if (optional.isPresent()) viewOrder = optional.get().getViewOrder() + 1;
+			post.setViewOrder(viewOrder);
+			post.setDepth(1);
+
+			if (!StringUtils.hasText(addDto.getWriter()) && authUser.getUser().getActualName() != null) {
+				post.setWriter(authUser.getUser().getActualName());
+			}
+
+			return PostMapper.INSTANCE.entityToClientDetail(postRepository.save(post));
+		}
+
+		// 기존 게시판 기반 게시글 작성
+		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
 
 		if (StringUtils.hasText(addDto.getParentUid())) {
 			authCheck(board, authUser, "REPLY");
@@ -174,11 +219,11 @@ class ClientPostServiceImpl implements ClientPostService {
 	@Transactional
 	@Override
 	public PostDto.ClientDetail update(Post post, PostDto.Update postUpdateDto, SinghaUser authUser) {
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
-		
-		authCheck(board, authUser, "WRITE");
-
-		validate(board.getFieldList(), postUpdateDto.getDataList());
+		if (StringUtils.hasText(post.getBoardUid())) {
+			Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
+			authCheck(board, authUser, "WRITE");
+			validate(board.getFieldList(), postUpdateDto.getDataList());
+		}
 		postAuthCheck(post, authUser);
 		// Post updatedPost = update(post, postUpdateDto);
 
@@ -194,9 +239,10 @@ class ClientPostServiceImpl implements ClientPostService {
 		optional.orElseThrow(() -> new PostNotFoundException());
 		Post post = optional.get();
 
-		Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
-		
-		authCheck(board, authUser, "DELETE");
+		if (StringUtils.hasText(post.getBoardUid())) {
+			Board board = boardRepository.findById(post.getBoardUid()).orElseThrow(() -> new BoardNotFoundException());
+			authCheck(board, authUser, "DELETE");
+		}
 		postAuthCheck(post, authUser);
         /*
 		post.getFileList().forEach(file -> attachedFileService.changeState(file.getFile().getUid(), false));

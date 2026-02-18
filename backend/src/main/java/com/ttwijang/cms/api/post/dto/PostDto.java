@@ -33,8 +33,8 @@ public class PostDto {
 
 	@Data
 	public static class Add {
-		@NotEmpty(message = "게시판 고유값을 입력하세요.")
 		private String boardUid;
+		private String teamUid;
 		private String parentUid;
 		@NotBlank(message = "제목을 입력하세요.")
 		private String title;
@@ -82,6 +82,10 @@ public class PostDto {
 		private boolean replyStatus;
 		private List<String> tags = new ArrayList<String>();
 		private String createDate;
+		private boolean noticeStatus;
+		private int commentCount;
+		private String userUid;
+		private boolean hasAuthority;
 	}
 	
 	@Data

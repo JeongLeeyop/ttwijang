@@ -67,10 +67,18 @@
   margin-top: 12px;
   border-radius: 20px;
   /* top: 64px !important; */
-  /* left: 15px !important; */
+  left: 13px !important;
   max-height: 400px;
-  overflow-y: scroll;
-  padding:20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  /* 스크롤바 숨기기 */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.el-popover.el-popper.alarm::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .el-popover.el-popper.alarm::before {
@@ -203,12 +211,12 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0 0 25px 0;
+  padding: 0 20px;
+  width: 100%;
 }
 
 /* Team Card Styles */
 .team-card {
-  width: 100% !important;
-  /* height: 100px !important; */
   background: #fff;
   border-radius: 12px;
   padding: 12px 16px;
@@ -307,26 +315,284 @@
 /* League Section */
 .league-section {
   position: fixed;
-  bottom: 0;
+  /* 배너 영역 바로 아래에 붙도록 top 값 조정 (헤더 73px + 배너 콘텐츠 약 170px) */
+  top: 290px;
+  /* footer 높이(약 70px)를 고려하여 bottom 설정 */
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   max-width: 480px;
   background: #fff;
   border-radius: 35px 35px 0 0;
-  padding: 20px 0 80px 0;
+  padding: 20px 0 0 0;
   margin-bottom: 0;
   width: 100%;
-  height: calc(100vh - 280px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 50;
-  transition: height 0.4s ease-in-out, padding-top 0.4s ease-in-out;
+  transition: top 0.4s ease-in-out, padding-top 0.4s ease-in-out;
 }
 
+/* 스크롤 가능한 내부 콘텐츠 영역 */
+.league-section-content {
+  flex: 1;
+  overflow-y: auto;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.league-section-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* 핸들 스타일 (터치/드래그 영역) */
+.league-section-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  z-index: 10;
+  background: transparent;
+  touch-action: none;
+}
+
+.league-section-handle:active {
+  cursor: grabbing;
+}
+
+.league-section-handle .handle-bar {
+  width: 40px;
+  height: 5px;
+  background: #c5cad5;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.league-section-handle:hover .handle-bar,
+.league-section-handle:active .handle-bar {
+  background: #061da1;
+}
+
+/* Expanded 상태 */
 .league-section.expanded {
-  height: calc(100vh - 80px);
   padding-top: 20px;
+}
+
+/* 드래그 중 상태 */
+.league-section.dragging {
+  user-select: none;
+}
+
+.league-section.expanded .league-section-content {
+  overflow-y: auto;
+}
+
+.league-section.expanded .league-section-handle .handle-bar {
+  background: #061da1;
+}
+
+/* 게스트 페이지: 슬릭 바로 아래 (헤더 73px + 배너/슬릭 약 180px) */
+.guest-page .league-section {
+  top: 253px;
+}
+
+/* 슬릭 캐러셀 공통 스타일 - 모든 페이지 */
+.team-section .slick-slider {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.team-section .slick-slider .slick-list {
+  overflow: visible !important;
+  margin: 0 auto;
+  display: block;
+}
+
+.team-section .slick-slider .slick-track {
+  display: flex !important;
+  align-items: center;
+  gap: 0;
+}
+
+.team-section .slick-slider .slick-slide {
+  float: none !important;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+  padding: 0 4px;
+}
+
+.team-section .slick-slider .slick-slide.slick-center {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 10;
+}
+
+.team-section .slick-slider .slick-slide > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.team-section .slick-slider .slick-slide .team-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100px;
+  box-sizing: border-box;
+  display: flex !important;
+}
+
+/* 게스트 페이지만의 추가 스타일 (centerMode) */
+.guest-page .team-section .slick-slider .slick-list {
+  overflow: visible !important;
+}
+
+.guest-page .team-section .slick-slider .slick-slide {
+  opacity: 0.5;
+  transform: scale(0.9);
+  padding: 0;
+}
+
+.guest-page .team-section .slick-slider .slick-slide.slick-center {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 10;
+}
+
+.guest-page .team-section .slick-slider .slick-slide .team-card {
+  width: 350px !important;
+  min-width: 350px;
+  max-width: 350px;
+}
+
+/* Slick Dots 스타일 */
+.team-section .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.team-section .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.team-section .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.team-section .slick-dots li button:hover,
+.team-section .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.team-section .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.team-section .slick-dots li button:before {
+  display: none;
+}
+
+/* 게스트 페이지 slick-dots */
+.guest-page .team-section .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.guest-page .team-section .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.guest-page .team-section .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.guest-page .team-section .slick-dots li button:hover,
+.guest-page .team-section .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.guest-page .team-section .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.guest-page .team-section .slick-dots li button:before {
+  display: none;
+}
+
+/* 매치 페이지: 팀 코드 입력 바로 아래 */
+.match-page .league-section {
+  top: 280px;
+}
+
+/* 팀 페이지: 운영자 (버튼 있음) */
+.team-page-view .league-section {
+  top: 280px;
+}
+
+/* 팀 페이지: 비운영자 (버튼 없음) */
+.team-page-view.non-owner .league-section {
+  top: 240px;
 }
 
 .league-header {
@@ -334,6 +600,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 5px;
   margin-bottom: 16px;
   padding: 0 20px;
   flex-wrap: wrap;
@@ -592,8 +859,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 20px 20px 20px;
-  overflow-y: auto;
+  padding: 5px 0 30px 0;
 }
 
 .match-cards .matches-title {
@@ -1149,6 +1415,7 @@
 }
 
 .auth-layout .form-group label {
+  text-align: left;
   display: block;
   font-size: 14px;
   font-weight: 500;
@@ -1692,7 +1959,8 @@
 
 /* Auth Layout Container */
 .auth-layout .content {
-  min-height: 100vh;
+  min-height: auto;
+  height: calc(100vh - 73px);
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -1700,7 +1968,8 @@
   width: 100%;
   align-items: center;
   justify-content: start;
-  padding: 20px 20px 40px 20px;
+  padding: 20px;
+  overflow: hidden;
 }
 
 /* Auth Header (inside layout) */
@@ -1716,6 +1985,47 @@
   max-width: 480px;
   width: 100%;
   z-index: 100;
+}
+
+.auth-layout .header {
+  justify-content: flex-start;
+}
+
+.auth-layout .header .header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.auth-layout .header .header-title {
+  color: #1a1a1a;
+}
+
+/* Email Login Page - prevent vertical scroll */
+.email-login-page {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Register Page - allow vertical scroll */
+.auth-layout .content.register-page {
+  height: calc(100vh - 73px);
+  overflow: auto;
+  padding-bottom: 40px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Auth Layout - prevent body scroll */
+.auth-layout {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .futsal-layout .header .back-button,
@@ -1769,63 +2079,11 @@
   margin-bottom: 54px;
   padding: 0;
   overflow: visible;
-}
-
-/* Slick Carousel Styles - Fixed width issue */
-.team-section .slick-slider {
-  position: relative;
   width: 100%;
-  max-width: 100%;
-  overflow: visible;
-}
-
-.team-section .slick-slider .slick-list {
-  overflow: visible !important;
-  padding-bottom: 10px;
-  margin: 0;
-}
-
-.team-section .slick-slider .slick-track {
-  display: flex !important;
-  gap: 12px;
-  padding: 0;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.team-section .slick-slider .slick-slide {
-  float: none !important;
-  opacity: 0.5;
-  transform: scale(0.9);
-  transition: all 0.3s ease;
-  width: auto !important;
-}
-
-.team-section .slick-slider .slick-slide.slick-center {
-  opacity: 1;
-  transform: scale(1);
-  z-index: 10;
-}
-
-.team-section .slick-slider .slick-slide > div {
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  box-sizing: border-box;
-}
-
-.team-section .slick-slider .slick-slide .team-card {
-  width: 100% !important;
-  min-width: 350px;
-  max-width: 380px;
-  min-height: 100px;
-  box-sizing: border-box;
-  display: flex !important;
-  margin: 0 auto;
 }
 
 .team-cards-container {
+  width: 100%;
   cursor: grab;
   -webkit-user-select: none;
   user-select: none;
@@ -1835,9 +2093,63 @@
   cursor: grabbing;
 }
 
+/* Slick Dots 스타일 - team-cards-container */
+.team-cards-container .slick-dots {
+  position: relative;
+  bottom: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+
+.team-cards-container .slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.team-cards-container .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.team-cards-container .slick-dots li button:hover,
+.team-cards-container .slick-dots li button:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.team-cards-container .slick-dots li.slick-active button {
+  background: #fff;
+}
+
+.team-cards-container .slick-dots li button:before {
+  display: none;
+}
+
 /* Home League Header Specific */
 .league-header .league-title-row .league-select {
-  width: 140px;
+  /* width: 140px; */
+  max-width:250px;
 }
 
 .league-header .league-title-row .league-select .el-input__inner {
@@ -1862,15 +2174,19 @@
   background: #fff;
 }
 
+.league-join-team:first-child {
+  margin-top: 20px;
+}
+
 .league-join-team:nth-of-type(2) {
   border-bottom: 3px solid #c5cad5;
-  margin-bottom: 12px;
   padding-bottom: 20px;
 }
 
 .league-join-team .join-team-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
+  gap: 15px;
   align-items: center;
   margin-bottom: 16px;
 }
@@ -2169,6 +2485,11 @@
    MyPage Dashboard Styles
    ========================== */
 
+/* MyPage Header Background */
+.mypage-active .header {
+  background: #0a24a0;
+}
+
 .mypage-page .mypage-wrapper {
   margin-top: 73px;
   padding-bottom: 120px;
@@ -2187,73 +2508,50 @@
 
 .mypage-page .profile-header {
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: start;
-  position: relative;
-}
-
-.mypage-page.profile-image-wrapper {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.mypage-page .profile-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #061da1;
-}
-
-.mypage-page .profile-badge {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #ffd700;
-  color: #061da1;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 20px;
-  border: 2px solid #fff;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .mypage-page .profile-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   text-align: left;
 }
 
 .mypage-page .profile-name {
   margin: 0;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #1a1a1a;
+  line-height: 1.2;
 }
 
-.mypage-page .profile-email {
-  margin: 0;
-  font-size: 13px;
+.mypage-page .profile-name-suffix {
+  font-size: 20px;
+  font-weight: 400;
   color: #666;
+  margin-left: 2px;
 }
 
 .mypage-page .profile-edit-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 20px;
-  color: #0a24a0;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #fff;
+  background: #ff8202;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 600;
+  min-width: 90px;
 }
 
 .mypage-page .profile-edit-btn:hover {
-  transform: scale(1.2);
-  color: #042d80;
+  background: #e67400;
 }
 
 /* Stats Row Section */
@@ -2286,6 +2584,11 @@
   /* transform: translateY(-2px); */
   /* box-shadow: 0 4px 12px rgba(6, 29, 161, 0.15); */
   /* border-color: #0a24a0; */
+}
+
+.stat-button.clickable:active {
+  transform: scale(0.96);
+  background: linear-gradient(135deg, #e0e8ff 0%, #d8e8ff 100%);
 }
 
 .stat-button .stat-label {
@@ -2426,18 +2729,15 @@
 }
 
 .wallet-btn {
-  flex: 1;
-  padding: 10px 12px;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 90px;
 }
 
 .charge-btn {
@@ -2446,7 +2746,7 @@
 }
 
 .charge-btn:hover {
-  background: #3eb8b0;
+  background: #e67400;
 }
 
 .exchange-btn {
@@ -2486,6 +2786,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 100px;
 }
 
 .menu-item {
@@ -2609,7 +2910,7 @@
   }
 }
 
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
   .profile-section {
     margin: 12px;
     padding: 16px;
@@ -2708,7 +3009,7 @@
   .menu-text {
     font-size: 12px;
   }
-}
+} */
 
 /* Team Code Input Form */
 .team-code-form {
@@ -2779,7 +3080,6 @@
   min-height: 100vh;
   max-height: 100vh;
   max-width: 480px;
-  margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
   display: flex;
@@ -2957,7 +3257,6 @@
   min-height: 100vh;
   max-height: 100vh;
   max-width: 480px;
-  margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
   display: flex;
@@ -3989,67 +4288,992 @@
   margin: 4px 0;
 }
 
-/* Responsive - Team Complete Page */
-@media (max-width: 600px) {
-  .team-complete-page .content {
-    padding: 30px 20px;
-  }
-
-  .team-complete-page .team-logo-large {
-    width: 130px;
-    height: 130px;
-  }
-
-  .team-complete-page .team-name-title {
-    font-size: 28px;
-    margin-bottom: 32px;
-  }
-
-  .team-complete-page .message-title {
-    font-size: 22px;
-  }
-
-  .team-complete-page .message-text {
-    font-size: 14px;
-  }
+/* ==========================
+   Profile Edit Page Styles
+   ========================== */
+.auth-layout .profile-edit-page .form-container {
+  padding: 20px;
 }
 
-@media (max-width: 480px) {
-  .team-complete-page .content {
-    padding: 24px 16px;
-  }
+.auth-layout .profile-edit-page .form-group {
+  margin-bottom: 20px;
+}
 
-  .team-complete-page .team-logo-large {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 20px;
-  }
+.auth-layout .profile-edit-page .form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
 
-  .team-complete-page .team-logo-large .logo-placeholder {
-    font-size: 50px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
 
-  .team-complete-page .team-name-title {
-    font-size: 26px;
-    margin-bottom: 28px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"]:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
 
-  .team-complete-page .message-title {
-    font-size: 20px;
-    margin-bottom: 12px;
-  }
+.auth-layout .profile-edit-page .form-group input[type="text"]::placeholder {
+  color: #aaa;
+}
 
-  .team-complete-page .message-text {
-    font-size: 13px;
-  }
+.auth-layout .profile-edit-page .birth-date-group {
+  display: flex;
+  gap: 8px;
+}
 
-  .team-complete-page .btn-primary,
-  .team-complete-page .btn-secondary {
-    padding: 14px;
-    font-size: 15px;
-  }
+.auth-layout .profile-edit-page .birth-date-group .birth-select {
+  flex: 1;
+  padding: 12px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
 
-  .team-complete-page .info-text {
-    font-size: 12px;
-  }
+.auth-layout .profile-edit-page .birth-date-group .birth-select:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .gender-group {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button:hover {
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .input-with-button input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.auth-layout .profile-edit-page .verify-button {
+  flex-shrink: 0;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid #0a24a0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a24a0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.auth-layout .profile-edit-page .verify-button:hover:not(:disabled) {
+  background: #0a24a0;
+  color: #fff;
+}
+
+.auth-layout .profile-edit-page .verify-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-layout .profile-edit-page .submit-button {
+  width: 100%;
+  padding: 14px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.auth-layout .profile-edit-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .profile-edit-page .submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Cash Charge Page Styles
+   ========================== */
+.auth-layout .cash-charge-page .form-container {
+  padding: 20px;
+}
+
+.auth-layout .cash-charge-page .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+.auth-layout .cash-charge-page .charge-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.auth-layout .cash-charge-page .amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.auth-layout .cash-charge-page .amount-button {
+  padding: 14px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .amount-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .amount-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .current-cash {
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-layout .cash-charge-page .current-cash strong {
+  color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .payment-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .payment-methods {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .cash-charge-page .payment-button {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 600;
+}
+
+.auth-layout .cash-charge-page .submit-button {
+  width: 100%;
+  padding: 16px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .cash-charge-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .cash-charge-page .submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Cash History Page Styles
+   ========================== */
+.auth-layout .cash-history-page .history-container {
+  padding: 20px;
+  width: 100%;
+}
+
+.cash-history-page .balance-card {
+  background: linear-gradient(135deg, #0a24a0 0%, #1230b8 100%);
+  border-radius: 12px;
+  padding: 24px 20px;
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(10, 36, 160, 0.3);
+}
+
+.cash-history-page .balance-label {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.cash-history-page .balance-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cash-history-page .balance-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.cash-history-page .balance-unit {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.cash-history-page .balance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-history-page .action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.cash-history-page .refund-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .refund-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .charge-btn {
+  background: #ff8202;
+  color: #fff;
+}
+
+.cash-history-page .charge-btn:hover {
+  background: #e67400;
+}
+
+.cash-history-page .filter-section {
+  margin-bottom: 16px;
+}
+
+.cash-history-page .filter-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.cash-history-page .filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.cash-history-page .filter-tab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cash-history-page .filter-tab:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.cash-history-page .filter-tab.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.cash-history-page .transaction-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cash-history-page .transaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cash-history-page .transaction-item:last-child {
+  border-bottom: none;
+}
+
+.cash-history-page .transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cash-history-page .transaction-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.cash-history-page .transaction-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.cash-history-page .transaction-amount {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cash-history-page .transaction-amount.positive {
+  color: #0a24a0;
+}
+
+.cash-history-page .transaction-amount.negative {
+  color: #ff4d4f;
+}
+
+.cash-history-page .loading-state,
+.cash-history-page .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.cash-history-page .loading-state i,
+.cash-history-page .empty-state i {
+  font-size: 36px;
+  color: #ccc;
+}
+
+.cash-history-page .load-more {
+  padding: 16px;
+  text-align: center;
+}
+
+.cash-history-page .load-more-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cash-history-page .load-more-btn:hover {
+  background: #eee;
+  border-color: #ccc;
+}
+
+/* ===========================
+   Global Styles for Cash and Profile Pages
+   ========================== */
+.auth-layout .cash-charge-page,
+.auth-layout .cash-history-page {
+  padding: 20px;
+}
+
+.auth-layout .cash-charge-page .section-title,
+.auth-layout .cash-history-page .filter-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+.auth-layout .cash-charge-page .charge-section,
+.auth-layout .cash-history-page .filter-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.auth-layout .cash-charge-page .amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.auth-layout .cash-charge-page .amount-button,
+.auth-layout .cash-history-page .payment-button {
+  padding: 14px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .amount-button:hover,
+.auth-layout .cash-history-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .amount-button.active,
+.auth-layout .cash-history-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .current-cash {
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-layout .cash-charge-page .current-cash strong {
+  color: #0a24a0;
+  font-weight: 700;
+}
+
+.auth-layout .cash-charge-page .payment-section {
+  margin-bottom: 28px;
+}
+
+.auth-layout .cash-charge-page .payment-methods {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .cash-charge-page .payment-button {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.auth-layout .cash-charge-page .payment-button:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.auth-layout .cash-charge-page .payment-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+  font-weight: 600;
+}
+
+.auth-layout .cash-charge-page .submit-button {
+  width: 100%;
+  padding: 16px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .cash-charge-page .submit-button:hover:not(:disabled) {
+  background: #081d80;
+}
+
+.auth-layout .cash-charge-page .submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cash-history-page .balance-card {
+  background: linear-gradient(135deg, #0a24a0 0%, #1230b8 100%);
+  border-radius: 12px;
+  padding: 24px 20px;
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(10, 36, 160, 0.3);
+}
+
+.cash-history-page .balance-label {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.cash-history-page .balance-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cash-history-page .balance-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.cash-history-page .balance-unit {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.cash-history-page .balance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-history-page .action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.cash-history-page .refund-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .refund-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cash-history-page .charge-btn {
+  background: #ff8202;
+  color: #fff;
+}
+
+.cash-history-page .charge-btn:hover {
+  background: #e67400;
+}
+
+.cash-history-page .filter-section {
+  margin-bottom: 16px;
+}
+
+.cash-history-page .filter-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.cash-history-page .filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.cash-history-page .filter-tab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cash-history-page .filter-tab:hover {
+  border-color: #0a24a0;
+  color: #0a24a0;
+}
+
+.cash-history-page .filter-tab.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.cash-history-page .transaction-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cash-history-page .transaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cash-history-page .transaction-item:last-child {
+  border-bottom: none;
+}
+
+.cash-history-page .transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cash-history-page .transaction-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.cash-history-page .transaction-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.cash-history-page .transaction-amount {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cash-history-page .transaction-amount.positive {
+  color: #0a24a0;
+}
+
+.cash-history-page .transaction-amount.negative {
+  color: #ff4d4f;
+}
+
+.cash-history-page .loading-state,
+.cash-history-page .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.cash-history-page .loading-state i,
+.cash-history-page .empty-state i {
+  font-size: 36px;
+  color: #ccc;
+}
+
+.cash-history-page .load-more {
+  padding: 16px;
+  text-align: center;
+}
+
+.cash-history-page .load-more-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* ===========================
+   Profile Edit Page Styles
+   ========================== */
+.auth-layout .profile-edit-page .form-container {
+  padding: 20px;
+}
+
+.auth-layout .profile-edit-page .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-layout .profile-edit-page .form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"]:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .form-group input[type="text"]::placeholder {
+  color: #aaa;
+}
+
+.auth-layout .profile-edit-page .birth-date-group {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .birth-date-group .birth-select {
+  flex: 1;
+  padding: 12px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.auth-layout .profile-edit-page .birth-date-group .birth-select:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .gender-group {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button:hover {
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .gender-group .gender-button.active {
+  background: #0a24a0;
+  color: #fff;
+  border-color: #0a24a0;
+}
+
+.auth-layout .profile-edit-page .input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-layout .profile-edit-page .input-with-button input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:focus {
+  border-color: #0a24a0;
+  outline: none;
+}
+
+.auth-layout .profile-edit-page .input-with-button input:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.auth-layout .profile-edit-page .verify-button {
+  flex-shrink: 0;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid #0a24a0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a24a0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.auth-layout .profile-edit-page .verify-button:hover:not(:disabled) {
+  background: #0a24a0;
+  color: #fff;
+}
+
+.auth-layout .profile-edit-page .verify-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-layout .profile-edit-page .submit-button {
+  width: 100%;
+  padding: 14px;
+  background: #0a24a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
 }

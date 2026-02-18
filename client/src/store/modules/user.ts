@@ -15,6 +15,7 @@ import {
   getAccessToken,
   getAppleLogin,
   getNaverAccess,
+  emailLogin,
 } from '@/api/oauth';
 import store from '@/store';
 import router from '@/router';
@@ -25,6 +26,11 @@ export interface IUserState {
   userId: string
   roles: string[]
   errorMessage: string
+}
+
+export interface EmailLoginPayload {
+  email: string
+  password: string
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -86,6 +92,26 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_ERROR_MESSAGE(errorMessage: string) {
     this.errorMessage = errorMessage;
+  }
+
+  /**
+   * 이메일/비밀번호 로그인
+   */
+  @Action
+  public async EmailLogin(payload: EmailLoginPayload): Promise<void> {
+    try {
+      const response = await emailLogin(payload.email, payload.password);
+      const accessToken = response.data.access_token;
+
+      setToken(accessToken);
+      this.SET_TOKEN(accessToken);
+      window.localStorage.setItem('jwttoken', accessToken);
+      await this.GetUserInfo();
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error_description || '로그인에 실패했습니다.';
+      this.SET_ERROR_MESSAGE(errorMsg);
+      throw new Error(errorMsg);
+    }
   }
 
   @Action

@@ -91,12 +91,12 @@ export default class EmailLogin extends Vue {
         localStorage.removeItem('savedEmail');
       }
 
-      // TODO: 실제 로그인 API 호출
-      // await UserModule.EmailLogin({ email: this.email, password: this.password });
+      // 이메일 로그인 API 호출
+      await UserModule.EmailLogin({ email: this.email, password: this.password });
 
       this.$message.success('로그인 성공');
       this.$router.push({ name: 'Home' });
-    } catch (error) {
+    } catch (error: any) {
       this.$message.error('로그인에 실패했습니다.');
       console.error(error);
     }

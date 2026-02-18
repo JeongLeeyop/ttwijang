@@ -40,6 +40,9 @@ public class Post implements Serializable {
 	// 게시판 고유값
 	private String boardUid;
 	
+	// 팀 고유값 (팀 커뮤니티용)
+	private String teamUid;
+	
 	// 유저 고유값
 	private String userUid;
 	

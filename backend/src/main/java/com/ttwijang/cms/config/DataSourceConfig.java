@@ -16,12 +16,16 @@ public class DataSourceConfig {
     @ConfigurationProperties("spring.datasource.resource")
     @Primary
     public DataSource dataSource(){
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+        HikariDataSource ds = DataSourceBuilder.create().type(HikariDataSource.class).build();
+        ds.setConnectionInitSql("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+        return ds;
     }
 
     @Bean(name = "oauth")
     @ConfigurationProperties("spring.datasource.oauth")
     public DataSource dataSourceOAuth(){
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+        HikariDataSource ds = DataSourceBuilder.create().type(HikariDataSource.class).build();
+        ds.setConnectionInitSql("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+        return ds;
     }
 }

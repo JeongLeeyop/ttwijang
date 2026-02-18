@@ -42,16 +42,20 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { uploadFile } from '@/api/attachedFile';
 
 @Component
 export default class UploadTeamMark extends Vue {
   private teamMarkImage = ''
+
+  private teamMarkFile: File | null = null
 
   private goBack(): void {
     this.$router.go(-1);
   }
 
   private handleImageChange(file: any): void {
+    this.teamMarkFile = file.raw;
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.teamMarkImage = e.target.result;
@@ -59,26 +63,41 @@ export default class UploadTeamMark extends Vue {
     reader.readAsDataURL(file.raw);
   }
 
-  private handleSubmit(): void {
-    if (!this.teamMarkImage) {
+  private async handleSubmit(): Promise<void> {
+    if (!this.teamMarkImage || !this.teamMarkFile) {
       this.$message.warning('팀 마크를 업로드해주세요.');
       return;
     }
-    console.log('Team mark image uploaded');
 
-    // 팀 데이터 준비
-    const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');
-    const completeTeamData = {
-      ...teamFormData,
-      logo: this.teamMarkImage,
-    };
+    try {
+      // 서버에 파일 업로드
+      const formData = new FormData();
+      formData.append('file', this.teamMarkFile);
 
-    // 세션 스토리지에 저장
-    sessionStorage.setItem('teamFormData', JSON.stringify(completeTeamData));
+      const uploadResponse = await uploadFile('team', formData);
+      const uploadedFile = uploadResponse.data;
 
-    this.$message.success('팀 마크가 등록되었습니다!');
-    // 팀 정보 입력 페이지로 이동
-    this.$router.push('/team-info');
+      if (uploadedFile && uploadedFile.uid) {
+        // 팀 데이터 준비
+        const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');
+        const completeTeamData = {
+          ...teamFormData,
+          logo: this.teamMarkImage, // 미리보기용
+          logoFileUid: uploadedFile.uid, // 서버에 저장된 파일 UID
+        };
+
+        // 세션 스토리지에 저장
+        sessionStorage.setItem('teamFormData', JSON.stringify(completeTeamData));
+
+        this.$message.success('팀 마크가 등록되었습니다!');
+        this.$router.push('/team-info');
+      } else {
+        this.$message.error('파일 업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('File upload failed:', error);
+      this.$message.error('파일 업로드 중 오류가 발생했습니다.');
+    }
   }
 }
 </script>

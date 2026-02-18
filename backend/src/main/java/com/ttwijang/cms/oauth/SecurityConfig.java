@@ -60,6 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // BCryptPasswordEncoder 사용 (prefix 없이 암호화)
         return new BCryptPasswordEncoder();
     }
 
@@ -90,6 +91,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/**").permitAll();
+        http
+            .httpBasic().disable()  // HTTP Basic Authentication 비활성화
+            .csrf().disable()       // CSRF 비활성화 (OAuth2 토큰 사용)
+            .authorizeRequests()
+            .antMatchers("/oauth/**").permitAll()
+            .antMatchers("/api/client/**").permitAll()
+            .antMatchers("/api/attached-file/**").permitAll()
+            .antMatchers("/swagger-ui/**").permitAll()
+            .antMatchers("/swagger-ui.html").permitAll()
+            .antMatchers("/api-docs/**").permitAll()
+            .antMatchers("/v3/api-docs/**").permitAll()
+            .anyRequest().permitAll();
     }
 }
