@@ -7,67 +7,85 @@
 
     <!-- Filter Section -->
     <div class="filter-section">
-      <div class="filter-scroll">
-        <el-select
-          v-model="filterRegionSido"
-          placeholder="시/도"
-          size="mini"
-          clearable
-          class="filter-select"
-          @change="onSidoFilterChange"
-        >
-          <el-option
-            v-for="sido in sidoList"
-            :key="sido.code"
-            :label="sido.name"
-            :value="sido.name"
-          ></el-option>
-        </el-select>
-        <el-select
-          v-model="filterRegionSigungu"
-          placeholder="시/군/구"
-          size="mini"
-          clearable
-          class="filter-select"
-        >
-          <el-option
-            v-for="sigungu in sigunguList"
-            :key="sigungu.code"
-            :label="sigungu.name"
-            :value="sigungu.name"
-          ></el-option>
-        </el-select>
-        <el-select
-          v-model="filterGender"
-          placeholder="성별"
-          size="mini"
-          clearable
-          class="filter-select"
-        >
-          <el-option label="남자" :value="0"></el-option>
-          <el-option label="여자" :value="1"></el-option>
-          <el-option label="남녀무관" :value="2"></el-option>
-        </el-select>
+      <!-- Row 1: 지역 -->
+      <div class="filter-row">
+        <span class="filter-row-label">지역</span>
+        <div class="filter-row-content">
+          <el-select
+            v-model="filterRegionSido"
+            placeholder="시/도"
+            size="mini"
+            clearable
+            class="filter-select"
+            @change="onSidoFilterChange"
+          >
+            <el-option
+              v-for="sido in sidoList"
+              :key="sido.code"
+              :label="sido.name"
+              :value="sido.name"
+            ></el-option>
+          </el-select>
+          <el-select
+            v-model="filterRegionSigungu"
+            placeholder="시/군/구"
+            size="mini"
+            clearable
+            class="filter-select"
+          >
+            <el-option
+              v-for="sigungu in sigunguList"
+              :key="sigungu.code"
+              :label="sigungu.name"
+              :value="sigungu.name"
+            ></el-option>
+          </el-select>
+        </div>
       </div>
-      <div class="filter-scroll">
-        <button
-          v-for="day in dayFilterOptions"
-          :key="day.label"
-          class="filter-chip"
-          :class="{ active: isFilterDaySelected(day.bit) }"
-          @click="toggleFilterDay(day.bit)"
-        >
-          {{ day.label }}
-        </button>
-        <button
-          v-for="slot in timeFilterOptions"
-          :key="slot.label"
-          class="filter-chip"
-          :class="{ active: isFilterTimeSelected(slot.bit) }"
-          @click="toggleFilterTime(slot.bit)"
-        >
-          {{ slot.label }}
-        </button>
+      <!-- Row 2: 성별 -->
+      <div class="filter-row">
+        <span class="filter-row-label">성별</span>
+        <div class="filter-row-content">
+          <button
+            v-for="opt in genderFilterOptions"
+            :key="opt.value"
+            class="filter-chip"
+            :class="{ active: filterGender === opt.value }"
+            @click="toggleGender(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
+      <!-- Row 3: 요일 -->
+      <div class="filter-row">
+        <span class="filter-row-label">요일</span>
+        <div class="filter-row-content">
+          <button
+            v-for="day in dayFilterOptions"
+            :key="day.label"
+            class="filter-chip"
+            :class="{ active: isFilterDaySelected(day.bit) }"
+            @click="toggleFilterDay(day.bit)"
+          >
+            {{ day.label }}
+          </button>
+        </div>
+      </div>
+      <!-- Row 4: 시간대 -->
+      <div class="filter-row">
+        <span class="filter-row-label">시간대</span>
+        <div class="filter-row-content">
+          <button
+            v-for="slot in timeFilterOptions"
+            :key="slot.label"
+            class="filter-chip"
+            :class="{ active: isFilterTimeSelected(slot.bit) }"
+            @click="toggleFilterTime(slot.bit)"
+          >
+            {{ slot.label }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -186,6 +204,12 @@ export default class TeamRecruit extends Vue {
 
   private sigunguList: { code: string, name: string }[] = []
 
+  private genderFilterOptions = [
+    { label: '남자', value: 0 },
+    { label: '여자', value: 1 },
+    { label: '남녀무관', value: 2 },
+  ]
+
   private dayFilterOptions = [
     { label: '일', bit: 1 },
     { label: '월', bit: 2 },
@@ -293,6 +317,11 @@ export default class TeamRecruit extends Vue {
     this.resetAndFetch();
   }
 
+  private toggleGender(val: number): void {
+    this.filterGender = this.filterGender === val ? null : val;
+    this.resetAndFetch();
+  }
+
   private formatDays(val: number): string {
     if (!val) return '';
     const labels = ['일', '월', '화', '수', '목', '금', '토'];
@@ -369,27 +398,41 @@ export default class TeamRecruit extends Vue {
 
 .filter-section {
   background: #fff;
-  padding: 12px 16px;
   border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.filter-scroll {
+.filter-row {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f5f5f5;
 }
 
-.filter-scroll::-webkit-scrollbar {
-  display: none;
+.filter-row:last-child {
+  border-bottom: none;
+}
+
+.filter-row-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  flex-shrink: 0;
+  min-width: 34px;
+}
+
+.filter-row-content {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .filter-select {
-  min-width: 100px;
+  width: 110px;
   flex-shrink: 0;
 }
 

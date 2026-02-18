@@ -110,6 +110,12 @@ public class MatchDto {
 
         @Schema(description = "매치 상태")
         private FutsalMatch.FutsalMatchStatus status;
+
+        @Schema(description = "최대 인원 (양팀 합산)")
+        private Integer maxPlayers;
+
+        @Schema(description = "현재 승인된 인원")
+        private Integer currentPlayers;
     }
 
     @Data
@@ -183,6 +189,12 @@ public class MatchDto {
 
         @Schema(description = "매치 상태")
         private FutsalMatch.FutsalMatchStatus status;
+
+        @Schema(description = "최대 인원 (양팀 합산)")
+        private Integer maxPlayers;
+
+        @Schema(description = "현재 승인된 인원")
+        private Integer currentPlayers;
 
         @Schema(description = "생성일")
         private LocalDateTime createdDate;

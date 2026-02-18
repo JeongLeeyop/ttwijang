@@ -1,6 +1,9 @@
 package com.ttwijang.cms.api.match.service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ttwijang.cms.api.match.dto.MatchDto;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
+import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.MatchApplication;
 import com.ttwijang.cms.entity.Team;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +25,27 @@ import lombok.RequiredArgsConstructor;
 public class MatchService {
 
     private final FutsalMatchRepository matchRepository;
+    private final MatchApplicationRepository matchApplicationRepository;
     private final TeamRepository teamRepository;
+
+    private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
+    static {
+        FORMAT_MAX_PLAYERS.put("4vs4", 8);
+        FORMAT_MAX_PLAYERS.put("5vs5", 10);
+        FORMAT_MAX_PLAYERS.put("6vs6", 12);
+        FORMAT_MAX_PLAYERS.put("7vs7", 14);
+        FORMAT_MAX_PLAYERS.put("FOUR_VS_FOUR", 8);
+        FORMAT_MAX_PLAYERS.put("FIVE_VS_FIVE", 10);
+        FORMAT_MAX_PLAYERS.put("SIX_VS_SIX", 12);
+        FORMAT_MAX_PLAYERS.put("SEVEN_VS_SEVEN", 14);
+    }
+
+    /**
+     * 매치 방식에 따른 최대 인원 (양 팀 합산)
+     */
+    public static int getMaxPlayersByFormat(String format) {
+        return FORMAT_MAX_PLAYERS.getOrDefault(format, 10);
+    }
 
     /**
      * 매치 생성
@@ -191,10 +216,36 @@ public class MatchService {
             throw new IllegalArgumentException("자신의 팀에는 신청할 수 없습니다.");
         }
 
-        // 매치 성사
-        match.setGuestTeamUid(request.getApplicantTeamUid());
-        match.setStatus(FutsalMatch.FutsalMatchStatus.MATCHED);
-        match = matchRepository.save(match);
+        // 이미 신청했는지 확인
+        if (matchApplicationRepository.existsByMatchUidAndApplicantTeamUid(
+                request.getMatchUid(), request.getApplicantTeamUid())) {
+            throw new IllegalArgumentException("이미 신청한 매치입니다.");
+        }
+
+        // 정원 초과 확인
+        int maxPlayers = getMaxPlayersByFormat(match.getMatchFormat());
+        long currentApproved = matchApplicationRepository.countByMatchUidAndStatus(
+                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
+        if (currentApproved >= maxPlayers) {
+            throw new IllegalArgumentException("모집 인원이 마감되었습니다.");
+        }
+
+        // 신청 저장
+        MatchApplication application = MatchApplication.builder()
+                .matchUid(match.getUid())
+                .applicantTeamUid(request.getApplicantTeamUid())
+                .applicantUserUid(userUid)
+                .status(MatchApplication.ApplicationStatus.PENDING)
+                .message(request.getMessage())
+                .build();
+        matchApplicationRepository.save(application);
+
+        // 친선경기(FRIENDLY)는 상대팀 매칭 즉시 성사
+        if (match.getMatchType() == FutsalMatch.MatchType.FRIENDLY) {
+            match.setGuestTeamUid(request.getApplicantTeamUid());
+            match.setStatus(FutsalMatch.FutsalMatchStatus.MATCHED);
+            match = matchRepository.save(match);
+        }
 
         return toDetailResponse(match);
     }
@@ -223,6 +274,10 @@ public class MatchService {
         Team guestTeam = match.getGuestTeamUid() != null ? 
                 teamRepository.findByUid(match.getGuestTeamUid()).orElse(null) : null;
 
+        int maxPlayers = getMaxPlayersByFormat(match.getMatchFormat());
+        long currentPlayers = matchApplicationRepository.countByMatchUidAndStatus(
+                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
+
         return MatchDto.DetailResponse.builder()
                 .uid(match.getUid())
                 .hostTeamUid(match.getHostTeamUid())
@@ -246,6 +301,8 @@ public class MatchService {
                 .homeScore(match.getHomeScore())
                 .awayScore(match.getAwayScore())
                 .status(match.getStatus())
+                .maxPlayers(maxPlayers)
+                .currentPlayers((int) currentPlayers)
                 .createdDate(match.getCreatedDate())
                 .build();
     }
@@ -257,6 +314,10 @@ public class MatchService {
             region = (hostTeam.getRegionSido() != null ? hostTeam.getRegionSido() : "")
                     + " " + (hostTeam.getRegionSigungu() != null ? hostTeam.getRegionSigungu() : "");
         }
+
+        int maxPlayers = getMaxPlayersByFormat(match.getMatchFormat());
+        long currentPlayers = matchApplicationRepository.countByMatchUidAndStatus(
+                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
 
         return MatchDto.ListResponse.builder()
                 .uid(match.getUid())
@@ -272,6 +333,8 @@ public class MatchService {
                 .region(region.trim())
                 .fee(match.getFee())
                 .status(match.getStatus())
+                .maxPlayers(maxPlayers)
+                .currentPlayers((int) currentPlayers)
                 .build();
     }
 }

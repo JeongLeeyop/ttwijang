@@ -249,9 +249,10 @@ export default class TeamRecruitDetail extends Vue {
         message: '회원 모집을 보고 신청합니다.',
       });
       Message.success('가입 신청이 완료되었습니다!');
-      this.$router.push('/');
-    } catch (error) {
-      Message.error('가입 신청에 실패했습니다.');
+      this.$router.push(`/team-recruit-detail/${this.team.uid || this.team.teamUid}`);
+    } catch (error: any) {
+      const serverMsg = error?.response?.data?.message;
+      Message.error(serverMsg || '가입 신청에 실패했습니다.');
     } finally {
       this.isApplying = false;
     }
