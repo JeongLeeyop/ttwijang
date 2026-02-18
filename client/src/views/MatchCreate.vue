@@ -29,21 +29,20 @@
               <div class="cal-day-header">목</div>
               <div class="cal-day-header">금</div>
               <div class="cal-day-header">토</div>
-              <template v-for="(day, idx) in calendarDays">
-                <div
-                  :key="idx"
-                  class="cal-day-cell"
-                  :class="{
-                    'other-month': !day.current,
-                    'today': day.isToday,
-                    'selected': day.isSelected,
-                    'disabled': day.isPast,
-                  }"
-                  @click="selectDate(day)"
-                >
-                  {{ day.day }}
-                </div>
-              </template>
+              <div
+                v-for="(day, idx) in calendarDays"
+                :key="idx"
+                class="cal-day-cell"
+                :class="{
+                  'other-month': !day.current,
+                  'today': day.isToday,
+                  'selected': day.isSelected,
+                  'disabled': day.isPast,
+                }"
+                @click="selectDate(day)"
+              >
+                {{ day.day }}
+              </div>
             </div>
           </div>
 
@@ -177,7 +176,7 @@ export default class MatchCreate extends Vue {
 
   get hours(): string[] {
     const h: string[] = [];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 24; i += 1) {
       h.push(String(i).padStart(2, '0'));
     }
     return h;
@@ -206,7 +205,7 @@ export default class MatchCreate extends Vue {
     // 이전 달
     const startDow = firstDay.getDay();
     const prevLast = new Date(this.calYear, this.calMonth, 0).getDate();
-    for (let i = startDow - 1; i >= 0; i--) {
+    for (let i = startDow - 1; i >= 0; i -= 1) {
       days.push({
         day: prevLast - i,
         current: false,
@@ -218,7 +217,7 @@ export default class MatchCreate extends Vue {
     }
 
     // 현재 달
-    for (let d = 1; d <= lastDay.getDate(); d++) {
+    for (let d = 1; d <= lastDay.getDate(); d += 1) {
       const dt = new Date(this.calYear, this.calMonth, d);
       const dateStr = `${this.calYear}-${String(this.calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       days.push({
@@ -233,7 +232,7 @@ export default class MatchCreate extends Vue {
 
     // 다음 달
     const remaining = 42 - days.length;
-    for (let i = 1; i <= remaining; i++) {
+    for (let i = 1; i <= remaining; i += 1) {
       days.push({
         day: i,
         current: false,
