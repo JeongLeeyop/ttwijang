@@ -117,6 +117,9 @@ public class LeagueDto {
         @Schema(description = "팀 UID")
         private String teamUid;
 
+        @Schema(description = "팀 코드 (URL 슬러그)")
+        private String teamCode;
+
         @Schema(description = "팀 이름")
         private String teamName;
 
@@ -249,6 +252,9 @@ public class LeagueDto {
     public static class LeagueTeamResponse {
         @Schema(description = "팀 UID")
         private String teamUid;
+
+        @Schema(description = "팀 코드 (URL 슬러그)")
+        private String teamCode;
 
         @Schema(description = "팀 이름")
         private String teamName;

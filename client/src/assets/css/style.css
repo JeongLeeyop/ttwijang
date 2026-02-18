@@ -3078,7 +3078,6 @@
   min-height: 100vh;
   max-height: 100vh;
   max-width: 480px;
-  margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
   display: flex;
@@ -3256,7 +3255,6 @@
   min-height: 100vh;
   max-height: 100vh;
   max-width: 480px;
-  margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
   display: flex;

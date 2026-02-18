@@ -46,7 +46,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(team, index) in leagueTable" :key="index">
+            <tr
+              v-for="(team, index) in leagueTable"
+              :key="index"
+              class="team-row"
+              @click="navigateToTeam(team.teamCode)"
+            >
               <td class="rank-cell">
                 <span class="rank-number">{{ index + 1 }}</span>
                 <img :src="team.logo" :alt="team.name" class="team-mini-logo">
@@ -96,6 +101,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 
 interface LeagueTeam {
+  teamCode?: string
   name: string
   logo: string
   played: number
@@ -171,6 +177,12 @@ export default class LeagueStatusView extends Vue {
     });
   }
 
+  private navigateToTeam(teamCode?: string): void {
+    if (teamCode) {
+      this.$router.push(`/team/${teamCode}`);
+    }
+  }
+
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
@@ -202,6 +214,7 @@ export default class LeagueStatusView extends Vue {
       const standings = standingsResponse.data || [];
 
       this.leagueTable = standings.map((team: any) => ({
+        teamCode: team.teamCode,
         name: team.teamName,
         logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
         played: team.matchesPlayed,
@@ -304,5 +317,19 @@ export default class LeagueStatusView extends Vue {
 ::v-deep .league-filter-select .el-input__inner {
   border-radius: 8px;
   font-size: 13px;
+}
+
+/* 순위표 행 클릭 가능 스타일 */
+.team-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.team-row:hover {
+  background-color: rgba(0, 122, 255, 0.05);
+}
+
+.team-row:active {
+  background-color: rgba(0, 122, 255, 0.1);
 }
 </style>

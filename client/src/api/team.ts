@@ -47,7 +47,7 @@ export interface CreateTeamRequest {
   name: string
   teamCode: string
   description?: string
-  logoUrl?: string
+  logoFileUid?: string
   establishedYear?: number
   activityDays?: string
   activityTimes?: string

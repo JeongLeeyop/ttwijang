@@ -28,15 +28,14 @@
         <!-- Region Input Section -->
         <div class="form-group">
           <label>구장 이름</label>
-          <div class="search-input-wrapper" @click="openSearchDialog">
+          <div class="search-input-wrapper">
             <input
               v-model="stadiumName"
               type="text"
               class="search-input"
-              placeholder="ex) 구장 찾기"
-              readonly
+              placeholder="ex) 진주종합경기장 풋살장"
             >
-            <i class="el-icon-search search-icon"></i>
+            <!-- <i class="el-icon-search search-icon" @click="openSearchDialog"></i> -->
           </div>
         </div>
 

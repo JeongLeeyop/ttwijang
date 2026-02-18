@@ -108,7 +108,7 @@
                   v-for="(team, index) in leagueParticipatingTeams"
                   :key="index"
                   class="join-team-card"
-                  @click="navigateToTeam(team.teamUid)"
+                  @click="navigateToTeam(team.teamCode)"
                 >
                   <div class="team-badge-wrapper">
                     <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
@@ -142,7 +142,7 @@
                   v-for="(team, index) in recruitingTeams"
                   :key="index"
                   class="join-team-card"
-                  @click="navigateToTeam(team.teamUid)"
+                  @click="navigateToTeam(team.teamCode)"
                 >
                   <div class="team-badge-wrapper">
                     <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
@@ -260,6 +260,7 @@ interface Match {
 
 interface JoinTeam {
   teamUid: string
+  teamCode: string
   name: string
   logo: string
   leagueName: string
@@ -416,6 +417,7 @@ export default class extends Vue {
             const leagueTeamsData: LeagueTeamResponse[] = leagueTeamsResponse.data || [];
             return leagueTeamsData.map((team: LeagueTeamResponse): JoinTeam => ({
               teamUid: team.teamUid,
+              teamCode: team.teamCode || team.teamUid,
               name: team.teamName,
               logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=80`,
               leagueName: team.leagueName || 'B리그',
@@ -452,6 +454,7 @@ export default class extends Vue {
         .slice(0, 10)
         .map((team: any) => ({
           teamUid: team.uid,
+          teamCode: team.teamCode || team.uid,
           name: team.name,
           logo: team.logoFileUid || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.name.substring(0, 2))}&background=random&color=fff&size=80`,
           leagueName: 'B리그',
@@ -516,122 +519,11 @@ export default class extends Vue {
 
   private upcomingMatchCards: UpcomingMatchCard[] = []
 
-  private leagueTable: LeagueTeam[] = [
-    {
-      name: '최강숏FC',
-      logo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      played: 18,
-      wins: 15,
-      draws: 2,
-      losses: 1,
-      points: 47,
-      goals: 45,
-      conceded: 12,
-      difference: 33,
-    },
-    {
-      name: '위더스 FC',
-      logo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      played: 18,
-      wins: 12,
-      draws: 3,
-      losses: 3,
-      points: 39,
-      goals: 38,
-      conceded: 20,
-      difference: 18,
-    },
-    {
-      name: '라이온 FC',
-      logo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      played: 18,
-      wins: 11,
-      draws: 4,
-      losses: 3,
-      points: 37,
-      goals: 35,
-      conceded: 22,
-      difference: 13,
-    },
-    {
-      name: '아란치 FC',
-      logo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      played: 18,
-      wins: 10,
-      draws: 5,
-      losses: 3,
-      points: 35,
-      goals: 32,
-      conceded: 24,
-      difference: 8,
-    },
-    {
-      name: '진주고 FC',
-      logo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-      played: 18,
-      wins: 9,
-      draws: 6,
-      losses: 3,
-      points: 33,
-      goals: 30,
-      conceded: 25,
-      difference: 5,
-    },
-  ]
+  private leagueTable: LeagueTeam[] = []
 
-  private recentMatches: Match[] = [
-    {
-      uid: 'recent-1',
-      date: '05월 01일',
-      day: '목요일',
-      time: '15:00',
-      location: '송도풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 2,
-      awayScore: 1,
-    },
-    {
-      uid: 'recent-2',
-      date: '05월 09일',
-      day: '금요일',
-      time: '18:00',
-      location: '송도풋살장',
-      homeTeam: '최강숏 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=CK&background=ffd700&color=000&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-      homeScore: 5,
-      awayScore: 2,
-    },
-  ]
+  private recentMatches: Match[] = []
 
-  private upcomingMatches: Match[] = [
-    {
-      uid: 'upcoming-1',
-      date: '05월 10일',
-      day: '토요일',
-      time: '19:00',
-      location: '위더스풋살장',
-      homeTeam: '위더스 FC',
-      awayTeam: '아란치 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=WD&background=061da1&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=AR&background=ff6600&color=fff&size=40',
-    },
-    {
-      uid: 'upcoming-2',
-      date: '05월 11일',
-      day: '일요일',
-      time: '14:00',
-      location: '송도풋살장',
-      homeTeam: '라이온 FC',
-      awayTeam: '진주고 FC',
-      homeLogo: 'https://ui-avatars.com/api/?name=LN&background=ff8800&color=fff&size=40',
-      awayLogo: 'https://ui-avatars.com/api/?name=JJ&background=00cc66&color=fff&size=40',
-    },
-  ]
+  private upcomingMatches: Match[] = []
 
   private formatMatchDate(dateStr: string): { date: string, day: string } {
     const d = new Date(dateStr);
@@ -773,8 +665,8 @@ export default class extends Vue {
     });
   }
 
-  private navigateToTeam(teamUid: string): void {
-    this.$router.push(`/team/${teamUid}`);
+  private navigateToTeam(teamCode: string): void {
+    this.$router.push(`/team/${teamCode}`);
   }
 
   private async resolveRegionName(): Promise<string> {
