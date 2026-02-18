@@ -127,6 +127,7 @@ export interface League {
 
 export interface LeagueTeamResponse {
   teamUid: string
+  teamCode?: string
   teamName: string
   teamLogoUrl?: string
   leagueName: string
@@ -136,6 +137,7 @@ export interface LeagueTeamResponse {
 
 export interface LeagueStanding {
   teamUid: string
+  teamCode?: string
   teamName: string
   teamLogoUrl?: string
   rank: number
