@@ -87,8 +87,8 @@ springdoc:
 
 #첨부파일 경로
 attached-file:
-  upload-directory: /home/ubuntu/web/attached-file
-  # upload-directory: ./attached-file
+  # upload-directory: /home/ubuntu/web/attached-file
+  upload-directory: ./attached-file
 
 security:
   jwt:
@@ -118,16 +118,13 @@ spring:
   datasource:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
         username: ttwijang
-        # password: dhkfh2026!@#
         password: ttwijang1!
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        # jdbc-url: jdbc:mysql://localhost:3306/ttwijang
         jdbc-url: jdbc:mysql://localhost:3306/ttwijang
         username: ttwijang
-        # password: dhkfh2026!@#
         password: ttwijang1!
       # resource:
       #   driver-class-name: com.mysql.cj.jdbc.Driver
@@ -153,12 +150,12 @@ spring:
   datasource:
       resource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         username: ttwijang
         password: dhkfh2026!@#
       oauth:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         username: ttwijang
         password: dhkfh2026!@#
 
