@@ -119,9 +119,17 @@ export interface ProcessJoinRequest {
 
 export function processJoinRequest(data: ProcessJoinRequest) {
   return request({
-    url: '/team/process-join',
+    url: '/team/join/process',
     method: 'post',
     data,
+  });
+}
+
+// 팀 가입 대기 목록 조회 (운영자용)
+export function getPendingRequests(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/pending`,
+    method: 'get',
   });
 }
 
@@ -250,5 +258,34 @@ export function uploadTeamPhoto(file: File) {
     method: 'post',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}
+
+// 내 가입 대기 정보 조회
+export interface PendingInfo {
+  memberUid: string
+  teamUid: string
+  teamName: string
+  teamCode: string
+  teamLogoUrl: string | null
+  ownerName: string | null
+  memberCount: number
+  region: string
+  position: string | null
+  appliedDate: string
+}
+
+export function getMyPendingInfo() {
+  return request({
+    url: '/team/my/pending',
+    method: 'get',
+  });
+}
+
+// 가입 신청 취소
+export function cancelJoinRequest() {
+  return request({
+    url: '/team/my/pending',
+    method: 'delete',
   });
 }

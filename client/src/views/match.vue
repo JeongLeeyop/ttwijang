@@ -44,8 +44,9 @@
               >
             </div>
           </div>
-          <p v-if="hasPendingRequest" class="pending-notice">
+          <p v-if="hasPendingRequest" class="pending-notice" @click="goToPendingApproval">
             <i class="el-icon-warning-outline"></i> 팀 가입 대기 중입니다.
+            <i class="el-icon-arrow-right pending-arrow"></i>
           </p>
         </template>
       </div>
@@ -454,6 +455,10 @@ export default class extends Vue {
     }
   }
 
+  private goToPendingApproval(): void {
+    this.$router.push('/pending-approval');
+  }
+
   async created() {
     this.currentYear = new Date().getFullYear();
     this.currentMonthIndex = new Date().getMonth();
@@ -725,12 +730,25 @@ export default class extends Vue {
 }
 
 .pending-notice {
+  padding:0 30px;
   font-size: 13px;
   color: #e6a23c;
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.pending-notice:active {
+  opacity: 0.7;
+}
+
+.pending-arrow {
+  margin-left: auto;
+  font-size: 14px;
+  color: #ccc;
 }
 
 .no-team-message,

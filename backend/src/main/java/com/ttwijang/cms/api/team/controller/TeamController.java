@@ -155,6 +155,22 @@ public class TeamController {
         return ResponseEntity.ok(myTeam);
     }
 
+    @Operation(summary = "내 가입 대기 정보 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/my/pending")
+    public ResponseEntity<TeamDto.PendingInfoResponse> getMyPendingInfo(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        TeamDto.PendingInfoResponse pendingInfo = teamService.getMyPendingInfo(userDetails.getUser().getUid());
+        return ResponseEntity.ok(pendingInfo);
+    }
+
+    @Operation(summary = "가입 신청 취소", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/my/pending")
+    public ResponseEntity<Void> cancelJoinRequest(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        teamService.cancelJoinRequest(userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "운영자 위임", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{teamUid}/delegate/{newOwnerUid}")
     public ResponseEntity<Void> delegateOwner(

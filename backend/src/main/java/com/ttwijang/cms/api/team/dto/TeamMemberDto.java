@@ -79,6 +79,15 @@ public class TeamMemberDto {
 
         @Schema(description = "매너점수")
         private Integer mannerScore;
+
+        @Schema(description = "신청 지역")
+        private String applicationRegion;
+
+        @Schema(description = "신청 나이")
+        private Integer applicationAge;
+
+        @Schema(description = "신청 실력/경력")
+        private String applicationExperience;
     }
 
     @Data

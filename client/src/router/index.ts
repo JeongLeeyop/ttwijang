@@ -288,6 +288,22 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamProfileEdit.vue'),
 			},
+			{
+				path: '/pending-approval',
+				name: 'PendingApproval',
+				meta: {
+					title: '가입 신청 현황',
+				},
+				component: () => import('@/views/pendingApproval.vue'),
+			},
+			{
+				path: '/pending-manage',
+				name: 'PendingManage',
+				meta: {
+					title: '가입 승인 관리',
+				},
+				component: () => import('@/views/pendingManage.vue'),
+			},
 		],
 	},
 ];

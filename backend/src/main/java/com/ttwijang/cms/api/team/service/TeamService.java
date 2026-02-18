@@ -507,6 +507,57 @@ public class TeamService {
         teamRepository.save(team);
     }
 
+    /**
+     * 내 가입 대기 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.PendingInfoResponse getMyPendingInfo(String userUid) {
+        TeamMember pending = teamMemberRepository.findPendingMembershipByUserUid(userUid)
+                .orElse(null);
+        if (pending == null) {
+            return null;
+        }
+
+        Team team = pending.getTeam();
+        String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
+                ? "/api/attached-file/" + team.getLogoFileUid()
+                : null;
+        String ownerName = userRepository.findByUid(team.getOwnerUid())
+                .map(u -> u.getActualName())
+                .orElse(null);
+        String region = "";
+        if (team.getRegionSido() != null) {
+            region = team.getRegionSido();
+            if (team.getRegionSigungu() != null) {
+                region += " " + team.getRegionSigungu();
+            }
+        }
+
+        return TeamDto.PendingInfoResponse.builder()
+                .memberUid(pending.getUid())
+                .teamUid(team.getUid())
+                .teamName(team.getName())
+                .teamCode(team.getTeamCode())
+                .teamLogoUrl(logoUrl)
+                .ownerName(ownerName)
+                .memberCount(team.getMemberCount())
+                .region(region)
+                .position(pending.getPosition())
+                .appliedDate(pending.getCreatedDate())
+                .build();
+    }
+
+    /**
+     * 가입 신청 취소
+     */
+    @Transactional
+    public void cancelJoinRequest(String userUid) {
+        TeamMember pending = teamMemberRepository.findPendingMembershipByUserUid(userUid)
+                .orElseThrow(() -> new IllegalArgumentException("대기 중인 가입 신청이 없습니다."));
+
+        teamMemberRepository.delete(pending);
+    }
+
     private TeamDto.DetailResponse toDetailResponse(Team team) {
         String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
                 ? "/api/attached-file/" + team.getLogoFileUid()
@@ -598,7 +649,10 @@ public class TeamService {
                 .position(member.getPosition())
                 .backNumber(member.getBackNumber())
                 .status(member.getStatus())
-                .createdDate(member.getCreatedDate());
+                .createdDate(member.getCreatedDate())
+                .applicationRegion(member.getApplicationRegion())
+                .applicationAge(member.getApplicationAge())
+                .applicationExperience(member.getApplicationExperience());
 
         // User 정보 매핑
         if (member.getUser() != null) {

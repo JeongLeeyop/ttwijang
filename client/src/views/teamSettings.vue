@@ -30,6 +30,15 @@
             <i class="el-icon-arrow-right menu-arrow"></i>
           </div>
 
+          <!-- 가입 승인 대기 -->
+          <div class="settings-menu-item" @click="goToPendingManage">
+            <div class="menu-label-row">
+              <span class="menu-label">가입 승인 대기</span>
+              <span v-if="pendingCount > 0" class="pending-badge">{{ pendingCount }}</span>
+              <i class="el-icon-arrow-right menu-arrow"></i>
+            </div>
+          </div>
+
           <!-- 환불 계좌 -->
           <div class="settings-menu-item" @click="showPreparing">
             <div class="menu-label-row">
@@ -58,13 +67,15 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { getTeamDetail, getMyTeams } from '@/api/team';
+import { getTeamDetail, getMyTeams, getPendingRequests } from '@/api/team';
 
 @Component
 export default class TeamSettings extends Vue {
   private teamUid = ''
 
   private teamInfo: any = {}
+
+  private pendingCount = 0
 
   get defaultLogo(): string {
     return 'https://ui-avatars.com/api/?name=T&background=061da1&color=fff&size=60';
@@ -85,6 +96,7 @@ export default class TeamSettings extends Vue {
     }
     if (this.teamUid) {
       await this.loadTeamInfo();
+      await this.loadPendingCount();
     }
   }
 
@@ -97,6 +109,16 @@ export default class TeamSettings extends Vue {
     }
   }
 
+  private async loadPendingCount(): Promise<void> {
+    try {
+      const res = await getPendingRequests(this.teamUid);
+      const list = res.data;
+      this.pendingCount = Array.isArray(list) ? list.length : 0;
+    } catch (error) {
+      console.warn('대기 목록 조회 실패:', error);
+    }
+  }
+
   private goBack(): void {
     this.$router.go(-1);
   }
@@ -104,6 +126,13 @@ export default class TeamSettings extends Vue {
   private goToProfileEdit(): void {
     this.$router.push({
       path: '/team-profile-edit',
+      query: { teamUid: this.teamUid },
+    });
+  }
+
+  private goToPendingManage(): void {
+    this.$router.push({
+      path: '/pending-manage',
       query: { teamUid: this.teamUid },
     });
   }
@@ -223,6 +252,21 @@ export default class TeamSettings extends Vue {
 .menu-arrow {
   color: #ccc;
   font-size: 16px;
+}
+
+.pending-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #ff4757;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
 }
 
 .menu-tag {

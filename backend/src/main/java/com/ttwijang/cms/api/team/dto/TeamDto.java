@@ -414,4 +414,44 @@ public class TeamDto {
         @Schema(description = "신청수")
         private Long applicationCount;
     }
+
+    /**
+     * 내 가입 대기 정보 응답
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "가입 대기 정보 응답")
+    public static class PendingInfoResponse {
+        @Schema(description = "신청 멤버 UID")
+        private String memberUid;
+
+        @Schema(description = "팀 UID")
+        private String teamUid;
+
+        @Schema(description = "팀 이름")
+        private String teamName;
+
+        @Schema(description = "팀 코드")
+        private String teamCode;
+
+        @Schema(description = "팀 로고 URL")
+        private String teamLogoUrl;
+
+        @Schema(description = "운영자 이름")
+        private String ownerName;
+
+        @Schema(description = "팀 회원 수")
+        private Integer memberCount;
+
+        @Schema(description = "활동 지역")
+        private String region;
+
+        @Schema(description = "신청 포지션")
+        private String position;
+
+        @Schema(description = "신청일")
+        private LocalDateTime appliedDate;
+    }
 }
