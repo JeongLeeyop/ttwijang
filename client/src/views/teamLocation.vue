@@ -331,10 +331,13 @@ export default class TeamLocationPage extends Vue {
       return;
     }
 
+    const cityLabel = this.cities.find((c) => c.value === this.selectedCity)?.label || this.selectedCity;
+    const districtLabel = this.districts.find((d) => d.value === this.selectedDistrict)?.label || this.selectedDistrict;
+
     const locationInfo = {
       stadiumName: this.stadiumName,
-      city: this.selectedCity,
-      district: this.selectedDistrict,
+      city: cityLabel,
+      district: districtLabel,
     };
 
     console.log('Location Info:', locationInfo);

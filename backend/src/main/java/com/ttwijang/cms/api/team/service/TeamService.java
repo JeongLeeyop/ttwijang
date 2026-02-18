@@ -13,6 +13,7 @@ import com.ttwijang.cms.api.team.dto.TeamDto;
 import com.ttwijang.cms.api.team.dto.TeamMemberDto;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
 
@@ -24,6 +25,7 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final UserRepository userRepository;
 
     private static final String TEAM_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int TEAM_CODE_LENGTH = 8;
@@ -312,7 +314,7 @@ public class TeamService {
      */
     @Transactional(readOnly = true)
     public List<TeamMemberDto.Response> getTeamMembers(String teamUid) {
-        return teamMemberRepository.findByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
+        return teamMemberRepository.findWithUserByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
                 .stream()
                 .map(this::toMemberResponse)
                 .collect(Collectors.toList());
@@ -509,6 +511,9 @@ public class TeamService {
         String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
                 ? "/api/attached-file/" + team.getLogoFileUid()
                 : null;
+        String ownerName = userRepository.findByUid(team.getOwnerUid())
+                .map(u -> u.getActualName())
+                .orElse(null);
         return TeamDto.DetailResponse.builder()
                 .uid(team.getUid())
                 .name(team.getName())
@@ -527,6 +532,7 @@ public class TeamService {
                 .ageGroups(team.getAgeGroups())
                 .monthlyFee(team.getMonthlyFee())
                 .ownerUid(team.getOwnerUid())
+                .ownerName(ownerName)
                 .sponsorOwnerUid(team.getSponsorOwnerUid())
                 .featureTags(team.getFeatureTags())
                 .recruitingMembers(team.getRecruitingMembers())
@@ -581,14 +587,22 @@ public class TeamService {
     }
 
     private TeamMemberDto.Response toMemberResponse(TeamMember member) {
-        return TeamMemberDto.Response.builder()
+        TeamMemberDto.Response.ResponseBuilder builder = TeamMemberDto.Response.builder()
                 .uid(member.getUid())
                 .userUid(member.getUserUid())
                 .role(member.getRole())
                 .position(member.getPosition())
                 .backNumber(member.getBackNumber())
                 .status(member.getStatus())
-                .createdDate(member.getCreatedDate())
-                .build();
+                .createdDate(member.getCreatedDate());
+
+        // User 정보 매핑
+        if (member.getUser() != null) {
+            builder.userName(member.getUser().getActualName());
+            builder.gender(member.getUser().getGender());
+            builder.birth(member.getUser().getBirth());
+        }
+
+        return builder.build();
     }
 }

@@ -45,7 +45,11 @@ public class PostQuery {
         sql.append("LEFT JOIN post_category pc ON pc.post_uid = p.uid \n");
         sql.append("LEFT JOIN post_file pf ON pf.post_uid = p.uid \n");
         sql.append("LEFT JOIN post_tag pt ON pt.post_uid = p.uid \n");
-        sql.append("WHERE p.board_uid = :boardUid \n");
+        if (StringUtils.hasText(search.getTeamUid())) {
+            sql.append("WHERE p.team_uid = :teamUid \n");
+        } else {
+            sql.append("WHERE p.board_uid = :boardUid \n");
+        }
         sql.append("AND p.parent_uid is null AND p.delete_status = 0 \n");
         
         sql.append("AND ((p.hidden_status = 1 AND p.user_uid = :userUid) OR p.hidden_status = 0) \n");
@@ -82,7 +86,11 @@ public class PostQuery {
         sql.append("LIMIT :startLimit, :endLimit");
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        query.setParameter("boardUid", search.getBoardUid());
+        if (StringUtils.hasText(search.getTeamUid())) {
+            query.setParameter("teamUid", search.getTeamUid());
+        } else {
+            query.setParameter("boardUid", search.getBoardUid());
+        }
         query.setParameter("startLimit", pageable.getPageNumber() * pageable.getPageSize());
         query.setParameter("endLimit", pageable.getPageSize());
         if (authUser != null) query.setParameter("userUid", authUser.getUser().getUid());
@@ -133,7 +141,11 @@ public class PostQuery {
         sql.append("LEFT JOIN post_category pc ON pc.post_uid = p.uid \n");
         // sql.append("LEFT JOIN post_file pf ON pf.post_uid = p.uid \n");
         sql.append("LEFT JOIN post_tag pt ON pt.post_uid = p.uid \n");
-        sql.append("WHERE p.board_uid = :boardUid \n");
+        if (StringUtils.hasText(search.getTeamUid())) {
+            sql.append("WHERE p.team_uid = :teamUid \n");
+        } else {
+            sql.append("WHERE p.board_uid = :boardUid \n");
+        }
         sql.append("AND p.parent_uid is null AND p.delete_status = 0 \n");
         sql.append("AND ((p.hidden_status = 1 AND p.user_uid = :userUid) OR p.hidden_status = 0) \n");
 
@@ -157,7 +169,11 @@ public class PostQuery {
         }
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        query.setParameter("boardUid", search.getBoardUid());
+        if (StringUtils.hasText(search.getTeamUid())) {
+            query.setParameter("teamUid", search.getTeamUid());
+        } else {
+            query.setParameter("boardUid", search.getBoardUid());
+        }
         if (authUser != null) query.setParameter("userUid", authUser.getUser().getUid());
         else query.setParameter("userUid", "");
 

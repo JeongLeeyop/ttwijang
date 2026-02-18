@@ -145,7 +145,7 @@
                   @click="$router.push(`/team-recruit-detail/${team.teamUid}`)"
                 >
                   <div class="team-badge-wrapper">
-                    <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span>
+                    <!-- <span class="team-league-badge" :style="{ background: team.leagueColor }">{{ team.leagueName }}</span> -->
                     <div class="team-logo-container">
                       <img :src="team.logo" :alt="team.name" class="join-team-logo">
                     </div>

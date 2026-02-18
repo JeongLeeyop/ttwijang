@@ -33,8 +33,8 @@ public class PostDto {
 
 	@Data
 	public static class Add {
-		@NotEmpty(message = "게시판 고유값을 입력하세요.")
 		private String boardUid;
+		private String teamUid;
 		private String parentUid;
 		@NotBlank(message = "제목을 입력하세요.")
 		private String title;
