@@ -130,6 +130,50 @@
           </div>
         </div>
 
+        <!-- 참가비 -->
+        <div class="form-group">
+          <label>참가비 (팀당)</label>
+          <div class="fee-input-wrap">
+            <div class="fee-options">
+              <button
+                class="option-button"
+                :class="{ active: fee === 0 }"
+                @click="fee = 0"
+              >
+                무료
+              </button>
+              <button
+                class="option-button"
+                :class="{ active: fee !== 0 }"
+                @click="fee = 10000"
+              >
+                유료
+              </button>
+            </div>
+            <div v-if="fee !== 0" class="fee-amount-wrap">
+              <input
+                v-model.number="fee"
+                type="number"
+                class="form-input fee-input"
+                placeholder="금액 입력"
+                min="0"
+                step="1000"
+              >
+              <span class="fee-unit">원</span>
+            </div>
+            <div v-if="fee !== 0" class="fee-preset-buttons">
+              <button
+                v-for="p in feePresets"
+                :key="p"
+                class="fee-preset-btn"
+                @click="fee = p"
+              >
+                {{ (p / 10000).toFixed(0) }}만원
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 등록하기 버튼 -->
         <button class="submit-button" @click="handleSubmit">등록하기</button>
       </div>
@@ -161,7 +205,11 @@ export default class MatchCreate extends Vue {
 
   private matchFormat = 'FIVE_VS_FIVE'
 
+  private fee = 0
+
   private durationOptions = [1, 2, 3, 4]
+
+  private feePresets = [10000, 20000, 30000, 50000]
 
   private formatOptions = [
     { label: '4 vs 4', value: 'FOUR_VS_FOUR' },
@@ -284,10 +332,11 @@ export default class MatchCreate extends Vue {
         hostTeamUid: this.teamUid,
         matchDate: this.selectedDate,
         matchTime: `${this.selectedHour}:${this.selectedMinute}`,
-        matchDuration: this.matchDuration,
+        durationHours: this.matchDuration,
         stadiumName: this.stadium,
         matchType: this.matchType,
         matchFormat: this.matchFormat,
+        fee: this.fee,
       };
 
       const response = await createMatch(matchData);
@@ -563,5 +612,81 @@ export default class MatchCreate extends Vue {
 
 .submit-button:active {
   background: #051580;
+}
+
+/* Fee Input */
+.fee-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fee-options {
+  display: flex;
+  gap: 8px;
+}
+
+.fee-options .option-button {
+  flex: 1;
+}
+
+.fee-amount-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-input {
+  flex: 1;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 700;
+  padding-right: 8px;
+}
+
+/* Chrome, Safari 숫자 스피너 제거 */
+.fee-input::-webkit-outer-spin-button,
+.fee-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.fee-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.fee-unit {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.fee-preset-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fee-preset-btn {
+  flex: 1;
+  min-width: 60px;
+  padding: 8px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.fee-preset-btn:active {
+  background: #e8ecff;
+  border-color: #061da1;
+  color: #061da1;
 }
 </style>

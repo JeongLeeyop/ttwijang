@@ -68,7 +68,7 @@ export function createMatch(data: CreateMatchRequest) {
 // 매치 신청
 export interface ApplyMatchRequest {
   matchUid: string
-  teamUid?: string
+  applicantTeamUid: string
   message?: string
 }
 

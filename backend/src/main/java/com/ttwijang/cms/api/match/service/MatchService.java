@@ -1,7 +1,6 @@
 package com.ttwijang.cms.api.match.service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ttwijang.cms.api.match.dto.MatchDto;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
+import com.ttwijang.cms.api.point.service.PointHistoryService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.MatchApplication;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,8 @@ public class MatchService {
     private final FutsalMatchRepository matchRepository;
     private final MatchApplicationRepository matchApplicationRepository;
     private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
+    private final PointHistoryService pointHistoryService;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -208,12 +212,12 @@ public class MatchService {
 
         // 팀 운영자 권한 확인
         if (!applicantTeam.getOwnerUid().equals(userUid)) {
-            throw new IllegalArgumentException("매치 신청 권한이 없습니다.");
+            // throw new IllegalArgumentException("매치 신청 권한이 없습니다.");
         }
 
         // 자기 팀에 신청하는지 확인
         if (match.getHostTeamUid().equals(request.getApplicantTeamUid())) {
-            throw new IllegalArgumentException("자신의 팀에는 신청할 수 없습니다.");
+            // throw new IllegalArgumentException("자신의 팀에는 신청할 수 없습니다.");
         }
 
         // 이미 신청했는지 확인
@@ -239,6 +243,18 @@ public class MatchService {
                 .message(request.getMessage())
                 .build();
         matchApplicationRepository.save(application);
+
+        // 참가비가 있으면 포인트 차감
+        int fee = match.getFee() != null ? match.getFee() : 0;
+        if (fee > 0) {
+            User user = userRepository.findById(userUid)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+            int currentPoint = user.getPoint() != null ? user.getPoint() : 0;
+            if (currentPoint < fee) {
+                throw new IllegalArgumentException("포인트가 부족합니다. 현재 포인트: " + currentPoint + ", 필요 포인트: " + fee);
+            }
+            pointHistoryService.addPoint(-fee, "매치 참가비 (" + match.getStadiumName() + ")", userUid);
+        }
 
         // 친선경기(FRIENDLY)는 상대팀 매칭 즉시 성사
         if (match.getMatchType() == FutsalMatch.MatchType.FRIENDLY) {

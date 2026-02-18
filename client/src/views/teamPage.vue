@@ -216,7 +216,6 @@
                 >
                   {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
                 </span>
-                <span class="match-badge size-badge">{{ match.matchFormat }}</span>
               </div>
               <div class="match-card-datetime">
                 {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
@@ -757,10 +756,15 @@ export default class TeamPage extends Vue {
   }
 
   get filteredMatches(): any[] {
-    if (this.matchFilter === 'ALL') {
-      return this.matchData;
-    }
-    return this.matchData.filter((m) => m.matchType === this.matchFilter);
+    const list = this.matchFilter === 'ALL'
+      ? [...this.matchData]
+      : this.matchData.filter((m) => m.matchType === this.matchFilter);
+    // 날짜 순 정렬 (가까운 날짜 먼저)
+    return list.sort((a, b) => {
+      const dateA = new Date(a.matchDate).getTime();
+      const dateB = new Date(b.matchDate).getTime();
+      return dateA - dateB;
+    });
   }
 
   get noticePosts(): any[] {
@@ -1227,7 +1231,13 @@ export default class TeamPage extends Vue {
         getLeagueSchedule(this.selectedLeagueUid, {}),
       ]);
       this.leagueStandings = standingsRes.data || [];
-      this.leagueSchedule = scheduleRes.data || [];
+      const schedule = scheduleRes.data || [];
+      // 날짜 순 정렬 (가까운 날짜 먼저)
+      this.leagueSchedule = schedule.sort((a: any, b: any) => {
+        const dateA = new Date(a.matchDate).getTime();
+        const dateB = new Date(b.matchDate).getTime();
+        return dateA - dateB;
+      });
     } catch (error) {
       console.warn('리그 데이터 로드 실패:', error);
     }

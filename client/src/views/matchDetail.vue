@@ -466,6 +466,8 @@ import {
 import { getMatchDetail, applyToMatch } from '@/api/match';
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
 import { getLeagueDetail } from '@/api/league';
+import { getUserInfo } from '@/api/user';
+import { getMyTeams } from '@/api/team';
 
 type DetailType = 'league' | 'friendly' | 'free' | 'guest'
 
@@ -731,9 +733,11 @@ export default class MatchDetail extends Vue {
 
   get applyButtonText(): string {
     if (this.isRecruitmentClosed) return '모집 완료';
-    if (this.detailType === 'guest') return '게스트 신청하기';
-    if (this.detailType === 'friendly') return '매치 신청하기';
-    if (this.detailType === 'free') return '참가 신청하기';
+    const fee = this.detailData?.fee || 0;
+    const feeText = fee > 0 ? ` (${fee.toLocaleString()}P)` : '';
+    if (this.detailType === 'guest') return `게스트 신청하기${feeText}`;
+    if (this.detailType === 'friendly') return `매치 신청하기${feeText}`;
+    if (this.detailType === 'free') return `참가 신청하기${feeText}`;
     return '신청하기';
   }
 
@@ -924,6 +928,80 @@ export default class MatchDetail extends Vue {
   }
 
   private async handleApply(): Promise<void> {
+    // 참가비 확인
+    const fee = this.detailData?.fee || 0;
+
+    // 친선/자유 매치인 경우 팀 UID 확인
+    let applicantTeamUid = '';
+    if (this.detailType === 'friendly' || this.detailType === 'free') {
+      try {
+        const teamsRes = await getMyTeams();
+        const teamData = teamsRes.data;
+        // /team/my는 단일 객체 또는 배열을 반환할 수 있음
+        let teamUid = '';
+        if (Array.isArray(teamData)) {
+          teamUid = teamData.length > 0 ? teamData[0].uid : '';
+        } else if (teamData && teamData.uid) {
+          teamUid = teamData.uid;
+        }
+        if (!teamUid) {
+          this.$alert(
+            '소속된 팀이 없습니다. 팀을 먼저 생성하거나 가입해주세요.',
+            '팀 없음',
+            {
+              confirmButtonText: '확인',
+              type: 'warning',
+            },
+          );
+          return;
+        }
+        applicantTeamUid = teamUid;
+      } catch (err: any) {
+        this.$message.error('팀 정보를 불러오지 못했습니다.');
+        return;
+      }
+    }
+
+    if (fee > 0) {
+      // 포인트 확인을 위해 사용자 정보 조회
+      try {
+        const userRes = await getUserInfo();
+        const currentPoint = userRes.data?.point || 0;
+
+        if (currentPoint < fee) {
+          this.$alert(
+            `포인트가 부족합니다.\n\n참가비: ${fee.toLocaleString()}P\n보유 포인트: ${currentPoint.toLocaleString()}P\n부족 포인트: ${(fee - currentPoint).toLocaleString()}P`,
+            '포인트 부족',
+            {
+              confirmButtonText: '확인',
+              type: 'warning',
+            },
+          );
+          return;
+        }
+
+        // 포인트 차감 확인 다이얼로그
+        const remainPoint = currentPoint - fee;
+        try {
+          await this.$confirm(
+            `참가비 ${fee.toLocaleString()}P가 차감됩니다.\n\n보유 포인트: ${currentPoint.toLocaleString()}P\n차감 포인트: -${fee.toLocaleString()}P\n결제 후 잔액: ${remainPoint.toLocaleString()}P`,
+            '매치 참가비 결제',
+            {
+              confirmButtonText: '결제 후 신청',
+              cancelButtonText: '취소',
+              type: 'info',
+            },
+          );
+        } catch {
+          // 사용자가 취소
+          return;
+        }
+      } catch (err: any) {
+        this.$message.error('사용자 정보를 불러오지 못했습니다.');
+        return;
+      }
+    }
+
     this.isApplying = true;
 
     try {
@@ -935,8 +1013,13 @@ export default class MatchDetail extends Vue {
       } else if (this.detailType === 'friendly' || this.detailType === 'free') {
         await applyToMatch({
           matchUid: this.matchUid,
+          applicantTeamUid,
         });
-        this.$message.success('매치 신청이 완료되었습니다.');
+        if (fee > 0) {
+          this.$message.success(`매치 신청이 완료되었습니다. (${fee.toLocaleString()}P 차감)`);
+        } else {
+          this.$message.success('매치 신청이 완료되었습니다.');
+        }
       }
 
       // 데이터 갱신
@@ -955,7 +1038,7 @@ export default class MatchDetail extends Vue {
 .match-detail-page {
   min-height: 100vh;
   background: #f5f5f7;
-  padding-bottom: 100px;
+  padding-bottom: 80px;
 }
 
 /* Loading / Error */
@@ -1304,16 +1387,12 @@ export default class MatchDetail extends Vue {
   white-space: pre-wrap;
 }
 
-/* Apply Button (Fixed bottom) */
+/* Apply Button (static bottom, inside content flow) */
 .apply-button-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 16px;
+  padding: 16px;
   background: #fff;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-  z-index: 99;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .apply-button {

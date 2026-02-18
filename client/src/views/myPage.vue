@@ -255,12 +255,14 @@ export default class MyPage extends Vue {
     try {
       // 사용자 프로필 정보 로드 (API → Store → JWT 순으로 fallback)
       let userUid = '';
+      let userPoint = 0;
       try {
         const userInfoResponse = await getUserInfo();
         if (userInfoResponse.data) {
           this.userProfile.name = userInfoResponse.data.actualName || userInfoResponse.data.name || '';
           this.userProfile.email = userInfoResponse.data.email || '';
           userUid = userInfoResponse.data.uid || userInfoResponse.data.userId || '';
+          userPoint = userInfoResponse.data.point || 0;
         }
       } catch (infoError) {
         console.warn('사용자 정보 API 호출 실패, Store 데이터 사용:', infoError);
@@ -303,14 +305,15 @@ export default class MyPage extends Vue {
         this.isLoadingStats = false;
       }
 
-      // 지갑 정보 로드
+      // 지갑 정보 로드 (캐시 지갑 → User.point fallback)
       try {
         const walletResponse = await getWallet();
         if (walletResponse.data) {
           this.userWallet.points = walletResponse.data.balance || 0;
         }
       } catch (walletError) {
-        console.warn('지갑 정보 로드 실패:', walletError);
+        console.warn('지갑 정보 로드 실패, User.point 사용:', walletError);
+        this.userWallet.points = userPoint;
       }
 
       // 내 팀 정보 로드
