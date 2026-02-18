@@ -35,7 +35,9 @@ export function getGuestRecruitmentsByDateRange(startDate: string, endDate: stri
   return request({
     url: '/guest/calendar',
     method: 'get',
-    params: { startDate, endDate, ...params },
+    params: {
+      startDate, endDate, size: 100, ...params,
+    },
   });
 }
 

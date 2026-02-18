@@ -80,7 +80,7 @@ public class GuestController {
             @RequestParam(required = false) String regionCode,
             @RequestParam(required = false) String regionSido,
             @RequestParam(required = false) String regionSigungu,
-            @PageableDefault(direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+            @PageableDefault(size = 100, direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
         // regionCode가 제공되면 코드로부터 시/군/구 이름을 조회하여 필터링 (도 필터 없이)
         if (regionCode != null && !regionCode.isEmpty()) {
             String sigunguName = regionCodeService.resolveRegionName(regionCode);

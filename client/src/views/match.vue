@@ -75,13 +75,19 @@
 
         <!-- Date Selector Row -->
         <div class="date-selector-row">
+          <div class="date-item all-btn"
+               :class="{ 'selected': showAllMonth }"
+               @click="selectAll">
+            <div class="day-number">전체</div>
+          </div>
           <div class="date-item"
                v-for="day in getDaysInMonth(currentYear, currentMonthIndex)"
                :key="day"
-               :class="{ 'selected': isSelectedDate(day) }"
+               :class="{ 'selected': !showAllMonth && isSelectedDate(day), 'has-match': hasMatchOnDay(day) }"
                @click="selectDate(day)">
             <div class="day-label">{{ getDayLabel(day) }}</div>
             <div class="day-number">{{ day }}</div>
+            <div v-if="hasMatchOnDay(day)" class="match-dot"></div>
           </div>
         </div>
 
@@ -91,7 +97,7 @@
             <p>팀에 소속되면 매치 일정을 확인할 수 있어요!</p>
           </div>
           <div v-else-if="filteredMatches.length === 0" class="no-match-message">
-            <p>선택한 날짜에 매치 일정이 없습니다.</p>
+            <p>{{ showAllMonth ? '이번 달 매치 일정이 없습니다.' : '선택한 날짜에 매치 일정이 없습니다.' }}</p>
           </div>
           <div class="guest-list" v-else>
               <div
@@ -106,7 +112,7 @@
                 <div class="team-card-right">
                   <div class="team-tags">
                     <span class="tag">{{ match.matchTypeLabel }}</span>
-                    <span class="tag">매너 {{ match.manner }}점</span>
+                    <!-- <span class="tag">매너 {{ match.manner }}점</span> -->
                     <span class="tag">{{ match.matchFormatLabel }}</span>
                     <span class="tag match-status-tag" :class="'status-' + match.statusKey">{{ match.statusLabel }}</span>
                   </div>
@@ -255,6 +261,8 @@ export default class extends Vue {
 
   private selectedDay: number = new Date().getDate()
 
+  private showAllMonth = true
+
   private isInitialLoading = true
 
   get currentMonth(): string {
@@ -262,6 +270,12 @@ export default class extends Vue {
   }
 
   get filteredMatches(): MatchCard[] {
+    if (this.showAllMonth) {
+      return this.matchData
+        .filter((m) => m.date.getFullYear() === this.currentYear
+          && m.date.getMonth() === this.currentMonthIndex)
+        .sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
     return this.matchData.filter((m) => this.isSameDate(m.date, this.selectedDate));
   }
 
@@ -298,6 +312,21 @@ export default class extends Vue {
       && date1.getDate() === date2.getDate();
   }
 
+  get matchDaysSet(): Set<number> {
+    const days = new Set<number>();
+    this.matchData.forEach((m) => {
+      if (m.date.getFullYear() === this.currentYear
+        && m.date.getMonth() === this.currentMonthIndex) {
+        days.add(m.date.getDate());
+      }
+    });
+    return days;
+  }
+
+  private hasMatchOnDay(day: number): boolean {
+    return this.matchDaysSet.has(day);
+  }
+
   private getDaysInMonth(year: number, month: number): number[] {
     const daysCount = new Date(year, month + 1, 0).getDate();
     return Array.from({ length: daysCount }, (_, i) => i + 1);
@@ -309,7 +338,12 @@ export default class extends Vue {
     return days[date.getDay()];
   }
 
+  private selectAll(): void {
+    this.showAllMonth = true;
+  }
+
   private selectDate(day: number): void {
+    this.showAllMonth = false;
     this.selectedDay = day;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, day);
   }
@@ -374,6 +408,7 @@ export default class extends Vue {
     } else {
       this.currentMonthIndex -= 1;
     }
+    this.showAllMonth = true;
     this.selectedDay = 1;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, 1);
   }
@@ -385,6 +420,7 @@ export default class extends Vue {
     } else {
       this.currentMonthIndex += 1;
     }
+    this.showAllMonth = true;
     this.selectedDay = 1;
     this.selectedDate = new Date(this.currentYear, this.currentMonthIndex, 1);
   }
@@ -471,6 +507,9 @@ export default class extends Vue {
         this.loadGuestData(),
         this.loadMembershipStatus(),
       ]);
+      if (this.myTeamInfo) {
+        await this.loadTeamMatches();
+      }
     } finally {
       this.isInitialLoading = false;
     }
@@ -546,7 +585,11 @@ export default class extends Vue {
         return {
           uid: match.uid,
           name: match.hostTeamName || this.myTeamInfo!.name,
-          logo: match.hostTeamLogoUrl || this.getTeamLogo(match.hostTeamName || this.myTeamInfo!.name),
+          logo: (() => {
+            const raw = match.hostTeamLogoUrl;
+            if (!raw) return this.getTeamLogo(match.hostTeamName || this.myTeamInfo!.name);
+            return (raw.startsWith('http') || raw.startsWith('/')) ? raw : `/api/attached-file/${raw}`;
+          })(),
           matchTypeLabel: this.formatMatchType(match.matchType),
           manner: match.hostTeamMannerScore || 0,
           matchFormatLabel: this.formatMatchFormat(match.matchFormat),
@@ -782,6 +825,51 @@ export default class extends Vue {
 .match-status-tag.status-cancelled {
   color: #f56c6c;
 }
+
+/* All button in date selector */
+.date-item.all-btn {
+  min-width: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  left: 0;
+  z-index: 2;
+  background: #f5f5f5;
+}
+
+.date-item.all-btn .day-number {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.date-item.all-btn.selected {
+  background: #061da1;
+}
+
+.date-item.all-btn.selected .day-number {
+  color: #fff;
+}
+
+/* Match dot indicator on calendar dates */
+.date-item {
+  position: relative;
+}
+
+.match-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #061da1;
+  margin: 2px auto 0;
+}
+
+.date-item.selected .match-dot {
+  background: #fff;
+}
+
+.date-item.has-match .day-number {
+  font-weight: 700;
+}
+
 .team-enter-button {
   background-color: #f7c600 !important;
   border-color: #f7c600 !important;

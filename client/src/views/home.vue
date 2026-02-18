@@ -416,7 +416,11 @@ export default class extends Vue {
           uid: m.uid,
           cardType: 'MATCH',
           teamName: m.hostTeamName || '',
-          teamLogo: m.hostTeamLogoUrl || this.getTeamLogo(m.hostTeamName || ''),
+          teamLogo: (() => {
+            const raw = m.hostTeamLogoUrl;
+            if (!raw) return this.getTeamLogo(m.hostTeamName || '');
+            return (raw.startsWith('http') || raw.startsWith('/')) ? raw : `/api/attached-file/${raw}`;
+          })(),
           matchDate: dateInfo.date,
           matchDay: dateInfo.day,
           matchTime: this.formatMatchTime(m.matchTime),

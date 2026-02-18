@@ -55,10 +55,11 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
             Pageable pageable);
 
     /**
-     * 날짜 범위 + 지역 필터 조회 — 모집 팀의 지역 기준
+     * 날짜 범위 + 지역 필터 조회 — 모집 팀의 지역 또는 모집 글 자체 지역 기준
      */
-    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
-            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate AND t.regionSido = :sido AND t.regionSigungu = :sigungu")
+    @Query("SELECT gr FROM GuestRecruitment gr LEFT JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate "
+            + "AND ((t.regionSido = :sido AND t.regionSigungu = :sigungu) OR (gr.regionSido = :sido AND gr.regionSigungu = :sigungu))")
     Page<GuestRecruitment> findByMatchDateBetweenAndRegionSidoAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -77,10 +78,10 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
             Pageable pageable);
 
     /**
-     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이) — 모집 팀의 지역 기준
+     * 날짜 범위 + 시/군/구 이름으로 조회 (도 필터 없이) — 모집 팀의 지역 또는 모집 글 자체 지역 기준
      */
-    @Query("SELECT gr FROM GuestRecruitment gr JOIN Team t ON gr.teamUid = t.uid "
-            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate AND t.regionSigungu = :sigungu")
+    @Query("SELECT gr FROM GuestRecruitment gr LEFT JOIN Team t ON gr.teamUid = t.uid "
+            + "WHERE gr.matchDate BETWEEN :startDate AND :endDate AND (t.regionSigungu = :sigungu OR gr.regionSigungu = :sigungu)")
     Page<GuestRecruitment> findByMatchDateBetweenAndRegionSigungu(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

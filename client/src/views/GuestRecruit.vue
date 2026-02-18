@@ -183,6 +183,7 @@ import {
   createGuestRecruitment,
   CreateGuestRecruitmentRequest,
 } from '@/api/guest';
+import { getTeamDetail } from '@/api/team';
 
 @Component
 export default class GuestRecruit extends Vue {
@@ -209,6 +210,8 @@ export default class GuestRecruit extends Vue {
 
   // Step 3
   private additionalInfo = ''
+
+  private teamInfo: any = null
 
   private genderOptions = [
     { label: '남자', value: 1 },
@@ -253,6 +256,8 @@ export default class GuestRecruit extends Vue {
   }
 
   created(): void {
+    // 팀 정보 로드 (지역 정보 등)
+    this.loadTeamInfo();
     // 매치 생성 후 바로 게스트 모집으로 넘어온 경우
     if (this.$route.query.matchUid) {
       this.selectedMatchUid = this.$route.query.matchUid as string;
@@ -265,6 +270,16 @@ export default class GuestRecruit extends Vue {
       this.step = 2;
     } else {
       this.loadUpcomingMatches();
+    }
+  }
+
+  private async loadTeamInfo(): Promise<void> {
+    if (!this.teamUid) return;
+    try {
+      const res = await getTeamDetail(this.teamUid);
+      this.teamInfo = res.data || null;
+    } catch (error) {
+      console.error('Failed to load team info:', error);
     }
   }
 
@@ -350,6 +365,8 @@ export default class GuestRecruit extends Vue {
         matchDate: this.selectedMatch?.matchDate || '',
         matchTime: this.selectedMatch?.matchTime || '',
         stadiumName: this.selectedMatch?.stadiumName || '',
+        regionSido: this.teamInfo?.regionSido || undefined,
+        regionSigungu: this.teamInfo?.regionSigungu || undefined,
         genderType: this.genderType,
         ageGroups: this.ageGroups,
         positionType: this.positionType,
@@ -605,6 +622,7 @@ export default class GuestRecruit extends Vue {
   color: #666;
   line-height: 1.6;
   margin-bottom: 4px;
+  text-align: left;
 }
 
 /* Textarea */
