@@ -3,6 +3,7 @@ package com.ttwijang.cms.api.team.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -21,6 +22,9 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
     List<TeamMember> findByUserUid(String userUid);
 
     List<TeamMember> findByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
+
+    @EntityGraph(attributePaths = {"user"})
+    List<TeamMember> findWithUserByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
 
     boolean existsByTeamUidAndUserUid(String teamUid, String userUid);
 

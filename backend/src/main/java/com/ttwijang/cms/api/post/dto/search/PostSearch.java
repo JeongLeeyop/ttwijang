@@ -18,6 +18,7 @@ import lombok.Setter;
 @Getter @Setter
 public class PostSearch {
 	private String boardUid;
+	private String teamUid;
 	private String searchType;
 	private String searchValue;
 	private List<String> categoryList = new ArrayList<String>();
@@ -98,6 +99,7 @@ public class PostSearch {
 		BooleanBuilder builder = new BooleanBuilder();
 		
 		if(StringUtils.hasText(boardUid)) builder.and(post.boardUid.eq(boardUid));
+		if(StringUtils.hasText(teamUid)) builder.and(post.teamUid.eq(teamUid));
 		builder.and(post.deleteStatus.eq(false));
 		
 		if (secretBoard) {

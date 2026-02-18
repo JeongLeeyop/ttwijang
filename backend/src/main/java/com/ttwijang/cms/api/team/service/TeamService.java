@@ -310,7 +310,7 @@ public class TeamService {
      */
     @Transactional(readOnly = true)
     public List<TeamMemberDto.Response> getTeamMembers(String teamUid) {
-        return teamMemberRepository.findByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
+        return teamMemberRepository.findWithUserByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
                 .stream()
                 .map(this::toMemberResponse)
                 .collect(Collectors.toList());
@@ -482,14 +482,22 @@ public class TeamService {
     }
 
     private TeamMemberDto.Response toMemberResponse(TeamMember member) {
-        return TeamMemberDto.Response.builder()
+        TeamMemberDto.Response.ResponseBuilder builder = TeamMemberDto.Response.builder()
                 .uid(member.getUid())
                 .userUid(member.getUserUid())
                 .role(member.getRole())
                 .position(member.getPosition())
                 .backNumber(member.getBackNumber())
                 .status(member.getStatus())
-                .createdDate(member.getCreatedDate())
-                .build();
+                .createdDate(member.getCreatedDate());
+
+        // User 정보 매핑
+        if (member.getUser() != null) {
+            builder.userName(member.getUser().getActualName());
+            builder.gender(member.getUser().getGender());
+            builder.birth(member.getUser().getBirth());
+        }
+
+        return builder.build();
     }
 }
