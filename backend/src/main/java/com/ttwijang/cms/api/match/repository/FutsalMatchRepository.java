@@ -105,4 +105,14 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
             @Param("endDate") LocalDate endDate,
             @Param("sigungu") String sigungu,
             Pageable pageable);
+
+    /**
+     * 팀별 날짜 범위 매치 조회 (캘린더용)
+     */
+    @Query("SELECT m FROM FutsalMatch m WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) AND m.matchDate BETWEEN :startDate AND :endDate")
+    Page<FutsalMatch> findByTeamUidAndMatchDateBetween(
+            @Param("teamUid") String teamUid,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable);
 }

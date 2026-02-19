@@ -70,4 +70,19 @@ public class MannerRatingService {
                 .message("매너 점수가 등록되었습니다.")
                 .build();
     }
+
+    /**
+     * 팀 매너 점수 조회
+     */
+    @Transactional(readOnly = true)
+    public MannerRatingDto.TeamScoreResponse getTeamScore(String teamUid) {
+        Double averageScore = mannerRatingRepository.getAverageScoreByTeamUid(teamUid);
+        long totalRatings = mannerRatingRepository.countByRatedTeamUidAndTargetType(
+                teamUid, MannerRating.RatingTargetType.TEAM);
+        return MannerRatingDto.TeamScoreResponse.builder()
+                .teamUid(teamUid)
+                .averageScore(averageScore != null ? Math.round(averageScore * 100.0) / 100.0 : 0.0)
+                .totalRatings(totalRatings)
+                .build();
+    }
 }

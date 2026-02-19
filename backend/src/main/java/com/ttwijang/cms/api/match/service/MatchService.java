@@ -18,6 +18,7 @@ import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
+import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
@@ -45,6 +46,7 @@ public class MatchService {
     private final GuestRecruitmentRepository guestRecruitmentRepository;
     private final NotificationService notificationService;
     private final TeamMemberRepository teamMemberRepository;
+    private final MannerRatingRepository mannerRatingRepository;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -115,10 +117,23 @@ public class MatchService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
         MatchDto.DetailResponse response = toDetailResponse(match, userUid);
         if (userUid != null && !userUid.isEmpty()) {
-            response.setAlreadyApplied(
-                    matchApplicationRepository.existsByMatchUidAndApplicantUserUid(match.getUid(), userUid));
+            boolean appliedAsTeam = matchApplicationRepository.existsByMatchUidAndApplicantUserUid(match.getUid(), userUid);
+            // 게스트로 참여했는지도 확인
+            boolean appliedAsGuest = false;
+            if (!appliedAsTeam) {
+                appliedAsGuest = guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid())
+                        .map(recruitment -> guestApplicationRepository.findByRecruitmentUidAndUserUid(
+                                recruitment.getUid(), userUid)
+                                .filter(app -> app.getStatus() == GuestApplication.ApplicationStatus.APPROVED)
+                                .isPresent())
+                        .orElse(false);
+            }
+            response.setAlreadyApplied(appliedAsTeam || appliedAsGuest);
+            response.setHasRatedManner(
+                    mannerRatingRepository.existsByMatchUidAndRaterUserUid(match.getUid(), userUid));
         } else {
             response.setAlreadyApplied(false);
+            response.setHasRatedManner(false);
         }
         return response;
     }
@@ -221,6 +236,15 @@ public class MatchService {
     @Transactional(readOnly = true)
     public Page<MatchDto.ListResponse> getMatchesByTeamAndType(String teamUid, FutsalMatch.MatchType matchType, Pageable pageable) {
         return matchRepository.findByTeamUidAndMatchType(teamUid, matchType, pageable)
+                .map(this::toListResponse);
+    }
+
+    /**
+     * 팀별 날짜 범위 매치 조회 (캘린더용)
+     */
+    @Transactional(readOnly = true)
+    public Page<MatchDto.ListResponse> getMatchesByTeamAndDateRange(String teamUid, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return matchRepository.findByTeamUidAndMatchDateBetween(teamUid, startDate, endDate, pageable)
                 .map(this::toListResponse);
     }
 
@@ -379,8 +403,26 @@ public class MatchService {
             );
         }
 
+        // 게스트 참여자들에게 알림 (홈팀 평가)
+        guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid())
+                .ifPresent(recruitment -> {
+                    List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
+                            recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
+                    for (GuestApplication gApp : guestApps) {
+                        notificationService.createNotification(
+                                gApp.getUserUid(),
+                                Notification.NotificationType.MATCH,
+                                "상대팀의 매너 점수를 기록해 주세요!",
+                                matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
+                                match.getUid(),
+                                "MATCH",
+                                "/match-detail/" + match.getUid() + "?type=match"
+                        );
+                    }
+                });
+
         // 상대팀 멤버들에게 알림 (홈팀 평가)
-        if (match.getGuestTeamUid() != null) {
+/*         if (match.getGuestTeamUid() != null) {
             List<TeamMember> guestMembers = teamMemberRepository.findByTeamUidAndStatus(
                     match.getGuestTeamUid(), TeamMember.MemberStatus.APPROVED);
             for (TeamMember member : guestMembers) {
@@ -394,7 +436,7 @@ public class MatchService {
                         "/match-detail/" + match.getUid() + "?type=match"
                 );
             }
-        }
+        } */
     }
 
     private MatchDto.DetailResponse toDetailResponse(FutsalMatch match) {
@@ -440,10 +482,18 @@ public class MatchService {
                     });
                 });
 
-        // 현재 사용자가 팀 운영자인지 확인
+        // 현재 사용자가 팀 운영자 또는 매니저인지 확인
         boolean isTeamOwner = false;
         if (currentUserUid != null && hostTeam != null) {
-            isTeamOwner = hostTeam.getOwnerUid().equals(currentUserUid);
+            if (hostTeam.getOwnerUid().equals(currentUserUid)) {
+                isTeamOwner = true;
+            } else {
+                // MANAGER 역할도 경기 종료 등 관리 권한 부여
+                isTeamOwner = teamMemberRepository.findByTeamUidAndUserUid(hostTeam.getUid(), currentUserUid)
+                        .map(member -> member.getRole() == TeamMember.MemberRole.MANAGER
+                                || member.getRole() == TeamMember.MemberRole.OWNER)
+                        .orElse(false);
+            }
         }
 
         return MatchDto.DetailResponse.builder()

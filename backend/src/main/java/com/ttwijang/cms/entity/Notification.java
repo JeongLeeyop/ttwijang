@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -38,7 +40,7 @@ public class Notification implements Serializable {
 
     // 알림 유형 (MATCH, GUEST, TEAM, LEAGUE, SPONSORSHIP, SYSTEM)
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(name = "notification_type", length = 20)
     private NotificationType type;
 
     // 알림 제목
@@ -67,6 +69,7 @@ public class Notification implements Serializable {
 
     private LocalDateTime readDate;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userUid", insertable = false, updatable = false)
     private User user;

@@ -36,7 +36,10 @@
             >
               <span class="day-number">{{ day.day }}</span>
               <span v-if="day.isToday" class="today-label">TODAY</span>
-              <span class="day-counter">{{ getCountForDate(day.date) }}</span>
+              <span
+                v-if="getCountForDate(day.date) > 0"
+                class="day-counter"
+              >{{ getCountForDate(day.date) }}</span>
             </div>
           </div>
         </div>
@@ -46,7 +49,13 @@
       <div class="tabs-section">
         <el-tabs v-model="activeTab" @tab-click="handleTabClick">
           <el-tab-pane label="매치 구함" name="match">
-            <div class="match-list">
+            <div v-if="isLoading" class="loading-container">
+              <i class="el-icon-loading"></i>
+            </div>
+            <div v-else-if="filteredMatches.length === 0" class="empty-state">
+              <p>해당 날짜에 매치가 없습니다.</p>
+            </div>
+            <div v-else class="match-list">
               <div
                 v-for="(match, index) in filteredMatches"
                 :key="index"
@@ -58,8 +67,7 @@
                 </div>
                 <div class="team-card-right">
                   <div class="team-tags">
-                    <span class="tag">{{ match.league }}</span>
-                    <span class="tag">매너 {{ match.manner }}점</span>
+                    <span v-if="match.status" class="tag" :class="'tag-' + match.statusClass">{{ match.statusLabel }}</span>
                     <span class="tag">{{ match.matchType }}</span>
                     <span class="tag">{{ match.teamSize }}</span>
                   </div>
@@ -74,7 +82,13 @@
             </div>
           </el-tab-pane>
           <el-tab-pane label="게스트 구함" name="guest">
-            <div class="guest-list">
+            <div v-if="isLoading" class="loading-container">
+              <i class="el-icon-loading"></i>
+            </div>
+            <div v-else-if="filteredGuests.length === 0" class="empty-state">
+              <p>해당 날짜에 게스트 모집이 없습니다.</p>
+            </div>
+            <div v-else class="guest-list">
               <div
                 v-for="(guest, index) in filteredGuests"
                 :key="index"
@@ -87,8 +101,6 @@
                 </div>
                 <div class="team-card-right">
                   <div class="team-tags">
-                    <span class="tag">{{ guest.league }}</span>
-                    <span class="tag">매너 {{ guest.manner }}점</span>
                     <span class="tag">{{ guest.matchType }}</span>
                     <span class="tag">{{ guest.teamSize }}</span>
                   </div>
@@ -101,7 +113,10 @@
                       <span>{{ guest.location }}</span>
                       <i class="el-icon-arrow-right"></i>
                     </div>
-                    <div class="guest-members" v-if="guest.currentMembers !== undefined && guest.maxMembers !== undefined">
+                    <div
+                      v-if="guest.currentMembers !== undefined && guest.maxMembers !== undefined"
+                      class="guest-members"
+                    >
                       <i class="el-icon-user"></i>
                       <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
                     </div>
@@ -109,7 +124,6 @@
                 </div>
                 <div v-if="guest.isRecruitmentClosed" class="recruitment-overlay">
                   <div class="recruitment-status">모집완료</div>
-                  <img v-if="guest.teamLogo" :src="guest.teamLogo" :alt="guest.name" class="small-team-logo">
                 </div>
               </div>
             </div>
@@ -165,47 +179,48 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { getMatchesByDateRange } from '@/api/match';
+import { getMyTeamMatches } from '@/api/match';
 import { getGuestRecruitmentsByDateRange } from '@/api/guest';
+import { getMyTeams } from '@/api/team';
+import { getToken } from '@/utils/cookies';
 
 interface CalendarDay {
   day: number
-  date: Date
+  date: string
   isCurrentMonth: boolean
   isSelected: boolean
   isToday: boolean
 }
 
-interface MatchData {
+interface MatchItem {
+  uid: string
   name: string
   logo: string
-  league: string
-  manner: number
   matchType: string
   teamSize: string
   matchDate: string
   matchDay: string
   matchTime: string
   location: string
-  date: Date
+  dateKey: string
+  status?: string
+  statusLabel?: string
+  statusClass?: string
   teamLogo?: string
   currentMembers?: number
   maxMembers?: number
   isRecruitmentClosed?: boolean
 }
 
-@Component({
-  components: {
-  },
-})
-export default class extends Vue {
+@Component
+export default class CalendarPage extends Vue {
   private activeTab = 'match'
 
   private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
 
-  private selectedDate: Date = new Date()
+  private selectedDateStr = this.toDateKey(new Date())
 
   private showYearMonthPicker = false
 
@@ -215,11 +230,19 @@ export default class extends Vue {
 
   private isLoading = false
 
-  private matchData: MatchData[] = []
+  private matchData: MatchItem[] = []
 
-  private guestData: MatchData[] = []
+  private guestData: MatchItem[] = []
+
+  private myTeamUid = ''
+
+  // 날짜별 카운트 캐시 (매번 filter 호출 방지)
+  private matchCountMap: Record<string, number> = {}
+
+  private guestCountMap: Record<string, number> = {}
 
   async created() {
+    await this.initMyTeam();
     await this.loadCalendarData();
   }
 
@@ -229,72 +252,151 @@ export default class extends Vue {
     await this.loadCalendarData();
   }
 
+  private toDateKey(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private async initMyTeam(): Promise<void> {
+    const token = getToken();
+    if (!token) return;
+    try {
+      const res = await getMyTeams();
+      const data = res.data;
+      let team = null;
+      if (Array.isArray(data)) {
+        team = data.length > 0 ? data[0] : null;
+      } else {
+        team = data;
+      }
+      if (team) {
+        this.myTeamUid = team.uid || '';
+      }
+    } catch (e) {
+      console.warn('팀 정보 로드 실패:', e);
+    }
+  }
+
   private async loadCalendarData(): Promise<void> {
     this.isLoading = true;
     try {
       const startDate = new Date(this.currentYear, this.currentMonthIndex, 1);
       const endDate = new Date(this.currentYear, this.currentMonthIndex + 1, 0);
-
-      const startDateStr = startDate.toISOString().split('T')[0];
-      const endDateStr = endDate.toISOString().split('T')[0];
-
+      const startDateStr = this.toDateKey(startDate);
+      const endDateStr = this.toDateKey(endDate);
       const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
-      // 매치 데이터 로드
-      const matchResponse = await getMatchesByDateRange(startDateStr, endDateStr);
-      const matches = matchResponse.data?.content || matchResponse.data || [];
-      this.matchData = matches.map((match: any) => {
-        const matchDate = new Date(match.matchDate);
-        return {
-          uid: match.uid,
-          name: match.homeTeamName || match.teamName,
-          logo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((match.homeTeamName || match.teamName)?.substring(0, 2) || 'M')}&background=random&color=fff&size=60`,
-          league: match.leagueName || '',
-          manner: match.teamMannerScore || 0,
-          matchType: match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
-          teamSize: this.formatMatchFormat(match.matchFormat),
-          matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
-          matchDay: dayNames[matchDate.getDay()],
-          matchTime: match.matchTime,
-          location: match.stadiumName,
-          date: matchDate,
-        };
-      });
+      // 매치 데이터 로드 (내 팀의 매치만)
+      if (this.myTeamUid) {
+        try {
+          const matchRes = await getMyTeamMatches(this.myTeamUid, {
+            startDate: startDateStr,
+            endDate: endDateStr,
+            size: 100,
+          });
+          const matches = matchRes.data?.content || matchRes.data || [];
+          this.matchData = matches.map((m: any) => {
+            const d = new Date(m.matchDate);
+            return {
+              uid: m.uid,
+              name: m.hostTeamName || '',
+              logo: m.hostTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.hostTeamName || 'M').substring(0, 2))}&background=random&color=fff&size=60`,
+              matchType: m.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+              teamSize: this.formatMatchFormat(m.matchFormat),
+              matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
+              matchDay: dayNames[d.getDay()],
+              matchTime: m.matchTime,
+              location: m.stadiumName || '',
+              dateKey: this.toDateKey(d),
+              status: m.status,
+              statusLabel: this.getStatusLabel(m.status),
+              statusClass: this.getStatusClass(m.status),
+            };
+          });
+        } catch (e) {
+          console.warn('매치 데이터 로드 실패:', e);
+          this.matchData = [];
+        }
+      } else {
+        this.matchData = [];
+      }
 
-      // 게스트 모집 데이터 로드
-      const guestResponse = await getGuestRecruitmentsByDateRange(startDateStr, endDateStr);
-      const guests = guestResponse.data?.content || guestResponse.data || [];
-      this.guestData = guests.map((guest: any) => {
-        const matchDate = new Date(guest.matchDate);
-        const isFull = guest.currentGuests >= guest.maxGuests;
-        return {
-          uid: guest.uid,
-          name: guest.teamName,
-          logo: guest.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(guest.teamName?.substring(0, 2) || 'G')}&background=random&color=fff&size=60`,
-          league: guest.leagueName || '',
-          manner: guest.teamMannerScore || 0,
-          matchType: guest.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
-          teamSize: this.formatMatchFormat(guest.matchFormat),
-          matchDate: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
-          matchDay: dayNames[matchDate.getDay()],
-          matchTime: guest.matchTime,
-          location: guest.stadiumName,
-          date: matchDate,
-          teamLogo: guest.teamLogoUrl,
-          currentMembers: guest.currentGuests,
-          maxMembers: guest.maxGuests,
-          isRecruitmentClosed: isFull,
-        };
-      });
-    } catch (error) {
-      console.error('Failed to load calendar data:', error);
+      // 게스트 모집 데이터 로드 (모든 팀)
+      try {
+        const guestRes = await getGuestRecruitmentsByDateRange(startDateStr, endDateStr);
+        const guests = guestRes.data?.content || guestRes.data || [];
+        this.guestData = guests.map((g: any) => {
+          const d = new Date(g.matchDate);
+          const isFull = g.currentGuests >= g.maxGuests;
+          return {
+            uid: g.uid,
+            name: g.teamName || '',
+            logo: g.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((g.teamName || 'G').substring(0, 2))}&background=random&color=fff&size=60`,
+            matchType: g.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+            teamSize: this.formatMatchFormat(g.matchFormat),
+            matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
+            matchDay: dayNames[d.getDay()],
+            matchTime: g.matchTime,
+            location: g.stadiumName || '',
+            dateKey: this.toDateKey(d),
+            teamLogo: g.teamLogoUrl,
+            currentMembers: g.currentGuests,
+            maxMembers: g.maxGuests,
+            isRecruitmentClosed: isFull,
+          };
+        });
+      } catch (e) {
+        console.warn('게스트 데이터 로드 실패:', e);
+        this.guestData = [];
+      }
+
+      // 날짜별 카운트 맵 구축
+      this.buildCountMaps();
     } finally {
       this.isLoading = false;
     }
   }
 
+  private buildCountMaps(): void {
+    const mc: Record<string, number> = {};
+    this.matchData.forEach((m) => {
+      mc[m.dateKey] = (mc[m.dateKey] || 0) + 1;
+    });
+    this.matchCountMap = mc;
+
+    const gc: Record<string, number> = {};
+    this.guestData.forEach((g) => {
+      gc[g.dateKey] = (gc[g.dateKey] || 0) + 1;
+    });
+    this.guestCountMap = gc;
+  }
+
+  private getStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      RECRUITING: '모집중',
+      MATCHED: '매칭완료',
+      IN_PROGRESS: '진행중',
+      COMPLETED: '종료',
+      CANCELLED: '취소',
+    };
+    return map[status] || status || '';
+  }
+
+  private getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      RECRUITING: 'recruiting',
+      MATCHED: 'matched',
+      IN_PROGRESS: 'progress',
+      COMPLETED: 'completed',
+      CANCELLED: 'cancelled',
+    };
+    return map[status] || '';
+  }
+
   private formatMatchFormat(format: string): string {
-    const formatMap: { [key: string]: string } = {
+    const formatMap: Record<string, string> = {
       FOUR_VS_FOUR: '4 대 4',
       FIVE_VS_FIVE: '5 대 5',
       SIX_VS_SIX: '6 대 6',
@@ -308,12 +410,12 @@ export default class extends Vue {
   }
 
   get years(): number[] {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = currentYear - 5; i <= currentYear + 5; i += 1) {
-      years.push(i);
+    const cy = new Date().getFullYear();
+    const arr = [];
+    for (let i = cy - 5; i <= cy + 5; i += 1) {
+      arr.push(i);
     }
-    return years;
+    return arr;
   }
 
   get calendarDays(): CalendarDay[] {
@@ -326,71 +428,70 @@ export default class extends Vue {
     const lastDateOfMonth = lastDay.getDate();
     const prevLastDate = prevLastDay.getDate();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayKey = this.toDateKey(new Date());
 
     // Previous month days
     for (let i = firstDayOfWeek - 1; i >= 0; i -= 1) {
       const day = prevLastDate - i;
-      const date = new Date(this.currentYear, this.currentMonthIndex - 1, day);
+      const d = new Date(this.currentYear, this.currentMonthIndex - 1, day);
+      const dk = this.toDateKey(d);
       days.push({
         day,
-        date,
+        date: dk,
         isCurrentMonth: false,
-        isSelected: this.isSameDate(date, this.selectedDate),
-        isToday: this.isSameDate(date, today),
+        isSelected: dk === this.selectedDateStr,
+        isToday: dk === todayKey,
       });
     }
 
     // Current month days
     for (let i = 1; i <= lastDateOfMonth; i += 1) {
-      const date = new Date(this.currentYear, this.currentMonthIndex, i);
+      const d = new Date(this.currentYear, this.currentMonthIndex, i);
+      const dk = this.toDateKey(d);
       days.push({
         day: i,
-        date,
+        date: dk,
         isCurrentMonth: true,
-        isSelected: this.isSameDate(date, this.selectedDate),
-        isToday: this.isSameDate(date, today),
+        isSelected: dk === this.selectedDateStr,
+        isToday: dk === todayKey,
       });
     }
 
     // Next month days
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i += 1) {
-      const date = new Date(this.currentYear, this.currentMonthIndex + 1, i);
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i += 1) {
+      const d = new Date(this.currentYear, this.currentMonthIndex + 1, i);
+      const dk = this.toDateKey(d);
       days.push({
         day: i,
-        date,
+        date: dk,
         isCurrentMonth: false,
-        isSelected: this.isSameDate(date, this.selectedDate),
-        isToday: this.isSameDate(date, today),
+        isSelected: dk === this.selectedDateStr,
+        isToday: dk === todayKey,
       });
     }
 
     return days;
   }
 
-  get filteredMatches(): MatchData[] {
-    return this.matchData.filter((match) => this.isSameDate(match.date, this.selectedDate));
+  get filteredMatches(): MatchItem[] {
+    return this.matchData.filter((m) => m.dateKey === this.selectedDateStr);
   }
 
-  get filteredGuests(): MatchData[] {
-    return this.guestData.filter((guest) => this.isSameDate(guest.date, this.selectedDate));
-  }
-
-  private isSameDate(date1: Date, date2: Date): boolean {
-    return date1.getFullYear() === date2.getFullYear()
-      && date1.getMonth() === date2.getMonth()
-      && date1.getDate() === date2.getDate();
+  get filteredGuests(): MatchItem[] {
+    return this.guestData.filter((g) => g.dateKey === this.selectedDateStr);
   }
 
   private selectDate(day: CalendarDay): void {
-    this.selectedDate = new Date(day.date);
+    this.selectedDateStr = day.date;
     if (!day.isCurrentMonth) {
-      if (day.day > 15) {
-        this.previousMonth();
-      } else {
-        this.nextMonth();
+      // 이전/다음 달 날짜 클릭 시 해당 월로 이동
+      const parts = day.date.split('-');
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      if (y !== this.currentYear || m !== this.currentMonthIndex) {
+        this.currentYear = y;
+        this.currentMonthIndex = m;
       }
     }
   }
@@ -420,45 +521,24 @@ export default class extends Vue {
   }
 
   private handleTabClick(): void {
-    // Handle tab click if needed
+    // 탭 전환 시 카운트가 자동으로 반영됨
   }
 
-  private getCountForDate(date: Date): any {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // 오늘 이후 날짜만 카운트 표시
-    if (date < today) {
-      return '';
-    }
-
+  private getCountForDate(dateKey: string): number {
     if (this.activeTab === 'match') {
-      const matchCount = this.matchData.filter((match) => this.isSameDate(match.date, date)).length;
-      return matchCount;
+      return this.matchCountMap[dateKey] || 0;
     }
-
-    if (this.activeTab === 'guest') {
-      const guestCount = this.guestData.filter((guest) => this.isSameDate(guest.date, date)).length;
-      return guestCount;
-    }
-
-    const matchCount = this.matchData.filter((match) => this.isSameDate(match.date, date)).length;
-    const guestCount = this.guestData.filter((guest) => this.isSameDate(guest.date, date)).length;
-    return matchCount + guestCount;
+    return this.guestCountMap[dateKey] || 0;
   }
 
-  private goBack(): void {
-    this.$router.go(-1);
-  }
-
-  private goToMatchDetail(match: any): void {
+  private goToMatchDetail(match: MatchItem): void {
     this.$router.push({
       path: `/match-detail/${match.uid}`,
       query: { type: 'match' },
     });
   }
 
-  private goToGuestDetail(guest: any): void {
+  private goToGuestDetail(guest: MatchItem): void {
     if (guest.isRecruitmentClosed) return;
     this.$router.push({
       path: `/match-detail/${guest.uid}`,
@@ -469,8 +549,46 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-// Calendar page specific styles
-.main {
-  background: #fff !important;
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  font-size: 24px;
+  color: #061da1;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.tag-recruiting {
+  background: #e8f5e9 !important;
+  color: #2e7d32 !important;
+}
+
+.tag-matched {
+  background: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+
+.tag-progress {
+  background: #fff3e0 !important;
+  color: #e65100 !important;
+}
+
+.tag-completed {
+  background: #f5f5f5 !important;
+  color: #757575 !important;
+}
+
+.tag-cancelled {
+  background: #ffebee !important;
+  color: #c62828 !important;
 }
 </style>

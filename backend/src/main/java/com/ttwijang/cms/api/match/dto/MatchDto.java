@@ -218,6 +218,9 @@ public class MatchDto {
         @Schema(description = "현재 사용자가 팀 운영자인지 여부")
         private Boolean isTeamOwner;
 
+        @Schema(description = "현재 사용자가 매너 점수를 이미 평가했는지 여부")
+        private Boolean hasRatedManner;
+
         @Schema(description = "상대 팀 매너 점수")
         private Double guestTeamMannerScore;
 

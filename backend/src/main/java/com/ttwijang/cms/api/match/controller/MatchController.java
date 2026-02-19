@@ -100,7 +100,12 @@ public class MatchController {
     public ResponseEntity<Page<MatchDto.ListResponse>> getMatchesByTeam(
             @PathVariable String teamUid,
             @RequestParam(required = false) FutsalMatch.MatchType matchType,
-            @PageableDefault(direction = Direction.DESC, sort = "matchDate") Pageable pageable) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @PageableDefault(size = 100, direction = Direction.ASC, sort = "matchDate") Pageable pageable) {
+        if (startDate != null && endDate != null) {
+            return ResponseEntity.ok(matchService.getMatchesByTeamAndDateRange(teamUid, startDate, endDate, pageable));
+        }
         if (matchType != null) {
             return ResponseEntity.ok(matchService.getMatchesByTeamAndType(teamUid, matchType, pageable));
         }

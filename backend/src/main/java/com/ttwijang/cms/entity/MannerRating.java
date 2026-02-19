@@ -33,49 +33,40 @@ public class MannerRating implements Serializable {
     private String uid;
 
     // 평가자 사용자 UID
-    @Column(nullable = false)
+    @Column(name = "rater_uid", nullable = false)
     private String raterUserUid;
 
-    // 피평가자 사용자 UID (개인)
-    private String ratedUserUid;
-
-    // 피평가 팀 UID (팀)
+    // 피평가 대상 UID (팀 또는 개인, target_type으로 구분)
+    @Column(name = "target_uid", nullable = false)
     private String ratedTeamUid;
 
     // 관련 매치 UID
-    @Column(nullable = false)
+    @Column(name = "match_uid", nullable = false)
     private String matchUid;
 
     // 평가 대상 유형 (USER, TEAM)
     @Enumerated(EnumType.STRING)
-    @Column(length = 10)
+    @Column(name = "target_type", length = 20)
     private RatingTargetType targetType;
 
-    // 매너 점수 (1.0 ~ 5.0)
-    @Column(columnDefinition = "DECIMAL(2,1)")
+    // 매너 점수 (0.0 ~ 5.0)
+    @Column(columnDefinition = "DECIMAL(3,2)")
     private Double score;
 
     // 평가 코멘트
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    // 평가 태그 (JSON: ["시간 약속", "페어플레이", "친절함"] 등)
-    @Column(columnDefinition = "TEXT")
-    private String tags;
-
     @CreationTimestamp
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "raterUserUid", insertable = false, updatable = false)
+    @JoinColumn(name = "rater_uid", insertable = false, updatable = false)
     private User rater;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ratedUserUid", insertable = false, updatable = false)
-    private User ratedUser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ratedTeamUid", insertable = false, updatable = false)
+    @JoinColumn(name = "target_uid", insertable = false, updatable = false)
     private Team ratedTeam;
 
     public enum RatingTargetType {

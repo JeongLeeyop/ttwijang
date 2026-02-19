@@ -471,7 +471,15 @@
           경기종료
         </el-button>
         <el-button
-          v-else-if="alreadyApplied"
+          v-else-if="showMannerButton"
+          type="primary"
+          class="apply-button apply-button--manner"
+          @click="openMannerForParticipant"
+        >
+          매너점수 입력
+        </el-button>
+        <el-button
+          v-else-if="alreadyApplied && !detailData?.hasRatedManner"
           class="apply-button apply-button--applied"
           disabled
         >
@@ -581,8 +589,8 @@
             {{ mannerModalDescription }}
           </div>
           <div class="manner-modal-team">
-            <img :src="opponentTeamLogo" :alt="opponentTeamName" class="manner-team-logo">
-            <span class="manner-team-name">{{ opponentTeamName }}</span>
+            <img :src="mannerRatedTeamLogo" :alt="mannerRatedTeamName" class="manner-team-logo">
+            <span class="manner-team-name">{{ mannerRatedTeamName }}</span>
           </div>
           <div class="manner-stars">
             <i
@@ -649,6 +657,12 @@ export default class MatchDetail extends Vue {
   private isSubmittingManner = false
 
   private mannerScore = 0
+
+  private mannerRatedTeamUid = ''
+
+  private mannerRatedTeamName = ''
+
+  private mannerRatedTeamLogo = ''
 
   private error: string | null = null
 
@@ -907,6 +921,7 @@ export default class MatchDetail extends Vue {
 
   get canApply(): boolean {
     if (this.alreadyApplied) return false;
+    if (this.isMatchDatePassed) return false;
     return this.detailType !== 'league' || this.detailData?.status === 'SCHEDULED';
   }
 
@@ -990,10 +1005,28 @@ export default class MatchDetail extends Vue {
     const date = this.detailData?.matchDate;
     if (!date) return false;
     const matchDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    matchDate.setHours(0, 0, 0, 0);
-    return matchDate < today;
+    const now = new Date();
+    const time = this.detailData?.matchTime;
+    if (time && typeof time === 'string' && time.includes(':')) {
+      const [hours, minutes] = time.split(':').map(Number);
+      matchDate.setHours(hours, minutes, 0, 0);
+      // 경기 시간이 지났으면 true
+      return matchDate < now;
+    }
+    // 시간 정보가 없으면 날짜만 비교 (당일 포함)
+    matchDate.setHours(23, 59, 59, 999);
+    return matchDate < now;
+  }
+
+  /**
+   * 경기 완료 후 참여자가 매너점수를 입력할 수 있는 버튼 표시
+   */
+  get showMannerButton(): boolean {
+    const status = this.detailData?.status;
+    if (status !== 'COMPLETED') return false;
+    if (this.detailData?.isTeamOwner) return false;
+    if (this.detailData?.hasRatedManner) return false;
+    return this.alreadyApplied;
   }
 
   get opponentTeamUid(): string {
@@ -1011,7 +1044,7 @@ export default class MatchDetail extends Vue {
     const time = this.detailData?.matchTime || '';
     const timeStr = typeof time === 'string' && time.includes(':') ? time.substring(0, 5) : String(time);
     const stadium = this.stadiumName;
-    const teamName = this.opponentTeamName || '상대팀';
+    const teamName = this.mannerRatedTeamName || '상대팀';
     return `${month}월 ${day}일 (${dayName}) ${timeStr} ${stadium}에서 진행한 ${teamName}의 매너 점수를 기록해주세요.`;
   }
 
@@ -1271,6 +1304,14 @@ export default class MatchDetail extends Vue {
     }
   }
 
+  private openMannerForParticipant(): void {
+    this.mannerScore = 0;
+    this.mannerRatedTeamUid = this.detailData?.hostTeamUid || '';
+    this.mannerRatedTeamName = this.hostTeamName;
+    this.mannerRatedTeamLogo = this.hostTeamLogo;
+    this.showMannerModal = true;
+  }
+
   private openCompleteModal(): void {
     this.inputHomeScore = 0;
     this.inputAwayScore = 0;
@@ -1294,6 +1335,9 @@ export default class MatchDetail extends Vue {
       // 상대팀이 있으면 매너 점수 모달 열기
       if (this.opponentTeamUid) {
         this.mannerScore = 0;
+        this.mannerRatedTeamUid = this.opponentTeamUid;
+        this.mannerRatedTeamName = this.opponentTeamName;
+        this.mannerRatedTeamLogo = this.opponentTeamLogo;
         this.showMannerModal = true;
       }
     } catch (err: any) {
@@ -1313,11 +1357,14 @@ export default class MatchDetail extends Vue {
     try {
       await rateTeamManner({
         matchUid: this.matchUid,
-        ratedTeamUid: this.opponentTeamUid,
+        ratedTeamUid: this.mannerRatedTeamUid,
         score: this.mannerScore,
       });
       this.$message.success('매너 점수가 기록되었습니다.');
       this.showMannerModal = false;
+      if (this.detailData) {
+        this.detailData.hasRatedManner = true;
+      }
       await this.loadDetail();
     } catch (err: any) {
       const message = err?.response?.data?.message || '매너 점수 기록에 실패했습니다.';
@@ -1763,6 +1810,18 @@ export default class MatchDetail extends Vue {
 .apply-button--applied:hover {
   background: #67c23a !important;
   border-color: #67c23a !important;
+}
+
+/* Manner Button */
+.apply-button--manner {
+  background: #f7b731 !important;
+  border-color: #f7b731 !important;
+  color: #fff !important;
+}
+
+.apply-button--manner:hover {
+  background: #e5a82a !important;
+  border-color: #e5a82a !important;
 }
 
 /* Complete Button */

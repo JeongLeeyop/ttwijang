@@ -165,7 +165,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
 import { getMyTeams, checkMembershipStatus } from '@/api/team';
-import { getUserMannerScore } from '@/api/mannerRating';
+import { getTeamMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMatchList } from '@/api/match';
 import { getToken, getTokenInfo } from '@/utils/cookies';
@@ -288,22 +288,8 @@ export default class MyPage extends Vue {
         }
       }
 
-      // 매너 점수 로드
-      if (userUid) {
-        try {
-          const mannerResponse = await getUserMannerScore(userUid);
-          if (mannerResponse.data) {
-            this.userStats.mannerscore = Math.round(mannerResponse.data.averageScore || 0);
-          }
-        } catch (mannerError) {
-          console.warn('매너 점수 로드 실패:', mannerError);
-          this.userStats.mannerscore = 0;
-        } finally {
-          this.isLoadingStats = false;
-        }
-      } else {
-        this.isLoadingStats = false;
-      }
+      // 매너 점수는 팀 정보 로드 후에 가져옴 (팀 UID 필요)
+      this.isLoadingStats = true;
 
       // 지갑 정보 로드 (캐시 지갑 → User.point fallback)
       try {
@@ -343,16 +329,32 @@ export default class MyPage extends Vue {
             console.warn('팀 생성 여부 확인 실패:', statusError);
             this.userStats.teamLabel = '소속 팀';
           }
+          // 팀 매너 점수 로드 (manner_rating 테이블 기반)
+          const teamUid = team.uid || '';
+          if (teamUid) {
+            try {
+              const mannerRes = await getTeamMannerScore(teamUid);
+              if (mannerRes.data) {
+                this.userStats.mannerscore = mannerRes.data.averageScore || 0;
+              }
+            } catch (mannerErr) {
+              console.warn('팀 매너 점수 로드 실패:', mannerErr);
+              this.userStats.mannerscore = 0;
+            }
+          }
         } else {
           this.userStats.team = '-';
           this.userStats.teamLabel = '소속 팀';
+          this.userStats.mannerscore = 0;
         }
       } catch (teamError) {
         console.warn('팀 정보 로드 실패:', teamError);
         this.userStats.team = '-';
         this.userStats.teamLabel = '소속 팀';
+        this.userStats.mannerscore = 0;
       } finally {
         this.isLoadingTeam = false;
+        this.isLoadingStats = false;
       }
 
       // 참여 경기수 로드

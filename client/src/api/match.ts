@@ -99,6 +99,8 @@ export function deleteMatch(uid: string) {
 // 내 팀 매치 목록 조회
 export function getMyTeamMatches(teamUid: string, params?: {
   matchType?: string
+  startDate?: string
+  endDate?: string
   page?: number
   size?: number
 }) {

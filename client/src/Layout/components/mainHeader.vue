@@ -24,7 +24,8 @@
       <div class="header-right">
         <i class="el-icon-date" @click="goToCalendar"></i>
         <el-popover v-model="showPopover" width="450" trigger="click" popper-class="alarm"
-          :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''">
+          :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''"
+          @show="onPopoverShow">
           <div @click="showPopover = false" class="alarm-close">
             <i class="el-icon-close"></i>
           </div>
@@ -55,6 +56,9 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import { getSigunguList, Region } from '@/api/region';
+import {
+  getNotifications, getUnreadNotificationCount, markAllNotificationsAsRead,
+} from '@/api/notification';
 import { storageKey } from '@/enums/localStorage';
 
 @Component({
@@ -91,7 +95,8 @@ export default class extends Vue {
   };
 
   mounted() {
-    this.initializeSampleAlarms();
+    this.loadNotifications();
+    this.loadUnreadCount();
     this.loadRegionsAndInitialize();
   }
 
@@ -118,42 +123,70 @@ export default class extends Vue {
     this.$emit('region-change', this.selectedRegion);
   }
 
-  private initializeSampleAlarms() {
-    // 샘플 알람 데이터 생성
-    const sampleAlarms: any = [];
+  private async loadNotifications(): Promise<void> {
+    try {
+      const response = await getNotifications({
+        page: this.listQuery.page,
+        size: this.listQuery.size,
+      });
+      const pageData = response.data;
+      this.alarmList = pageData.content || [];
+      this.totalElements = pageData.totalElements || 0;
+      this.totalPages = pageData.totalPages || 0;
 
-    this.alarmList = sampleAlarms;
-    this.newAlarmCount = 3;
+      // 날짜별로 그룹화
+      const itemMap: Map<string, any[]> = new Map();
+      this.alarmList.forEach((item: any) => {
+        const dateStr: string = item.createdDate
+          ? item.createdDate.substring(0, 10)
+          : '';
+        if (!dateStr) return;
+        if (!itemMap.has(dateStr)) {
+          itemMap.set(dateStr, []);
+        }
+        const itemList: any[] | undefined = itemMap.get(dateStr);
+        if (itemList) {
+          // API 응답을 popover 형식에 맞게 변환
+          itemList.push({
+            id: item.uid,
+            title: item.title,
+            content: item.content,
+            createDate: item.createdDate,
+            link: item.actionUrl || '#',
+            isRead: item.isRead,
+          });
+        }
+      });
+      this.alarmList2 = Array.from(itemMap.values());
+    } catch (error) {
+      console.error('알림 목록 로드 실패:', error);
+    }
+  }
 
-    // 날짜별로 그룹화
-    const itemMap: Map<string, any[]> = new Map();
-    this.alarmList.forEach((item: any) => {
-      const date: string = item.createDate.substring(0, 10); // 날짜 부분만 추출
-      if (!itemMap.has(date)) {
-        itemMap.set(date, []);
+  private async loadUnreadCount(): Promise<void> {
+    try {
+      const response = await getUnreadNotificationCount();
+      this.newAlarmCount = response.data?.count || 0;
+    } catch (error) {
+      console.error('읽지 않은 알림 개수 로드 실패:', error);
+    }
+  }
+
+  private async onPopoverShow(): Promise<void> {
+    // 팝오버 열릴 때 읽음 처리
+    if (this.newAlarmCount > 0) {
+      try {
+        await markAllNotificationsAsRead();
+        this.newAlarmCount = 0;
+      } catch (error) {
+        console.error('알림 읽음 처리 실패:', error);
       }
-      const itemList: any[] | undefined = itemMap.get(date);
-      if (itemList) {
-        itemList.push(item);
-      }
-    });
-    this.alarmList2 = Array.from(itemMap.values());
-  }
-
-  private getNewAlarmCount() {
-    // API 제거 - 샘플 데이터 사용
-  }
-
-  private getAlarmCount() {
-    // API 제거 - 샘플 데이터 사용
-  }
-
-  private async getAlarmList() {
-    // API 제거 - 샘플 데이터 사용
+    }
   }
 
   private handleChangePage(page: number) {
-    // 페이지 변경 시 알람 리스트 새로고침 (현재는 샘플 데이터 사용)
+    this.listQuery.page = page;
+    this.loadNotifications();
   }
 
   private async loadRegionsAndInitialize(): Promise<void> {

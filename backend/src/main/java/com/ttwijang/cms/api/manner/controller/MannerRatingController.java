@@ -31,4 +31,11 @@ public class MannerRatingController {
         return ResponseEntity.ok(
                 mannerRatingService.rateTeam(request, userDetails.getUser().getUid()));
     }
+
+    @Operation(summary = "팀 매너 점수 조회")
+    @GetMapping("/team/{teamUid}")
+    public ResponseEntity<MannerRatingDto.TeamScoreResponse> getTeamScore(
+            @PathVariable String teamUid) {
+        return ResponseEntity.ok(mannerRatingService.getTeamScore(teamUid));
+    }
 }

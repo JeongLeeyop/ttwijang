@@ -55,4 +55,20 @@ public class MannerRatingDto {
         @Schema(description = "메시지")
         private String message;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 매너 점수 응답")
+    public static class TeamScoreResponse {
+        @Schema(description = "팀 UID")
+        private String teamUid;
+
+        @Schema(description = "평균 매너 점수")
+        private Double averageScore;
+
+        @Schema(description = "총 평가 수")
+        private Long totalRatings;
+    }
 }

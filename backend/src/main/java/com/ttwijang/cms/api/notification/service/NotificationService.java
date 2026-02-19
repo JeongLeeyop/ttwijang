@@ -1,5 +1,10 @@
 package com.ttwijang.cms.api.notification.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,5 +38,61 @@ public class NotificationService {
                 .actionUrl(actionUrl)
                 .build();
         notificationRepository.save(notification);
+    }
+
+    /**
+     * 알림 목록 조회 (페이지네이션)
+     */
+    @Transactional(readOnly = true)
+    public Page<Notification> getNotifications(String userUid, Pageable pageable) {
+        return notificationRepository.findByUserUidOrderByCreatedDateDesc(userUid, pageable);
+    }
+
+    /**
+     * 읽지 않은 알림 개수 조회
+     */
+    @Transactional(readOnly = true)
+    public long getUnreadCount(String userUid) {
+        return notificationRepository.countByUserUidAndIsReadFalse(userUid);
+    }
+
+    /**
+     * 알림 읽음 처리
+     */
+    @Transactional
+    public void markAsRead(String uid, String userUid) {
+        notificationRepository.findById(uid).ifPresent(notification -> {
+            if (notification.getUserUid().equals(userUid)) {
+                notification.setIsRead(true);
+                notification.setReadDate(LocalDateTime.now());
+                notificationRepository.save(notification);
+            }
+        });
+    }
+
+    /**
+     * 전체 알림 읽음 처리
+     */
+    @Transactional
+    public void markAllAsRead(String userUid) {
+        List<Notification> unreadList = notificationRepository.findByUserUidAndIsReadFalse(userUid);
+        LocalDateTime now = LocalDateTime.now();
+        unreadList.forEach(notification -> {
+            notification.setIsRead(true);
+            notification.setReadDate(now);
+        });
+        notificationRepository.saveAll(unreadList);
+    }
+
+    /**
+     * 알림 삭제
+     */
+    @Transactional
+    public void deleteNotification(String uid, String userUid) {
+        notificationRepository.findById(uid).ifPresent(notification -> {
+            if (notification.getUserUid().equals(userUid)) {
+                notificationRepository.delete(notification);
+            }
+        });
     }
 }
