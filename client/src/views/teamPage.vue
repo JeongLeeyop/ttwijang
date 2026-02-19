@@ -1646,7 +1646,6 @@ export default class TeamPage extends Vue {
 /* ===== Tab Content Container ===== */
 .team-tab-content {
   padding: 16px;
-  min-height: 300px;
 }
 
 /* ===== Empty State ===== */
@@ -2877,6 +2876,31 @@ export default class TeamPage extends Vue {
 .team-page-view .league-section {
   padding-top: 30px !important;
   overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-page-view .league-section-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.team-page-view .team-owner-bar {
+  flex-shrink: 0;
+}
+
+.team-page-view .team-tab-nav {
+  flex-shrink: 0;
+}
+
+.team-page-view .team-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 
 /* ===== Slick Dots Override ===== */
