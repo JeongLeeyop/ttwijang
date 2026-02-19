@@ -111,7 +111,7 @@
           </div>
           <div class="menu-item" @click="navigateTo('my-coupons')">
             <div class="menu-icon">
-              <i class="el-icon-support"></i>
+              <i class="el-icon-thumb"></i>
             </div>
             <span class="menu-text">구단 후원 신청</span>
             <i class="el-icon-arrow-right"></i>
