@@ -3,6 +3,7 @@ package com.ttwijang.cms.api.guest.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -196,8 +197,24 @@ public class GuestDto {
         @Schema(description = "모집 상태")
         private GuestRecruitment.RecruitmentStatus status;
 
+        @Schema(description = "참여자 명단")
+        private List<ParticipantInfo> participants;
+
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "참여자 정보")
+    public static class ParticipantInfo {
+        @Schema(description = "사용자 UID")
+        private String uid;
+
+        @Schema(description = "이름")
+        private String name;
     }
 
     @Data

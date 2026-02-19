@@ -3,6 +3,7 @@ package com.ttwijang.cms.api.match.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -196,8 +197,27 @@ public class MatchDto {
         @Schema(description = "현재 승인된 인원")
         private Integer currentPlayers;
 
+        @Schema(description = "참여자 명단")
+        private List<ParticipantInfo> participants;
+
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "참여자 정보")
+    public static class ParticipantInfo {
+        @Schema(description = "사용자 UID")
+        private String uid;
+
+        @Schema(description = "이름")
+        private String name;
+
+        @Schema(description = "팀 이름")
+        private String teamName;
     }
 
     @Data
