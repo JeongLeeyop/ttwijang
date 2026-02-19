@@ -697,6 +697,7 @@ export default class TeamProfileEdit extends Vue {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: center;
 }
 
 .option-buttons.df {

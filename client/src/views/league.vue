@@ -419,7 +419,7 @@ export default class extends Vue {
               teamUid: team.teamUid,
               teamCode: team.teamCode || team.teamUid,
               name: team.teamName,
-              logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=80`,
+              logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
               leagueName: team.leagueName || 'B리그',
               leagueColor: '#ff8800',
             }));
@@ -455,7 +455,7 @@ export default class extends Vue {
         .map((team: any) => ({
           teamUid: team.teamUid || team.uid,
           name: team.name || team.teamName,
-          logo: team.logoUrl || team.teamPhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((team.name || team.teamName || '').substring(0, 2))}&background=random&color=fff&size=80`,
+          logo: this.resolveLogoUrl(team.logoUrl || team.teamPhotoUrl, team.name || team.teamName || ''),
           leagueName: team.leagueName || 'B리그',
           leagueColor: team.leagueColor || '#ff8800',
         }));
@@ -672,6 +672,16 @@ export default class extends Vue {
     // 간단하게 localStorage나 API에서 가져온 지역명 사용
     // 실제로는 RegionCodeService처럼 코드 → 이름 변환 필요
     return '진주시'; // 임시
+  }
+
+  private resolveLogoUrl(raw: string | null | undefined, name: string): string {
+    if (!raw) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent((name || '??').substring(0, 2))}&background=061da1&color=fff&size=80`;
+    }
+    if (raw.startsWith('http') || raw.startsWith('/')) {
+      return raw;
+    }
+    return `/api/attached-file/${raw}`;
   }
 
   private handleBannerClick(banner: Banner): void {

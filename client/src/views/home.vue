@@ -49,7 +49,7 @@
       </div>
 
       <!-- Recruiting Teams Section -->
-      <div v-if="recruitingTeams.length > 0" class="recruit-section">
+      <!-- <div v-if="recruitingTeams.length > 0" class="recruit-section">
         <div class="recruit-section-header">
           <h2 class="section-title">팀 회원 모집</h2>
           <button class="see-all-btn" @click="$router.push('/team-recruit')">전체보기</button>
@@ -74,7 +74,7 @@
             <span class="recruit-mini-region">{{ rt.region || '' }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- League Schedule Section -->
       <div

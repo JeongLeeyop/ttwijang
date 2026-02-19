@@ -624,10 +624,15 @@ public class TeamService {
         }
         long applicationCount = teamMemberRepository.countByTeamUidAndStatus(team.getUid(), TeamMember.MemberStatus.PENDING);
 
+        String logoUrl = (team.getLogoFileUid() != null && !team.getLogoFileUid().isEmpty())
+                ? "/api/attached-file/" + team.getLogoFileUid()
+                : null;
+
         return TeamDto.RecruitmentListResponse.builder()
                 .uid(team.getUid())
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
+                .logoUrl(logoUrl)
                 .mannerScore(team.getMannerScore())
                 .memberCount(team.getMemberCount())
                 .region(region)
