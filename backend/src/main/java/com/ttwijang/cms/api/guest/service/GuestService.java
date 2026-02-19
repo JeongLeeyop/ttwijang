@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.cash.dto.CashDto;
+import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.dto.GuestDto;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
@@ -16,6 +18,8 @@ import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.GuestRecruitment;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.User;
+import com.ttwijang.cms.api.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +30,8 @@ public class GuestService {
     private final GuestRecruitmentRepository recruitmentRepository;
     private final GuestApplicationRepository applicationRepository;
     private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
+    private final CashService cashService;
 
     private static final int MAX_RECRUITMENT_DAYS = 7;
 
@@ -193,11 +199,23 @@ public class GuestService {
                 .position(request.getPosition())
                 .age(request.getAge())
                 .message(request.getMessage())
-                .status(GuestApplication.ApplicationStatus.PENDING)
+                .status(GuestApplication.ApplicationStatus.APPROVED)
                 .paymentCompleted(false)
                 .build();
 
         application = applicationRepository.save(application);
+
+        // 참가비가 있으면 캐시 차감
+        int fee = recruitment.getFee() != null ? recruitment.getFee() : 0;
+        if (fee > 0) {
+            CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
+                    .amount(fee)
+                    .description("게스트 참가비 (" + recruitment.getStadiumName() + ")")
+                    .referenceUid(recruitment.getUid())
+                    .build();
+            cashService.use(useRequest, userUid);
+        }
+
         return toApplicationResponse(application);
     }
 
@@ -289,6 +307,19 @@ public class GuestService {
     private GuestDto.DetailResponse toDetailResponse(GuestRecruitment recruitment) {
         Team team = teamRepository.findByUid(recruitment.getTeamUid()).orElse(null);
 
+        // 참여자 명단 조회 (승인된 신청자)
+        List<GuestApplication> approvedApps = applicationRepository.findByRecruitmentUidAndStatus(
+                recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
+        List<GuestDto.ParticipantInfo> participants = approvedApps.stream()
+                .map(app -> {
+                    User user = userRepository.findById(app.getUserUid()).orElse(null);
+                    return GuestDto.ParticipantInfo.builder()
+                            .uid(app.getUserUid())
+                            .name(user != null ? user.getActualName() : "알 수 없음")
+                            .build();
+                })
+                .collect(Collectors.toList());
+
         return GuestDto.DetailResponse.builder()
                 .uid(recruitment.getUid())
                 .teamUid(recruitment.getTeamUid())
@@ -310,6 +341,7 @@ public class GuestService {
                 .guaranteedMinutes(recruitment.getGuaranteedMinutes())
                 .additionalInfo(recruitment.getAdditionalInfo())
                 .status(recruitment.getStatus())
+                .participants(participants)
                 .createdDate(recruitment.getCreatedDate())
                 .build();
     }

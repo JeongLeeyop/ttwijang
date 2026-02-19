@@ -2,7 +2,9 @@ package com.ttwijang.cms.api.match.service;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ttwijang.cms.api.match.dto.MatchDto;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
-import com.ttwijang.cms.api.point.service.PointHistoryService;
+import com.ttwijang.cms.api.cash.dto.CashDto;
+import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
@@ -30,7 +33,7 @@ public class MatchService {
     private final MatchApplicationRepository matchApplicationRepository;
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
-    private final PointHistoryService pointHistoryService;
+    private final CashService cashService;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -239,27 +242,30 @@ public class MatchService {
                 .matchUid(match.getUid())
                 .applicantTeamUid(request.getApplicantTeamUid())
                 .applicantUserUid(userUid)
-                .status(MatchApplication.ApplicationStatus.PENDING)
+                .status(MatchApplication.ApplicationStatus.APPROVED)
                 .message(request.getMessage())
                 .build();
         matchApplicationRepository.save(application);
 
-        // 참가비가 있으면 포인트 차감
+        // 참가비가 있으면 캐시 차감
         int fee = match.getFee() != null ? match.getFee() : 0;
         if (fee > 0) {
-            User user = userRepository.findById(userUid)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-            int currentPoint = user.getPoint() != null ? user.getPoint() : 0;
-            if (currentPoint < fee) {
-                throw new IllegalArgumentException("포인트가 부족합니다. 현재 포인트: " + currentPoint + ", 필요 포인트: " + fee);
-            }
-            pointHistoryService.addPoint(-fee, "매치 참가비 (" + match.getStadiumName() + ")", userUid);
+            CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
+                    .amount(fee)
+                    .description("매치 참가비 (" + match.getStadiumName() + ")")
+                    .referenceUid(match.getUid())
+                    .build();
+            cashService.use(useRequest, userUid);
         }
 
-        // 친선경기(FRIENDLY)는 상대팀 매칭 즉시 성사
+        // 친선경기(FRIENDLY)는 인원이 다 차면 매칭 성사
         if (match.getMatchType() == FutsalMatch.MatchType.FRIENDLY) {
             match.setGuestTeamUid(request.getApplicantTeamUid());
-            match.setStatus(FutsalMatch.FutsalMatchStatus.MATCHED);
+            currentApproved = matchApplicationRepository.countByMatchUidAndStatus(
+                    match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
+            if (currentApproved >= maxPlayers) {
+                match.setStatus(FutsalMatch.FutsalMatchStatus.MATCHED);
+            }
             match = matchRepository.save(match);
         }
 
@@ -294,6 +300,21 @@ public class MatchService {
         long currentPlayers = matchApplicationRepository.countByMatchUidAndStatus(
                 match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
 
+        // 참여자 명단 조회
+        List<MatchApplication> applications = matchApplicationRepository.findByMatchUidAndStatus(
+                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
+        List<MatchDto.ParticipantInfo> participants = applications.stream()
+                .map(app -> {
+                    User user = userRepository.findById(app.getApplicantUserUid()).orElse(null);
+                    Team applicantTeam = teamRepository.findByUid(app.getApplicantTeamUid()).orElse(null);
+                    return MatchDto.ParticipantInfo.builder()
+                            .uid(app.getApplicantUserUid())
+                            .name(user != null ? user.getActualName() : "알 수 없음")
+                            .teamName(applicantTeam != null ? applicantTeam.getName() : "")
+                            .build();
+                })
+                .collect(Collectors.toList());
+
         return MatchDto.DetailResponse.builder()
                 .uid(match.getUid())
                 .hostTeamUid(match.getHostTeamUid())
@@ -319,6 +340,7 @@ public class MatchService {
                 .status(match.getStatus())
                 .maxPlayers(maxPlayers)
                 .currentPlayers((int) currentPlayers)
+                .participants(participants)
                 .createdDate(match.getCreatedDate())
                 .build();
     }

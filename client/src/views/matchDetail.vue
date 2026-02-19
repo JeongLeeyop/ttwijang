@@ -324,7 +324,10 @@
           @click="toggleAccordion('recruitInfo')"
         >
           <span>모집 정보</span>
-          <i class="el-icon-heart"></i>
+          <i
+            class="el-icon-arrow-down accordion-arrow"
+            :class="{ 'is-open': accordionOpen.recruitInfo }"
+          ></i>
         </div>
         <div
           v-show="accordionOpen.recruitInfo"
@@ -361,7 +364,10 @@
           @click="toggleAccordion('stadium')"
         >
           <span>구장 정보</span>
-          <i class="el-icon-heart"></i>
+          <i
+            class="el-icon-arrow-down accordion-arrow"
+            :class="{ 'is-open': accordionOpen.stadium }"
+          ></i>
         </div>
         <div
           v-show="accordionOpen.stadium"
@@ -393,7 +399,10 @@
           @click="toggleAccordion('rules')"
         >
           <span>리그 규칙</span>
-          <i class="el-icon-heart"></i>
+          <i
+            class="el-icon-arrow-down accordion-arrow"
+            :class="{ 'is-open': accordionOpen.rules }"
+          ></i>
         </div>
         <div
           v-show="accordionOpen.rules"
@@ -414,7 +423,10 @@
           @click="toggleAccordion('rules')"
         >
           <span>매치 규칙</span>
-          <i class="el-icon-heart"></i>
+          <i
+            class="el-icon-arrow-down accordion-arrow"
+            :class="{ 'is-open': accordionOpen.rules }"
+          ></i>
         </div>
         <div
           v-show="accordionOpen.rules"
@@ -434,7 +446,10 @@
           @click="toggleAccordion('additional')"
         >
           <span>추가 사항</span>
-          <i class="el-icon-heart"></i>
+          <i
+            class="el-icon-arrow-down accordion-arrow"
+            :class="{ 'is-open': accordionOpen.additional }"
+          ></i>
         </div>
         <div
           v-show="accordionOpen.additional"
@@ -475,7 +490,7 @@ import {
 import { getMatchDetail, applyToMatch } from '@/api/match';
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
 import { getLeagueDetail } from '@/api/league';
-import { getUserInfo } from '@/api/user';
+import { getWallet } from '@/api/cash';
 import { getMyTeams } from '@/api/team';
 
 type DetailType = 'league' | 'friendly' | 'free' | 'guest'
@@ -751,7 +766,7 @@ export default class MatchDetail extends Vue {
   get applyButtonText(): string {
     if (this.isRecruitmentClosed) return '모집 완료';
     const fee = this.detailData?.fee || 0;
-    const feeText = fee > 0 ? ` (${fee.toLocaleString()}P)` : '';
+    const feeText = fee > 0 ? ` (${fee.toLocaleString()}원)` : '';
     if (this.detailType === 'guest') return `게스트 신청하기${feeText}`;
     if (this.detailType === 'friendly') return `매치 신청하기${feeText}`;
     if (this.detailType === 'free') return `참가 신청하기${feeText}`;
@@ -983,16 +998,31 @@ export default class MatchDetail extends Vue {
       }
     }
 
-    if (fee > 0) {
-      // 포인트 확인을 위해 사용자 정보 조회
+    if (fee === 0) {
+      // 무료 매치 확인 다이얼로그
       try {
-        const userRes = await getUserInfo();
-        const currentPoint = userRes.data?.point || 0;
+        await this.$confirm(
+          '정말 신청하시겠습니까?',
+          '매치 신청',
+          {
+            confirmButtonText: '신청',
+            cancelButtonText: '취소',
+            type: 'info',
+          },
+        );
+      } catch {
+        return;
+      }
+    } else {
+      // 캐시 잔액 확인
+      try {
+        const walletRes = await getWallet();
+        const currentCash = walletRes.data?.balance || 0;
 
-        if (currentPoint < fee) {
+        if (currentCash < fee) {
           this.$alert(
-            `포인트가 부족합니다.\n\n참가비: ${fee.toLocaleString()}P\n보유 포인트: ${currentPoint.toLocaleString()}P\n부족 포인트: ${(fee - currentPoint).toLocaleString()}P`,
-            '포인트 부족',
+            `캐시가 부족합니다.\n\n참가비: ${fee.toLocaleString()}원\n보유 캐시: ${currentCash.toLocaleString()}원\n부족 금액: ${(fee - currentCash).toLocaleString()}원`,
+            '캐시 부족',
             {
               confirmButtonText: '확인',
               type: 'warning',
@@ -1001,11 +1031,11 @@ export default class MatchDetail extends Vue {
           return;
         }
 
-        // 포인트 차감 확인 다이얼로그
-        const remainPoint = currentPoint - fee;
+        // 캐시 차감 확인 다이얼로그
+        const remainCash = currentCash - fee;
         try {
           await this.$confirm(
-            `참가비 ${fee.toLocaleString()}P가 차감됩니다.\n\n보유 포인트: ${currentPoint.toLocaleString()}P\n차감 포인트: -${fee.toLocaleString()}P\n결제 후 잔액: ${remainPoint.toLocaleString()}P`,
+            `참가비 ${fee.toLocaleString()}원이 차감됩니다.\n\n보유 캐시: ${currentCash.toLocaleString()}원\n차감 금액: -${fee.toLocaleString()}원\n결제 후 잔액: ${remainCash.toLocaleString()}원`,
             '매치 참가비 결제',
             {
               confirmButtonText: '결제 후 신청',
@@ -1018,7 +1048,7 @@ export default class MatchDetail extends Vue {
           return;
         }
       } catch (err: any) {
-        this.$message.error('사용자 정보를 불러오지 못했습니다.');
+        this.$message.error('캐시 정보를 불러오지 못했습니다.');
         return;
       }
     }
@@ -1037,7 +1067,7 @@ export default class MatchDetail extends Vue {
           applicantTeamUid,
         });
         if (fee > 0) {
-          this.$message.success(`매치 신청이 완료되었습니다. (${fee.toLocaleString()}P 차감)`);
+          this.$message.success(`매치 신청이 완료되었습니다. (${fee.toLocaleString()}원 차감)`);
         } else {
           this.$message.success('매치 신청이 완료되었습니다.');
         }
@@ -1413,9 +1443,14 @@ export default class MatchDetail extends Vue {
   user-select: none;
 }
 
-.accordion-header i {
-  color: #e74c3c;
+.accordion-arrow {
   font-size: 14px;
+  color: #999;
+  transition: transform 0.25s ease;
+}
+
+.accordion-arrow.is-open {
+  transform: rotate(180deg);
 }
 
 .accordion-body {
