@@ -695,7 +695,10 @@ export default class extends Vue {
   private navigateToMatchDetail(match: Match): void {
     this.$router.push({
       path: `/match-detail/${match.uid}`,
-      query: { type: 'match' },
+      query: {
+        type: 'league',
+        leagueUid: this.selectedLeague,
+      },
     });
   }
 
