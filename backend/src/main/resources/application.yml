@@ -85,10 +85,6 @@ springdoc:
   packages-to-scan: com.ttwijang.cms
   paths-to-match: /api/**
 
-#첨부파일 경로
-attached-file:
-  # upload-directory: /home/ubuntu/web/attached-file
-  upload-directory: ./attached-file
 
 security:
   jwt:
@@ -105,7 +101,7 @@ sms:
     api-key: 8tfm95prlsz7mckj0z5l9k2mcmtkvg52
     user-id: leeyop12
     sender: "01044493118"
-    testmode: Y
+    testmode: N
 
 ---   
 server:
@@ -116,32 +112,34 @@ spring:
     naver-client-id: ItEwz1Wu8XTmdqSiLVao
     naver-client-secret: _SrigIq9uE
   datasource:
-      resource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
-        username: ttwijang
-        password: ttwijang1!
-        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-      oauth:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-        # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
-        username: ttwijang
-        password: ttwijang1!
-        connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-      # resource:
-      #   driver-class-name: com.mysql.cj.jdbc.Driver
-      #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      #   username: ttwijang
-      #   password: gamepark
-      # # username: welit_db
-      # # password: welit22031@
-      # oauth:
-      #   driver-class-name: com.mysql.cj.jdbc.Driver
-      #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      #   username: ttwijang
-      #   password: gamepark
+    resource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+      # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
+      username: ttwijang
+      password: ttwijang1!
+      connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+    oauth:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+      # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
+      username: ttwijang
+      password: ttwijang1!
+      connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+    # resource:
+    #   driver-class-name: com.mysql.cj.jdbc.Driver
+    #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    #   username: ttwijang
+    #   password: gamepark
+    # oauth:
+    #   driver-class-name: com.mysql.cj.jdbc.Driver
+    #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    #   username: ttwijang
+    #   password: gamepark
+
+#첨부파일 경로
+attached-file:
+  upload-directory: ./attached-file
 
 ---   
 server:
@@ -152,16 +150,21 @@ spring:
     naver-client-id: ItEwz1Wu8XTmdqSiLVao
     naver-client-secret: _SrigIq9uE
   datasource:
-      resource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: ttwijang
-        password: dhkfh2026!@#
-      oauth:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-        username: ttwijang
-        password: dhkfh2026!@#
+    resource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      username: ttwijang
+      password: dhkfh2026!@#
+    oauth:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      username: ttwijang
+      password: dhkfh2026!@#
+  
+#첨부파일 경로
+attached-file:
+  upload-directory: /home/ttwijang/attached-file
+
 
 # logging:
   # level:

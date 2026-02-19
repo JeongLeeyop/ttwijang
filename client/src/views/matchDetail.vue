@@ -1076,6 +1076,7 @@ export default class MatchDetail extends Vue {
   width: 100%;
   height: 200px;
   overflow: hidden;
+  margin-top:62px;
 }
 
 .hero-image {

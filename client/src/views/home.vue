@@ -308,8 +308,8 @@ export default class extends Vue {
 
   get slickOptions() {
     return {
-      // dots: true,
-      infinite: this.teamCards.length > 1,
+      dots: true,
+      // infinite: this.teamCards.length > 1,
       speed: 500,
       slidesToShow: 1,
       slidesToScroll: 1,

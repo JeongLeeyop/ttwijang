@@ -17,9 +17,9 @@
           <el-button
             :class="{ 'team-enter-button': myTeamInfo !== null }"
             style="margin-bottom: 15px;"
-            @click="myTeamInfo ? enterMyTeam() : goToCreateTeam()"
+            @click="myTeamInfo ? enterMyTeam() : (teamCode.trim() ? joinTeamWithCode() : goToCreateTeam())"
           >
-            {{ myTeamInfo ? '팀 입장하기' : '팀 만들기' }}
+            {{ myTeamInfo ? '팀 입장하기' : (teamCode.trim() ? '팀 가입하기' : '팀 만들기') }}
           </el-button>
 
           <!-- Team Code Input Form -->
@@ -462,17 +462,9 @@ export default class extends Vue {
       const teamResponse = await getTeamByCode(this.teamCode);
       const team = teamResponse.data;
 
-      await joinTeam({
-        teamUid: team.uid,
-        message: '팀 코드를 통한 가입 신청',
-      });
-
-      this.$message.success(`"${team.name}" 팀에 가입 신청했습니다.`);
-      this.teamCode = '';
-      this.hasPendingRequest = true;
-      this.canJoinTeam = false;
+      this.$router.push(`/team-recruit-detail/${team.uid}`);
     } catch (error: any) {
-      console.error('Team join failed:', error);
+      console.error('Team search failed:', error);
       this.$message.error(error.response?.data?.message || '팀을 찾을 수 없습니다.');
     }
   }

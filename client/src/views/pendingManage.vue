@@ -439,6 +439,7 @@ export default class PendingManage extends Vue {
   font-weight: 700;
   color: #222;
   margin-bottom: 4px;
+  text-align: left;
 }
 
 .profile-meta {

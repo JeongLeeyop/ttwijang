@@ -49,8 +49,14 @@ public class AttachedFileController {
 		String filename = FileNameUtil.resolveFilename(request.getHeader("User-Agent"), attachedFile.getOriginalName());
 		
 		HttpHeaders headers = new HttpHeaders();
-		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-		headers.add(HttpHeaders.CONTENT_TYPE, attachedFile.getFileType());
+		String contentType = attachedFile.getFileType();
+		// 이미지 파일은 인라인으로 표시, 나머지는 다운로드
+		if (contentType != null && contentType.startsWith("image/")) {
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
+		} else {
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+		}
+		headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 		return ResponseEntity.ok().headers(headers).body(fileResource);
 	}
 }

@@ -33,8 +33,7 @@
           <!-- 가입 승인 대기 -->
           <div class="settings-menu-item" @click="goToPendingManage">
             <div class="menu-label-row">
-              <span class="menu-label">가입 승인 대기</span>
-              <span v-if="pendingCount > 0" class="pending-badge">{{ pendingCount }}</span>
+              <span class="menu-label">가입 승인 대기<span v-if="pendingCount > 0" class="pending-badge">{{ pendingCount }}</span></span>
               <i class="el-icon-arrow-right menu-arrow"></i>
             </div>
           </div>
@@ -267,6 +266,8 @@ export default class TeamSettings extends Vue {
   font-size: 11px;
   font-weight: 700;
   margin-left: 8px;
+  top: -2px;
+  position: relative;
 }
 
 .menu-tag {

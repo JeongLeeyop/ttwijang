@@ -325,6 +325,7 @@ export default class PendingApproval extends Vue {
 /* Status Section */
 .status-section {
   text-align: center;
+  width: 100%;
   padding: 24px 16px;
   background: #fff;
   border-radius: 12px;
@@ -358,6 +359,7 @@ export default class PendingApproval extends Vue {
 
 /* Team Card */
 .team-card {
+  width: 100%;
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
@@ -457,6 +459,7 @@ export default class PendingApproval extends Vue {
 
 /* Timeline */
 .timeline-section {
+  width: 100%;
   background: #fff;
   border-radius: 12px;
   padding: 20px 16px;
