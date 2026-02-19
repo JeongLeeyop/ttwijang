@@ -226,7 +226,7 @@
               </div>
               <div class="match-card-recruit">
                 <span class="recruit-dot"></span>
-                <span class="recruit-count">{{ match.currentPlayers || 0 }}/{{ match.maxPlayers || 0 }}</span>
+                <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
               </div>
             </div>
           </div>
@@ -1163,8 +1163,10 @@ export default class TeamPage extends Vue {
           awayName: m.opponentTeamName || m.guestTeamName || '-',
           awayLogo: m.guestTeamLogoUrl || this.defaultLogo,
           awayScore: m.awayScore,
-          maxPlayers,
+          maxPlayers: m.maxPlayers || maxPlayers,
           currentPlayers: m.currentPlayers || m.applicationCount || 0,
+          teamMemberCount: m.teamMemberCount || 0,
+          guestCurrentMembers: m.guestCurrentMembers || 0,
         };
       });
     } catch (error) {

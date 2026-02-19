@@ -125,9 +125,10 @@
                       <span>{{ match.stadiumName }}</span>
                       <i class="el-icon-arrow-right"></i>
                     </div>
-                    <div class="guest-members" v-if="match.hasGuestRecruitment">
+                    <div class="guest-members">
                       <i class="el-icon-user"></i>
-                      <span>{{ match.teamMemberCount + match.guestCurrentMembers }} / {{ match.maxPlayers }}</span>
+                      <span v-if="match.hasGuestRecruitment">{{ match.teamMemberCount + match.guestCurrentMembers }} / {{ match.maxPlayers }}</span>
+                      <span v-else>{{ match.teamMemberCount }} / {{ match.maxPlayers }}</span>
                     </div>
                   </div>
                 </div>
