@@ -2206,7 +2206,7 @@ export default class TeamPage extends Vue {
 .league-action-buttons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
