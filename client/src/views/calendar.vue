@@ -302,7 +302,7 @@ export default class CalendarPage extends Vue {
             return {
               uid: m.uid,
               name: m.hostTeamName || '',
-              logo: m.hostTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.hostTeamName || 'M').substring(0, 2))}&background=random&color=fff&size=60`,
+              logo: this.resolveLogoUrl(m.hostTeamLogoUrl, m.hostTeamName),
               matchType: m.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
               teamSize: this.formatMatchFormat(m.matchFormat),
               matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
@@ -330,10 +330,11 @@ export default class CalendarPage extends Vue {
         this.guestData = guests.map((g: any) => {
           const d = new Date(g.matchDate);
           const isFull = g.currentGuests >= g.maxGuests;
-          return {
-            uid: g.uid,
-            name: g.teamName || '',
-            logo: g.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((g.teamName || 'G').substring(0, 2))}&background=random&color=fff&size=60`,
+            const guestLogo = this.resolveLogoUrl(g.teamLogoUrl, g.teamName);
+            return {
+              uid: g.uid,
+              name: g.teamName || '',
+              logo: guestLogo,
             matchType: g.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
             teamSize: this.formatMatchFormat(g.matchFormat),
             matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
@@ -341,7 +342,7 @@ export default class CalendarPage extends Vue {
             matchTime: g.matchTime,
             location: g.stadiumName || '',
             dateKey: this.toDateKey(d),
-            teamLogo: g.teamLogoUrl,
+              teamLogo: guestLogo,
             currentMembers: g.currentGuests,
             maxMembers: g.maxGuests,
             isRecruitmentClosed: isFull,
@@ -357,6 +358,18 @@ export default class CalendarPage extends Vue {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  private resolveLogoUrl(raw: string | null | undefined, name: string): string {
+    if (!raw) return this.getTeamLogo(name);
+    if (raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `/api/attached-file/${raw}`;
+  }
+
+  private getTeamLogo(teamName: string): string {
+    if (!teamName) return 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=60';
+    const initials = teamName.slice(0, 2);
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=061da1&color=fff&size=60`;
   }
 
   private buildCountMaps(): void {

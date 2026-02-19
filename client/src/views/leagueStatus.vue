@@ -10,7 +10,6 @@
         <div class="league-filter-row">
           <el-select
             v-model="selectedLeagueUid"
-            :popper-append-to-body="false"
             placeholder="리그 선택"
             size="small"
             class="league-filter-select"
