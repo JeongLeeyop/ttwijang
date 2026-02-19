@@ -271,13 +271,18 @@ export default class extends Vue {
   }
 
   get filteredMatches(): MatchCard[] {
+    const now = Date.now();
+    const byProximity = (a: MatchCard, b: MatchCard) => Math.abs(a.date.getTime() - now) - Math.abs(b.date.getTime() - now);
+
     if (this.showAllMonth) {
       return this.matchData
         .filter((m) => m.date.getFullYear() === this.currentYear
           && m.date.getMonth() === this.currentMonthIndex)
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
+        .sort(byProximity);
     }
-    return this.matchData.filter((m) => this.isSameDate(m.date, this.selectedDate));
+    return this.matchData
+      .filter((m) => this.isSameDate(m.date, this.selectedDate))
+      .sort(byProximity);
   }
 
   private slickOptions = {
@@ -573,6 +578,15 @@ export default class extends Vue {
 
       this.matchData = matches.map((match: any) => {
         const matchDate = new Date(match.matchDate);
+        // 시간 정보가 있으면 date 객체에 반영 (시간순 정렬용)
+        if (match.matchTime) {
+          const timeStr = String(match.matchTime);
+          const timeParts = timeStr.split(':');
+          if (timeParts.length >= 2) {
+            matchDate.setHours(parseInt(timeParts[0], 10) || 0);
+            matchDate.setMinutes(parseInt(timeParts[1], 10) || 0);
+          }
+        }
         const isCompleted = match.status === 'COMPLETED' || match.status === 'CANCELLED';
 
         return {
