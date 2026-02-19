@@ -125,6 +125,10 @@
                       <span>{{ match.stadiumName }}</span>
                       <i class="el-icon-arrow-right"></i>
                     </div>
+                    <div class="guest-members" v-if="match.hasGuestRecruitment">
+                      <i class="el-icon-user"></i>
+                      <span>{{ match.teamMemberCount + match.guestCurrentMembers }} / {{ match.maxPlayers }}</span>
+                    </div>
                   </div>
                 </div>
                 <div v-if="match.isCompleted" class="recruitment-overlay">
@@ -175,6 +179,11 @@ interface MatchCard {
   statusLabel: string
   statusKey: string
   isCompleted: boolean
+  hasGuestRecruitment: boolean
+  guestCurrentMembers: number
+  guestMaxMembers: number
+  teamMemberCount: number
+  maxPlayers: number
   date: Date
 }
 
@@ -607,6 +616,11 @@ export default class extends Vue {
           statusLabel: this.formatStatus(match.status),
           statusKey: (match.status || '').toLowerCase(),
           isCompleted,
+          hasGuestRecruitment: match.hasGuestRecruitment || false,
+          guestCurrentMembers: match.guestCurrentMembers || 0,
+          guestMaxMembers: match.guestMaxMembers || 0,
+          teamMemberCount: match.teamMemberCount || 0,
+          maxPlayers: match.maxPlayers || 0,
           date: matchDate,
         };
       });

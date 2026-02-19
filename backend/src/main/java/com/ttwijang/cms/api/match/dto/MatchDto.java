@@ -126,6 +126,9 @@ public class MatchDto {
 
         @Schema(description = "게스트 최대 모집 인원")
         private Integer guestMaxMembers;
+
+        @Schema(description = "주최 팀 승인 멤버 수")
+        private Integer teamMemberCount;
     }
 
     @Data

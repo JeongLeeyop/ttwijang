@@ -16,12 +16,14 @@ import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
 import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.service.CashService;
+import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.MatchApplication;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
@@ -39,6 +41,7 @@ public class MatchService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final CashService cashService;
+    private final GuestApplicationRepository guestApplicationRepository;
     private final GuestRecruitmentRepository guestRecruitmentRepository;
     private final NotificationService notificationService;
     private final TeamMemberRepository teamMemberRepository;
@@ -407,10 +410,10 @@ public class MatchService {
         long currentPlayers = matchApplicationRepository.countByMatchUidAndStatus(
                 match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
 
-        // 참여자 명단 조회
+        // 참여자 명단 조회 - 매치 신청자 (팀 vs 팀)
         List<MatchApplication> applications = matchApplicationRepository.findByMatchUidAndStatus(
                 match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
-        List<MatchDto.ParticipantInfo> participants = applications.stream()
+        List<MatchDto.ParticipantInfo> participants = new java.util.ArrayList<>(applications.stream()
                 .map(app -> {
                     User user = userRepository.findById(app.getApplicantUserUid()).orElse(null);
                     Team applicantTeam = teamRepository.findByUid(app.getApplicantTeamUid()).orElse(null);
@@ -420,7 +423,22 @@ public class MatchService {
                             .teamName(applicantTeam != null ? applicantTeam.getName() : "")
                             .build();
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+
+        // 게스트 모집 참여자도 포함
+        guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid())
+                .ifPresent(recruitment -> {
+                    List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
+                            recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
+                    guestApps.forEach(gApp -> {
+                        User gUser = userRepository.findById(gApp.getUserUid()).orElse(null);
+                        participants.add(MatchDto.ParticipantInfo.builder()
+                                .uid(gApp.getUserUid())
+                                .name(gUser != null ? gUser.getActualName() : "알 수 없음")
+                                .teamName("게스트")
+                                .build());
+                    });
+                });
 
         // 현재 사용자가 팀 운영자인지 확인
         boolean isTeamOwner = false;
@@ -482,13 +500,16 @@ public class MatchService {
         Integer guestMaxMembers = null;
         if (hasGuestRecruitment) {
             java.util.Optional<com.ttwijang.cms.entity.GuestRecruitment> guestOpt =
-                    guestRecruitmentRepository.findByMatchUid(match.getUid());
+                    guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid());
             if (guestOpt.isPresent()) {
                 com.ttwijang.cms.entity.GuestRecruitment guest = guestOpt.get();
-                guestCurrentMembers = guest.getCurrentGuests();
+                guestCurrentMembers = (int) guestApplicationRepository.countByRecruitmentUidAndStatus(
+                        guest.getUid(), GuestApplication.ApplicationStatus.APPROVED);
                 guestMaxMembers = guest.getMaxGuests();
             }
         }
+
+        int teamMemberCount = (int) currentPlayers;
 
         return MatchDto.ListResponse.builder()
                 .uid(match.getUid())
@@ -509,6 +530,7 @@ public class MatchService {
                 .hasGuestRecruitment(hasGuestRecruitment)
                 .guestCurrentMembers(guestCurrentMembers)
                 .guestMaxMembers(guestMaxMembers)
+                .teamMemberCount(teamMemberCount)
                 .build();
     }
 }

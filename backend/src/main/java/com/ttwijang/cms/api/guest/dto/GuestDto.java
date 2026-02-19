@@ -130,6 +130,9 @@ public class GuestDto {
         @Schema(description = "팀 참여 인원")
         private Integer teamMemberCount;
 
+        @Schema(description = "총 인원 (매치 포맷 기준)")
+        private Integer maxPlayers;
+
         @Schema(description = "모집 상태")
         private GuestRecruitment.RecruitmentStatus status;
     }
@@ -224,6 +227,9 @@ public class GuestDto {
 
         @Schema(description = "이름")
         private String name;
+
+        @Schema(description = "팀 이름")
+        private String teamName;
     }
 
     @Data

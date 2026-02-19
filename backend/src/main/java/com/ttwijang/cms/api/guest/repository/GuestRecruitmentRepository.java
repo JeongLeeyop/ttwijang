@@ -20,6 +20,8 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
 
     Optional<GuestRecruitment> findByUid(String uid);
 
+    Optional<GuestRecruitment> findFirstByMatchUidOrderByCreatedDateDesc(String matchUid);
+
     boolean existsByMatchUidAndStatusIn(String matchUid,
                                          java.util.Collection<GuestRecruitment.RecruitmentStatus> statuses);
 

@@ -14,11 +14,16 @@ import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.dto.GuestDto;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
+import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
+import com.ttwijang.cms.api.match.service.MatchService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.GuestRecruitment;
+import com.ttwijang.cms.entity.MatchApplication;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.TeamMember;
 import com.ttwijang.cms.entity.User;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 
@@ -31,6 +36,8 @@ public class GuestService {
     private final GuestRecruitmentRepository recruitmentRepository;
     private final GuestApplicationRepository applicationRepository;
     private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final MatchApplicationRepository matchApplicationRepository;
     private final UserRepository userRepository;
     private final CashService cashService;
 
@@ -224,6 +231,21 @@ public class GuestService {
             throw new IllegalArgumentException("모집이 마감되었습니다.");
         }
 
+        // 자기 소속 팀 또는 자기가 만든 팀의 게스트 모집에는 신청 불가
+        String recruitTeamUid = recruitment.getTeamUid();
+        if (recruitTeamUid != null) {
+            // 팀 소유자(운영자) 확인
+            Team recruitTeam = teamRepository.findByUid(recruitTeamUid).orElse(null);
+            if (recruitTeam != null && recruitTeam.getOwnerUid().equals(userUid)) {
+                throw new IllegalArgumentException("본인이 운영하는 팀의 게스트 모집에는 신청할 수 없습니다.");
+            }
+            // 팀 소속 멤버 확인 (승인된 멤버)
+            if (teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                    recruitTeamUid, userUid, TeamMember.MemberStatus.APPROVED)) {
+                throw new IllegalArgumentException("소속 팀의 게스트 모집에는 신청할 수 없습니다.");
+            }
+        }
+
         GuestApplication application = GuestApplication.builder()
                 .recruitmentUid(request.getRecruitmentUid())
                 .userUid(userUid)
@@ -360,18 +382,33 @@ public class GuestService {
     private GuestDto.DetailResponse toDetailResponse(GuestRecruitment recruitment) {
         Team team = teamRepository.findByUid(recruitment.getTeamUid()).orElse(null);
 
-        // 참여자 명단 조회 (승인된 신청자)
+        // 참여자 명단 조회 - 매치 신청자 (팀 vs 팀) 먼저 추가
+        List<GuestDto.ParticipantInfo> participants = new java.util.ArrayList<>();
+        if (recruitment.getMatchUid() != null) {
+            List<MatchApplication> matchApps = matchApplicationRepository.findByMatchUidAndStatus(
+                    recruitment.getMatchUid(), MatchApplication.ApplicationStatus.APPROVED);
+            matchApps.forEach(mApp -> {
+                User mUser = userRepository.findById(mApp.getApplicantUserUid()).orElse(null);
+                Team mTeam = teamRepository.findByUid(mApp.getApplicantTeamUid()).orElse(null);
+                participants.add(GuestDto.ParticipantInfo.builder()
+                        .uid(mApp.getApplicantUserUid())
+                        .name(mUser != null ? mUser.getActualName() : "알 수 없음")
+                        .teamName(mTeam != null ? mTeam.getName() : "")
+                        .build());
+            });
+        }
+
+        // 게스트 신청자 추가
         List<GuestApplication> approvedApps = applicationRepository.findByRecruitmentUidAndStatus(
                 recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
-        List<GuestDto.ParticipantInfo> participants = approvedApps.stream()
-                .map(app -> {
-                    User user = userRepository.findById(app.getUserUid()).orElse(null);
-                    return GuestDto.ParticipantInfo.builder()
-                            .uid(app.getUserUid())
-                            .name(user != null ? user.getActualName() : "알 수 없음")
-                            .build();
-                })
-                .collect(Collectors.toList());
+        approvedApps.forEach(app -> {
+            User user = userRepository.findById(app.getUserUid()).orElse(null);
+            participants.add(GuestDto.ParticipantInfo.builder()
+                    .uid(app.getUserUid())
+                    .name(user != null ? user.getActualName() : "알 수 없음")
+                    .teamName("게스트")
+                    .build());
+        });
 
         return GuestDto.DetailResponse.builder()
                 .uid(recruitment.getUid())
@@ -409,16 +446,21 @@ public class GuestService {
 
         // 매치 포맷 및 팀 참여 인원 계산
         String matchFormat = null;
-        Integer teamMemberCount = null;
+        int teamMemberCount = 0;
+        int maxPlayers = 0;
         if (recruitment.getMatchUid() != null) {
+            teamMemberCount = (int) matchApplicationRepository.countByMatchUidAndStatus(
+                    recruitment.getMatchUid(),
+                    MatchApplication.ApplicationStatus.APPROVED);
             FutsalMatch match = recruitment.getMatch();
             if (match != null) {
                 matchFormat = match.getMatchFormat();
-                int maxPerSide = getMaxPerSide(matchFormat);
-                teamMemberCount = maxPerSide - (recruitment.getMaxGuests() != null ? recruitment.getMaxGuests() : 0);
-                if (teamMemberCount < 0) teamMemberCount = 0;
+                maxPlayers = MatchService.getMaxPlayersByFormat(matchFormat);
             }
         }
+
+        int actualCurrentGuests = (int) applicationRepository.countByRecruitmentUidAndStatus(
+                recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
 
         return GuestDto.ListResponse.builder()
                 .uid(recruitment.getUid())
@@ -432,10 +474,11 @@ public class GuestService {
                 .region(region.trim())
                 .positionType(recruitment.getPositionType())
                 .maxGuests(recruitment.getMaxGuests())
-                .currentGuests(recruitment.getCurrentGuests())
+                .currentGuests(actualCurrentGuests)
                 .fee(recruitment.getFee())
                 .guaranteedMinutes(recruitment.getGuaranteedMinutes())
                 .matchFormat(matchFormat)
+                .maxPlayers(maxPlayers)
                 .teamMemberCount(teamMemberCount)
                 .status(recruitment.getStatus())
                 .build();

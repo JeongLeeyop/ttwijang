@@ -28,6 +28,8 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
 
     boolean existsByTeamUidAndUserUid(String teamUid, String userUid);
 
+    boolean existsByTeamUidAndUserUidAndStatus(String teamUid, String userUid, TeamMember.MemberStatus status);
+
     long countByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
 
     /**

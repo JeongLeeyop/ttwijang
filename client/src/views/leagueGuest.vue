@@ -39,7 +39,7 @@
                 </div>
                 <div class="guest-members">
                   <i class="el-icon-user"></i>
-                  <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
+                  <span>{{ (guest.teamMemberCount || 0) + guest.currentMembers }} / {{ guest.maxPlayers || guest.maxMembers }}</span>
                 </div>
               </div>
             </div>
@@ -125,7 +125,7 @@
                     </div>
                     <div class="guest-members" v-if="guest.currentMembers !== undefined && guest.maxMembers !== undefined">
                       <i class="el-icon-user"></i>
-                      <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
+                      <span>{{ (guest.teamMemberCount || 0) + guest.currentMembers }} / {{ guest.maxPlayers || guest.maxMembers }}</span>
                     </div>
                   </div>
                 </div>
@@ -333,6 +333,8 @@ export default class extends Vue {
           teamLogo: logoUrl,
           currentMembers: guest.currentGuests || 0,
           maxMembers: guest.maxGuests || 0,
+          teamMemberCount: guest.teamMemberCount || 0,
+          maxPlayers: guest.maxPlayers || 0,
           isRecruitmentClosed: isFull,
         };
       });

@@ -303,6 +303,7 @@
               {{ getInitial(p.name) }}
             </div>
             <span class="participant-name">{{ p.name }}</span>
+            <span v-if="p.teamName" class="participant-team">{{ p.teamName }}</span>
           </div>
         </div>
         <div
@@ -1659,6 +1660,17 @@ export default class MatchDetail extends Vue {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 64px;
+}
+
+.participant-team {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
+  margin-top: 2px;
 }
 
 .empty-participants {
