@@ -89,7 +89,6 @@
         >
           <div class="handle-bar"></div>
         </div>
-        <div class="league-section-content">
         <div class="league-header">
           <div class="league-title-row">
             <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select">
@@ -106,6 +105,7 @@
             <button class="status-button" @click="toggleLeagueStatus">현황보기</button>
           </div>
         </div>
+        <div class="league-section-content">
 
         <!-- League Status Expanded View -->
         <div v-if="showLeagueStatus" class="league-status-expanded">

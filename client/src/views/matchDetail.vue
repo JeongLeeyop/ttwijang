@@ -1,5 +1,14 @@
 <template>
   <div class="match-detail-page">
+    <!-- Header -->
+    <div class="header">
+      <button class="back-button" @click="goBack">
+        <i class="el-icon-arrow-left"></i>
+      </button>
+      <span class="header-title">매치 상세보기</span>
+      <div class="header-right-placeholder"></div>
+    </div>
+
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-container">
       <i class="el-icon-loading"></i>
@@ -809,6 +818,10 @@ export default class MatchDetail extends Vue {
     await this.loadDetail();
   }
 
+  private goBack(): void {
+    this.$router.go(-1);
+  }
+
   // ==================== Methods ====================
 
   private generateAvatar(name: string): string {
@@ -1068,6 +1081,26 @@ export default class MatchDetail extends Vue {
 .error-container {
   padding: 40px 20px;
   text-align: center;
+}
+
+/* Header */
+.back-button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.header-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-right-placeholder {
+  width: 30px;
 }
 
 /* Hero Section */

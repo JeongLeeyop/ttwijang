@@ -64,7 +64,6 @@
         >
           <div class="handle-bar"></div>
         </div>
-        <div class="league-section-content">
         <div class="league-header">
           <div class="calendar-nav">
           <i class="el-icon-arrow-left" @click="previousMonth"></i>
@@ -90,6 +89,8 @@
             <div v-if="hasMatchOnDay(day)" class="match-dot"></div>
           </div>
         </div>
+
+        <div class="league-section-content">
 
         <!-- Upcoming Match Cards -->
         <div class="match-cards">

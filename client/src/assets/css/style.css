@@ -336,6 +336,7 @@
 
 /* 스크롤 가능한 내부 콘텐츠 영역 */
 .league-section-content {
+  padding: 15px 0;
   flex: 1;
   overflow-y: auto;
   /* 스크롤바 숨기기 */
@@ -601,7 +602,7 @@
   justify-content: center;
   align-items: center;
   margin-top: 5px;
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
   padding: 0 20px;
   flex-wrap: wrap;
   border-bottom: 3px solid #c5cad5;
@@ -2385,6 +2386,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .date-selector-row::-webkit-scrollbar {
