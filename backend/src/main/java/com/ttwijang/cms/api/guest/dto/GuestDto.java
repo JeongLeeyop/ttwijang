@@ -124,6 +124,12 @@ public class GuestDto {
         @Schema(description = "보장 시간")
         private Integer guaranteedMinutes;
 
+        @Schema(description = "매치 포맷")
+        private String matchFormat;
+
+        @Schema(description = "팀 참여 인원")
+        private Integer teamMemberCount;
+
         @Schema(description = "모집 상태")
         private GuestRecruitment.RecruitmentStatus status;
     }

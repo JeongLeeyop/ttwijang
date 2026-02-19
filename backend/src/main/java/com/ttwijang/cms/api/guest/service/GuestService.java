@@ -15,6 +15,7 @@ import com.ttwijang.cms.api.guest.dto.GuestDto;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.GuestRecruitment;
 import com.ttwijang.cms.entity.Team;
@@ -53,6 +54,21 @@ public class GuestService {
         LocalDate maxDate = today.plusDays(MAX_RECRUITMENT_DAYS);
         if (request.getMatchDate().isBefore(today) || request.getMatchDate().isAfter(maxDate)) {
             throw new IllegalArgumentException("게스트 모집은 오늘부터 7일 이내의 경기만 가능합니다.");
+        }
+
+        // 중복 모집 방지: 같은 팀이 같은 매치(또는 같은 날짜)에 이미 모집 중인지 확인
+        java.util.List<GuestRecruitment.RecruitmentStatus> activeStatuses =
+                java.util.Arrays.asList(GuestRecruitment.RecruitmentStatus.RECRUITING, GuestRecruitment.RecruitmentStatus.COMPLETED);
+        if (request.getMatchUid() != null && !request.getMatchUid().isEmpty()) {
+            if (recruitmentRepository.existsByTeamUidAndMatchUidAndStatusIn(
+                    request.getTeamUid(), request.getMatchUid(), activeStatuses)) {
+                throw new IllegalArgumentException("해당 매치에 이미 게스트 모집이 등록되어 있습니다.");
+            }
+        } else {
+            if (recruitmentRepository.existsByTeamUidAndMatchDateAndStatusIn(
+                    request.getTeamUid(), request.getMatchDate(), activeStatuses)) {
+                throw new IllegalArgumentException("해당 날짜에 이미 게스트 모집이 등록되어 있습니다.");
+            }
         }
 
         GuestRecruitment recruitment = GuestRecruitment.builder()
@@ -220,6 +236,13 @@ public class GuestService {
 
         application = applicationRepository.save(application);
 
+        // 즉시 승인이므로 currentGuests 증가
+        recruitment.setCurrentGuests(recruitment.getCurrentGuests() + 1);
+        if (recruitment.getCurrentGuests() >= recruitment.getMaxGuests()) {
+            recruitment.setStatus(GuestRecruitment.RecruitmentStatus.COMPLETED);
+        }
+        recruitmentRepository.save(recruitment);
+
         // 참가비가 있으면 캐시 차감
         int fee = recruitment.getFee() != null ? recruitment.getFee() : 0;
         if (fee > 0) {
@@ -321,6 +344,19 @@ public class GuestService {
         recruitmentRepository.save(recruitment);
     }
 
+    /**
+     * 팀의 게스트 모집 목록 조회 (7일 이내)
+     */
+    @Transactional(readOnly = true)
+    public List<GuestDto.ListResponse> getTeamRecruitments(String teamUid) {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(MAX_RECRUITMENT_DAYS);
+        List<GuestRecruitment> recruitments = recruitmentRepository.findByTeamUidAndDateRange(teamUid, startDate, endDate);
+        return recruitments.stream()
+                .map(this::toListResponse)
+                .collect(Collectors.toList());
+    }
+
     private GuestDto.DetailResponse toDetailResponse(GuestRecruitment recruitment) {
         Team team = teamRepository.findByUid(recruitment.getTeamUid()).orElse(null);
 
@@ -371,6 +407,19 @@ public class GuestService {
                     + " " + (team.getRegionSigungu() != null ? team.getRegionSigungu() : "");
         }
 
+        // 매치 포맷 및 팀 참여 인원 계산
+        String matchFormat = null;
+        Integer teamMemberCount = null;
+        if (recruitment.getMatchUid() != null) {
+            FutsalMatch match = recruitment.getMatch();
+            if (match != null) {
+                matchFormat = match.getMatchFormat();
+                int maxPerSide = getMaxPerSide(matchFormat);
+                teamMemberCount = maxPerSide - (recruitment.getMaxGuests() != null ? recruitment.getMaxGuests() : 0);
+                if (teamMemberCount < 0) teamMemberCount = 0;
+            }
+        }
+
         return GuestDto.ListResponse.builder()
                 .uid(recruitment.getUid())
                 .teamUid(recruitment.getTeamUid())
@@ -386,6 +435,8 @@ public class GuestService {
                 .currentGuests(recruitment.getCurrentGuests())
                 .fee(recruitment.getFee())
                 .guaranteedMinutes(recruitment.getGuaranteedMinutes())
+                .matchFormat(matchFormat)
+                .teamMemberCount(teamMemberCount)
                 .status(recruitment.getStatus())
                 .build();
     }
@@ -401,5 +452,16 @@ public class GuestService {
                 .paymentCompleted(application.getPaymentCompleted())
                 .createdDate(application.getCreatedDate())
                 .build();
+    }
+
+    private int getMaxPerSide(String matchFormat) {
+        if (matchFormat == null) return 5;
+        switch (matchFormat) {
+            case "FOUR_VS_FOUR": return 4;
+            case "FIVE_VS_FIVE": return 5;
+            case "SIX_VS_SIX": return 6;
+            case "SEVEN_VS_SEVEN": return 7;
+            default: return 5;
+        }
     }
 }

@@ -134,4 +134,11 @@ public class GuestController {
         guestService.cancelRecruitment(recruitmentUid, userDetails.getUser().getUid());
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "팀의 게스트 모집 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/team/{teamUid}")
+    public ResponseEntity<List<GuestDto.ListResponse>> getTeamRecruitments(
+            @PathVariable String teamUid) {
+        return ResponseEntity.ok(guestService.getTeamRecruitments(teamUid));
+    }
 }

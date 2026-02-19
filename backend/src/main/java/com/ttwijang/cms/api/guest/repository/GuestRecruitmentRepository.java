@@ -20,6 +20,15 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
 
     Optional<GuestRecruitment> findByUid(String uid);
 
+    boolean existsByMatchUidAndStatusIn(String matchUid,
+                                         java.util.Collection<GuestRecruitment.RecruitmentStatus> statuses);
+
+    boolean existsByTeamUidAndMatchUidAndStatusIn(String teamUid, String matchUid,
+                                                    java.util.Collection<GuestRecruitment.RecruitmentStatus> statuses);
+
+    boolean existsByTeamUidAndMatchDateAndStatusIn(String teamUid, LocalDate matchDate,
+                                                    java.util.Collection<GuestRecruitment.RecruitmentStatus> statuses);
+
     Page<GuestRecruitment> findByStatus(GuestRecruitment.RecruitmentStatus status, Pageable pageable);
 
     Page<GuestRecruitment> findByMatchDate(LocalDate matchDate, Pageable pageable);

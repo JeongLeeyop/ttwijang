@@ -5,7 +5,6 @@
       <div v-if="step === 1" class="step-content">
         <h2 class="page-title">언제 게스트를 <br> 모집할까요?</h2>
         <p class="page-desc">게스트는 7일 이내의 일정에만 모집할 수 있어요.</p>
-
         <div v-if="isLoadingMatches" class="loading-area">
           <i class="el-icon-loading"></i>
           <span>매치 일정을 불러오는 중...</span>
@@ -20,10 +19,13 @@
 
         <div v-else class="match-list">
           <div
-            v-for="match in upcomingMatches"
+            v-for="match in sortedMatches"
             :key="match.uid"
             class="match-card"
-            :class="{ selected: selectedMatchUid === match.uid }"
+            :class="{
+              selected: !match.hasGuestRecruitment && selectedMatchUid === match.uid,
+              'has-recruitment': match.hasGuestRecruitment,
+            }"
             @click="selectMatch(match)"
           >
             <div class="match-card-header">
@@ -31,6 +33,7 @@
                 {{ match.matchType === 'FRIENDLY' ? '친선경기' : '자체경기' }}
               </span>
               <span class="match-format">{{ formatLabel(match.matchFormat) }}</span>
+              <span v-if="match.hasGuestRecruitment" class="recruitment-badge">게스트 모집 중</span>
             </div>
             <div class="match-card-body">
               <div class="match-date-info">
@@ -42,7 +45,7 @@
                 <span>{{ match.stadiumName }}</span>
               </div>
             </div>
-            <div v-if="selectedMatchUid === match.uid" class="selected-check">
+            <div v-if="!match.hasGuestRecruitment && selectedMatchUid === match.uid" class="selected-check">
               <i class="el-icon-check"></i>
             </div>
           </div>
@@ -60,6 +63,22 @@
       <!-- Step 2: 모집 조건 설정 -->
       <div v-if="step === 2" class="step-content">
         <h2 class="page-title">이런 게스트를 <br> 모집해요!</h2>
+
+        <!-- 모집 인원 -->
+        <div class="form-group">
+          <label>모집 인원</label>
+          <div class="option-buttons wrap">
+            <button
+              v-for="opt in maxGuestsOptions"
+              :key="opt.value"
+              class="option-button"
+              :class="{ active: maxGuests === opt.value }"
+              @click="maxGuests = opt.value"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
 
         <!-- 성별 -->
         <div class="form-group">
@@ -208,6 +227,8 @@ export default class GuestRecruit extends Vue {
 
   private guaranteedMinutes = 60
 
+  private maxGuests = 3
+
   // Step 3
   private additionalInfo = ''
 
@@ -255,22 +276,64 @@ export default class GuestRecruit extends Vue {
     return (this.$route.query.teamUid as string) || '';
   }
 
+  get maxGuestsOptions(): { label: string, value: number }[] {
+    const format = this.selectedMatch?.matchFormat || '';
+    const formatMaxMap: Record<string, number> = {
+      FOUR_VS_FOUR: 8,
+      FIVE_VS_FIVE: 10,
+      SIX_VS_SIX: 12,
+      SEVEN_VS_SEVEN: 14,
+    };
+    const max = formatMaxMap[format] || 10;
+    const options: { label: string, value: number }[] = [];
+    for (let i = 1; i <= max; i += 1) {
+      options.push({ label: `${i}명`, value: i });
+    }
+    return options;
+  }
+
+  get sortedMatches(): any[] {
+    return [...this.upcomingMatches].sort((a: any, b: any) => {
+      if (a.hasGuestRecruitment && !b.hasGuestRecruitment) return -1;
+      if (!a.hasGuestRecruitment && b.hasGuestRecruitment) return 1;
+      return 0;
+    });
+  }
+
   created(): void {
     // 팀 정보 로드 (지역 정보 등)
     this.loadTeamInfo();
     // 매치 생성 후 바로 게스트 모집으로 넘어온 경우
     if (this.$route.query.matchUid) {
-      this.selectedMatchUid = this.$route.query.matchUid as string;
-      this.selectedMatch = {
-        uid: this.selectedMatchUid,
-        matchDate: this.$route.query.matchDate || '',
-        matchTime: this.$route.query.matchTime || '',
-        stadiumName: this.$route.query.stadium || '',
-      };
-      this.step = 2;
+      this.checkAndSetQueryMatch();
     } else {
       this.loadUpcomingMatches();
     }
+  }
+
+  private async checkAndSetQueryMatch(): Promise<void> {
+    const matchUid = this.$route.query.matchUid as string;
+    try {
+      const matchRes = await getMyTeamMatches(this.teamUid, { page: 0, size: 50 });
+      const matches = matchRes.data?.content || matchRes.data || [];
+      const match = matches.find((m: any) => m.uid === matchUid);
+      if (match && match.hasGuestRecruitment) {
+        this.$message.warning('해당 매치는 이미 게스트 모집 중입니다.');
+        this.setUpcomingMatches(matches);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to check match:', error);
+    }
+    this.selectedMatchUid = matchUid;
+    this.selectedMatch = {
+      uid: matchUid,
+      matchDate: this.$route.query.matchDate || '',
+      matchTime: this.$route.query.matchTime || '',
+      stadiumName: this.$route.query.stadium || '',
+      matchFormat: this.$route.query.matchFormat || '',
+    };
+    this.step = 2;
   }
 
   private async loadTeamInfo(): Promise<void> {
@@ -291,20 +354,12 @@ export default class GuestRecruit extends Vue {
 
     this.isLoadingMatches = true;
     try {
-      const res = await getMyTeamMatches(this.teamUid, {
+      const matchRes = await getMyTeamMatches(this.teamUid, {
         page: 0,
         size: 50,
       });
-      const matches = res.data?.content || res.data || [];
-      // 7일 이내 매치만 필터링
-      const now = new Date();
-      const sevenDaysLater = new Date();
-      sevenDaysLater.setDate(now.getDate() + 7);
-
-      this.upcomingMatches = matches.filter((m: any) => {
-        const matchDate = new Date(m.matchDate);
-        return matchDate >= now && matchDate <= sevenDaysLater;
-      });
+      const matches = matchRes.data?.content || matchRes.data || [];
+      this.setUpcomingMatches(matches);
     } catch (error) {
       console.error('Failed to load matches:', error);
       this.upcomingMatches = [];
@@ -313,7 +368,22 @@ export default class GuestRecruit extends Vue {
     }
   }
 
+  private setUpcomingMatches(matches: any[]): void {
+    const now = new Date();
+    const sevenDaysLater = new Date();
+    sevenDaysLater.setDate(now.getDate() + 7);
+
+    this.upcomingMatches = matches.filter((m: any) => {
+      const matchDate = new Date(m.matchDate);
+      return matchDate >= now && matchDate <= sevenDaysLater;
+    });
+  }
+
   private selectMatch(match: any): void {
+    if (match.hasGuestRecruitment) {
+      this.$message.info('이미 게스트 모집 중인 매치입니다.');
+      return;
+    }
     this.selectedMatchUid = match.uid;
     this.selectedMatch = match;
   }
@@ -370,7 +440,7 @@ export default class GuestRecruit extends Vue {
         genderType: this.genderType,
         ageGroups: this.ageGroups,
         positionType: this.positionType,
-        maxGuests: 3,
+        maxGuests: this.maxGuests,
         fee: this.fee,
         guaranteedMinutes: this.guaranteedMinutes,
         additionalInfo: this.additionalInfo || undefined,
@@ -448,6 +518,30 @@ export default class GuestRecruit extends Vue {
 .match-card.selected {
   border-color: #061da1;
   background: #f5f7ff;
+}
+
+.match-card.has-recruitment {
+  border-color: #ccc;
+  background: #f9f9f9;
+  cursor: default;
+}
+
+.match-card.has-recruitment:active {
+  transform: none;
+}
+
+.match-card.has-recruitment .match-card-body {
+  opacity: 0.5;
+}
+
+.recruitment-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #2ecc71;
+  color: #fff;
 }
 
 .match-card-header {

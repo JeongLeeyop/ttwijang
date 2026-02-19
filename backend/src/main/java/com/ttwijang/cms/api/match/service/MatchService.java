@@ -16,6 +16,7 @@ import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
 import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.service.CashService;
+import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
@@ -34,6 +35,7 @@ public class MatchService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final CashService cashService;
+    private final GuestRecruitmentRepository guestRecruitmentRepository;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -372,6 +374,12 @@ public class MatchService {
         long currentPlayers = matchApplicationRepository.countByMatchUidAndStatus(
                 match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
 
+        boolean hasGuestRecruitment = guestRecruitmentRepository
+                .existsByMatchUidAndStatusIn(match.getUid(),
+                        java.util.Arrays.asList(
+                                com.ttwijang.cms.entity.GuestRecruitment.RecruitmentStatus.RECRUITING,
+                                com.ttwijang.cms.entity.GuestRecruitment.RecruitmentStatus.COMPLETED));
+
         return MatchDto.ListResponse.builder()
                 .uid(match.getUid())
                 .hostTeamUid(match.getHostTeamUid())
@@ -388,6 +396,7 @@ public class MatchService {
                 .status(match.getStatus())
                 .maxPlayers(maxPlayers)
                 .currentPlayers((int) currentPlayers)
+                .hasGuestRecruitment(hasGuestRecruitment)
                 .build();
     }
 }

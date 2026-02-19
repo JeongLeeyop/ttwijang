@@ -117,6 +117,9 @@ public class MatchDto {
 
         @Schema(description = "현재 승인된 인원")
         private Integer currentPlayers;
+
+        @Schema(description = "게스트 모집 여부")
+        private Boolean hasGuestRecruitment;
     }
 
     @Data

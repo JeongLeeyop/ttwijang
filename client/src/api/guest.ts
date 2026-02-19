@@ -122,6 +122,14 @@ export function cancelGuestRecruitment(recruitmentUid: string) {
   });
 }
 
+// 팀의 게스트 모집 목록 조회
+export function getTeamRecruitments(teamUid: string) {
+  return request({
+    url: `/guest/team/${teamUid}`,
+    method: 'get',
+  });
+}
+
 // 게스트 모집 타입 정의
 export interface GuestRecruitment {
   uid: string

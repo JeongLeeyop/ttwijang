@@ -1889,6 +1889,8 @@ export default class TeamPage extends Vue {
 }
 
 .comment-text {
+  text-align: left;
+  padding:8px 20px 0;
   font-size: 13px;
   color: #555;
   margin: 0;

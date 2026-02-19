@@ -5,41 +5,48 @@
     <div class="content">
       <!-- Team Cards Section -->
       <div class="team-section">
-        <h2 class="section-title">뛰장 리그를 소개합니다!</h2>
-        <div v-if="isLoading && upcomingMatchCards.length === 0" class="loading-container">
+        <h2 class="section-title">추천 매치를 확인해 보세요!</h2>
+        <div v-if="isLoading && upcomingGuestCards.length === 0" class="loading-container">
           <i class="el-icon-loading"></i> 로딩 중...
         </div>
         <VueSlickCarousel
-          v-else-if="upcomingMatchCards.length > 0"
+          v-else-if="upcomingGuestCards.length > 0"
           v-bind="slickOptions"
           class="team-cards-container"
         >
           <div
-            v-for="(match, index) in upcomingMatchCards"
+            v-for="(guest, index) in upcomingGuestCards"
             :key="index"
             class="team-card"
+            @click="goToGuestDetail(guest)"
           >
             <div class="team-card-left">
-              <div class="match-vs">
-                <img :src="match.homeTeamLogo" :alt="match.homeTeamName" class="team-logo">
-              </div>
+              <img :src="guest.logo" :alt="guest.name" class="team-logo">
             </div>
             <div class="team-card-right">
               <div class="team-tags">
-                <span class="tag">{{ match.leagueName }}</span>
-                <span v-if="match.round" class="tag">{{ match.round }}R</span>
+                <span class="tag" v-if="guest.positionLabel">{{ guest.positionLabel }}</span>
+                <span class="tag">매너 {{ guest.manner }}점</span>
+                <span class="tag" v-if="guest.feeLabel">{{ guest.feeLabel }}</span>
               </div>
               <div class="team-match-info">
-                {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
+                {{ guest.matchDate }} ({{ guest.matchDay }}) {{ guest.matchTime }}
               </div>
-              <div class="team-location">
-                {{ match.stadiumName }} <i class="el-icon-arrow-right"></i>
+              <div class="guest-location-row">
+                <div class="guest-location">
+                  <img v-if="guest.teamLogo" :src="guest.teamLogo" :alt="guest.name" class="team-icon">
+                  <span>{{ guest.location }}</span>
+                </div>
+                <div class="guest-members">
+                  <i class="el-icon-user"></i>
+                  <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
+                </div>
               </div>
             </div>
           </div>
         </VueSlickCarousel>
         <div v-else class="empty-message">
-          예정된 리그 경기가 없습니다.
+          모집 중인 게스트 매치가 없습니다.
         </div>
       </div>
 
@@ -150,35 +157,6 @@ import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import {
   getGuestRecruitmentsByDateRange,
 } from '@/api/guest';
-import { getUpcomingLeagueMatches } from '@/api/league';
-
-interface UpcomingMatchCard {
-  uid: string
-  leagueName: string
-  homeTeamName: string
-  homeTeamLogo: string
-  awayTeamName: string
-  awayTeamLogo: string
-  matchDate: string
-  matchDay: string
-  matchTime: string
-  stadiumName: string
-  round?: number
-}
-
-interface TeamCard {
-  name: string
-  logo: string
-  manner: number
-  positionLabel: string
-  feeLabel: string
-  matchDate: string
-  matchDay: string
-  matchTime: string
-  location: string
-  currentMembers: number
-  maxMembers: number
-}
 
 interface GuestItem {
   uid: string
@@ -225,7 +203,7 @@ export default class extends Vue {
 
   private sectionTop: number | null = null
 
-  private collapsedTop = 253
+  private collapsedTop = 280
 
   private expandedTop = 70
 
@@ -246,7 +224,7 @@ export default class extends Vue {
   get slickOptions() {
     return {
       dots: true,
-      infinite: this.upcomingMatchCards.length > 1,
+      infinite: this.upcomingGuestCards.length > 1,
       speed: 500,
       slidesToShow: 1,
       slidesToScroll: 1,
@@ -257,16 +235,20 @@ export default class extends Vue {
       touchThreshold: 5,
       initialSlide: 0,
       variableWidth: false,
-      autoplay: this.upcomingMatchCards.length > 1,
+      autoplay: this.upcomingGuestCards.length > 1,
       autoplaySpeed: 3000,
       draggable: true,
       swipe: true,
     };
   }
 
-  private upcomingMatchCards: UpcomingMatchCard[] = []
-
-  private teamCards: TeamCard[] = []
+  get upcomingGuestCards(): any[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.guestData;
+      // .filter((g: any) => g.date >= today && !g.isRecruitmentClosed)
+      // .sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+  }
 
   private guestData: GuestItem[] = []
 
@@ -298,46 +280,11 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      await Promise.all([
-        this.loadUpcomingMatches(),
-        this.loadGuestData(),
-      ]);
+      await this.loadGuestData();
     } catch (error) {
       console.error('데이터 로드 실패:', error);
     } finally {
       this.isLoading = false;
-    }
-  }
-
-  private async loadUpcomingMatches(): Promise<void> {
-    try {
-      const upcomingParams: any = {
-        limit: 20,
-      };
-      if (this.selectedRegion) {
-        upcomingParams.regionCode = this.selectedRegion;
-      }
-      const upcomingResponse = await getUpcomingLeagueMatches(upcomingParams);
-      const upcomingMatches = upcomingResponse.data || [];
-      this.upcomingMatchCards = upcomingMatches.map((m: any): UpcomingMatchCard => {
-        const dateInfo = this.formatMatchDate(m.matchDate);
-        return {
-          uid: m.uid,
-          leagueName: m.leagueName || '',
-          homeTeamName: m.homeTeamName || '',
-          homeTeamLogo: m.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.homeTeamName || 'H').substring(0, 2))}&background=061da1&color=fff&size=60`,
-          awayTeamName: m.awayTeamName || '',
-          awayTeamLogo: m.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent((m.awayTeamName || 'A').substring(0, 2))}&background=ff6600&color=fff&size=60`,
-          matchDate: dateInfo.date,
-          matchDay: dateInfo.day,
-          matchTime: this.formatMatchTime(m.matchTime),
-          stadiumName: m.stadiumName || '',
-          round: m.round,
-        };
-      });
-    } catch (error) {
-      console.warn('리그 일정 로드 실패:', error);
-      this.upcomingMatchCards = [];
     }
   }
 
@@ -417,6 +364,16 @@ export default class extends Vue {
       ANY: '포지션 무관',
     };
     return positionMap[positionType] || '포지션 무관';
+  }
+
+  private getFormatMaxPerSide(matchFormat: string): number {
+    const formatMap: Record<string, number> = {
+      FOUR_VS_FOUR: 4,
+      FIVE_VS_FIVE: 5,
+      SIX_VS_SIX: 6,
+      SEVEN_VS_SEVEN: 7,
+    };
+    return formatMap[matchFormat] || 5;
   }
 
   private formatFee(fee: number | null | undefined): string {
