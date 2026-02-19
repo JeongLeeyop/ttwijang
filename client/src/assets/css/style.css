@@ -2350,7 +2350,7 @@
 @media (max-width: 480px) {
   .league-action-buttons {
     padding: 16px;
-    gap: 10px;
+    gap: 20px;
   }
 
   .league-action-btn {
