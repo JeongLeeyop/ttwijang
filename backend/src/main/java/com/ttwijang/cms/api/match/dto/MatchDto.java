@@ -120,6 +120,12 @@ public class MatchDto {
 
         @Schema(description = "게스트 모집 여부")
         private Boolean hasGuestRecruitment;
+
+        @Schema(description = "게스트 현재 모집 인원")
+        private Integer guestCurrentMembers;
+
+        @Schema(description = "게스트 최대 모집 인원")
+        private Integer guestMaxMembers;
     }
 
     @Data
@@ -206,6 +212,12 @@ public class MatchDto {
         @Schema(description = "이미 신청했는지 여부")
         private Boolean alreadyApplied;
 
+        @Schema(description = "현재 사용자가 팀 운영자인지 여부")
+        private Boolean isTeamOwner;
+
+        @Schema(description = "상대 팀 매너 점수")
+        private Double guestTeamMannerScore;
+
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
     }
@@ -224,6 +236,23 @@ public class MatchDto {
 
         @Schema(description = "팀 이름")
         private String teamName;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "경기 종료 및 결과 입력 요청")
+    public static class CompleteMatchRequest {
+        @NotBlank(message = "매치 UID는 필수입니다")
+        @Schema(description = "매치 UID", required = true)
+        private String matchUid;
+
+        @Schema(description = "홈팀 득점")
+        private Integer homeScore;
+
+        @Schema(description = "원정팀 득점")
+        private Integer awayScore;
     }
 
     @Data

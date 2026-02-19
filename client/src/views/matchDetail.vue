@@ -462,7 +462,15 @@
       <!-- Apply Button (Fixed Bottom) -->
       <div class="apply-button-wrapper">
         <el-button
-          v-if="alreadyApplied"
+          v-if="showCompleteButton"
+          type="primary"
+          class="apply-button apply-button--complete"
+          @click="openCompleteModal"
+        >
+          경기종료
+        </el-button>
+        <el-button
+          v-else-if="alreadyApplied"
           class="apply-button apply-button--applied"
           disabled
         >
@@ -486,6 +494,116 @@
           모집 완료
         </el-button>
       </div>
+
+      <!-- 경기 결과 입력 모달 -->
+      <el-dialog
+        :visible.sync="showResultModal"
+        :close-on-click-modal="false"
+        :show-close="true"
+        custom-class="match-result-dialog"
+        width="90%"
+        top="10vh"
+      >
+        <div class="result-modal">
+          <div class="result-modal-title">경기 결과를 입력해 주세요!</div>
+          <div class="result-modal-date">{{ formattedDateTime }}</div>
+          <div class="result-modal-stadium">{{ stadiumName }}</div>
+          <div class="result-modal-versus">
+            <div class="result-team">
+              <img :src="hostTeamLogo" :alt="hostTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ hostTeamName }}</span>
+            </div>
+            <div class="result-vs">VS</div>
+            <div class="result-team">
+              <img :src="opponentTeamLogo" :alt="opponentTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ opponentTeamName }}</span>
+            </div>
+          </div>
+          <div class="result-score-input">
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
+                size="small"
+                :disabled="inputHomeScore <= 0"
+                @click="inputHomeScore = Math.max(0, inputHomeScore - 1)"
+              ></el-button>
+              <span class="score-value">{{ inputHomeScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="inputHomeScore += 1"
+              ></el-button>
+            </div>
+            <div class="score-divider">-</div>
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
+                size="small"
+                :disabled="inputAwayScore <= 0"
+                @click="inputAwayScore = Math.max(0, inputAwayScore - 1)"
+              ></el-button>
+              <span class="score-value">{{ inputAwayScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="inputAwayScore += 1"
+              ></el-button>
+            </div>
+          </div>
+          <el-button
+            type="primary"
+            class="result-submit-btn"
+            :loading="isSubmittingResult"
+            @click="submitMatchResult"
+          >
+            경기결과 입력하기
+          </el-button>
+        </div>
+      </el-dialog>
+
+      <!-- 매너 점수 평가 모달 -->
+      <el-dialog
+        :visible.sync="showMannerModal"
+        :close-on-click-modal="false"
+        :show-close="true"
+        custom-class="manner-rating-dialog"
+        width="90%"
+        top="10vh"
+      >
+        <div class="manner-modal">
+          <div class="manner-modal-title">상대팀의 매너 점수를 기록해 주세요!</div>
+          <div class="manner-modal-desc">
+            {{ mannerModalDescription }}
+          </div>
+          <div class="manner-modal-team">
+            <img :src="opponentTeamLogo" :alt="opponentTeamName" class="manner-team-logo">
+            <span class="manner-team-name">{{ opponentTeamName }}</span>
+          </div>
+          <div class="manner-stars">
+            <i
+              v-for="star in 5"
+              :key="star"
+              class="manner-star"
+              :class="{ 'active': star <= mannerScore, 'el-icon-star-on': star <= mannerScore, 'el-icon-star-off': star > mannerScore }"
+              @click="mannerScore = star"
+            ></i>
+          </div>
+          <div class="manner-score-text">{{ mannerScore }}점</div>
+          <el-button
+            type="primary"
+            class="manner-submit-btn"
+            :loading="isSubmittingManner"
+            :disabled="mannerScore === 0"
+            @click="submitMannerRating"
+          >
+            매너 점수 기록하기
+          </el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -494,7 +612,9 @@
 import {
   Vue, Component,
 } from 'vue-property-decorator';
-import { getMatchDetail, applyToMatch } from '@/api/match';
+import {
+  getMatchDetail, applyToMatch, completeMatch, rateTeamManner,
+} from '@/api/match';
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
 import { getLeagueDetail } from '@/api/league';
 import { getWallet } from '@/api/cash';
@@ -514,6 +634,20 @@ export default class MatchDetail extends Vue {
   private isLoading = true
 
   private isApplying = false
+
+  private showResultModal = false
+
+  private showMannerModal = false
+
+  private inputHomeScore = 0
+
+  private inputAwayScore = 0
+
+  private isSubmittingResult = false
+
+  private isSubmittingManner = false
+
+  private mannerScore = 0
 
   private error: string | null = null
 
@@ -839,6 +973,47 @@ export default class MatchDetail extends Vue {
     return [];
   }
 
+  /**
+   * 경기 날짜가 지났고, 현재 사용자가 팀 운영자이며, 아직 완료되지 않은 경우 경기종료 버튼 표시
+   */
+  get showCompleteButton(): boolean {
+    if (this.detailType === 'guest') return false;
+    if (this.detailType === 'league') return false;
+    const isOwner = this.detailData?.isTeamOwner === true;
+    const status = this.detailData?.status;
+    const isPastMatch = this.isMatchDatePassed;
+    return isOwner && isPastMatch && status !== 'COMPLETED' && status !== 'CANCELLED';
+  }
+
+  get isMatchDatePassed(): boolean {
+    const date = this.detailData?.matchDate;
+    if (!date) return false;
+    const matchDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    matchDate.setHours(0, 0, 0, 0);
+    return matchDate < today;
+  }
+
+  get opponentTeamUid(): string {
+    return this.detailData?.guestTeamUid || '';
+  }
+
+  get mannerModalDescription(): string {
+    const date = this.detailData?.matchDate;
+    if (!date) return '';
+    const d = new Date(date);
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dayName = days[d.getDay()];
+    const time = this.detailData?.matchTime || '';
+    const timeStr = typeof time === 'string' && time.includes(':') ? time.substring(0, 5) : String(time);
+    const stadium = this.stadiumName;
+    const teamName = this.opponentTeamName || '상대팀';
+    return `${month}월 ${day}일 (${dayName}) ${timeStr} ${stadium}에서 진행한 ${teamName}의 매너 점수를 기록해주세요.`;
+  }
+
   // ==================== Lifecycle ====================
 
   async created(): Promise<void> {
@@ -1092,6 +1267,62 @@ export default class MatchDetail extends Vue {
       this.$message.error(message);
     } finally {
       this.isApplying = false;
+    }
+  }
+
+  private openCompleteModal(): void {
+    this.inputHomeScore = 0;
+    this.inputAwayScore = 0;
+    this.showResultModal = true;
+  }
+
+  private async submitMatchResult(): Promise<void> {
+    this.isSubmittingResult = true;
+    try {
+      await completeMatch({
+        matchUid: this.matchUid,
+        homeScore: this.inputHomeScore,
+        awayScore: this.inputAwayScore,
+      });
+      this.$message.success('경기 결과가 입력되었습니다.');
+      this.showResultModal = false;
+
+      // 데이터 갱신
+      await this.loadDetail();
+
+      // 상대팀이 있으면 매너 점수 모달 열기
+      if (this.opponentTeamUid) {
+        this.mannerScore = 0;
+        this.showMannerModal = true;
+      }
+    } catch (err: any) {
+      const message = err?.response?.data?.message || '경기 결과 입력에 실패했습니다.';
+      this.$message.error(message);
+    } finally {
+      this.isSubmittingResult = false;
+    }
+  }
+
+  private async submitMannerRating(): Promise<void> {
+    if (this.mannerScore === 0) {
+      this.$message.warning('매너 점수를 선택해주세요.');
+      return;
+    }
+    this.isSubmittingManner = true;
+    try {
+      await rateTeamManner({
+        matchUid: this.matchUid,
+        ratedTeamUid: this.opponentTeamUid,
+        score: this.mannerScore,
+      });
+      this.$message.success('매너 점수가 기록되었습니다.');
+      this.showMannerModal = false;
+      await this.loadDetail();
+    } catch (err: any) {
+      const message = err?.response?.data?.message || '매너 점수 기록에 실패했습니다.';
+      this.$message.error(message);
+    } finally {
+      this.isSubmittingManner = false;
     }
   }
 }
@@ -1520,5 +1751,194 @@ export default class MatchDetail extends Vue {
 .apply-button--applied:hover {
   background: #67c23a !important;
   border-color: #67c23a !important;
+}
+
+/* Complete Button */
+.apply-button--complete {
+  background: #e74c3c !important;
+  border-color: #e74c3c !important;
+  color: #fff !important;
+}
+
+.apply-button--complete:hover {
+  background: #c0392b !important;
+  border-color: #c0392b !important;
+}
+
+/* ==================== Match Result Modal ==================== */
+.result-modal {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.result-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.result-modal-date {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.result-modal-stadium {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.result-modal-versus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.result-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.result-team-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+.result-team-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.result-vs {
+  font-size: 18px;
+  font-weight: 800;
+  color: #061da1;
+}
+
+.result-score-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.score-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: #333;
+  min-width: 40px;
+  text-align: center;
+}
+
+.score-divider {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ccc;
+}
+
+.result-submit-btn {
+  width: 100%;
+  height: 46px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  background: #061da1 !important;
+  border-color: #061da1 !important;
+}
+
+/* ==================== Manner Rating Modal ==================== */
+.manner-modal {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.manner-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.manner-modal-desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.manner-modal-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.manner-team-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+.manner-team-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.manner-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.manner-star {
+  font-size: 36px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.manner-star.active {
+  color: #f7b731;
+}
+
+.manner-score-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f7b731;
+  margin-bottom: 24px;
+}
+
+.manner-submit-btn {
+  width: 100%;
+  height: 46px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  background: #061da1 !important;
+  border-color: #061da1 !important;
 }
 </style>

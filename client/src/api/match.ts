@@ -110,6 +110,36 @@ export function getMyTeamMatches(teamUid: string, params?: {
 }
 
 // 매치 타입 정의
+export interface CompleteMatchRequest {
+  matchUid: string
+  homeScore?: number
+  awayScore?: number
+}
+
+export function completeMatch(data: CompleteMatchRequest) {
+  return request({
+    url: '/match/complete',
+    method: 'post',
+    data,
+  });
+}
+
+// 팀 매너 점수 평가
+export interface RateTeamRequest {
+  matchUid: string
+  ratedTeamUid: string
+  score: number
+  comment?: string
+}
+
+export function rateTeamManner(data: RateTeamRequest) {
+  return request({
+    url: '/manner-rating/team',
+    method: 'post',
+    data,
+  });
+}
+
 export interface FutsalMatch {
   uid: string
   hostTeamUid: string

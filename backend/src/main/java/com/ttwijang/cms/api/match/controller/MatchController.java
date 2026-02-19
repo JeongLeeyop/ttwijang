@@ -123,4 +123,12 @@ public class MatchController {
         matchService.cancelMatch(matchUid, userDetails.getUser().getUid());
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "경기 종료 및 결과 입력", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/complete")
+    public ResponseEntity<MatchDto.DetailResponse> completeMatch(
+            @Valid @RequestBody MatchDto.CompleteMatchRequest request,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(matchService.completeMatch(request, userDetails.getUser().getUid()));
+    }
 }

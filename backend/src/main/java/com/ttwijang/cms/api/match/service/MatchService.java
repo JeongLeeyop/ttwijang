@@ -17,11 +17,15 @@ import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
 import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
+import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.MatchApplication;
+import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.TeamMember;
 import com.ttwijang.cms.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +40,8 @@ public class MatchService {
     private final UserRepository userRepository;
     private final CashService cashService;
     private final GuestRecruitmentRepository guestRecruitmentRepository;
+    private final NotificationService notificationService;
+    private final TeamMemberRepository teamMemberRepository;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -104,7 +110,7 @@ public class MatchService {
     public MatchDto.DetailResponse getMatchDetail(String uid, String userUid) {
         FutsalMatch match = matchRepository.findByUid(uid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
-        MatchDto.DetailResponse response = toDetailResponse(match);
+        MatchDto.DetailResponse response = toDetailResponse(match, userUid);
         if (userUid != null && !userUid.isEmpty()) {
             response.setAlreadyApplied(
                     matchApplicationRepository.existsByMatchUidAndApplicantUserUid(match.getUid(), userUid));
@@ -308,7 +314,91 @@ public class MatchService {
         matchRepository.save(match);
     }
 
+    /**
+     * 경기 종료 및 결과 입력
+     */
+    @Transactional
+    public MatchDto.DetailResponse completeMatch(MatchDto.CompleteMatchRequest request, String userUid) {
+        FutsalMatch match = matchRepository.findByUid(request.getMatchUid())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
+
+        Team hostTeam = teamRepository.findByUid(match.getHostTeamUid())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        // 팀 운영자 권한 확인
+        if (!hostTeam.getOwnerUid().equals(userUid)) {
+            throw new IllegalArgumentException("경기 종료 권한이 없습니다.");
+        }
+
+        // 상태 변경
+        match.setStatus(FutsalMatch.FutsalMatchStatus.COMPLETED);
+        if (request.getHomeScore() != null) {
+            match.setHomeScore(request.getHomeScore());
+        }
+        if (request.getAwayScore() != null) {
+            match.setAwayScore(request.getAwayScore());
+        }
+        match = matchRepository.save(match);
+
+        // 경기 참여자들에게 알림 발송 - 상대팀 매너 점수 기록 요청
+        sendMannerRatingNotifications(match, hostTeam);
+
+        return toDetailResponse(match, userUid);
+    }
+
+    /**
+     * 경기 종료 후 참여자들에게 매너 점수 평가 알림 발송
+     */
+    private void sendMannerRatingNotifications(FutsalMatch match, Team hostTeam) {
+        String matchInfo = String.format("%02d월 %02d일 %s에서 진행한",
+                match.getMatchDate().getMonthValue(),
+                match.getMatchDate().getDayOfMonth(),
+                match.getStadiumName());
+
+        // 홈팀 멤버들에게 알림 (상대팀 평가)
+        List<TeamMember> hostMembers = teamMemberRepository.findByTeamUidAndStatus(
+                match.getHostTeamUid(), TeamMember.MemberStatus.APPROVED);
+        String guestTeamName = "";
+        if (match.getGuestTeamUid() != null) {
+            Team guestTeam = teamRepository.findByUid(match.getGuestTeamUid()).orElse(null);
+            guestTeamName = guestTeam != null ? guestTeam.getName() : "상대팀";
+        }
+
+        for (TeamMember member : hostMembers) {
+            notificationService.createNotification(
+                    member.getUserUid(),
+                    Notification.NotificationType.MATCH,
+                    "상대팀의 매너 점수를 기록해 주세요!",
+                    matchInfo + " " + guestTeamName + "의 매너 점수를 기록해주세요.",
+                    match.getUid(),
+                    "MATCH",
+                    "/match-detail/" + match.getUid() + "?type=match"
+            );
+        }
+
+        // 상대팀 멤버들에게 알림 (홈팀 평가)
+        if (match.getGuestTeamUid() != null) {
+            List<TeamMember> guestMembers = teamMemberRepository.findByTeamUidAndStatus(
+                    match.getGuestTeamUid(), TeamMember.MemberStatus.APPROVED);
+            for (TeamMember member : guestMembers) {
+                notificationService.createNotification(
+                        member.getUserUid(),
+                        Notification.NotificationType.MATCH,
+                        "상대팀의 매너 점수를 기록해 주세요!",
+                        matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
+                        match.getUid(),
+                        "MATCH",
+                        "/match-detail/" + match.getUid() + "?type=match"
+                );
+            }
+        }
+    }
+
     private MatchDto.DetailResponse toDetailResponse(FutsalMatch match) {
+        return toDetailResponse(match, null);
+    }
+
+    private MatchDto.DetailResponse toDetailResponse(FutsalMatch match, String currentUserUid) {
         Team hostTeam = teamRepository.findByUid(match.getHostTeamUid()).orElse(null);
         Team guestTeam = match.getGuestTeamUid() != null ? 
                 teamRepository.findByUid(match.getGuestTeamUid()).orElse(null) : null;
@@ -331,6 +421,12 @@ public class MatchService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        // 현재 사용자가 팀 운영자인지 확인
+        boolean isTeamOwner = false;
+        if (currentUserUid != null && hostTeam != null) {
+            isTeamOwner = hostTeam.getOwnerUid().equals(currentUserUid);
+        }
 
         return MatchDto.DetailResponse.builder()
                 .uid(match.getUid())
@@ -358,6 +454,8 @@ public class MatchService {
                 .maxPlayers(maxPlayers)
                 .currentPlayers((int) currentPlayers)
                 .participants(participants)
+                .isTeamOwner(isTeamOwner)
+                .guestTeamMannerScore(guestTeam != null ? guestTeam.getMannerScore() : 0.0)
                 .createdDate(match.getCreatedDate())
                 .build();
     }
@@ -380,6 +478,18 @@ public class MatchService {
                                 com.ttwijang.cms.entity.GuestRecruitment.RecruitmentStatus.RECRUITING,
                                 com.ttwijang.cms.entity.GuestRecruitment.RecruitmentStatus.COMPLETED));
 
+        Integer guestCurrentMembers = null;
+        Integer guestMaxMembers = null;
+        if (hasGuestRecruitment) {
+            java.util.Optional<com.ttwijang.cms.entity.GuestRecruitment> guestOpt =
+                    guestRecruitmentRepository.findByMatchUid(match.getUid());
+            if (guestOpt.isPresent()) {
+                com.ttwijang.cms.entity.GuestRecruitment guest = guestOpt.get();
+                guestCurrentMembers = guest.getCurrentGuests();
+                guestMaxMembers = guest.getMaxGuests();
+            }
+        }
+
         return MatchDto.ListResponse.builder()
                 .uid(match.getUid())
                 .hostTeamUid(match.getHostTeamUid())
@@ -397,6 +507,8 @@ public class MatchService {
                 .maxPlayers(maxPlayers)
                 .currentPlayers((int) currentPlayers)
                 .hasGuestRecruitment(hasGuestRecruitment)
+                .guestCurrentMembers(guestCurrentMembers)
+                .guestMaxMembers(guestMaxMembers)
                 .build();
     }
 }
