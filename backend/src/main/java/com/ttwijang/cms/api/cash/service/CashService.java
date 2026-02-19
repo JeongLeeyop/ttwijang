@@ -72,6 +72,7 @@ public class CashService {
 
         CashTransaction transaction = CashTransaction.builder()
                 .walletUid(wallet.getUid())
+                .userUid(userUid)
                 .type(CashTransaction.TransactionType.CHARGE)
                 .amount(request.getAmount())
                 .balanceAfter(newBalance)
@@ -102,6 +103,7 @@ public class CashService {
 
         CashTransaction transaction = CashTransaction.builder()
                 .walletUid(wallet.getUid())
+                .userUid(userUid)
                 .type(CashTransaction.TransactionType.USE)
                 .amount(request.getAmount())
                 .balanceAfter(newBalance)
@@ -135,6 +137,7 @@ public class CashService {
 
         CashTransaction transaction = CashTransaction.builder()
                 .walletUid(wallet.getUid())
+                .userUid(userUid)
                 .type(CashTransaction.TransactionType.EARN)
                 .amount(amount)
                 .balanceAfter(newBalance)

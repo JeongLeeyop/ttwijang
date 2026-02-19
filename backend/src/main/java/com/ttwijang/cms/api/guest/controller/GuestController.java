@@ -46,8 +46,10 @@ public class GuestController {
     @Operation(summary = "게스트 모집 상세 조회")
     @GetMapping("/{uid}")
     public ResponseEntity<GuestDto.DetailResponse> getRecruitmentDetail(
-            @Parameter(description = "모집 UID") @PathVariable String uid) {
-        return ResponseEntity.ok(guestService.getRecruitmentDetail(uid));
+            @Parameter(description = "모집 UID") @PathVariable String uid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        String userUid = userDetails != null ? userDetails.getUser().getUid() : null;
+        return ResponseEntity.ok(guestService.getRecruitmentDetail(uid, userUid));
     }
 
     @Operation(summary = "게스트 모집 목록 조회")

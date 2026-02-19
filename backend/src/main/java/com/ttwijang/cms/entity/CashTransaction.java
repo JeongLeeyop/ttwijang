@@ -42,7 +42,7 @@ public class CashTransaction implements Serializable {
 
     // 거래 유형 (CHARGE: 충전, USE: 사용, REFUND: 환불, EARN: 적립, CANCEL: 취소)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "transaction_type", nullable = false, length = 20)
     private TransactionType type;
 
     // 거래 금액 (양수: 입금, 음수: 출금)

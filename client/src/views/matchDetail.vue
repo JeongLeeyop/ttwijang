@@ -462,7 +462,14 @@
       <!-- Apply Button (Fixed Bottom) -->
       <div class="apply-button-wrapper">
         <el-button
-          v-if="canApply"
+          v-if="alreadyApplied"
+          class="apply-button apply-button--applied"
+          disabled
+        >
+          신청 완료
+        </el-button>
+        <el-button
+          v-else-if="canApply"
           type="primary"
           class="apply-button"
           :loading="isApplying"
@@ -759,7 +766,12 @@ export default class MatchDetail extends Vue {
     return false;
   }
 
+  get alreadyApplied(): boolean {
+    return this.detailData?.alreadyApplied === true;
+  }
+
   get canApply(): boolean {
+    if (this.alreadyApplied) return false;
     return this.detailType !== 'league' || this.detailData?.status === 'SCHEDULED';
   }
 
@@ -1497,5 +1509,16 @@ export default class MatchDetail extends Vue {
 .apply-button--closed:hover {
   background: #ccc !important;
   border-color: #ccc !important;
+}
+
+.apply-button--applied {
+  background: #67c23a !important;
+  border-color: #67c23a !important;
+  color: #fff !important;
+}
+
+.apply-button--applied:hover {
+  background: #67c23a !important;
+  border-color: #67c23a !important;
 }
 </style>

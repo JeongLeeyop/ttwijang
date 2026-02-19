@@ -200,6 +200,9 @@ public class GuestDto {
         @Schema(description = "참여자 명단")
         private List<ParticipantInfo> participants;
 
+        @Schema(description = "이미 신청했는지 여부")
+        private Boolean alreadyApplied;
+
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
     }

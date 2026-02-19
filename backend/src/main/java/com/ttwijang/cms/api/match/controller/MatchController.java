@@ -45,8 +45,10 @@ public class MatchController {
     @Operation(summary = "매치 상세 조회")
     @GetMapping("/{uid}")
     public ResponseEntity<MatchDto.DetailResponse> getMatchDetail(
-            @Parameter(description = "매치 UID") @PathVariable String uid) {
-        return ResponseEntity.ok(matchService.getMatchDetail(uid));
+            @Parameter(description = "매치 UID") @PathVariable String uid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        String userUid = userDetails != null ? userDetails.getUser().getUid() : null;
+        return ResponseEntity.ok(matchService.getMatchDetail(uid, userUid));
     }
 
     @Operation(summary = "매치 목록 조회")

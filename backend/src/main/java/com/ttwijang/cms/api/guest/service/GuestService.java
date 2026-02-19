@@ -84,9 +84,24 @@ public class GuestService {
      */
     @Transactional(readOnly = true)
     public GuestDto.DetailResponse getRecruitmentDetail(String uid) {
+        return getRecruitmentDetail(uid, null);
+    }
+
+    /**
+     * 게스트 모집 상세 조회 (로그인 사용자 신청 여부 포함)
+     */
+    @Transactional(readOnly = true)
+    public GuestDto.DetailResponse getRecruitmentDetail(String uid, String userUid) {
         GuestRecruitment recruitment = recruitmentRepository.findByUid(uid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게스트 모집입니다."));
-        return toDetailResponse(recruitment);
+        GuestDto.DetailResponse response = toDetailResponse(recruitment);
+        if (userUid != null && !userUid.isEmpty()) {
+            response.setAlreadyApplied(
+                    applicationRepository.existsByRecruitmentUidAndUserUid(recruitment.getUid(), userUid));
+        } else {
+            response.setAlreadyApplied(false);
+        }
+        return response;
     }
 
     /**
@@ -208,9 +223,11 @@ public class GuestService {
         // 참가비가 있으면 캐시 차감
         int fee = recruitment.getFee() != null ? recruitment.getFee() : 0;
         if (fee > 0) {
+            Team recruitTeam = teamRepository.findByUid(recruitment.getTeamUid()).orElse(null);
+            String recruitTeamName = recruitTeam != null ? recruitTeam.getName() : "";
             CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
                     .amount(fee)
-                    .description("게스트 참가비 (" + recruitment.getStadiumName() + ")")
+                    .description("게스트 참가비 (" + recruitTeamName + " / " + recruitment.getStadiumName() + ")")
                     .referenceUid(recruitment.getUid())
                     .build();
             cashService.use(useRequest, userUid);

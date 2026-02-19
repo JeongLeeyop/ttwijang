@@ -92,9 +92,24 @@ public class MatchService {
      */
     @Transactional(readOnly = true)
     public MatchDto.DetailResponse getMatchDetail(String uid) {
+        return getMatchDetail(uid, null);
+    }
+
+    /**
+     * 매치 상세 조회 (로그인 사용자 신청 여부 포함)
+     */
+    @Transactional(readOnly = true)
+    public MatchDto.DetailResponse getMatchDetail(String uid, String userUid) {
         FutsalMatch match = matchRepository.findByUid(uid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
-        return toDetailResponse(match);
+        MatchDto.DetailResponse response = toDetailResponse(match);
+        if (userUid != null && !userUid.isEmpty()) {
+            response.setAlreadyApplied(
+                    matchApplicationRepository.existsByMatchUidAndApplicantUserUid(match.getUid(), userUid));
+        } else {
+            response.setAlreadyApplied(false);
+        }
+        return response;
     }
 
     /**
@@ -252,7 +267,7 @@ public class MatchService {
         if (fee > 0) {
             CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
                     .amount(fee)
-                    .description("매치 참가비 (" + match.getStadiumName() + ")")
+                    .description("매치 참가비 (" + applicantTeam.getName() + " / " + match.getStadiumName() + ")")
                     .referenceUid(match.getUid())
                     .build();
             cashService.use(useRequest, userUid);
