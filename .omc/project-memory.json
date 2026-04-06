@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775467318241,
+  "projectRoot": "/Users/devyop/git/ttwijang",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "attached-file": {
+      "path": "attached-file",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775467318220,
+      "keyFiles": []
+    },
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 19,
+      "lastAccessed": 1775467318220,
+      "keyFiles": [
+        "README.md",
+        "SWAGGER_GUIDE.md",
+        "add_create_date_column.sql",
+        "check_collation.sql",
+        "check_flyway_status.sql"
+      ]
+    },
+    "client": {
+      "path": "client",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1775467318220,
+      "keyFiles": [
+        "README.md",
+        "babel.config.js",
+        "jsconfig.json",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "logs": {
+      "path": "logs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775467318221,
+      "keyFiles": [
+        "warosalad.log"
+      ]
+    },
+    "client/node_modules": {
+      "path": "client/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1775467318222,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

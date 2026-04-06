@@ -30,6 +30,8 @@
       class="league-section"
       :class="{ 'expanded': isExpanded, 'dragging': isDragging }"
       :style="sectionStyle"
+      @touchstart="onDragStart"
+      @mousedown="onDragStart"
     >
       <div
         class="league-section-handle"
@@ -630,6 +632,8 @@ export default class TeamPage extends Vue {
   private isExpanded = false
 
   private isDragging = false
+
+  private fromHandle = false
 
   private dragStartY = 0
 
@@ -1443,13 +1447,18 @@ export default class TeamPage extends Vue {
 
   // ===== Drag Handlers =====
   private onDragStart(e: TouchEvent | MouseEvent): void {
+    this.fromHandle = !!(e.target as HTMLElement).closest('.league-section-handle');
     this.isDragging = true;
     this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const el = (e.target as HTMLElement).closest('.league-section') as HTMLElement;
     if (el) {
       this.dragStartTop = el.getBoundingClientRect().top;
     }
-    document.addEventListener('touchmove', this.onDragMove, { passive: false });
+    if (this.fromHandle) {
+      document.addEventListener('touchmove', this.onDragMove, { passive: false });
+    } else {
+      document.addEventListener('touchmove', this.onDragMove);
+    }
     document.addEventListener('mousemove', this.onDragMove);
     document.addEventListener('touchend', this.onDragEnd);
     document.addEventListener('mouseup', this.onDragEnd);
@@ -1457,7 +1466,7 @@ export default class TeamPage extends Vue {
 
   private onDragMove(e: TouchEvent | MouseEvent): void {
     if (!this.isDragging) return;
-    if ('cancelable' in e && e.cancelable) e.preventDefault();
+    if (this.fromHandle && 'cancelable' in e && e.cancelable) e.preventDefault();
     const clientY = 'touches' in e
       ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
     const delta = clientY - this.dragStartY;
