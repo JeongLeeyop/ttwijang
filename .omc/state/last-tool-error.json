@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"find /Users/devyop/git/ttwijang/src -type d | head -30 && echo \\\"---\\\" && ls /Users/devyop/git/ttwijang/src/\",\"description\":\"Find backend src structure\"}",
+  "error": "Exit code 1\nfind: /Users/devyop/git/ttwijang/src: No such file or directory\n---\nls: /Users/devyop/git/ttwijang/src/: No such file or directory",
+  "timestamp": "2026-04-06T09:42:20.123Z",
+  "retry_count": 1
+}

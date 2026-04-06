@@ -82,6 +82,31 @@
       "keyFiles": []
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": ".claude/CLAUDE.md",
+      "accessCount": 3,
+      "lastAccessed": 1775468610471,
+      "type": "file"
+    },
+    {
+      "path": ".claude/rules/validation.md",
+      "accessCount": 2,
+      "lastAccessed": 1775468646598,
+      "type": "file"
+    },
+    {
+      "path": ".claude/rules/backend.md",
+      "accessCount": 2,
+      "lastAccessed": 1775468692629,
+      "type": "file"
+    },
+    {
+      "path": ".claude/rules/frontend.md",
+      "accessCount": 2,
+      "lastAccessed": 1775468724377,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
