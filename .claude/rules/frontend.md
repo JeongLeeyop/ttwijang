@@ -98,9 +98,3 @@ export default class UserModule extends VuexModule implements UserState {
 Axios interceptor에서 status별 `Message.error()` 처리 (400/401/403/404/500).
 컴포넌트는 `isLoading`, `error` 상태 관리 + try/catch/finally 패턴 사용.
 전역: `Vue.config.errorHandler` + `window.addEventListener('unhandledrejection', ...)` 설정.
-
-## 페이지 디자인 참고
-
-- `.github/img/` — 페이지 디자인 스크린샷
-- `.github/NotebookLM Mind Map.png` — 전체 구조 마인드맵
-- `.github/request.md`, `request2.md`, `request3.md` — 요구사항 (관점별, 비교·통합하여 작업)

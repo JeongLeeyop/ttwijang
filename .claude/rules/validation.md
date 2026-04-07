@@ -57,7 +57,7 @@ const params: any = {
 | 오류 | 원인 | 해결 |
 |------|------|------|
 | `Expected a line break after this opening brace` | 객체 줄바꿈 누락 | `{` 뒤 줄바꿈 추가 |
-| `Trailing spaces not allowed` | 줄 끝 공백 | `npm run lint:fix` |
+| `Trailing spaces not allowed` | 줄 끝 공백 | `npm run lint -- --fix` |
 | `Expected linebreaks to be 'LF' but found 'CRLF'` | 줄바꿈 불일치 | Git/에디터 설정 변경 |
 | `Missing trailing comma` | import 마지막 쉼표 누락 | 쉼표 추가 |
 
@@ -80,8 +80,8 @@ const params: any = {
 ## 명령어
 
 ```bash
-npm run lint:fix   # 자동 수정
-npm run lint       # 검사
+npm run lint -- --fix   # 자동 수정
+npm run lint            # 검사
 ```
 
 ## VSCode 권장 설정

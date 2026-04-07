@@ -21,7 +21,6 @@
 ├── client/          # Vue 2 프론트엔드
 ├── src/             # Spring Boot 백엔드
 ├── rules/           # 코딩 규칙 (frontend / backend / validation)
-└── .github/         # 참고 문서 (요구사항, 디자인 스크린샷, DB 마이그레이션 가이드)
 ```
 
 ---
@@ -31,7 +30,6 @@
 - **요구사항**: `.github/request.md`, `request2.md`, `request3.md` — 관점별로 작성됨, 비교하며 통합
 - **디자인 시안**: `.github/img/` — 페이지별 스크린샷
 - **마인드맵**: `.github/NotebookLM Mind Map.png`
-- **DB 마이그레이션**: `.github/database-migration-guide.md`
 
 ---
 
@@ -46,7 +44,6 @@
 ### 백엔드
 - Spring Boot 2.5.4 / Java 11 / MySQL / JPA + MyBatis + QueryDSL
 - JWT + OAuth2 + Spring Security 인증 구조
-- DB 마이그레이션 스크립트: `V{버전번호}__{설명}.sql` 네이밍
 
 ### 코드 품질
 - ESLint 자동 수정: `npm run lint:fix` → `npm run lint` 순으로 확인
