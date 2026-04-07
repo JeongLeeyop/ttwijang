@@ -58,7 +58,7 @@
           <div
             v-for="rt in recruitingTeams"
             :key="rt.uid"
-            class="recruit-mini-card"
+             class="recruit-mini-card"
             @click="$router.push(`/team-recruit-detail/${rt.uid}`)"
           >
             <div class="recruit-mini-logo">

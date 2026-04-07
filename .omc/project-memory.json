@@ -90,6 +90,18 @@
       "type": "file"
     },
     {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service/TeamService.java",
+      "accessCount": 3,
+      "lastAccessed": 1775491041699,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
+      "accessCount": 3,
+      "lastAccessed": 1775491171307,
+      "type": "file"
+    },
+    {
       "path": ".claude/rules/validation.md",
       "accessCount": 2,
       "lastAccessed": 1775468646598,
@@ -105,6 +117,174 @@
       "path": ".claude/rules/frontend.md",
       "accessCount": 2,
       "lastAccessed": 1775468724377,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 2,
+      "lastAccessed": 1775490800647,
+      "type": "directory"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/FutsalMatch.java",
+      "accessCount": 2,
+      "lastAccessed": 1775491054488,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/teamInfo.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775491128452,
+      "type": "file"
+    },
+    {
+      "path": "backend/pom.xml",
+      "accessCount": 1,
+      "lastAccessed": 1775490847539,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V001__Create_Team_Tables.sql",
+      "accessCount": 1,
+      "lastAccessed": 1775490855490,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V006__Create_User_And_Auth_Tables.sql",
+      "accessCount": 1,
+      "lastAccessed": 1775490874697,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/register.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775490938404,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/findId.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775490938458,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/emailLogin.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775490938510,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/Team.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490969779,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490969833,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490969886,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/GuestRecruitment.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490969944,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/UserService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490975782,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/service/GuestService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490975834,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service",
+      "accessCount": 1,
+      "lastAccessed": 1775490982926,
+      "type": "directory"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team",
+      "accessCount": 1,
+      "lastAccessed": 1775490982981,
+      "type": "directory"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league",
+      "accessCount": 1,
+      "lastAccessed": 1775490983033,
+      "type": "directory"
+    },
+    {
+      "path": "client/src/views",
+      "accessCount": 1,
+      "lastAccessed": 1775490988389,
+      "type": "directory"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/controller/TeamController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775490988442,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/createTeam.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491041802,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity",
+      "accessCount": 1,
+      "lastAccessed": 1775491054435,
+      "type": "directory"
+    },
+    {
+      "path": "client/src/views/teamLocation.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491104201,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/teamComplete.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491121970,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/uploadTeamMark.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491122022,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/home.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491166411,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/cashCharge.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491171253,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/myPage.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775491171360,
       "type": "file"
     }
   ],
