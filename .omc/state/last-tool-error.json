@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/devyop/git/ttwijang/backend/src/main/java/com/ttwijang/cms/api/notification/service\"}",
+  "error": "EISDIR: illegal operation on a directory, read '/Users/devyop/git/ttwijang/backend/src/main/java/com/ttwijang/cms/api/notification/service'",
+  "timestamp": "2026-04-09T18:44:49.342Z",
+  "retry_count": 4
+}

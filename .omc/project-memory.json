@@ -85,20 +85,20 @@
   "hotPaths": [
     {
       "path": ".claude/CLAUDE.md",
-      "accessCount": 4,
-      "lastAccessed": 1775759810623,
+      "accessCount": 7,
+      "lastAccessed": 1775760227667,
       "type": "file"
     },
     {
       "path": "backend/src/main/java/com/ttwijang/cms/api/team/service/TeamService.java",
-      "accessCount": 3,
-      "lastAccessed": 1775491041699,
+      "accessCount": 4,
+      "lastAccessed": 1775759930477,
       "type": "file"
     },
     {
       "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
-      "accessCount": 3,
-      "lastAccessed": 1775491171307,
+      "accessCount": 4,
+      "lastAccessed": 1775759931186,
       "type": "file"
     },
     {
@@ -135,6 +135,18 @@
       "path": "client/src/views/teamInfo.vue",
       "accessCount": 2,
       "lastAccessed": 1775491128452,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/UserService.java",
+      "accessCount": 2,
+      "lastAccessed": 1775760296924,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/service/GuestService.java",
+      "accessCount": 2,
+      "lastAccessed": 1775760298582,
       "type": "file"
     },
     {
@@ -195,18 +207,6 @@
       "path": "backend/src/main/java/com/ttwijang/cms/entity/GuestRecruitment.java",
       "accessCount": 1,
       "lastAccessed": 1775490969944,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/UserService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490975782,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/service/GuestService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490975834,
       "type": "file"
     },
     {
@@ -285,6 +285,96 @@
       "path": "client/src/views/myPage.vue",
       "accessCount": 1,
       "lastAccessed": 1775491171360,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/match/service/MatchService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775759931785,
+      "type": "file"
+    },
+    {
+      "path": "backend/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775759995108,
+      "type": "file"
+    },
+    {
+      "path": "client/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775759995446,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760013698,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760027904,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/match/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760046577,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/service/PaymentService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775760297552,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/notification/service/NotificationService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775760298342,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/service/TossPaymentService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775760310838,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/ClientUserService.java",
+      "accessCount": 1,
+      "lastAccessed": 1775760311074,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760342797,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760353194,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760370257,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/notification/CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760383080,
+      "type": "file"
+    },
+    {
+      "path": ".claude/request.md",
+      "accessCount": 1,
+      "lastAccessed": 1775760477510,
       "type": "file"
     }
   ],
