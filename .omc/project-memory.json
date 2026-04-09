@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775467318241,
+  "lastScanned": 1775759062339,
   "projectRoot": "/Users/devyop/git/ttwijang",
   "techStack": {
     "languages": [],
@@ -36,27 +36,27 @@
       "path": "attached-file",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775467318220,
+      "lastAccessed": 1775759062326,
       "keyFiles": []
     },
     "backend": {
       "path": "backend",
       "purpose": null,
-      "fileCount": 19,
-      "lastAccessed": 1775467318220,
+      "fileCount": 10,
+      "lastAccessed": 1775759062326,
       "keyFiles": [
         "README.md",
         "SWAGGER_GUIDE.md",
-        "add_create_date_column.sql",
-        "check_collation.sql",
-        "check_flyway_status.sql"
+        "mvnw",
+        "mvnw.cmd",
+        "pom.xml"
       ]
     },
     "client": {
       "path": "client",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1775467318220,
+      "lastAccessed": 1775759062327,
       "keyFiles": [
         "README.md",
         "babel.config.js",
@@ -69,7 +69,7 @@
       "path": "logs",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775467318221,
+      "lastAccessed": 1775759062327,
       "keyFiles": [
         "warosalad.log"
       ]
@@ -78,15 +78,15 @@
       "path": "client/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1775467318222,
+      "lastAccessed": 1775759062329,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
       "path": ".claude/CLAUDE.md",
-      "accessCount": 3,
-      "lastAccessed": 1775468610471,
+      "accessCount": 4,
+      "lastAccessed": 1775759810623,
       "type": "file"
     },
     {
@@ -102,21 +102,21 @@
       "type": "file"
     },
     {
-      "path": ".claude/rules/validation.md",
-      "accessCount": 2,
-      "lastAccessed": 1775468646598,
-      "type": "file"
-    },
-    {
       "path": ".claude/rules/backend.md",
-      "accessCount": 2,
-      "lastAccessed": 1775468692629,
+      "accessCount": 3,
+      "lastAccessed": 1775759815948,
       "type": "file"
     },
     {
       "path": ".claude/rules/frontend.md",
-      "accessCount": 2,
-      "lastAccessed": 1775468724377,
+      "accessCount": 3,
+      "lastAccessed": 1775759924583,
+      "type": "file"
+    },
+    {
+      "path": ".claude/rules/validation.md",
+      "accessCount": 3,
+      "lastAccessed": 1775759925091,
       "type": "file"
     },
     {
