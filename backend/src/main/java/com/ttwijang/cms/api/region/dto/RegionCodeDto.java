@@ -21,5 +21,6 @@ public class RegionCodeDto {
         private String parentCode;
         private Integer level;
         private Integer sortOrder;
+        private Boolean enabled;
     }
 }

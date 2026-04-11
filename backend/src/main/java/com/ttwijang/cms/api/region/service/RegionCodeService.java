@@ -67,6 +67,7 @@ public class RegionCodeService {
                 .parentCode(regionCode.getParentCode())
                 .level(regionCode.getLevel())
                 .sortOrder(regionCode.getSortOrder())
+                .enabled(regionCode.getEnabled())
                 .build();
     }
 }

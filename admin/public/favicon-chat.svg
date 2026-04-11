@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#073DFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0530CC;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadow for depth -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+  
+  <!-- Chat bubble icon representing community communication -->
+  <g transform="translate(256, 256)" filter="url(#shadow)">
+    <!-- Main chat bubble -->
+    <g transform="translate(-30, -35)">
+      <rect x="-100" y="-80" width="200" height="140" rx="30" fill="white"/>
+      <!-- Tail of chat bubble -->
+      <path d="M -80 60 L -90 85 L -65 65 Z" fill="white"/>
+      
+      <!-- Three dots inside bubble (typing indicator style) -->
+      <circle cx="-50" cy="-10" r="15" fill="#073DFF"/>
+      <circle cx="0" cy="-10" r="15" fill="#073DFF"/>
+      <circle cx="50" cy="-10" r="15" fill="#073DFF"/>
+    </g>
+    
+    <!-- Secondary smaller bubble (overlapping) -->
+    <g transform="translate(50, 40)">
+      <rect x="-60" y="-50" width="120" height="90" rx="20" fill="white" opacity="0.9"/>
+      <!-- Tail -->
+      <path d="M 40 40 L 50 60 L 45 42 Z" fill="white" opacity="0.9"/>
+    </g>
+  </g>
+</svg>

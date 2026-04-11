@@ -150,6 +150,36 @@
       "type": "file"
     },
     {
+      "path": ".claude/request.md",
+      "accessCount": 2,
+      "lastAccessed": 1775766161416,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/controller/TeamController.java",
+      "accessCount": 2,
+      "lastAccessed": 1775766188758,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
+      "accessCount": 2,
+      "lastAccessed": 1775766194301,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/Team.java",
+      "accessCount": 2,
+      "lastAccessed": 1775766194441,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
+      "accessCount": 2,
+      "lastAccessed": 1775766195140,
+      "type": "file"
+    },
+    {
       "path": "backend/pom.xml",
       "accessCount": 1,
       "lastAccessed": 1775490847539,
@@ -186,24 +216,6 @@
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/Team.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490969779,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490969833,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490969886,
-      "type": "file"
-    },
-    {
       "path": "backend/src/main/java/com/ttwijang/cms/entity/GuestRecruitment.java",
       "accessCount": 1,
       "lastAccessed": 1775490969944,
@@ -232,12 +244,6 @@
       "accessCount": 1,
       "lastAccessed": 1775490988389,
       "type": "directory"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/controller/TeamController.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490988442,
-      "type": "file"
     },
     {
       "path": "client/src/views/createTeam.vue",
@@ -372,9 +378,9 @@
       "type": "file"
     },
     {
-      "path": ".claude/request.md",
+      "path": "admin/package.json",
       "accessCount": 1,
-      "lastAccessed": 1775760477510,
+      "lastAccessed": 1775766176962,
       "type": "file"
     }
   ],

@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775878684670,
+  "projectRoot": "/Users/devyop/git/ttwijang/admin",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.17.3",
+        "category": "backend"
+      },
+      {
+        "name": "vue",
+        "version": "2.6.11",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run start",
+    "scripts": {
+      "serve": "cross-env vue-cli-service serve",
+      "build": "cross-env vue-cli-service build",
+      "lint": "vue-cli-service lint",
+      "start": "cross-env NODE_ENV=production node server/index.js"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1775878684655,
+      "keyFiles": [
+        "favicon-chat.svg",
+        "favicon.ico",
+        "index.html"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1775878684656,
+      "keyFiles": [
+        "favicon-chat.svg",
+        "favicon.ico",
+        "index.html"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775878684659,
+      "keyFiles": [
+        "index.js"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 5,
+      "lastAccessed": 1775878684659,
+      "keyFiles": [
+        "App.vue",
+        "main.ts",
+        "permission.ts",
+        "shims-tsx.d.ts",
+        "shims-vue.d.ts"
+      ]
+    },
+    "src/api": {
+      "path": "src/api",
+      "purpose": "API routes",
+      "fileCount": 10,
+      "lastAccessed": 1775878684659,
+      "keyFiles": [
+        "attached-file.ts",
+        "bank.ts",
+        "banner.ts"
+      ]
+    },
+    "src/assets": {
+      "path": "src/assets",
+      "purpose": "Static assets",
+      "fileCount": 1,
+      "lastAccessed": 1775878684659,
+      "keyFiles": [
+        "logo.png"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 2,
+      "lastAccessed": 1775878684660,
+      "keyFiles": [
+        "HelloI18n.vue",
+        "HelloWorld.vue"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/views/region/index.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775878688058,
+      "type": "file"
+    },
+    {
+      "path": "src/api/region.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775878691926,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

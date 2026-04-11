@@ -1,0 +1,101 @@
+.comments-manage, .post-manage, .board-manage, .banner-manage, .contents-manage, .category-manage, .lecture-manage, .reserve-service-manage, .popup-manage {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    .only-value {
+      width: 300px;
+    }
+  }
+  .total-elements {
+    text-align: left;
+    margin-bottom: 10px;
+    span {
+      font-weight: bold;
+      color: blue;
+    }
+  }
+  &__tool {
+    .tool-btn {
+      padding: 10px 20px;
+      background: #615f72;
+      border-radius: 10px;
+      color: #fff;
+      &:hover {
+        background: #6a6874;
+      }
+    }
+  }
+  &__table {
+    width: 100%;
+    min-width: 1000px;
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+    border-spacing: 0;
+    font-size: 14px;
+    .table-empty {
+      padding: 20px;
+    }
+    thead > tr > th {
+      color: #615f72;
+      font-weight: 600;
+      border: 0px;
+      border-bottom: 1px solid #e6e6e6;
+      padding: 20px 0;
+    }
+    tbody tr {
+      &:nth-child(2n) {
+        background: #faf9f9;
+      }
+      td {
+        padding: 10px 70px;
+      }
+    }
+    button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+  }
+  .reserve-manage-table { .el-table__header { width: 100%!important; } tbody tr:nth-child(2n) { background-color: #faf9f9; } }
+  .el-table {
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+  }
+  .cell { text-align: center; }
+}
+.reserve-manage__table { min-width: 100%; }
+.comments-table__comments:hover { color: blue; text-decoration: underline; }
+
+// writer-info
+.writer-info {
+  &__inner { border-top: 1px solid rgb(211, 211, 211); border-bottom: 1px solid rgb(211, 211, 211); padding: 10px 0; }
+  &__item { display: flex; padding: 15px; }
+  &__head { width: 90px; margin-right: 40px; text-align: end; font-weight: 700; color: #615f72; }
+  &__body { color: gray; }
+  &__button { text-align: right;  }
+  button { padding: 5px 15px; margin: 10px; border-radius: 5px; }
+  .bgcolor--purple { background-color: #615f72; color: #fff; }
+}
+
+.board-manage {
+  @media all and (min-width:768px) and (max-width:992px) {
+    .list-search-container {
+      width: 400px;
+    }
+  }
+  @media all and (max-width:767.9px) {
+    .list-search-container {
+      width: 300px;
+    }
+  }
+}
+
+.comments-manage {
+  @media all and (max-width:992px) {
+    .list-search-container {
+      width: 100%;
+    }
+  }
+}

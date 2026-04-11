@@ -1,0 +1,389 @@
+<template>
+  <div class="user-wrap">
+    <div class="user-title">
+      <div class="tl__box">
+        <p class="tl">리그 관리</p>
+        <p class="usernumber">전체 {{ leagueList.length }}개 리그</p>
+      </div>
+      <div class="user__tab">
+        <div class="user__subtab">
+          <el-select v-model="filterSido" clearable placeholder="시/도" style="width:120px" @change="onFilterSidoChange">
+            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.code" />
+          </el-select>
+          <el-select v-model="filterSigungu" clearable placeholder="시/군/구" style="width:130px" @change="fetchList">
+            <el-option v-for="r in filterSigunguList" :key="r.code" :label="r.name" :value="r.code" />
+          </el-select>
+        </div>
+        <button class="tool-btn" @click="openLeagueForm()">리그 생성 +</button>
+      </div>
+    </div>
+
+    <el-table
+      :data="leagueList"
+      v-loading="loading"
+      :header-cell-style="{ background: '#0f2027', color: '#fff', padding: '8px 0' }"
+      border
+    >
+      <el-table-column label="리그명" prop="name" min-width="200" />
+      <el-table-column label="지역" width="160">
+        <template slot-scope="scope">
+          {{ scope.row.regionSido }} {{ scope.row.regionSigungu }}
+        </template>
+      </el-table-column>
+      <el-table-column label="시즌" prop="season" width="120" />
+      <el-table-column label="기간" min-width="200">
+        <template slot-scope="scope">
+          {{ scope.row.startDate | parseDate }} ~ {{ scope.row.endDate | parseDate }}
+        </template>
+      </el-table-column>
+      <el-table-column label="팀 수" width="90" align="center">
+        <template slot-scope="scope">
+          {{ scope.row.currentTeams }} / {{ scope.row.maxTeams }}
+        </template>
+      </el-table-column>
+      <el-table-column label="상태" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="statusType(scope.row.status)" size="small">
+            {{ statusLabel(scope.row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="관리" width="320">
+        <template slot-scope="scope">
+          <el-button size="mini" @click="openLeagueForm(scope.row)">수정</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">삭제</el-button>
+          <el-button size="mini" type="success" @click="goTeamAssign(scope.row)">팀 배정</el-button>
+          <el-button size="mini" type="warning" @click="openMatchForm(scope.row)">경기 생성</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 리그 생성/수정 다이얼로그 -->
+    <el-dialog
+      :title="leagueForm.uid ? '리그 수정' : '리그 생성'"
+      :visible.sync="leagueDialogVisible"
+      width="600px"
+      @close="resetLeagueForm"
+    >
+      <el-form ref="leagueFormRef" :model="leagueForm" :rules="leagueRules" label-width="130px">
+        <el-form-item label="리그명" prop="name">
+          <el-input v-model="leagueForm.name" placeholder="예: 2025 진주 A리그" />
+        </el-form-item>
+        <el-form-item label="설명">
+          <el-input v-model="leagueForm.description" type="textarea" :rows="2" />
+        </el-form-item>
+        <el-form-item label="시즌" prop="season">
+          <el-input v-model="leagueForm.season" placeholder="예: 2025-2026" />
+        </el-form-item>
+        <el-form-item label="기간" prop="startDate">
+          <el-date-picker
+            v-model="leagueDateRange"
+            type="daterange"
+            range-separator="~"
+            start-placeholder="시작일"
+            end-placeholder="종료일"
+            value-format="yyyy-MM-dd"
+            style="width:100%"
+            @change="onLeagueDateChange"
+          />
+        </el-form-item>
+        <el-form-item label="지역 (시/도)" prop="regionSido">
+          <el-select v-model="leagueForm.regionSido" style="width:100%" @change="onLeagueSidoChange">
+            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="지역 (시/군/구)">
+          <el-select v-model="leagueForm.regionSigungu" clearable placeholder="선택" style="width:100%">
+            <el-option v-for="r in leagueSigunguList" :key="r.code" :label="r.name" :value="r.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="최대 팀 수" prop="maxTeams">
+          <el-input-number v-model="leagueForm.maxTeams" :min="2" :max="32" />
+        </el-form-item>
+        <el-form-item label="규칙">
+          <el-input v-model="leagueForm.rules" type="textarea" :rows="3" placeholder="리그 규칙을 입력하세요" />
+        </el-form-item>
+        <el-form-item v-if="leagueForm.uid" label="상태">
+          <el-select v-model="leagueForm.status" style="width:100%">
+            <el-option label="모집중" value="RECRUITING" />
+            <el-option label="진행중" value="IN_PROGRESS" />
+            <el-option label="완료" value="COMPLETED" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="leagueDialogVisible = false">취소</el-button>
+        <el-button type="primary" :loading="saving" @click="handleLeagueSave">저장</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 경기 생성 다이얼로그 -->
+    <el-dialog
+      :title="`경기 생성 - ${selectedLeague ? selectedLeague.name : ''}`"
+      :visible.sync="matchDialogVisible"
+      width="560px"
+      @close="resetMatchForm"
+    >
+      <el-form ref="matchFormRef" :model="matchForm" :rules="matchRules" label-width="120px">
+        <el-form-item label="홈팀" prop="homeTeamUid">
+          <el-select v-model="matchForm.homeTeamUid" placeholder="홈팀 선택" style="width:100%">
+            <el-option
+              v-for="t in selectedLeagueTeams"
+              :key="t.uid || t.teamUid"
+              :label="t.name || t.teamName"
+              :value="t.uid || t.teamUid"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="원정팀" prop="awayTeamUid">
+          <el-select v-model="matchForm.awayTeamUid" placeholder="원정팀 선택" style="width:100%">
+            <el-option
+              v-for="t in selectedLeagueTeams"
+              :key="t.uid || t.teamUid"
+              :label="t.name || t.teamName"
+              :value="t.uid || t.teamUid"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="경기 일시" prop="matchDate">
+          <el-date-picker
+            v-model="matchForm.matchDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="날짜 선택"
+            style="width:100%"
+          />
+        </el-form-item>
+        <el-form-item label="시작 시간" prop="matchTime">
+          <el-time-picker
+            v-model="matchForm.matchTime"
+            value-format="HH:mm"
+            placeholder="시간 선택"
+            style="width:100%"
+          />
+        </el-form-item>
+        <el-form-item label="소요 시간(분)" prop="durationMinutes">
+          <el-select v-model="matchForm.durationMinutes" style="width:100%">
+            <el-option label="60분" :value="60" />
+            <el-option label="90분" :value="90" />
+            <el-option label="120분" :value="120" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="회차" prop="round">
+          <el-input-number v-model="matchForm.round" :min="1" />
+        </el-form-item>
+        <el-form-item label="구장명" prop="stadiumName">
+          <el-input v-model="matchForm.stadiumName" />
+        </el-form-item>
+        <el-form-item label="구장 주소">
+          <el-input v-model="matchForm.stadiumAddress" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="matchDialogVisible = false">취소</el-button>
+        <el-button type="primary" :loading="savingMatch" @click="handleMatchSave">생성</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import {
+  getLeagueList, createLeague, updateLeague, deleteLeague,
+  getLeagueTeams, createLeagueMatch,
+} from '@/api/league';
+import { getSidoList, getSigunguList } from '@/api/region';
+import { ElForm } from 'element-ui/types/form';
+
+@Component({ name: 'LeagueList' })
+export default class extends Vue {
+  private loading = false;
+  private saving = false;
+  private savingMatch = false;
+  private leagueList: any[] = [];
+  private sidoList: any[] = [];
+  private filterSido = '';
+  private filterSigungu = '';
+  private filterSigunguList: any[] = [];
+
+  // 리그 폼
+  private leagueDialogVisible = false;
+  private leagueDateRange: string[] = [];
+  private leagueSigunguList: any[] = [];
+  private leagueForm: any = {
+    uid: null, name: '', description: '', season: '', startDate: '', endDate: '',
+    regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
+  };
+  private leagueRules = {
+    name: [{ required: true, message: '리그명을 입력하세요', trigger: 'blur' }],
+    season: [{ required: true, message: '시즌을 입력하세요', trigger: 'blur' }],
+    regionSido: [{ required: true, message: '지역을 선택하세요', trigger: 'change' }],
+    startDate: [{ required: true, message: '기간을 선택하세요', trigger: 'change' }],
+    maxTeams: [{ required: true, message: '최대 팀 수를 입력하세요', trigger: 'blur' }],
+  };
+
+  // 경기 폼
+  private matchDialogVisible = false;
+  private selectedLeague: any = null;
+  private selectedLeagueTeams: any[] = [];
+  private matchForm: any = {
+    leagueUid: '', homeTeamUid: '', awayTeamUid: '',
+    matchDate: '', matchTime: '', durationMinutes: 90, round: 1,
+    stadiumName: '', stadiumAddress: '',
+  };
+  private matchRules = {
+    homeTeamUid: [{ required: true, message: '홈팀을 선택하세요', trigger: 'change' }],
+    awayTeamUid: [{ required: true, message: '원정팀을 선택하세요', trigger: 'change' }],
+    matchDate: [{ required: true, message: '날짜를 선택하세요', trigger: 'change' }],
+    matchTime: [{ required: true, message: '시간을 선택하세요', trigger: 'change' }],
+    stadiumName: [{ required: true, message: '구장명을 입력하세요', trigger: 'blur' }],
+    round: [{ required: true, message: '회차를 입력하세요', trigger: 'blur' }],
+  };
+
+  statusType(s: string) {
+    return ({ RECRUITING: 'success', IN_PROGRESS: 'warning', COMPLETED: 'info' } as any)[s] || 'info';
+  }
+
+  statusLabel(s: string) {
+    return ({ RECRUITING: '모집중', IN_PROGRESS: '진행중', COMPLETED: '완료' } as any)[s] || s;
+  }
+
+  async created() {
+    const [, sidoRes] = await Promise.all([this.fetchList(), getSidoList()]);
+    this.sidoList = sidoRes.data || [];
+  }
+
+  async fetchList() {
+    this.loading = true;
+    try {
+      const params: any = {};
+      if (this.filterSido) params.regionSido = this.filterSido;
+      if (this.filterSigungu) params.regionSigungu = this.filterSigungu;
+      const res = await getLeagueList(params);
+      this.leagueList = res.data?.content || res.data || [];
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async onFilterSidoChange(code: string) {
+    this.filterSigungu = '';
+    this.filterSigunguList = [];
+    if (code) {
+      const res = await getSigunguList(code);
+      this.filterSigunguList = res.data || [];
+    }
+    this.fetchList();
+  }
+
+  // 리그 폼
+  openLeagueForm(row?: any) {
+    if (row) {
+      this.leagueForm = { ...row };
+      this.leagueDateRange = [row.startDate, row.endDate];
+      if (row.regionSido) this.onLeagueSidoChange(row.regionSido);
+    } else {
+      this.resetLeagueForm();
+    }
+    this.leagueDialogVisible = true;
+  }
+
+  resetLeagueForm() {
+    this.leagueForm = {
+      uid: null, name: '', description: '', season: '', startDate: '', endDate: '',
+      regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
+    };
+    this.leagueDateRange = [];
+    this.leagueSigunguList = [];
+  }
+
+  onLeagueDateChange(val: string[]) {
+    if (val) { this.leagueForm.startDate = val[0]; this.leagueForm.endDate = val[1]; }
+  }
+
+  async onLeagueSidoChange(code: string) {
+    this.leagueForm.regionSigungu = '';
+    this.leagueSigunguList = [];
+    if (code) {
+      const res = await getSigunguList(code);
+      this.leagueSigunguList = res.data || [];
+    }
+  }
+
+  handleLeagueSave() {
+    (this.$refs.leagueFormRef as ElForm).validate(async (valid) => {
+      if (!valid) return;
+      this.saving = true;
+      try {
+        if (this.leagueForm.uid) {
+          await updateLeague(this.leagueForm.uid, this.leagueForm);
+          this.$message.success('수정되었습니다.');
+        } else {
+          await createLeague(this.leagueForm);
+          this.$message.success('리그가 생성되었습니다.');
+        }
+        this.leagueDialogVisible = false;
+        await this.fetchList();
+      } catch {
+        this.$message.error('저장 중 오류가 발생했습니다.');
+      } finally {
+        this.saving = false;
+      }
+    });
+  }
+
+  async handleDelete(row: any) {
+    await this.$confirm(`"${row.name}" 리그를 삭제하시겠습니까?`, '삭제 확인', { type: 'warning' });
+    try {
+      await deleteLeague(row.uid);
+      this.$message.success('삭제되었습니다.');
+      await this.fetchList();
+    } catch {
+      this.$message.error('삭제 중 오류가 발생했습니다.');
+    }
+  }
+
+  goTeamAssign(row: any) {
+    this.$router.push({ name: 'LeagueTeams', params: { uid: row.uid } });
+  }
+
+  // 경기 폼
+  async openMatchForm(league: any) {
+    this.selectedLeague = league;
+    this.matchForm = {
+      leagueUid: league.uid, homeTeamUid: '', awayTeamUid: '',
+      matchDate: '', matchTime: '', durationMinutes: 90, round: 1,
+      stadiumName: '', stadiumAddress: '',
+    };
+    try {
+      const res = await getLeagueTeams(league.uid);
+      this.selectedLeagueTeams = res.data || [];
+    } catch {
+      this.selectedLeagueTeams = [];
+    }
+    this.matchDialogVisible = true;
+  }
+
+  resetMatchForm() {
+    this.selectedLeague = null;
+    this.selectedLeagueTeams = [];
+  }
+
+  handleMatchSave() {
+    (this.$refs.matchFormRef as ElForm).validate(async (valid) => {
+      if (!valid) return;
+      this.savingMatch = true;
+      try {
+        await createLeagueMatch(this.matchForm);
+        this.$message.success('경기가 생성되었습니다.');
+        this.matchDialogVisible = false;
+      } catch {
+        this.$message.error('경기 생성 중 오류가 발생했습니다.');
+      } finally {
+        this.savingMatch = false;
+      }
+    });
+  }
+}
+</script>

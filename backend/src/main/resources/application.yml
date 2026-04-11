@@ -37,9 +37,9 @@ spring:
 # JPA 
   jpa:
     # hibernate 설정
-    # generate-ddl : true 
-    # hibernate:
-      # ddl-auto: update
+    # generate-ddl : true
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         # show_sql: true
