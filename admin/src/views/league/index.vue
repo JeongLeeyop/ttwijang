@@ -27,13 +27,14 @@
       <el-table-column label="리그명" prop="name" min-width="200" />
       <el-table-column label="지역" width="160">
         <template slot-scope="scope">
-          {{ scope.row.regionSido }} {{ scope.row.regionSigungu }}
+          {{ scope.row.region || '-' }}
         </template>
       </el-table-column>
       <el-table-column label="시즌" prop="season" width="120" />
       <el-table-column label="기간" min-width="200">
         <template slot-scope="scope">
-          {{ scope.row.startDate }} ~ {{ scope.row.endDate }}
+          <span v-if="scope.row.startDate">{{ scope.row.startDate }} ~ {{ scope.row.endDate }}</span>
+          <span v-else>-</span>
         </template>
       </el-table-column>
       <el-table-column label="팀 수" width="90" align="center">
@@ -48,12 +49,22 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="관리" width="320">
+      <el-table-column label="관리" width="200">
         <template slot-scope="scope">
-          <el-button size="mini" @click="openLeagueForm(scope.row)">수정</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">삭제</el-button>
-          <el-button size="mini" type="success" @click="goTeamAssign(scope.row)">팀 배정</el-button>
-          <el-button size="mini" type="warning" @click="openMatchForm(scope.row)">경기 생성</el-button>
+          <div style="white-space:nowrap">
+            <el-button size="mini" @click="openLeagueForm(scope.row)">수정</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">삭제</el-button>
+            <el-dropdown size="mini" trigger="click" @command="(cmd) => handleCommand(cmd, scope.row)" style="margin-left:4px">
+              <el-button size="mini" type="primary">
+                더보기 <i class="el-icon-arrow-down el-icon--right" />
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="teams">팀 배정</el-dropdown-item>
+                <el-dropdown-item command="match">경기 생성</el-dropdown-item>
+                <el-dropdown-item command="schedule">경기 현황</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -120,6 +131,92 @@
       <div slot="footer">
         <el-button @click="leagueDialogVisible = false">취소</el-button>
         <el-button type="primary" :loading="saving" @click="handleLeagueSave">저장</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 경기 현황 다이얼로그 -->
+    <el-dialog
+      :title="`경기 현황 - ${scheduleLeagueName}`"
+      :visible.sync="scheduleDialogVisible"
+      width="900px"
+    >
+      <el-table
+        :data="scheduleMatches"
+        v-loading="scheduleLoading"
+        :header-cell-style="{ background: '#0f2027', color: '#fff', padding: '8px 0' }"
+        border
+        size="small"
+      >
+        <el-table-column label="라운드" prop="round" width="70" align="center" />
+        <el-table-column label="경기일시" width="160">
+          <template slot-scope="scope">
+            {{ scope.row.matchDate }}
+            <span v-if="scope.row.matchTime"> {{ scope.row.matchTime }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="홈팀" min-width="120">
+          <template slot-scope="scope">{{ scope.row.homeTeamName }}</template>
+        </el-table-column>
+        <el-table-column label="스코어" width="90" align="center">
+          <template slot-scope="scope">
+            <span v-if="scope.row.homeScore !== null && scope.row.homeScore !== undefined">
+              {{ scope.row.homeScore }} : {{ scope.row.awayScore }}
+            </span>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="원정팀" min-width="120">
+          <template slot-scope="scope">{{ scope.row.awayTeamName }}</template>
+        </el-table-column>
+        <el-table-column label="구장" min-width="140">
+          <template slot-scope="scope">{{ scope.row.stadiumName || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="상태" width="90" align="center">
+          <template slot-scope="scope">
+            <el-tag :type="matchStatusType(scope.row.status)" size="mini">
+              {{ matchStatusLabel(scope.row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="결과 입력" width="120" align="center">
+          <template slot-scope="scope">
+            <el-button
+              v-if="scope.row.status !== 'FINISHED'"
+              size="mini"
+              type="primary"
+              @click="openResultForm(scope.row)"
+            >결과 입력</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer">
+        <el-button @click="scheduleDialogVisible = false">닫기</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 경기 결과 입력 다이얼로그 -->
+    <el-dialog
+      title="경기 결과 입력"
+      :visible.sync="resultDialogVisible"
+      width="360px"
+    >
+      <el-form ref="resultFormRef" :model="resultForm" label-width="100px">
+        <el-form-item label="홈팀">
+          <span>{{ selectedMatch ? selectedMatch.homeTeamName : '' }}</span>
+        </el-form-item>
+        <el-form-item label="홈팀 득점" :rules="[{ required: true }]">
+          <el-input-number v-model="resultForm.homeScore" :min="0" />
+        </el-form-item>
+        <el-form-item label="원정팀">
+          <span>{{ selectedMatch ? selectedMatch.awayTeamName : '' }}</span>
+        </el-form-item>
+        <el-form-item label="원정팀 득점" :rules="[{ required: true }]">
+          <el-input-number v-model="resultForm.awayScore" :min="0" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="resultDialogVisible = false">취소</el-button>
+        <el-button type="primary" :loading="savingResult" @click="handleResultSave">저장</el-button>
       </div>
     </el-dialog>
 
@@ -197,7 +294,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import {
   getLeagueList, createLeague, updateLeague, deleteLeague,
-  getLeagueTeams, createLeagueMatch,
+  getLeagueTeams, createLeagueMatch, updateMatchResult, getAdminLeagueMatches,
 } from '@/api/league';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
@@ -229,6 +326,19 @@ export default class extends Vue {
     endDate: [{ required: true, message: '종료일을 선택하세요', trigger: 'change' }],
     maxTeams: [{ required: true, message: '최대 팀 수를 입력하세요', trigger: 'blur' }],
   };
+
+  // 경기 현황
+  private scheduleDialogVisible = false;
+  private scheduleLoading = false;
+  private scheduleLeagueName = '';
+  private scheduleMatches: any[] = [];
+  private currentScheduleLeagueUid = '';
+
+  // 경기 결과 입력
+  private resultDialogVisible = false;
+  private savingResult = false;
+  private selectedMatch: any = null;
+  private resultForm = { matchUid: '', homeScore: 0, awayScore: 0 };
 
   // 경기 폼
   private matchDialogVisible = false;
@@ -357,6 +467,12 @@ export default class extends Vue {
     this.$router.push({ name: 'LeagueTeams', params: { uid: row.uid } });
   }
 
+  handleCommand(command: string, row: any) {
+    if (command === 'teams') this.goTeamAssign(row);
+    else if (command === 'match') this.openMatchForm(row);
+    else if (command === 'schedule') this.openScheduleDialog(row);
+  }
+
   // ── 경기 폼 ──
   async openMatchForm(league: any) {
     this.selectedLeague = league;
@@ -377,6 +493,57 @@ export default class extends Vue {
   resetMatchForm() {
     this.selectedLeague = null;
     this.selectedLeagueTeams = [];
+  }
+
+  // ── 경기 현황 ──
+  async openScheduleDialog(league: any) {
+    this.scheduleLeagueName = league.name;
+    this.currentScheduleLeagueUid = league.uid;
+    this.scheduleDialogVisible = true;
+    this.scheduleLoading = true;
+    try {
+      const res = await getAdminLeagueMatches(league.uid);
+      this.scheduleMatches = res.data || [];
+    } catch {
+      this.scheduleMatches = [];
+    } finally {
+      this.scheduleLoading = false;
+    }
+  }
+
+  matchStatusType(s: string) {
+    return ({ SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger' } as any)[s] || '';
+  }
+
+  matchStatusLabel(s: string) {
+    return ({ SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소' } as any)[s] || s;
+  }
+
+  openResultForm(match: any) {
+    this.selectedMatch = match;
+    this.resultForm = {
+      matchUid: match.uid,
+      homeScore: match.homeScore ?? 0,
+      awayScore: match.awayScore ?? 0,
+    };
+    this.resultDialogVisible = true;
+  }
+
+  async handleResultSave() {
+    this.savingResult = true;
+    try {
+      await updateMatchResult(this.resultForm);
+      this.$message.success('결과가 저장되었습니다.');
+      this.resultDialogVisible = false;
+      // 현황 새로고침
+      const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
+      this.scheduleMatches = res.data || [];
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || '저장 중 오류가 발생했습니다.';
+      this.$message.error(msg);
+    } finally {
+      this.savingResult = false;
+    }
   }
 
   handleMatchSave() {

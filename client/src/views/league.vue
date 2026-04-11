@@ -205,6 +205,7 @@ import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 import {
   getLeagueList, getLeagueTeams, LeagueTeamResponse, getUpcomingLeagueMatches,
 } from '@/api/league';
+import { getActiveBanners } from '@/api/banner';
 import { getRecruitingTeams } from '@/api/team';
 import LeagueScheduleView from '@/components/league/LeagueScheduleView.vue';
 import LeagueStatusView from '@/components/league/LeagueStatusView.vue';
@@ -331,49 +332,13 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 0. 배너 조회 (샘플 데이터 사용)
-      this.banners = [
-        {
-          uid: 'banner-sample-1',
-          title: '2026 봄 시즌 리그 참가 모집',
-          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          linkUrl: '/league',
-          displayOrder: 1,
-          targetPage: 'LEAGUE',
-        },
-        {
-          uid: 'banner-sample-2',
-          title: '진주 풋살장 오픈 기념 이벤트',
-          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          linkUrl: 'https://example.com/event',
-          displayOrder: 2,
-          targetPage: 'LEAGUE',
-        },
-        {
-          uid: 'banner-sample-3',
-          title: '뛰장 리그 우승팀 시상식',
-          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          linkUrl: '/league-status',
-          displayOrder: 3,
-          targetPage: 'LEAGUE',
-        },
-        {
-          uid: 'banner-sample-4',
-          title: '신규 회원 가입 이벤트',
-          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          linkUrl: '/join',
-          displayOrder: 4,
-          targetPage: 'LEAGUE',
-        },
-        {
-          uid: 'banner-sample-5',
-          title: '팀 매칭 서비스 오픈!',
-          imageUrl: 'https://images.unsplash.com/photo-1760420919593-c1ae7509faaf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          linkUrl: '/match',
-          displayOrder: 5,
-          targetPage: 'LEAGUE',
-        },
-      ];
+      // 0. 배너 조회 (API 연동)
+      try {
+        const bannerRes = await getActiveBanners({ targetPage: 'LEAGUE' });
+        this.banners = bannerRes.data?.content || bannerRes.data || [];
+      } catch {
+        this.banners = [];
+      }
 
       // 1. 다가오는 리그 경기 조회 (지역 필터 적용)
       const upcomingParams: any = {

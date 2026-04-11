@@ -5,7 +5,7 @@
         <p class="tl">팀 배정</p>
         <p class="usernumber" v-if="league">{{ league.name }}</p>
       </div>
-      <div class="user__tab">
+      <div class="">
         <el-button @click="$router.push({ name: 'LeagueList' })">← 리그 목록으로</el-button>
       </div>
     </div>
@@ -23,11 +23,11 @@
             @input="filterTeams"
           />
         </div>
-        <el-table :data="filteredAllTeams" border size="small" max-height="500">
+        <el-table :data="filteredAllTeams" border size="small">
           <el-table-column label="팀명" prop="name" min-width="140" />
           <el-table-column label="지역" width="120">
             <template slot-scope="scope">
-              {{ scope.row.regionSido }} {{ scope.row.regionSigungu }}
+              {{ scope.row.region || '-' }}
             </template>
           </el-table-column>
           <el-table-column label="" width="80" align="center">
@@ -35,10 +35,10 @@
               <el-button
                 size="mini"
                 type="success"
-                :disabled="isAssigned(scope.row.uid)"
+                :disabled="isAssigned(scope.row.uid) || isMaxReached"
                 @click="handleAdd(scope.row)"
               >
-                {{ isAssigned(scope.row.uid) ? '배정됨' : '추가 →' }}
+                {{ isAssigned(scope.row.uid) ? '배정됨' : (isMaxReached ? '마감' : '추가 →') }}
               </el-button>
             </template>
           </el-table-column>
@@ -53,9 +53,20 @@
       <div class="team-panel">
         <div class="panel-header">
           <b>배정된 팀 목록</b>
-          <span style="color:#888;font-size:13px">{{ assignedTeams.length }}팀 / {{ league ? league.maxTeams : '?' }}팀 최대</span>
+          <span :style="{ color: isMaxReached ? '#f56c6c' : '#888', fontWeight: isMaxReached ? 'bold' : 'normal', fontSize: '13px' }">
+            {{ assignedTeams.length }}팀 / {{ league ? league.maxTeams : '?' }}팀 최대
+            <span v-if="isMaxReached"> ⚠ 최대 인원 초과</span>
+          </span>
         </div>
-        <el-table :data="assignedTeams" border size="small" max-height="500">
+        <el-alert
+          v-if="isMaxReached"
+          title="최대 참가 팀 수에 도달했습니다. 더 이상 팀을 추가할 수 없습니다."
+          type="warning"
+          :closable="false"
+          show-icon
+          style="margin-bottom:8px"
+        />
+        <el-table :data="assignedTeams" border size="small">
           <el-table-column label="순위" prop="ranking" width="70" align="center" />
           <el-table-column label="팀명" prop="teamName" min-width="140" />
           <el-table-column label="" width="80" align="center">
@@ -91,6 +102,10 @@ export default class extends Vue {
 
   get leagueUid() {
     return this.$route.params.uid;
+  }
+
+  get isMaxReached() {
+    return this.league != null && this.assignedTeams.length >= this.league.maxTeams;
   }
 
   async created() {
@@ -150,6 +165,9 @@ export default class extends Vue {
 </script>
 
 <style scoped>
+::v-deep .el-table__body-wrapper {
+  overflow-y: auto;
+}
 .team-assign-wrap {
   display: flex;
   gap: 16px;

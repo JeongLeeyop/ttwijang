@@ -145,10 +145,34 @@
   },
   "hotPaths": [
     {
+      "path": "src/views/league/index.vue",
+      "accessCount": 16,
+      "lastAccessed": 1775900246183,
+      "type": "file"
+    },
+    {
+      "path": "src/views/league/teams.vue",
+      "accessCount": 10,
+      "lastAccessed": 1775900142422,
+      "type": "file"
+    },
+    {
+      "path": "src/views/banner/index.vue",
+      "accessCount": 7,
+      "lastAccessed": 1775901369571,
+      "type": "file"
+    },
+    {
       "path": "",
-      "accessCount": 4,
-      "lastAccessed": 1775897815098,
+      "accessCount": 5,
+      "lastAccessed": 1775899757687,
       "type": "directory"
+    },
+    {
+      "path": "src/views/region/index.vue",
+      "accessCount": 5,
+      "lastAccessed": 1775900619389,
+      "type": "file"
     },
     {
       "path": "src/assets/css/style.css",
@@ -158,9 +182,27 @@
     },
     {
       "path": "src/views/login.vue",
-      "accessCount": 3,
-      "lastAccessed": 1775898060651,
+      "accessCount": 4,
+      "lastAccessed": 1775898175840,
       "type": "file"
+    },
+    {
+      "path": "vue.config.js",
+      "accessCount": 4,
+      "lastAccessed": 1775902794101,
+      "type": "file"
+    },
+    {
+      "path": "src/api/league.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775899525307,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1775901174524,
+      "type": "directory"
     },
     {
       "path": "src/api/region.ts",
@@ -169,39 +211,39 @@
       "type": "file"
     },
     {
-      "path": "src/views/region/index.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775884311430,
-      "type": "file"
-    },
-    {
-      "path": "src/views/league/index.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775895073024,
-      "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 2,
-      "lastAccessed": 1775897814525,
-      "type": "directory"
-    },
-    {
       "path": "package.json",
       "accessCount": 2,
       "lastAccessed": 1775897840757,
       "type": "file"
     },
     {
-      "path": "vue.config.js",
-      "accessCount": 2,
-      "lastAccessed": 1775897845579,
-      "type": "file"
-    },
-    {
       "path": "package-lock.json",
       "accessCount": 2,
       "lastAccessed": 1775897851343,
+      "type": "file"
+    },
+    {
+      "path": "src/main.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775898156450,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/dashboard/index.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775900422724,
+      "type": "file"
+    },
+    {
+      "path": "src/api",
+      "accessCount": 2,
+      "lastAccessed": 1775901182818,
+      "type": "directory"
+    },
+    {
+      "path": "src/api/banner.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775901206432,
       "type": "file"
     },
     {
@@ -229,27 +271,39 @@
       "type": "file"
     },
     {
-      "path": "src/api/league.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775894913004,
-      "type": "file"
-    },
-    {
       "path": "src/utils/filters/index.ts",
       "accessCount": 1,
       "lastAccessed": 1775894970139,
       "type": "file"
     },
     {
-      "path": "src/main.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775894970234,
-      "type": "directory"
-    },
-    {
       "path": "public/index.html",
       "accessCount": 1,
       "lastAccessed": 1775897823048,
+      "type": "file"
+    },
+    {
+      "path": "src/router/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775898141614,
+      "type": "file"
+    },
+    {
+      "path": "src/store/modules/permission.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775898142121,
+      "type": "file"
+    },
+    {
+      "path": "src/permission.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775898159614,
+      "type": "file"
+    },
+    {
+      "path": "src/api/attached-file.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775901186008,
       "type": "file"
     }
   ],

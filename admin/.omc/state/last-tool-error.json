@@ -1,7 +1,7 @@
 {
   "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/devyop/git/ttwijang/admin/src/assets/css/style.css\"}",
-  "error": "File content (19389 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-11T09:00:25.006Z",
+  "tool_input_preview": "{\"file_path\":\"/Users/devyop/git/ttwijang/client/src/views/matchDetail.vue\"}",
+  "error": "File content (18371 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
+  "timestamp": "2026-04-11T16:46:35.531Z",
   "retry_count": 1
 }

@@ -23,11 +23,6 @@
         </template>
       </el-table-column>
       <el-table-column label="제목" prop="title" min-width="160" />
-      <el-table-column label="노출 페이지" width="120">
-        <template slot-scope="scope">
-          <el-tag size="small">{{ scope.row.targetPage }}</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="노출 기간" min-width="200">
         <template slot-scope="scope">
           {{ scope.row.startDate | parseDate }} ~ {{ scope.row.endDate | parseDate }}
@@ -64,19 +59,37 @@
         <el-form-item label="제목" prop="title">
           <el-input v-model="form.title" />
         </el-form-item>
-        <el-form-item label="이미지 URL" prop="imageUrl">
+        <el-form-item label="이미지 입력방식">
+          <el-radio-group v-model="imageInputType" @change="onImageInputTypeChange">
+            <el-radio label="url">URL 입력</el-radio>
+            <el-radio label="file">파일 업로드</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="이미지 URL" prop="imageUrl" v-if="imageInputType === 'url'">
           <el-input v-model="form.imageUrl" placeholder="이미지 URL을 입력하세요" />
+        </el-form-item>
+        <el-form-item label="이미지 파일" v-if="imageInputType === 'file'">
+          <el-upload
+            action=""
+            :http-request="handleFileUpload"
+            :show-file-list="false"
+            accept="image/*"
+            :disabled="uploadingImage"
+          >
+            <el-button size="small" type="primary" :loading="uploadingImage">
+              {{ uploadingImage ? '업로드 중...' : '파일 선택' }}
+            </el-button>
+          </el-upload>
+          <div v-if="form.imageUrl" style="margin-top:8px">
+            <img :src="form.imageUrl" style="max-width:200px;max-height:80px;object-fit:cover;border-radius:4px;border:1px solid #eee" />
+            <el-button size="mini" type="text" style="margin-left:8px;color:#f56c6c" @click="form.imageUrl = ''">제거</el-button>
+          </div>
+          <div v-else style="color:#aaa;font-size:12px;margin-top:4px">이미지 파일을 선택하세요 (jpg, png, gif 등)</div>
         </el-form-item>
         <el-form-item label="링크 URL" prop="linkUrl">
           <el-input v-model="form.linkUrl" placeholder="클릭 시 이동할 URL" />
         </el-form-item>
-        <el-form-item label="노출 페이지" prop="targetPage">
-          <el-select v-model="form.targetPage" style="width:100%">
-            <el-option label="리그 (LEAGUE)" value="LEAGUE" />
-            <el-option label="홈 (HOME)" value="HOME" />
-            <el-option label="전체 (ALL)" value="ALL" />
-          </el-select>
-        </el-form-item>
+        <!-- targetPage는 항상 LEAGUE로 고정 -->
         <el-form-item label="노출 기간" prop="startDate">
           <el-date-picker
             v-model="dateRange"
@@ -119,7 +132,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { getBannerList, createBanner, updateBanner, deleteBanner } from '@/api/banner';
+import { getBannerList, createBanner, updateBanner, deleteBanner, uploadBannerImage } from '@/api/banner';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
 
@@ -127,11 +140,13 @@ import { ElForm } from 'element-ui/types/form';
 export default class extends Vue {
   private loading = false;
   private saving = false;
+  private uploadingImage = false;
   private dialogVisible = false;
   private bannerList: any[] = [];
   private sidoList: any[] = [];
   private sigunguList: any[] = [];
   private dateRange: string[] = [];
+  private imageInputType: 'url' | 'file' = 'url';
 
   private form: any = {
     uid: null, title: '', imageUrl: '', linkUrl: '',
@@ -185,6 +200,7 @@ export default class extends Vue {
       this.form = { ...row };
       this.dateRange = [row.startDate, row.endDate];
       if (row.regionSido) this.onSidoChange(row.regionSido);
+      this.imageInputType = row.imageUrl ? 'url' : 'url';
     } else {
       this.resetForm();
     }
@@ -198,6 +214,28 @@ export default class extends Vue {
       regionSido: '', regionSigungu: '', displayOrder: 1, status: 'ACTIVE',
     };
     this.dateRange = [];
+    this.imageInputType = 'url';
+  }
+
+  onImageInputTypeChange() {
+    this.form.imageUrl = '';
+  }
+
+  async handleFileUpload(options: any) {
+    const formData = new FormData();
+    formData.append('file', options.file);
+    this.uploadingImage = true;
+    try {
+      const res = await uploadBannerImage(formData);
+      const data = res.data;
+      // url 필드 우선, 없으면 uid로 경로 구성
+      this.form.imageUrl = data.url || `/api/attached-file/${data.uid}`;
+      this.$message.success('이미지가 업로드되었습니다.');
+    } catch {
+      this.$message.error('이미지 업로드 중 오류가 발생했습니다.');
+    } finally {
+      this.uploadingImage = false;
+    }
   }
 
   handleSave() {

@@ -49,13 +49,15 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="관리" width="260">
+      <el-table-column label="관리" width="300">
         <template slot-scope="scope">
-          <el-button size="mini" @click="toggleExpand(scope.row)">
-            시/군/구 {{ expandedRows.includes(scope.row.code) ? '닫기' : '보기' }}
-          </el-button>
-          <el-button size="mini" type="info" @click="openLeagueDialog(scope.row)">리그 확인</el-button>
-          <el-button size="mini" type="success" @click="openTeamDialog(scope.row)">팀 확인</el-button>
+          <div style="white-space:nowrap">
+            <el-button size="mini" @click="toggleExpand(scope.row)">
+              시/군/구 {{ expandedRows.includes(scope.row.code) ? '닫기' : '보기' }}
+            </el-button>
+            <el-button size="mini" type="info" @click="openLeagueDialog(scope.row)">리그 확인</el-button>
+            <!-- <el-button size="mini" type="success" @click="openTeamDialog(scope.row)">팀 확인</el-button> -->
+          </div>
         </template>
       </el-table-column>
     </el-table>

@@ -168,4 +168,11 @@ public class LeagueController {
             @Valid @RequestBody LeagueDto.CreateMatchRequest request) {
         return ResponseEntity.ok(leagueService.createLeagueMatch(request));
     }
+
+    @Operation(summary = "[관리자] 리그 전체 경기 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/admin/{leagueUid}/matches")
+    public ResponseEntity<List<LeagueDto.MatchResponse>> getAllLeagueMatches(
+            @PathVariable String leagueUid) {
+        return ResponseEntity.ok(leagueService.getAllLeagueMatches(leagueUid));
+    }
 }

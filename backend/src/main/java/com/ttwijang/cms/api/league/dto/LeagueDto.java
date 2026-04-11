@@ -34,8 +34,20 @@ public class LeagueDto {
         @Schema(description = "시즌")
         private String season;
 
-        @Schema(description = "활동 지역")
+        @Schema(description = "활동 지역 (시/도 + 시/군/구 합산)")
         private String region;
+
+        @Schema(description = "활동 지역 - 도/시")
+        private String regionSido;
+
+        @Schema(description = "활동 지역 - 시/군/구")
+        private String regionSigungu;
+
+        @Schema(description = "시작일")
+        private LocalDate startDate;
+
+        @Schema(description = "종료일")
+        private LocalDate endDate;
 
         @Schema(description = "참가 팀 수")
         private Integer currentTeams;

@@ -29,3 +29,11 @@ export const deleteBanner = (uid: string) => request({
   url: `${PATH}/${uid}`,
   method: 'delete',
 });
+
+export const uploadBannerImage = (formData: FormData) => request({
+  url: '/attached-file/upload',
+  method: 'post',
+  data: formData,
+  params: { moduleName: 'banner' },
+  headers: { 'Content-Type': 'multipart/form-data' },
+});

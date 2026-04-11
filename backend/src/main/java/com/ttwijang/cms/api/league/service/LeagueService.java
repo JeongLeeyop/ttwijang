@@ -2,6 +2,7 @@ package com.ttwijang.cms.api.league.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -133,6 +134,18 @@ public class LeagueService {
                 leagueUid, startDate, endDate);
         
         return matches.stream()
+                .map(this::toMatchResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * [관리자] 리그 전체 경기 목록 조회 (날짜 제한 없음)
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.MatchResponse> getAllLeagueMatches(String leagueUid) {
+        return leagueMatchRepository.findByLeagueUid(leagueUid).stream()
+                .sorted(Comparator.comparing(LeagueMatch::getMatchDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(LeagueMatch::getRound, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(this::toMatchResponse)
                 .collect(Collectors.toList());
     }
@@ -446,11 +459,16 @@ public class LeagueService {
     }
 
     private LeagueDto.ListResponse toListResponse(League league) {
+        String sigungu = league.getRegionSigungu() != null ? league.getRegionSigungu() : "";
         return LeagueDto.ListResponse.builder()
                 .uid(league.getUid())
                 .name(league.getName())
                 .season(league.getSeason())
-                .region(league.getRegionSido() + " " + (league.getRegionSigungu() != null ? league.getRegionSigungu() : ""))
+                .region((league.getRegionSido() != null ? league.getRegionSido() : "") + (sigungu.isEmpty() ? "" : " " + sigungu))
+                .regionSido(league.getRegionSido())
+                .regionSigungu(league.getRegionSigungu())
+                .startDate(league.getStartDate())
+                .endDate(league.getEndDate())
                 .currentTeams(league.getCurrentTeams())
                 .maxTeams(league.getMaxTeams())
                 .status(league.getStatus())

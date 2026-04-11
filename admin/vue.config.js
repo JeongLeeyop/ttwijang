@@ -7,7 +7,7 @@ function resolve(dir) {
 }
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/adm' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/adm/' : '/',
   pages: {
     index: {
       entry: 'src/main.ts',

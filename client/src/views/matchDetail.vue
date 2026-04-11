@@ -103,6 +103,18 @@
                 {{ homeScore }} : {{ awayScore }}
               </template>
               <template v-else>VS</template>
+              <div
+                v-if="isAdmin && detailData && detailData.status !== 'FINISHED'"
+                style="margin-top:8px"
+              >
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="showLeagueResultModal = true"
+                >
+                  결과 입력
+                </el-button>
+              </div>
             </div>
             <div class="versus-team">
               <img
@@ -504,6 +516,53 @@
         </el-button>
       </div>
 
+      <!-- 리그 경기 결과 입력 모달 (관리자 전용) -->
+      <el-dialog
+        :visible.sync="showLeagueResultModal"
+        :close-on-click-modal="false"
+        :show-close="true"
+        title="경기 결과 입력"
+        width="90%"
+        top="20vh"
+      >
+        <div class="result-modal">
+          <div class="result-modal-title">{{ detailData && detailData.homeTeamName }} vs {{ detailData && detailData.awayTeamName }}</div>
+          <div class="result-score-input">
+            <div class="score-team">
+              <span class="score-team-name">{{ detailData && detailData.homeTeamName }}</span>
+              <el-input-number
+                v-model="leagueInputHomeScore"
+                :min="0"
+                :max="99"
+                size="small"
+                controls-position="right"
+              />
+            </div>
+            <span class="score-colon">:</span>
+            <div class="score-team">
+              <span class="score-team-name">{{ detailData && detailData.awayTeamName }}</span>
+              <el-input-number
+                v-model="leagueInputAwayScore"
+                :min="0"
+                :max="99"
+                size="small"
+                controls-position="right"
+              />
+            </div>
+          </div>
+        </div>
+        <div slot="footer">
+          <el-button @click="showLeagueResultModal = false">취소</el-button>
+          <el-button
+            type="primary"
+            :loading="isSubmittingLeagueResult"
+            @click="handleLeagueResult"
+          >
+            저장
+          </el-button>
+        </div>
+      </el-dialog>
+
       <!-- 경기 결과 입력 모달 -->
       <el-dialog
         :visible.sync="showResultModal"
@@ -625,7 +684,8 @@ import {
   getMatchDetail, applyToMatch, completeMatch, rateTeamManner,
 } from '@/api/match';
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
-import { getLeagueDetail } from '@/api/league';
+import { getLeagueDetail, updateMatchResult } from '@/api/league';
+import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
 import { getMyTeams } from '@/api/team';
 
@@ -666,6 +726,14 @@ export default class MatchDetail extends Vue {
 
   private error: string | null = null
 
+  private showLeagueResultModal = false
+
+  private leagueInputHomeScore = 0
+
+  private leagueInputAwayScore = 0
+
+  private isSubmittingLeagueResult = false
+
   private detailType: DetailType = 'friendly'
 
   private detailData: any = null
@@ -688,6 +756,10 @@ export default class MatchDetail extends Vue {
 
   get matchUid(): string {
     return this.$route.params.uid || '';
+  }
+
+  get isAdmin(): boolean {
+    return UserModule.roles?.includes('ROLE_ADMIN') ?? false;
   }
 
   get routeType(): string {
@@ -1170,6 +1242,25 @@ export default class MatchDetail extends Vue {
     }
 
     this.detailType = 'league';
+  }
+
+  private async handleLeagueResult(): Promise<void> {
+    this.isSubmittingLeagueResult = true;
+    try {
+      await updateMatchResult({
+        matchUid: this.matchUid,
+        homeScore: this.leagueInputHomeScore,
+        awayScore: this.leagueInputAwayScore,
+      });
+      this.$message.success('경기 결과가 입력되었습니다.');
+      this.showLeagueResultModal = false;
+      // 결과 반영을 위해 데이터 새로고침
+      await this.loadLeagueMatchDetail(this.matchUid);
+    } catch {
+      this.$message.error('결과 입력 중 오류가 발생했습니다.');
+    } finally {
+      this.isSubmittingLeagueResult = false;
+    }
   }
 
   private handleError(err: unknown): void {
