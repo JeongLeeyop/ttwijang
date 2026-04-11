@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775759062339,
+  "lastScanned": 1775948842376,
   "projectRoot": "/Users/devyop/git/ttwijang",
   "techStack": {
     "languages": [],
@@ -32,54 +32,71 @@
   },
   "customNotes": [],
   "directoryMap": {
+    "admin": {
+      "path": "admin",
+      "purpose": null,
+      "fileCount": 12,
+      "lastAccessed": 1775948842365,
+      "keyFiles": [
+        "README.md",
+        "babel.config.js",
+        "package-lock.json",
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
     "attached-file": {
       "path": "attached-file",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775759062326,
+      "lastAccessed": 1775948842365,
       "keyFiles": []
     },
     "backend": {
       "path": "backend",
       "purpose": null,
-      "fileCount": 10,
-      "lastAccessed": 1775759062326,
+      "fileCount": 11,
+      "lastAccessed": 1775948842366,
       "keyFiles": [
+        "CLAUDE.md",
         "README.md",
         "SWAGGER_GUIDE.md",
         "mvnw",
-        "mvnw.cmd",
-        "pom.xml"
+        "mvnw.cmd"
       ]
     },
     "client": {
       "path": "client",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1775759062327,
+      "fileCount": 14,
+      "lastAccessed": 1775948842366,
       "keyFiles": [
+        "CLAUDE.md",
         "README.md",
         "babel.config.js",
         "jsconfig.json",
-        "package-lock.json",
-        "package.json"
+        "package-lock.json"
       ]
     },
     "logs": {
       "path": "logs",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775759062327,
+      "lastAccessed": 1775948842366,
       "keyFiles": [
         "warosalad.log"
       ]
     },
-    "client/node_modules": {
-      "path": "client/node_modules",
-      "purpose": "Dependencies",
-      "fileCount": 1,
-      "lastAccessed": 1775759062329,
-      "keyFiles": []
+    "admin/dist": {
+      "path": "admin/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1775948842366,
+      "keyFiles": [
+        "favicon-chat.svg",
+        "favicon.ico",
+        "index.html"
+      ]
     }
   },
   "hotPaths": [
@@ -118,6 +135,18 @@
       "accessCount": 3,
       "lastAccessed": 1775759925091,
       "type": "file"
+    },
+    {
+      "path": "client/src/views/cashCharge.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775948892845,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views",
+      "accessCount": 3,
+      "lastAccessed": 1775948908663,
+      "type": "directory"
     },
     {
       "path": "",
@@ -177,6 +206,18 @@
       "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
       "accessCount": 2,
       "lastAccessed": 1775766195140,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/home.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775948879928,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/myPage.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775948887157,
       "type": "file"
     },
     {
@@ -240,12 +281,6 @@
       "type": "directory"
     },
     {
-      "path": "client/src/views",
-      "accessCount": 1,
-      "lastAccessed": 1775490988389,
-      "type": "directory"
-    },
-    {
       "path": "client/src/views/createTeam.vue",
       "accessCount": 1,
       "lastAccessed": 1775491041802,
@@ -273,24 +308,6 @@
       "path": "client/src/views/uploadTeamMark.vue",
       "accessCount": 1,
       "lastAccessed": 1775491122022,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/home.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491166411,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/cashCharge.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491171253,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/myPage.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491171360,
       "type": "file"
     },
     {

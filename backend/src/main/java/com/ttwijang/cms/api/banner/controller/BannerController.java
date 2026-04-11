@@ -74,8 +74,9 @@ public class BannerController {
     @GetMapping("/active")
     public ResponseEntity<List<BannerDto.ListResponse>> getActiveBanners(
             @RequestParam(required = false) Banner.TargetPage targetPage,
-            @RequestParam(required = false) String regionSigungu) {
+            @RequestParam(required = false) String regionSigungu,
+            @RequestParam(required = false) String teamUid) {
         Banner.TargetPage page = targetPage != null ? targetPage : Banner.TargetPage.ALL;
-        return ResponseEntity.ok(bannerService.getActiveBanners(page, regionSigungu));
+        return ResponseEntity.ok(bannerService.getActiveBanners(page, regionSigungu, teamUid));
     }
 }

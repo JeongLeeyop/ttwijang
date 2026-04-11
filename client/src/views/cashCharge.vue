@@ -52,7 +52,8 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { chargeCash, getWallet } from '@/api/cash';
+import { getWallet } from '@/api/cash';
+import { preparePayment } from '@/api/payment';
 
 @Component({
   name: 'CashCharge',
@@ -96,6 +97,20 @@ export default class CashCharge extends Vue {
     return value.toLocaleString('ko-KR');
   }
 
+  private loadTossScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any).TossPayments) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://js.tosspayments.com/v1/payment';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Toss SDK 로드 실패'));
+      document.head.appendChild(script);
+    });
+  }
+
   private async handleCharge(): Promise<void> {
     if (!this.selectedAmount) {
       this.$message.warning('충전할 금액을 선택해주세요.');
@@ -107,40 +122,39 @@ export default class CashCharge extends Vue {
       return;
     }
 
-    try {
-      await this.$confirm(
-        `${this.formatCurrency(this.selectedAmount)}원을 충전하시겠습니까?`,
-        '캐쉬 충전',
-        {
-          confirmButtonText: '충전하기',
-          cancelButtonText: '취소',
-          type: 'info',
-        },
-      );
-    } catch {
-      return;
-    }
-
     this.isCharging = true;
     try {
-      await chargeCash({
-        amount: this.selectedAmount,
-        paymentMethod: this.paymentMethod,
+      // 1. 결제 준비 (orderId 발급)
+      const res = await preparePayment({ amount: this.selectedAmount, orderName: '캐쉬 충전' });
+      const { orderId, orderName, amount } = res.data;
+
+      // 2. Toss SDK 로드
+      await this.loadTossScript();
+
+      const tossKey = process.env.VUE_APP_TOSS_KEY as string;
+      const successUrl = process.env.VUE_APP_TOSS_SUSSCESS as string;
+      const failUrl = process.env.VUE_APP_TOSS_FAIL as string;
+
+      const tossPayments = (window as any).TossPayments(tossKey);
+
+      // 3. 결제 요청 (Toss가 successUrl로 리다이렉트)
+      const tossMethod = this.paymentMethod === 'BANK_TRANSFER' ? '계좌이체' : '가상계좌';
+      await tossPayments.requestPayment(tossMethod, {
+        amount,
+        orderId,
+        orderName,
+        successUrl,
+        failUrl,
       });
-
-      this.$message.success(`${this.formatCurrency(this.selectedAmount)}원이 충전되었습니다.`);
-      this.currentBalance += this.selectedAmount;
-      this.selectedAmount = null;
-      this.paymentMethod = '';
-
-      setTimeout(() => {
-        this.$router.go(-1);
-      }, 1500);
     } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '충전에 실패했습니다.';
-      this.$message.error(errorMsg);
-      console.error('캐쉬 충전 실패:', error);
-    } finally {
+      // 사용자가 결제 취소한 경우는 조용히 처리
+      if (error?.code === 'USER_CANCEL') {
+        this.$message.info('결제를 취소하셨습니다.');
+      } else {
+        const errorMsg = error?.response?.data?.message || error?.message || '결제 요청에 실패했습니다.';
+        this.$message.error(errorMsg);
+        console.error('결제 요청 실패:', error);
+      }
       this.isCharging = false;
     }
   }

@@ -38,6 +38,7 @@ public class BannerService {
                 .regionSido(request.getRegionSido())
                 .regionSigungu(request.getRegionSigungu())
                 .targetPage(request.getTargetPage() != null ? request.getTargetPage() : Banner.TargetPage.ALL)
+                .teamUid(request.getTeamUid())
                 .build();
 
         banner = bannerRepository.save(banner);
@@ -81,6 +82,9 @@ public class BannerService {
         }
         if (request.getTargetPage() != null) {
             banner.setTargetPage(request.getTargetPage());
+        }
+        if (request.getTeamUid() != null) {
+            banner.setTeamUid(request.getTeamUid());
         }
         banner.setUpdatedDate(LocalDateTime.now());
 
@@ -126,16 +130,18 @@ public class BannerService {
      * 활성화된 배너 조회 (사용자용 - 타겟 페이지별)
      */
     @Transactional(readOnly = true)
-    public List<BannerDto.ListResponse> getActiveBanners(Banner.TargetPage targetPage, String sigungu) {
+    public List<BannerDto.ListResponse> getActiveBanners(Banner.TargetPage targetPage, String sigungu, String teamUid) {
         LocalDate today = LocalDate.now();
         List<Banner> banners;
-        
-        if (sigungu != null && !sigungu.isEmpty()) {
+
+        if (teamUid != null && !teamUid.isEmpty()) {
+            banners = bannerRepository.findActiveBannersByTeam(today, teamUid);
+        } else if (sigungu != null && !sigungu.isEmpty()) {
             banners = bannerRepository.findActiveBannersByPageAndRegion(today, targetPage, sigungu);
         } else {
             banners = bannerRepository.findActiveBannersByPage(today, targetPage);
         }
-        
+
         return banners.stream()
                 .map(this::toListResponse)
                 .collect(Collectors.toList());
@@ -154,6 +160,7 @@ public class BannerService {
                 .regionSido(banner.getRegionSido())
                 .regionSigungu(banner.getRegionSigungu())
                 .targetPage(banner.getTargetPage())
+                .teamUid(banner.getTeamUid())
                 .createdDate(banner.getCreatedDate())
                 .updatedDate(banner.getUpdatedDate())
                 .build();
@@ -172,6 +179,7 @@ public class BannerService {
                 .regionSido(banner.getRegionSido())
                 .regionSigungu(banner.getRegionSigungu())
                 .targetPage(banner.getTargetPage())
+                .teamUid(banner.getTeamUid())
                 .build();
     }
 }

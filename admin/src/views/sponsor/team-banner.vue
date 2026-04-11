@@ -56,11 +56,32 @@
             <el-option v-for="t in teamList" :key="t.uid" :label="t.name" :value="t.uid" />
           </el-select>
         </el-form-item>
-        <el-form-item label="이미지 URL" prop="imageUrl">
+        <el-form-item label="이미지 입력방식">
+          <el-radio-group v-model="imageInputType" @change="onImageInputTypeChange">
+            <el-radio label="url">URL 입력</el-radio>
+            <el-radio label="file">파일 업로드</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="이미지 URL" prop="imageUrl" v-if="imageInputType === 'url'">
           <el-input v-model="form.imageUrl" placeholder="배너 이미지 URL" />
+        </el-form-item>
+        <el-form-item label="이미지 파일" v-if="imageInputType === 'file'">
+          <el-upload
+            action=""
+            :http-request="handleFileUpload"
+            :show-file-list="false"
+            accept="image/*"
+            :disabled="uploadingImage"
+          >
+            <el-button size="small" type="primary" :loading="uploadingImage">
+              {{ uploadingImage ? '업로드 중...' : '파일 선택' }}
+            </el-button>
+          </el-upload>
           <div v-if="form.imageUrl" style="margin-top:8px">
-            <img :src="form.imageUrl" style="max-width:100%;height:80px;object-fit:cover;border-radius:4px" />
+            <img :src="form.imageUrl" style="max-width:200px;max-height:80px;object-fit:cover;border-radius:4px;border:1px solid #eee" />
+            <el-button size="mini" type="text" style="margin-left:8px;color:#f56c6c" @click="form.imageUrl = ''">제거</el-button>
           </div>
+          <div v-else style="color:#aaa;font-size:12px;margin-top:4px">이미지 파일을 선택하세요 (jpg, png, gif 등)</div>
         </el-form-item>
         <el-form-item label="설명">
           <el-input v-model="form.description" type="textarea" :rows="2" />
@@ -78,15 +99,18 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { getTeamBannerList, createTeamBanner, updateTeamBanner, deleteTeamBanner } from '@/api/sponsor';
 import { getTeamList } from '@/api/team';
+import { uploadBannerImage } from '@/api/banner';
 import { ElForm } from 'element-ui/types/form';
 
 @Component({ name: 'TeamBanner' })
 export default class extends Vue {
   private loading = false;
   private saving = false;
+  private uploadingImage = false;
   private dialogVisible = false;
   private bannerList: any[] = [];
   private teamList: any[] = [];
+  private imageInputType: 'url' | 'file' = 'url';
 
   private form: any = { uid: null, teamUid: '', teamName: '', imageUrl: '', description: '' };
 
@@ -129,11 +153,33 @@ export default class extends Vue {
     } else {
       this.resetForm();
     }
+    this.imageInputType = 'url';
     this.dialogVisible = true;
   }
 
   resetForm() {
     this.form = { uid: null, teamUid: '', teamName: '', imageUrl: '', description: '' };
+    this.imageInputType = 'url';
+  }
+
+  onImageInputTypeChange() {
+    this.form.imageUrl = '';
+  }
+
+  async handleFileUpload(options: any) {
+    const formData = new FormData();
+    formData.append('file', options.file);
+    this.uploadingImage = true;
+    try {
+      const res = await uploadBannerImage(formData);
+      const data = res.data;
+      this.form.imageUrl = data.url || `/api/attached-file/${data.uid}`;
+      this.$message.success('이미지가 업로드되었습니다.');
+    } catch {
+      this.$message.error('이미지 업로드 중 오류가 발생했습니다.');
+    } finally {
+      this.uploadingImage = false;
+    }
   }
 
   handleSave() {

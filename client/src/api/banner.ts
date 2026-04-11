@@ -73,6 +73,7 @@ export function getBannerList(params?: {
 export function getActiveBanners(params?: {
   targetPage?: 'HOME' | 'LEAGUE' | 'MATCH' | 'TEAM' | 'ALL'
   regionSigungu?: string
+  teamUid?: string
 }) {
   return request({
     url: '/banner/active',

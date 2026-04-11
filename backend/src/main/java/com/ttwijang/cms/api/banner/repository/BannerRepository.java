@@ -42,4 +42,15 @@ public interface BannerRepository extends JpaRepository<Banner, String>, Queryds
     List<Banner> findActiveBannersByPageAndRegion(@Param("today") LocalDate today,
                                                     @Param("targetPage") Banner.TargetPage targetPage,
                                                     @Param("sigungu") String sigungu);
+
+    /**
+     * 팀별 활성화된 배너 조회
+     */
+    @Query("SELECT b FROM Banner b WHERE b.status = 'ACTIVE' "
+            + "AND (:today BETWEEN b.startDate AND b.endDate) "
+            + "AND b.targetPage = 'TEAM' "
+            + "AND b.teamUid = :teamUid "
+            + "ORDER BY b.displayOrder ASC")
+    List<Banner> findActiveBannersByTeam(@Param("today") LocalDate today,
+                                          @Param("teamUid") String teamUid);
 }

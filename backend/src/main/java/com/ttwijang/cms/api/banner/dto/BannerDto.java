@@ -28,6 +28,7 @@ public class BannerDto {
         private String regionSido;
         private String regionSigungu;
         private Banner.TargetPage targetPage;
+        private String teamUid;
     }
 
     @Data
@@ -46,6 +47,7 @@ public class BannerDto {
         private String regionSido;
         private String regionSigungu;
         private Banner.TargetPage targetPage;
+        private String teamUid;
         private LocalDateTime createdDate;
         private LocalDateTime updatedDate;
     }
@@ -65,6 +67,7 @@ public class BannerDto {
         private String regionSido;
         private String regionSigungu;
         private Banner.TargetPage targetPage;
+        private String teamUid;
     }
 
     @Data
@@ -82,5 +85,6 @@ public class BannerDto {
         private String regionSido;
         private String regionSigungu;
         private Banner.TargetPage targetPage;
+        private String teamUid;
     }
 }

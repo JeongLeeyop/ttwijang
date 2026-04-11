@@ -33,6 +33,13 @@
           {{ scope.row.regionSido }} {{ scope.row.regionSigungu || '' }}
         </template>
       </el-table-column>
+      <el-table-column label="노출 위치" width="120">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.targetPage === 'LEAGUE'" type="primary" size="small">리그</el-tag>
+          <el-tag v-else-if="scope.row.targetPage === 'TEAM'" type="success" size="small">팀 배너</el-tag>
+          <el-tag v-else size="small">{{ scope.row.targetPage }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="상태" width="90">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 'ACTIVE' ? 'success' : 'info'" size="small">
@@ -89,7 +96,15 @@
         <el-form-item label="링크 URL" prop="linkUrl">
           <el-input v-model="form.linkUrl" placeholder="클릭 시 이동할 URL" />
         </el-form-item>
-        <!-- targetPage는 항상 LEAGUE로 고정 -->
+        <el-form-item label="노출 위치" prop="targetPage">
+          <el-select v-model="form.targetPage" style="width:100%" @change="onTargetPageChange">
+            <el-option label="리그 페이지" value="LEAGUE" />
+            <el-option label="팀 후원 배너" value="TEAM" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="form.targetPage === 'TEAM'" label="팀 UID" prop="teamUid">
+          <el-input v-model="form.teamUid" placeholder="팀 UID를 입력하세요" />
+        </el-form-item>
         <el-form-item label="노출 기간" prop="startDate">
           <el-date-picker
             v-model="dateRange"
@@ -150,7 +165,7 @@ export default class extends Vue {
 
   private form: any = {
     uid: null, title: '', imageUrl: '', linkUrl: '',
-    targetPage: 'LEAGUE', startDate: '', endDate: '',
+    targetPage: 'LEAGUE', teamUid: '', startDate: '', endDate: '',
     regionSido: '', regionSigungu: '', displayOrder: 1, status: 'ACTIVE',
   };
 
@@ -210,11 +225,15 @@ export default class extends Vue {
   resetForm() {
     this.form = {
       uid: null, title: '', imageUrl: '', linkUrl: '',
-      targetPage: 'LEAGUE', startDate: '', endDate: '',
+      targetPage: 'LEAGUE', teamUid: '', startDate: '', endDate: '',
       regionSido: '', regionSigungu: '', displayOrder: 1, status: 'ACTIVE',
     };
     this.dateRange = [];
     this.imageInputType = 'url';
+  }
+
+  onTargetPageChange() {
+    this.form.teamUid = '';
   }
 
   onImageInputTypeChange() {

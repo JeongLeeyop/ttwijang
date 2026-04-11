@@ -1,85 +1,105 @@
 package com.ttwijang.cms.api.payment.controller;
 
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.yaml.snakeyaml.util.UriEncoder;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-
-import javax.transaction.Transactional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysema.commons.lang.URLEncoder;
 import com.ttwijang.cms.api.payment.dto.PaymentRequestDto;
-import com.ttwijang.cms.api.payment.service.PaymentService;
+import com.ttwijang.cms.api.payment.repository.PaymentRequestRepository;
 import com.ttwijang.cms.api.payment.service.TossPaymentService;
-import com.ttwijang.cms.common.exception.BadRequestException;
-import com.ttwijang.cms.common.exception.CommonException;
-import com.ttwijang.cms.common.exception.ProductQuantityExceedException;
+import com.ttwijang.cms.entity.PaymentRequest;
+import com.ttwijang.cms.oauth.SinghaUser;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-
-@AllArgsConstructor
 @RestController
 @RequestMapping("/api/client/payment")
+@RequiredArgsConstructor
 public class PaymentController {
 
-    private final PaymentService service;
     private final TossPaymentService tossPaymentService;
+    private final PaymentRequestRepository paymentRequestRepository;
 
-    @GetMapping("success")
-    @Transactional
-    public ResponseEntity success(OAuth2Authentication userDetail, PaymentRequestDto.approval dto) throws URISyntaxException, JsonProcessingException {
+    @Value("${toss.frontend-result-url}")
+    private String frontendResultUrl;
 
-        String errorMessage = null;
-        // String uri = "http://localhost:3000/delivery";
-        String uri = "/delivery";
-        URI redirectUri = null;
-        try {
-            tossPaymentService.payment(dto);
-        }  catch (WebClientResponseException e){
-            // int statusCode = e.getRawStatusCode();
-            // System.out.println("오류 코드: " + statusCode);
-            errorMessage = e.getResponseBodyAsString();
-            errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-            
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(errorMessage);
-        
-            // JsonNode에서 특정 필드의 값을 가져옵니다.
-            String code = jsonNode.get("code").asText();
-            String message = jsonNode.get("message").asText();
-            
-            uri = "http://localhost:3000/diet/order";
-            // uri = "/diet/order";
-            redirectUri = new URI(uri+"?errorMessage=" + java.net.URLEncoder.encode(message, StandardCharsets.UTF_8));
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        } catch (Exception e) {
-            errorMessage = "Payment failed: " + e.getMessage();
-            // uri = "http://localhost:3000/diet/order";
-            uri = "/diet/order";
-            redirectUri = new URI(uri+"?errorMessage=" + java.net.URLEncoder.encode(errorMessage, StandardCharsets.UTF_8));
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
+    /**
+     * 결제 준비: orderId 생성 + PaymentRequest 저장
+     * 클라이언트가 Toss SDK 호출 전에 먼저 호출
+     */
+    @PostMapping("/prepare")
+    public ResponseEntity<Map<String, Object>> prepare(
+            OAuth2Authentication auth,
+            @RequestBody Map<String, Object> body) {
 
-        if(redirectUri==null) redirectUri = new URI(uri);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri);
-        return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
+        SinghaUser user = (SinghaUser) auth.getPrincipal();
+        int amount = (int) body.get("amount");
+        String orderName = (String) body.getOrDefault("orderName", "캐시 충전");
+
+        String orderId = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+
+        PaymentRequest req = new PaymentRequest(orderId, orderName, user.getUser().getUid(), amount);
+        paymentRequestRepository.save(req);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderId", orderId);
+        result.put("orderName", orderName);
+        result.put("amount", amount);
+        return ResponseEntity.ok(result);
     }
 
+    /**
+     * Toss 결제 성공 콜백 (브라우저 리다이렉트)
+     * ?paymentKey=xxx&orderId=xxx&amount=xxx
+     */
+    @GetMapping("/success")
+    @Transactional
+    public ResponseEntity<Void> success(
+            @RequestParam String paymentKey,
+            @RequestParam String orderId,
+            @RequestParam int amount) throws Exception {
+
+        PaymentRequestDto.approval dto = new PaymentRequestDto.approval();
+        dto.setPaymentKey(paymentKey);
+        dto.setOrderId(orderId);
+        dto.setAmount(amount);
+
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            tossPaymentService.payment(dto);
+            headers.setLocation(URI.create(frontendResultUrl
+                    + "?success=true&amount=" + amount));
+        } catch (WebClientResponseException e) {
+            String body = e.getResponseBodyAsString();
+            System.err.println("[Toss 오류 응답] " + body);
+            String msg = java.net.URLEncoder.encode(body.isEmpty() ? e.getMessage() : body, StandardCharsets.UTF_8);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            headers.setLocation(URI.create(frontendResultUrl + "?success=false&message=" + msg));
+        } catch (Exception e) {
+            String msg = java.net.URLEncoder.encode(
+                    e.getMessage() != null ? e.getMessage() : "결제 처리 중 오류가 발생했습니다.",
+                    StandardCharsets.UTF_8);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            headers.setLocation(URI.create(frontendResultUrl + "?success=false&message=" + msg));
+        }
+        return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+    }
 }

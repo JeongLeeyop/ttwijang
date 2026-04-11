@@ -63,6 +63,9 @@ public class Banner {
     @Column(name = "target_page", length = 50)
     private TargetPage targetPage;
 
+    @Column(name = "team_uid", length = 50)
+    private String teamUid;
+
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 

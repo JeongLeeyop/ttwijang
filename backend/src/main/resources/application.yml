@@ -94,6 +94,13 @@ security:
       access-token-validity-seconds: 86400     # 24시간
       refresh-token-validity-seconds: 2592000  # 30일
 
+# Toss Payments
+toss:
+  secret-key: bGl2ZV9za19PQVE5MnlteE4zNE5LYWFQOWJ2cmFqUktYdmRrOg==  # 테스트용 시크릿 키 (실서버 교체 필요)
+  # secret-key: test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R  # 테스트용 시크릿 키 (실서버 교체 필요)
+  success-url: http://localhost:8080/api/client/payment/success
+  frontend-result-url: http://localhost:3000/payment/result
+
 # 문자알리고 SMS API 설정
 sms:
   aligo:
@@ -187,7 +194,7 @@ attached-file:
 # spring.datasource.url: jdbc:h2:~/test;
 # spring.datasource.driverClassName: org.h2.Driver
 # spring.datasource.username: sa
-# spring.datasource.password: 
+# spring.datasource.password:
 # spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
 # spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
 # spring.jpa.database: h2

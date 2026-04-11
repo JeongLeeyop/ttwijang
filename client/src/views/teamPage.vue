@@ -585,7 +585,7 @@ import {
   getTeamSponsorships,
   getTeamSponsorshipSummary,
 } from '@/api/cash';
-import { getActiveBanners } from '@/api/banner';
+import { getTeamBanners } from '@/api/sponsor';
 import {
   getTeamPosts, addTeamPost, updateTeamPost,
   deleteTeamPost, likeTeamPost,
@@ -1329,7 +1329,7 @@ export default class TeamPage extends Vue {
     try {
       const [spRes, bannerRes] = await Promise.all([
         getTeamSponsorships(this.teamUid),
-        getActiveBanners({ targetPage: 'TEAM' }),
+        getTeamBanners(this.teamUid),
       ]);
       this.sponsorships = spRes.data || [];
       this.teamBanners = bannerRes.data || [];

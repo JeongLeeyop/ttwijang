@@ -241,6 +241,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				component: () => import('@/views/cashHistory.vue'),
 			},
 			{
+				path: '/payment/result',
+				name: 'PaymentResult',
+				meta: {
+					title: '결제 결과',
+				},
+				component: () => import('@/views/paymentResult.vue'),
+			},
+			{
 				path: '/recruitment-create',
 				name: 'RecruitmentCreate',
 				meta: {

@@ -151,15 +151,15 @@
       "type": "file"
     },
     {
-      "path": "src/views/league/teams.vue",
-      "accessCount": 10,
-      "lastAccessed": 1775900142422,
+      "path": "src/views/banner/index.vue",
+      "accessCount": 13,
+      "lastAccessed": 1775932968253,
       "type": "file"
     },
     {
-      "path": "src/views/banner/index.vue",
-      "accessCount": 7,
-      "lastAccessed": 1775901369571,
+      "path": "src/views/league/teams.vue",
+      "accessCount": 10,
+      "lastAccessed": 1775900142422,
       "type": "file"
     },
     {
@@ -172,6 +172,12 @@
       "path": "src/views/region/index.vue",
       "accessCount": 5,
       "lastAccessed": 1775900619389,
+      "type": "file"
+    },
+    {
+      "path": "src/views/sponsor/team-banner.vue",
+      "accessCount": 5,
+      "lastAccessed": 1775940194856,
       "type": "file"
     },
     {
@@ -205,6 +211,18 @@
       "type": "directory"
     },
     {
+      "path": "src/api",
+      "accessCount": 3,
+      "lastAccessed": 1775940170757,
+      "type": "directory"
+    },
+    {
+      "path": "src/router/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775950586937,
+      "type": "file"
+    },
+    {
       "path": "src/api/region.ts",
       "accessCount": 2,
       "lastAccessed": 1775884273078,
@@ -235,15 +253,27 @@
       "type": "file"
     },
     {
-      "path": "src/api",
-      "accessCount": 2,
-      "lastAccessed": 1775901182818,
-      "type": "directory"
-    },
-    {
       "path": "src/api/banner.ts",
       "accessCount": 2,
       "lastAccessed": 1775901206432,
+      "type": "file"
+    },
+    {
+      "path": "src/api/sponsor.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775940654808,
+      "type": "directory"
+    },
+    {
+      "path": "src/layout/default.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775950626898,
+      "type": "file"
+    },
+    {
+      "path": "src/layout/components/aside-bar.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775950627176,
       "type": "file"
     },
     {
@@ -283,12 +313,6 @@
       "type": "file"
     },
     {
-      "path": "src/router/index.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775898141614,
-      "type": "file"
-    },
-    {
       "path": "src/store/modules/permission.ts",
       "accessCount": 1,
       "lastAccessed": 1775898142121,
@@ -304,6 +328,18 @@
       "path": "src/api/attached-file.ts",
       "accessCount": 1,
       "lastAccessed": 1775901186008,
+      "type": "file"
+    },
+    {
+      "path": "src/api/team.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775950589349,
+      "type": "file"
+    },
+    {
+      "path": "src/views/home.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775950624270,
       "type": "file"
     }
   ],
