@@ -62,6 +62,11 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
     Page<Team> findByRecruitingMembersTrueAndRegionSigungu(String sigungu, Pageable pageable);
 
     /**
+     * 관리자용: 시/도 이름으로 팀 전체 조회 (DELETED 제외)
+     */
+    List<Team> findByRegionSidoAndStatusNotOrderByCreatedDateDesc(String regionSido, Team.TeamStatus status);
+
+    /**
      * 회원 모집 중인 팀 목록 조회 (다중 필터)
      * native query 사용: JPQL의 function('BIT_AND',...) 은 MySQL 집계 함수로 매핑되므로
      * MySQL 비트 AND 연산자(&)를 직접 사용하기 위해 nativeQuery = true 처리

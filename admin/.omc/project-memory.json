@@ -145,15 +145,111 @@
   },
   "hotPaths": [
     {
-      "path": "src/views/region/index.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775878688058,
+      "path": "",
+      "accessCount": 4,
+      "lastAccessed": 1775897815098,
+      "type": "directory"
+    },
+    {
+      "path": "src/assets/css/style.css",
+      "accessCount": 4,
+      "lastAccessed": 1775898097727,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/login.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775898060651,
       "type": "file"
     },
     {
       "path": "src/api/region.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775884273078,
+      "type": "file"
+    },
+    {
+      "path": "src/views/region/index.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775884311430,
+      "type": "file"
+    },
+    {
+      "path": "src/views/league/index.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775895073024,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 2,
+      "lastAccessed": 1775897814525,
+      "type": "directory"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1775897840757,
+      "type": "file"
+    },
+    {
+      "path": "vue.config.js",
+      "accessCount": 2,
+      "lastAccessed": 1775897845579,
+      "type": "file"
+    },
+    {
+      "path": "package-lock.json",
+      "accessCount": 2,
+      "lastAccessed": 1775897851343,
+      "type": "file"
+    },
+    {
+      "path": "src/utils/request.ts",
       "accessCount": 1,
-      "lastAccessed": 1775878691926,
+      "lastAccessed": 1775879632370,
+      "type": "file"
+    },
+    {
+      "path": ".env.development",
+      "accessCount": 1,
+      "lastAccessed": 1775879638796,
+      "type": "file"
+    },
+    {
+      "path": "src/store/modules/user.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775879649908,
+      "type": "file"
+    },
+    {
+      "path": "src/utils/cookies.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775879654298,
+      "type": "file"
+    },
+    {
+      "path": "src/api/league.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775894913004,
+      "type": "file"
+    },
+    {
+      "path": "src/utils/filters/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775894970139,
+      "type": "file"
+    },
+    {
+      "path": "src/main.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775894970234,
+      "type": "directory"
+    },
+    {
+      "path": "public/index.html",
+      "accessCount": 1,
+      "lastAccessed": 1775897823048,
       "type": "file"
     }
   ],

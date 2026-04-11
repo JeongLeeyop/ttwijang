@@ -8,6 +8,12 @@ function resolve(dir) {
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? '/adm' : '/',
+  pages: {
+    index: {
+      entry: 'src/main.ts',
+      title: '뛰장 관리자',
+    },
+  },
   outputDir: 'dist',
   transpileDependencies: ['vue-daum-postcode', 'vue-js-modal'],
   lintOnSave: false,

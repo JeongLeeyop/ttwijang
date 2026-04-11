@@ -8,10 +8,10 @@
       <div class="user__tab">
         <div class="user__subtab">
           <el-select v-model="filterSido" clearable placeholder="시/도" style="width:120px" @change="onFilterSidoChange">
-            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.code" />
+            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
           <el-select v-model="filterSigungu" clearable placeholder="시/군/구" style="width:130px" @change="fetchList">
-            <el-option v-for="r in filterSigunguList" :key="r.code" :label="r.name" :value="r.code" />
+            <el-option v-for="r in filterSigunguList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
         </div>
         <button class="tool-btn" @click="openLeagueForm()">리그 생성 +</button>
@@ -33,7 +33,7 @@
       <el-table-column label="시즌" prop="season" width="120" />
       <el-table-column label="기간" min-width="200">
         <template slot-scope="scope">
-          {{ scope.row.startDate | parseDate }} ~ {{ scope.row.endDate | parseDate }}
+          {{ scope.row.startDate }} ~ {{ scope.row.endDate }}
         </template>
       </el-table-column>
       <el-table-column label="팀 수" width="90" align="center">
@@ -75,26 +75,32 @@
         <el-form-item label="시즌" prop="season">
           <el-input v-model="leagueForm.season" placeholder="예: 2025-2026" />
         </el-form-item>
-        <el-form-item label="기간" prop="startDate">
+        <el-form-item label="시작일" prop="startDate">
           <el-date-picker
-            v-model="leagueDateRange"
-            type="daterange"
-            range-separator="~"
-            start-placeholder="시작일"
-            end-placeholder="종료일"
+            v-model="leagueForm.startDate"
+            type="date"
             value-format="yyyy-MM-dd"
+            placeholder="시작일 선택"
             style="width:100%"
-            @change="onLeagueDateChange"
+          />
+        </el-form-item>
+        <el-form-item label="종료일" prop="endDate">
+          <el-date-picker
+            v-model="leagueForm.endDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="종료일 선택"
+            style="width:100%"
           />
         </el-form-item>
         <el-form-item label="지역 (시/도)" prop="regionSido">
           <el-select v-model="leagueForm.regionSido" style="width:100%" @change="onLeagueSidoChange">
-            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.code" />
+            <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="지역 (시/군/구)">
-          <el-select v-model="leagueForm.regionSigungu" clearable placeholder="선택" style="width:100%">
-            <el-option v-for="r in leagueSigunguList" :key="r.code" :label="r.name" :value="r.code" />
+          <el-select v-model="leagueForm.regionSigungu" clearable placeholder="선택 (선택사항)" style="width:100%">
+            <el-option v-for="r in leagueSigunguList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="최대 팀 수" prop="maxTeams">
@@ -209,17 +215,18 @@ export default class extends Vue {
 
   // 리그 폼
   private leagueDialogVisible = false;
-  private leagueDateRange: string[] = [];
   private leagueSigunguList: any[] = [];
   private leagueForm: any = {
-    uid: null, name: '', description: '', season: '', startDate: '', endDate: '',
+    uid: null, name: '', description: '', season: '',
+    startDate: '', endDate: '',
     regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
   };
   private leagueRules = {
     name: [{ required: true, message: '리그명을 입력하세요', trigger: 'blur' }],
     season: [{ required: true, message: '시즌을 입력하세요', trigger: 'blur' }],
     regionSido: [{ required: true, message: '지역을 선택하세요', trigger: 'change' }],
-    startDate: [{ required: true, message: '기간을 선택하세요', trigger: 'change' }],
+    startDate: [{ required: true, message: '시작일을 선택하세요', trigger: 'change' }],
+    endDate: [{ required: true, message: '종료일을 선택하세요', trigger: 'change' }],
     maxTeams: [{ required: true, message: '최대 팀 수를 입력하세요', trigger: 'blur' }],
   };
 
@@ -267,21 +274,23 @@ export default class extends Vue {
     }
   }
 
-  async onFilterSidoChange(code: string) {
+  async onFilterSidoChange(name: string) {
     this.filterSigungu = '';
     this.filterSigunguList = [];
-    if (code) {
-      const res = await getSigunguList(code);
-      this.filterSigunguList = res.data || [];
+    if (name) {
+      const sido = this.sidoList.find((r: any) => r.name === name);
+      if (sido) {
+        const res = await getSigunguList(sido.code);
+        this.filterSigunguList = res.data || [];
+      }
     }
     this.fetchList();
   }
 
-  // 리그 폼
+  // ── 리그 폼 ──
   openLeagueForm(row?: any) {
     if (row) {
       this.leagueForm = { ...row };
-      this.leagueDateRange = [row.startDate, row.endDate];
       if (row.regionSido) this.onLeagueSidoChange(row.regionSido);
     } else {
       this.resetLeagueForm();
@@ -291,23 +300,22 @@ export default class extends Vue {
 
   resetLeagueForm() {
     this.leagueForm = {
-      uid: null, name: '', description: '', season: '', startDate: '', endDate: '',
+      uid: null, name: '', description: '', season: '',
+      startDate: '', endDate: '',
       regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
     };
-    this.leagueDateRange = [];
     this.leagueSigunguList = [];
   }
 
-  onLeagueDateChange(val: string[]) {
-    if (val) { this.leagueForm.startDate = val[0]; this.leagueForm.endDate = val[1]; }
-  }
-
-  async onLeagueSidoChange(code: string) {
+  async onLeagueSidoChange(name: string) {
     this.leagueForm.regionSigungu = '';
     this.leagueSigunguList = [];
-    if (code) {
-      const res = await getSigunguList(code);
-      this.leagueSigunguList = res.data || [];
+    if (name) {
+      const sido = this.sidoList.find((r: any) => r.name === name);
+      if (sido) {
+        const res = await getSigunguList(sido.code);
+        this.leagueSigunguList = res.data || [];
+      }
     }
   }
 
@@ -325,8 +333,9 @@ export default class extends Vue {
         }
         this.leagueDialogVisible = false;
         await this.fetchList();
-      } catch {
-        this.$message.error('저장 중 오류가 발생했습니다.');
+      } catch (e: any) {
+        const msg = e?.response?.data?.message || '저장 중 오류가 발생했습니다.';
+        this.$message.error(msg);
       } finally {
         this.saving = false;
       }
@@ -348,7 +357,7 @@ export default class extends Vue {
     this.$router.push({ name: 'LeagueTeams', params: { uid: row.uid } });
   }
 
-  // 경기 폼
+  // ── 경기 폼 ──
   async openMatchForm(league: any) {
     this.selectedLeague = league;
     this.matchForm = {
@@ -378,8 +387,9 @@ export default class extends Vue {
         await createLeagueMatch(this.matchForm);
         this.$message.success('경기가 생성되었습니다.');
         this.matchDialogVisible = false;
-      } catch {
-        this.$message.error('경기 생성 중 오류가 발생했습니다.');
+      } catch (e: any) {
+        const msg = e?.response?.data?.message || '경기 생성 중 오류가 발생했습니다.';
+        this.$message.error(msg);
       } finally {
         this.savingMatch = false;
       }

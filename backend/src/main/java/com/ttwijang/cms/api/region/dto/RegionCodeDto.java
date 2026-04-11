@@ -23,4 +23,49 @@ public class RegionCodeDto {
         private Integer sortOrder;
         private Boolean enabled;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SidoCreateRequest {
+        private String code;
+        private String name;
+        private Integer sortOrder;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SigunguCreateRequest {
+        private String code;
+        private String name;
+        private String parentCode;
+        private Integer sortOrder;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegionLeagueSummary {
+        private String uid;
+        private String name;
+        private String regionSigungu;
+        private String season;
+        private String status;
+        private Integer maxTeams;
+        private Integer currentTeams;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegionTeamSummary {
+        private String uid;
+        private String name;
+        private String regionSigungu;
+        private String status;
+        private Integer memberCount;
+    }
 }

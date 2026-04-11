@@ -1,8 +1,12 @@
 package com.ttwijang.cms.api.region.service;
 
+import com.ttwijang.cms.api.league.repository.LeagueRepository;
 import com.ttwijang.cms.api.region.dto.RegionCodeDto;
 import com.ttwijang.cms.api.region.repository.RegionCodeRepository;
+import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.RegionCode;
+import com.ttwijang.cms.entity.Team;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,8 @@ import java.util.stream.Collectors;
 public class RegionCodeService {
 
     private final RegionCodeRepository regionCodeRepository;
+    private final LeagueRepository leagueRepository;
+    private final TeamRepository teamRepository;
 
     /**
      * 시/도 목록 조회
@@ -54,6 +60,87 @@ public class RegionCodeService {
         }
         RegionCode regionCode = regionCodeRepository.findByCode(code);
         return regionCode != null ? regionCode.getName() : null;
+    }
+
+    /**
+     * 시/도 추가 (관리자 전용)
+     */
+    @Transactional
+    public RegionCodeDto.Response createSido(RegionCodeDto.SidoCreateRequest req) {
+        if (regionCodeRepository.findByCode(req.getCode()) != null) {
+            throw new IllegalArgumentException("이미 존재하는 코드입니다: " + req.getCode());
+        }
+        RegionCode regionCode = RegionCode.builder()
+                .code(req.getCode())
+                .name(req.getName())
+                .parentCode(null)
+                .level(1)
+                .sortOrder(req.getSortOrder() != null ? req.getSortOrder() : 99)
+                .enabled(true)
+                .build();
+        return toResponse(regionCodeRepository.save(regionCode));
+    }
+
+    /**
+     * 시/군/구 추가 (관리자 전용)
+     */
+    @Transactional
+    public RegionCodeDto.Response createSigungu(RegionCodeDto.SigunguCreateRequest req) {
+        RegionCode parent = regionCodeRepository.findByCode(req.getParentCode());
+        if (parent == null) {
+            throw new IllegalArgumentException("존재하지 않는 시/도 코드입니다: " + req.getParentCode());
+        }
+        if (regionCodeRepository.findByCode(req.getCode()) != null) {
+            throw new IllegalArgumentException("이미 존재하는 코드입니다: " + req.getCode());
+        }
+        RegionCode regionCode = RegionCode.builder()
+                .code(req.getCode())
+                .name(req.getName())
+                .parentCode(req.getParentCode())
+                .level(2)
+                .sortOrder(req.getSortOrder() != null ? req.getSortOrder() : 99)
+                .enabled(true)
+                .build();
+        return toResponse(regionCodeRepository.save(regionCode));
+    }
+
+    /**
+     * 시/도 코드로 해당 지역의 리그 목록 조회 (관리자 전용)
+     */
+    public List<RegionCodeDto.RegionLeagueSummary> getLeaguesBySidoCode(String sidoCode) {
+        RegionCode sido = regionCodeRepository.findByCode(sidoCode);
+        if (sido == null) {
+            throw new IllegalArgumentException("존재하지 않는 시/도 코드입니다: " + sidoCode);
+        }
+        List<League> leagues = leagueRepository.findByRegionSidoOrderByCreatedDateDesc(sido.getName());
+        return leagues.stream().map(l -> RegionCodeDto.RegionLeagueSummary.builder()
+                .uid(l.getUid())
+                .name(l.getName())
+                .regionSigungu(l.getRegionSigungu())
+                .season(l.getSeason())
+                .status(l.getStatus() != null ? l.getStatus().name() : null)
+                .maxTeams(l.getMaxTeams())
+                .currentTeams(l.getCurrentTeams())
+                .build()).collect(Collectors.toList());
+    }
+
+    /**
+     * 시/도 코드로 해당 지역의 팀 목록 조회 (관리자 전용)
+     */
+    public List<RegionCodeDto.RegionTeamSummary> getTeamsBySidoCode(String sidoCode) {
+        RegionCode sido = regionCodeRepository.findByCode(sidoCode);
+        if (sido == null) {
+            throw new IllegalArgumentException("존재하지 않는 시/도 코드입니다: " + sidoCode);
+        }
+        List<Team> teams = teamRepository.findByRegionSidoAndStatusNotOrderByCreatedDateDesc(
+                sido.getName(), Team.TeamStatus.DELETED);
+        return teams.stream().map(t -> RegionCodeDto.RegionTeamSummary.builder()
+                .uid(t.getUid())
+                .name(t.getName())
+                .regionSigungu(t.getRegionSigungu())
+                .status(t.getStatus() != null ? t.getStatus().name() : null)
+                .memberCount(t.getMemberCount())
+                .build()).collect(Collectors.toList());
     }
 
     /**

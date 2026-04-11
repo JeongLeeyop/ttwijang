@@ -47,4 +47,9 @@ public interface LeagueRepository extends JpaRepository<League, String>, Queryds
     Page<League> findBySigunguAndStatus(@Param("sigungu") String sigungu,
                                          @Param("status") League.LeagueStatus status,
                                          Pageable pageable);
+
+    /**
+     * 관리자용: 시/도 이름으로 리그 전체 조회 (상태 무관)
+     */
+    List<League> findByRegionSidoOrderByCreatedDateDesc(String regionSido);
 }

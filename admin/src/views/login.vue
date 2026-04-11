@@ -1,13 +1,18 @@
 <template>
   <div class="main">
+    <div class="main-bg-pattern"></div>
     <div class="main-wrap">
       <div class="main-logo">
-        <img src="@/assets/images/logo.png" alt="">
+        <div class="brand-logo">
+          <span class="brand-icon">⚽</span>
+          <span class="brand-name">뛰장</span>
+        </div>
+        <p class="brand-sub">풋살 리그 관리 시스템</p>
       </div>
 
       <div class="login-wrap">
         <div class="login-title">
-          <p>LOGIN</p>
+          <p>관리자 로그인</p>
         </div>
 
         <el-form ref="loginForm" class="login-form" :rules="rules" :model="loginForm" onsubmit="return false;">
