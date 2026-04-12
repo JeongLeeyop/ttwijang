@@ -90,6 +90,9 @@ public class User implements Serializable {
     // 성별(0: 남자, 1: 여자)
     private Integer gender;
 
+    // 프로필 이미지 URL
+    private String profileImageUrl;
+
     // 탈퇴여부
     private boolean withdrawStatus; 
 

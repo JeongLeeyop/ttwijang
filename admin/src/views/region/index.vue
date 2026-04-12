@@ -148,26 +148,38 @@ import {
 @Component({ name: 'RegionList' })
 export default class extends Vue {
   private loading = false;
+
   private saving = false;
+
   private detailLoading = false;
 
   private sidoList: any[] = [];
+
   private expandedRows: string[] = [];
 
   // 시/도 추가
   private sidoDialogVisible = false;
+
   private sidoForm = { code: '', name: '', sortOrder: 99 };
 
   // 시/군/구 추가
   private sigunguDialogVisible = false;
+
   private sigunguTargetName = '';
-  private sigunguForm = { code: '', name: '', parentCode: '', sortOrder: 99 };
+
+  private sigunguForm = {
+ code: '', name: '', parentCode: '', sortOrder: 99,
+};
 
   // 리그/팀 확인
   private leagueDialogVisible = false;
+
   private teamDialogVisible = false;
+
   private detailRegionName = '';
+
   private regionLeagues: any[] = [];
+
   private regionTeams: any[] = [];
 
   async created() {
@@ -188,13 +200,11 @@ export default class extends Vue {
     const idx = this.expandedRows.indexOf(row.code);
     if (idx >= 0) {
       this.expandedRows.splice(idx, 1);
-    } else {
-      if (!row._sigungu) {
+    } else if (!row._sigungu) {
         await this.loadSigungu(row);
       } else {
         this.expandedRows.push(row.code);
       }
-    }
   }
 
   async onExpandChange(row: any, expanded: boolean) {
@@ -243,7 +253,9 @@ export default class extends Vue {
   // ── 시/군/구 추가 ──
   openSigunguDialog(row: any) {
     this.sigunguTargetName = row.name;
-    this.sigunguForm = { code: '', name: '', parentCode: row.code, sortOrder: 99 };
+    this.sigunguForm = {
+ code: '', name: '', parentCode: row.code, sortOrder: 99,
+};
     this.sigunguDialogVisible = true;
   }
 

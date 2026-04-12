@@ -50,6 +50,9 @@ public class CashDto {
 
         @Schema(description = "관련 참조 UID")
         private String referenceUid;
+
+        @Schema(description = "참조 유형 (MATCH, GUEST, SPONSORSHIP)")
+        private String referenceType;
     }
 
     @Data
@@ -115,12 +118,12 @@ public class CashDto {
         @Schema(description = "팀 UID", required = true)
         private String teamUid;
 
-        @NotNull(message = "후원 유형은 필수입니다")
-        @Schema(description = "후원 유형", required = true)
+        @Schema(description = "후원 유형 (서버에서 자동 결정)")
         private TeamSponsorship.SponsorshipType sponsorshipType;
 
+        @NotNull(message = "후원 금액은 필수입니다")
         @Min(value = 1000, message = "최소 후원 금액은 1,000원입니다")
-        @Schema(description = "후원 금액 (1회성/정기)")
+        @Schema(description = "후원 금액", required = true)
         private Integer amount;
 
         @Schema(description = "후원 메시지")

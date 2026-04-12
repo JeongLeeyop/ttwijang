@@ -88,16 +88,23 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { getLeague, getLeagueTeams, addTeamToLeague, removeTeamFromLeague } from '@/api/league';
+import {
+ getLeague, getLeagueTeams, addTeamToLeague, removeTeamFromLeague,
+} from '@/api/league';
 import { getTeamList } from '@/api/team';
 
 @Component({ name: 'LeagueTeams' })
 export default class extends Vue {
   private loading = false;
+
   private league: any = null;
+
   private allTeams: any[] = [];
+
   private assignedTeams: any[] = [];
+
   private teamSearch = '';
+
   private filteredAllTeams: any[] = [];
 
   get leagueUid() {
@@ -154,7 +161,7 @@ export default class extends Vue {
     try {
       await removeTeamFromLeague(this.leagueUid, teamUid);
       this.assignedTeams = this.assignedTeams.filter(
-        (t) => (t.uid || t.teamUid) !== teamUid
+        (t) => (t.uid || t.teamUid) !== teamUid,
       );
       this.$message.success(`${teamName} 팀이 제거되었습니다.`);
     } catch {

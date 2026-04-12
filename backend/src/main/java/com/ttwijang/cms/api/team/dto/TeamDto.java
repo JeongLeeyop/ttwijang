@@ -454,4 +454,49 @@ public class TeamDto {
         @Schema(description = "신청일")
         private LocalDateTime appliedDate;
     }
+
+    /**
+     * 팀 대시보드 응답
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 대시보드 응답")
+    public static class DashboardResponse {
+        @Schema(description = "매치 총 경기수")
+        private int matchTotal;
+        @Schema(description = "매치 승")
+        private int matchWins;
+        @Schema(description = "매치 무")
+        private int matchDraws;
+        @Schema(description = "매치 패")
+        private int matchLosses;
+        @Schema(description = "매치 승률 (0~100)")
+        private double matchWinRate;
+
+        @Schema(description = "리그 총 경기수")
+        private int leaguePlayed;
+        @Schema(description = "리그 승")
+        private int leagueWins;
+        @Schema(description = "리그 무")
+        private int leagueDraws;
+        @Schema(description = "리그 패")
+        private int leagueLosses;
+        @Schema(description = "리그 승률 (0~100)")
+        private double leagueWinRate;
+        @Schema(description = "리그 승점")
+        private int leaguePoints;
+        @Schema(description = "리그 득점")
+        private int leagueGoalsFor;
+        @Schema(description = "리그 실점")
+        private int leagueGoalsAgainst;
+        @Schema(description = "리그 득실차")
+        private int leagueGoalDifference;
+        @Schema(description = "리그 순위 (참가 중인 리그가 없으면 null)")
+        private Integer leagueRanking;
+
+        @Schema(description = "매너 점수")
+        private double mannerScore;
+    }
 }

@@ -147,26 +147,45 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { getBannerList, createBanner, updateBanner, deleteBanner, uploadBannerImage } from '@/api/banner';
+import {
+ getBannerList, createBanner, updateBanner, deleteBanner, uploadBannerImage,
+} from '@/api/banner';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
 
 @Component({ name: 'BannerList' })
 export default class extends Vue {
   private loading = false;
+
   private saving = false;
+
   private uploadingImage = false;
+
   private dialogVisible = false;
+
   private bannerList: any[] = [];
+
   private sidoList: any[] = [];
+
   private sigunguList: any[] = [];
+
   private dateRange: string[] = [];
+
   private imageInputType: 'url' | 'file' = 'url';
 
   private form: any = {
-    uid: null, title: '', imageUrl: '', linkUrl: '',
-    targetPage: 'LEAGUE', teamUid: '', startDate: '', endDate: '',
-    regionSido: '', regionSigungu: '', displayOrder: 1, status: 'ACTIVE',
+    uid: null,
+title: '',
+imageUrl: '',
+linkUrl: '',
+    targetPage: 'LEAGUE',
+teamUid: '',
+startDate: '',
+endDate: '',
+    regionSido: '',
+regionSigungu: '',
+displayOrder: 1,
+status: 'ACTIVE',
   };
 
   private rules = {
@@ -224,9 +243,18 @@ export default class extends Vue {
 
   resetForm() {
     this.form = {
-      uid: null, title: '', imageUrl: '', linkUrl: '',
-      targetPage: 'LEAGUE', teamUid: '', startDate: '', endDate: '',
-      regionSido: '', regionSigungu: '', displayOrder: 1, status: 'ACTIVE',
+      uid: null,
+title: '',
+imageUrl: '',
+linkUrl: '',
+      targetPage: 'LEAGUE',
+teamUid: '',
+startDate: '',
+endDate: '',
+      regionSido: '',
+regionSigungu: '',
+displayOrder: 1,
+status: 'ACTIVE',
     };
     this.dateRange = [];
     this.imageInputType = 'url';
@@ -246,7 +274,7 @@ export default class extends Vue {
     this.uploadingImage = true;
     try {
       const res = await uploadBannerImage(formData);
-      const data = res.data;
+      const { data } = res;
       // url 필드 우선, 없으면 uid로 경로 구성
       this.form.imageUrl = data.url || `/api/attached-file/${data.uid}`;
       this.$message.success('이미지가 업로드되었습니다.');

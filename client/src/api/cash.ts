@@ -65,8 +65,8 @@ export function getTransactionsByDateRange(startDate: string, endDate: string, p
 // 팀 후원하기
 export interface SponsorshipRequest {
   teamUid: string
-  sponsorshipType: 'OWNER' | 'ONE_TIME' | 'REGULAR'
-  amount?: number
+  sponsorshipType?: 'OWNER' | 'ONE_TIME' | 'REGULAR'
+  amount: number
   message?: string
 }
 

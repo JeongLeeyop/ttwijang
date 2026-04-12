@@ -82,14 +82,6 @@ export const constantRoutes: Array<RouteConfig> = [
 				},
 				component: () => import('@/views/teamPage.vue'),
 			},
-			{
-				path: 'member-detail/:memberUid',
-				name: 'MemberDetail',
-				meta: {
-					title: '회원 상세',
-				},
-				component: () => import('@/views/memberDetail.vue'),
-			},
 		],
 	},
 	{
@@ -281,6 +273,42 @@ export const constantRoutes: Array<RouteConfig> = [
 				component: () => import('@/views/teamDashboard.vue'),
 			},
 			{
+				path: '/my-applications',
+				name: 'MyApplications',
+				meta: { title: '신청 내역' },
+				component: () => import('@/views/myApplications.vue'),
+			},
+			{
+				path: '/notice',
+				name: 'Notice',
+				meta: { title: '공지사항' },
+				component: () => import('@/views/notice.vue'),
+			},
+			{
+				path: '/faq',
+				name: 'Faq',
+				meta: { title: '자주 묻는 질문' },
+				component: () => import('@/views/faq.vue'),
+			},
+			{
+				path: '/sponsor-apply',
+				name: 'SponsorApply',
+				meta: { title: '구단 후원 신청' },
+				component: () => import('@/views/sponsorApply.vue'),
+			},
+			{
+				path: '/guide',
+				name: 'Guide',
+				meta: { title: '뛰장 가이드' },
+				component: () => import('@/views/guide.vue'),
+			},
+			{
+				path: '/about',
+				name: 'About',
+				meta: { title: '뛰장 소개' },
+				component: () => import('@/views/about.vue'),
+			},
+			{
 				path: '/team-settings',
 				name: 'TeamSettings',
 				meta: {
@@ -311,6 +339,14 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '가입 승인 관리',
 				},
 				component: () => import('@/views/pendingManage.vue'),
+			},
+			{
+				path: '/member-detail/:memberUid',
+				name: 'MemberDetail',
+				meta: {
+					title: '회원 상세',
+				},
+				component: () => import('@/views/memberDetail.vue'),
 			},
 		],
 	},

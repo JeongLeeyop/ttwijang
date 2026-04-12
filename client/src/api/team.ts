@@ -60,6 +60,8 @@ export interface CreateTeamRequest {
   skillLevel?: number
   bankName?: string
   bankAccount?: string
+  refundBankName?: string
+  refundBankAccount?: string
   monthlyFee?: number
   featureTags?: string
   recruitingMembers?: boolean
@@ -152,9 +154,8 @@ export function leaveTeam(teamUid: string) {
 // 운영자 위임
 export function delegateOwner(teamUid: string, newOwnerUid: string) {
   return request({
-    url: `/team/${teamUid}/delegate`,
+    url: `/team/${teamUid}/delegate/${newOwnerUid}`,
     method: 'post',
-    data: { newOwnerUid },
   });
 }
 
@@ -282,10 +283,45 @@ export function getMyPendingInfo() {
   });
 }
 
+// 팀 삭제 요청
+export function requestDeleteTeam(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/delete-request`,
+    method: 'post',
+  });
+}
+
 // 가입 신청 취소
 export function cancelJoinRequest() {
   return request({
     url: '/team/my/pending',
     method: 'delete',
+  });
+}
+
+// 팀 대시보드 조회
+export interface TeamDashboard {
+  matchTotal: number
+  matchWins: number
+  matchDraws: number
+  matchLosses: number
+  matchWinRate: number
+  leaguePlayed: number
+  leagueWins: number
+  leagueDraws: number
+  leagueLosses: number
+  leagueWinRate: number
+  leaguePoints: number
+  leagueGoalsFor: number
+  leagueGoalsAgainst: number
+  leagueGoalDifference: number
+  leagueRanking: number | null
+  mannerScore: number
+}
+
+export function getTeamDashboard(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/dashboard`,
+    method: 'get',
   });
 }

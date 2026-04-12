@@ -145,6 +145,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/views/settlement/index.vue",
+      "accessCount": 18,
+      "lastAccessed": 1775957469583,
+      "type": "file"
+    },
+    {
       "path": "src/views/league/index.vue",
       "accessCount": 16,
       "lastAccessed": 1775900246183,
@@ -152,14 +158,26 @@
     },
     {
       "path": "src/views/banner/index.vue",
-      "accessCount": 13,
-      "lastAccessed": 1775932968253,
+      "accessCount": 14,
+      "lastAccessed": 1775951021971,
       "type": "file"
     },
     {
       "path": "src/views/league/teams.vue",
       "accessCount": 10,
       "lastAccessed": 1775900142422,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 7,
+      "lastAccessed": 1775952577069,
+      "type": "directory"
+    },
+    {
+      "path": "src/router/index.ts",
+      "accessCount": 6,
+      "lastAccessed": 1775952565025,
       "type": "file"
     },
     {
@@ -205,21 +223,33 @@
       "type": "file"
     },
     {
-      "path": "src",
-      "accessCount": 3,
-      "lastAccessed": 1775901174524,
-      "type": "directory"
-    },
-    {
       "path": "src/api",
       "accessCount": 3,
       "lastAccessed": 1775940170757,
       "type": "directory"
     },
     {
-      "path": "src/router/index.ts",
+      "path": "src/layout/default.vue",
       "accessCount": 3,
-      "lastAccessed": 1775950586937,
+      "lastAccessed": 1775952540769,
+      "type": "file"
+    },
+    {
+      "path": "src/layout/components/aside-bar.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775952544186,
+      "type": "file"
+    },
+    {
+      "path": "src/store/modules/user.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775952574323,
+      "type": "file"
+    },
+    {
+      "path": "src/api/settlement.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775953815648,
       "type": "file"
     },
     {
@@ -265,15 +295,9 @@
       "type": "directory"
     },
     {
-      "path": "src/layout/default.vue",
+      "path": "src/store/modules/permission.ts",
       "accessCount": 2,
-      "lastAccessed": 1775950626898,
-      "type": "file"
-    },
-    {
-      "path": "src/layout/components/aside-bar.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775950627176,
+      "lastAccessed": 1775952549652,
       "type": "file"
     },
     {
@@ -286,12 +310,6 @@
       "path": ".env.development",
       "accessCount": 1,
       "lastAccessed": 1775879638796,
-      "type": "file"
-    },
-    {
-      "path": "src/store/modules/user.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775879649908,
       "type": "file"
     },
     {
@@ -310,12 +328,6 @@
       "path": "public/index.html",
       "accessCount": 1,
       "lastAccessed": 1775897823048,
-      "type": "file"
-    },
-    {
-      "path": "src/store/modules/permission.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775898142121,
       "type": "file"
     },
     {
@@ -340,6 +352,12 @@
       "path": "src/views/home.vue",
       "accessCount": 1,
       "lastAccessed": 1775950624270,
+      "type": "file"
+    },
+    {
+      "path": "src/views/team/deleteRequest.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775951894906,
       "type": "file"
     }
   ],

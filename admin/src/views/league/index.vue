@@ -302,22 +302,40 @@ import { ElForm } from 'element-ui/types/form';
 @Component({ name: 'LeagueList' })
 export default class extends Vue {
   private loading = false;
+
   private saving = false;
+
   private savingMatch = false;
+
   private leagueList: any[] = [];
+
   private sidoList: any[] = [];
+
   private filterSido = '';
+
   private filterSigungu = '';
+
   private filterSigunguList: any[] = [];
 
   // 리그 폼
   private leagueDialogVisible = false;
+
   private leagueSigunguList: any[] = [];
+
   private leagueForm: any = {
-    uid: null, name: '', description: '', season: '',
-    startDate: '', endDate: '',
-    regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
+    uid: null,
+name: '',
+description: '',
+season: '',
+    startDate: '',
+endDate: '',
+    regionSido: '',
+regionSigungu: '',
+maxTeams: 8,
+rules: '',
+status: 'RECRUITING',
   };
+
   private leagueRules = {
     name: [{ required: true, message: '리그명을 입력하세요', trigger: 'blur' }],
     season: [{ required: true, message: '시즌을 입력하세요', trigger: 'blur' }],
@@ -329,26 +347,43 @@ export default class extends Vue {
 
   // 경기 현황
   private scheduleDialogVisible = false;
+
   private scheduleLoading = false;
+
   private scheduleLeagueName = '';
+
   private scheduleMatches: any[] = [];
+
   private currentScheduleLeagueUid = '';
 
   // 경기 결과 입력
   private resultDialogVisible = false;
+
   private savingResult = false;
+
   private selectedMatch: any = null;
+
   private resultForm = { matchUid: '', homeScore: 0, awayScore: 0 };
 
   // 경기 폼
   private matchDialogVisible = false;
+
   private selectedLeague: any = null;
+
   private selectedLeagueTeams: any[] = [];
+
   private matchForm: any = {
-    leagueUid: '', homeTeamUid: '', awayTeamUid: '',
-    matchDate: '', matchTime: '', durationMinutes: 90, round: 1,
-    stadiumName: '', stadiumAddress: '',
+    leagueUid: '',
+homeTeamUid: '',
+awayTeamUid: '',
+    matchDate: '',
+matchTime: '',
+durationMinutes: 90,
+round: 1,
+    stadiumName: '',
+stadiumAddress: '',
   };
+
   private matchRules = {
     homeTeamUid: [{ required: true, message: '홈팀을 선택하세요', trigger: 'change' }],
     awayTeamUid: [{ required: true, message: '원정팀을 선택하세요', trigger: 'change' }],
@@ -410,9 +445,17 @@ export default class extends Vue {
 
   resetLeagueForm() {
     this.leagueForm = {
-      uid: null, name: '', description: '', season: '',
-      startDate: '', endDate: '',
-      regionSido: '', regionSigungu: '', maxTeams: 8, rules: '', status: 'RECRUITING',
+      uid: null,
+name: '',
+description: '',
+season: '',
+      startDate: '',
+endDate: '',
+      regionSido: '',
+regionSigungu: '',
+maxTeams: 8,
+rules: '',
+status: 'RECRUITING',
     };
     this.leagueSigunguList = [];
   }
@@ -477,9 +520,15 @@ export default class extends Vue {
   async openMatchForm(league: any) {
     this.selectedLeague = league;
     this.matchForm = {
-      leagueUid: league.uid, homeTeamUid: '', awayTeamUid: '',
-      matchDate: '', matchTime: '', durationMinutes: 90, round: 1,
-      stadiumName: '', stadiumAddress: '',
+      leagueUid: league.uid,
+homeTeamUid: '',
+awayTeamUid: '',
+      matchDate: '',
+matchTime: '',
+durationMinutes: 90,
+round: 1,
+      stadiumName: '',
+stadiumAddress: '',
     };
     try {
       const res = await getLeagueTeams(league.uid);
@@ -512,11 +561,15 @@ export default class extends Vue {
   }
 
   matchStatusType(s: string) {
-    return ({ SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger' } as any)[s] || '';
+    return ({
+ SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger',
+} as any)[s] || '';
   }
 
   matchStatusLabel(s: string) {
-    return ({ SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소' } as any)[s] || s;
+    return ({
+ SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소',
+} as any)[s] || s;
   }
 
   openResultForm(match: any) {

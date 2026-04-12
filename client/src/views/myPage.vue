@@ -74,7 +74,7 @@
       <!-- Menu List Section -->
       <section class="menu-section">
         <div class="menu-list">
-          <div class="menu-item" @click="navigateTo('my-teams')">
+          <div class="menu-item" @click="$router.push({ name: 'About' })">
             <div class="menu-icon">
               <i class="el-icon-info"></i>
             </div>
@@ -109,21 +109,21 @@
             <span class="menu-text">구장 제휴</span>
             <i class="el-icon-arrow-right"></i>
           </div>
-          <div class="menu-item" @click="navigateTo('my-coupons')">
+          <div class="menu-item" @click="navigateTo('sponsor-apply')">
             <div class="menu-icon">
               <i class="el-icon-thumb"></i>
             </div>
             <span class="menu-text">구단 후원 신청</span>
             <i class="el-icon-arrow-right"></i>
           </div>
-          <div class="menu-item" @click="navigateTo('my-coupons')">
+          <div class="menu-item" @click="navigateTo('faq')">
             <div class="menu-icon">
               <i class="el-icon-question"></i>
             </div>
             <span class="menu-text">자주 묻는 질문</span>
             <i class="el-icon-arrow-right"></i>
           </div>
-          <div class="menu-item" @click="navigateTo('my-coupons')">
+          <div class="menu-item" @click="navigateTo('notice')">
             <div class="menu-icon">
               <i class="el-icon-bell"></i>
             </div>
@@ -405,8 +405,19 @@ export default class MyPage extends Vue {
     this.$message.info(`${guideMap[type]} 가이드를 엽니다`);
   }
 
-  private navigateTo(): void {
-    this.$message.info('준비중입니다.');
+  private navigateTo(name: string): void {
+    const routeMap: Record<string, string> = {
+      'my-matches': 'MyApplications',
+      'sponsor-apply': 'SponsorApply',
+      faq: 'Faq',
+      notice: 'Notice',
+    };
+    const routeName = routeMap[name];
+    if (routeName) {
+      this.$router.push({ name: routeName });
+    } else {
+      this.$message.info('준비중입니다.');
+    }
   }
 
   private goToMyTeam(): void {
@@ -422,7 +433,7 @@ export default class MyPage extends Vue {
   }
 
   private openGuideDetail(): void {
-    this.$message.info('뛰장 가이드를 엽니다.');
+    this.$router.push({ name: 'Guide' });
   }
 
   private logout(): void {

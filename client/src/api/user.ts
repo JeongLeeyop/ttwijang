@@ -104,6 +104,18 @@ export const updateUserInfo = (data: any) => request({
   data,
 });
 
+export const uploadProfileImage = (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('moduleName', 'profile');
+  return request({
+    url: '/api/attached-file/upload',
+    method: 'post',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
 export const updateShop = (idx: any) => request({
   url: `${PATH}/setShop/${idx}`,
   method: 'put',

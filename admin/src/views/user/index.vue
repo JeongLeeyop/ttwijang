@@ -108,9 +108,13 @@ import Pagination from '@/components/Pagination/index.vue';
 @Component({ name: 'UserList', components: { Pagination } })
 export default class extends Vue {
   private loading = false;
+
   private userList: any[] = [];
+
   private totalElements = 0;
+
   private detailVisible = false;
+
   private selectedUser: any = null;
 
   private listQuery = {
@@ -130,7 +134,7 @@ export default class extends Vue {
       const params: any = { page: this.listQuery.page, size: this.listQuery.size };
       if (this.listQuery.searchValue) params[this.listQuery.searchType] = this.listQuery.searchValue;
       const res = await getUserList(params);
-      const data = res.data;
+      const { data } = res;
       this.userList = data.content || data || [];
       this.totalElements = data.totalElements || this.userList.length;
     } finally {

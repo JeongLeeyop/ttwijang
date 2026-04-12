@@ -1,0 +1,290 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775953855755,
+  "projectRoot": "/Users/devyop/git/ttwijang/client",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      },
+      {
+        "name": "JavaScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "jsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.18.2",
+        "category": "backend"
+      },
+      {
+        "name": "vue",
+        "version": "2.6.11",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run start",
+    "scripts": {
+      "serve": "cross-env NODE_ENV=development vue-cli-service serve",
+      "build": "cross-env NODE_ENV=production vue-cli-service build",
+      "start": "cross-env NODE_ENV=production node server/index.js",
+      "lint": "vue-cli-service lint",
+      "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1775953855729,
+      "keyFiles": [
+        "create-favicon.ps1",
+        "favicon.ico",
+        "index.html"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775953855729,
+      "keyFiles": [
+        "index.js"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 7,
+      "lastAccessed": 1775953855730,
+      "keyFiles": [
+        "App.vue",
+        "i18n.js",
+        "main.ts",
+        "permission.ts",
+        "settings.ts"
+      ]
+    },
+    "src/api": {
+      "path": "src/api",
+      "purpose": "API routes",
+      "fileCount": 26,
+      "lastAccessed": 1775953855733,
+      "keyFiles": [
+        "attachedFile.ts",
+        "banner.ts",
+        "board.ts"
+      ]
+    },
+    "src/assets": {
+      "path": "src/assets",
+      "purpose": "Static assets",
+      "fileCount": 1,
+      "lastAccessed": 1775953855733,
+      "keyFiles": [
+        "logo.png"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 1,
+      "lastAccessed": 1775953855733,
+      "keyFiles": [
+        "FooterNav.vue"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/views/teamPage.vue",
+      "accessCount": 24,
+      "lastAccessed": 1775956672518,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/guide.vue",
+      "accessCount": 14,
+      "lastAccessed": 1775954610724,
+      "type": "file"
+    },
+    {
+      "path": "src/views/about.vue",
+      "accessCount": 14,
+      "lastAccessed": 1775954860478,
+      "type": "file"
+    },
+    {
+      "path": "src/views/myApplications.vue",
+      "accessCount": 9,
+      "lastAccessed": 1775954755972,
+      "type": "file"
+    },
+    {
+      "path": "src/views/teamDashboard.vue",
+      "accessCount": 9,
+      "lastAccessed": 1775956265089,
+      "type": "file"
+    },
+    {
+      "path": "src/views/profileEdit.vue",
+      "accessCount": 8,
+      "lastAccessed": 1775957689053,
+      "type": "file"
+    },
+    {
+      "path": "src/router/index.ts",
+      "accessCount": 7,
+      "lastAccessed": 1775957126745,
+      "type": "file"
+    },
+    {
+      "path": "src/views/matchDetail.vue",
+      "accessCount": 6,
+      "lastAccessed": 1775957705164,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/faq.vue",
+      "accessCount": 5,
+      "lastAccessed": 1775954448708,
+      "type": "file"
+    },
+    {
+      "path": "src/assets/css/style.css",
+      "accessCount": 5,
+      "lastAccessed": 1775956255646,
+      "type": "directory"
+    },
+    {
+      "path": "src/api",
+      "accessCount": 5,
+      "lastAccessed": 1775957397281,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/notice.vue",
+      "accessCount": 4,
+      "lastAccessed": 1775954437214,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 4,
+      "lastAccessed": 1775957449641,
+      "type": "directory"
+    },
+    {
+      "path": "",
+      "accessCount": 3,
+      "lastAccessed": 1775954459131,
+      "type": "directory"
+    },
+    {
+      "path": "src/api/match.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775954552981,
+      "type": "file"
+    },
+    {
+      "path": "src/views/memberDetail.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775957130926,
+      "type": "file"
+    },
+    {
+      "path": "src/views/myPage.vue",
+      "accessCount": 2,
+      "lastAccessed": 1775954609000,
+      "type": "file"
+    },
+    {
+      "path": "src/api/cash.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775956565530,
+      "type": "file"
+    },
+    {
+      "path": "src/api/user.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775957651393,
+      "type": "file"
+    },
+    {
+      "path": "src/Layout/authLayout.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775954158987,
+      "type": "file"
+    },
+    {
+      "path": "src/Layout/components/backHeader.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775954163903,
+      "type": "file"
+    },
+    {
+      "path": "src/assets/css/default.css",
+      "accessCount": 1,
+      "lastAccessed": 1775954175330,
+      "type": "directory"
+    },
+    {
+      "path": "src/api/league.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775954462543,
+      "type": "file"
+    },
+    {
+      "path": "src/api/team.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775956500773,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

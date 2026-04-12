@@ -97,7 +97,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { getTeamBannerList, createTeamBanner, updateTeamBanner, deleteTeamBanner } from '@/api/sponsor';
+import {
+ getTeamBannerList, createTeamBanner, updateTeamBanner, deleteTeamBanner,
+} from '@/api/sponsor';
 import { getTeamList } from '@/api/team';
 import { uploadBannerImage } from '@/api/banner';
 import { ElForm } from 'element-ui/types/form';
@@ -105,14 +107,22 @@ import { ElForm } from 'element-ui/types/form';
 @Component({ name: 'TeamBanner' })
 export default class extends Vue {
   private loading = false;
+
   private saving = false;
+
   private uploadingImage = false;
+
   private dialogVisible = false;
+
   private bannerList: any[] = [];
+
   private teamList: any[] = [];
+
   private imageInputType: 'url' | 'file' = 'url';
 
-  private form: any = { uid: null, teamUid: '', teamName: '', imageUrl: '', description: '' };
+  private form: any = {
+ uid: null, teamUid: '', teamName: '', imageUrl: '', description: '',
+};
 
   private rules = {
     teamUid: [{ required: true, message: '팀을 선택하세요', trigger: 'change' }],
@@ -158,7 +168,9 @@ export default class extends Vue {
   }
 
   resetForm() {
-    this.form = { uid: null, teamUid: '', teamName: '', imageUrl: '', description: '' };
+    this.form = {
+ uid: null, teamUid: '', teamName: '', imageUrl: '', description: '',
+};
     this.imageInputType = 'url';
   }
 
@@ -172,7 +184,7 @@ export default class extends Vue {
     this.uploadingImage = true;
     try {
       const res = await uploadBannerImage(formData);
-      const data = res.data;
+      const { data } = res;
       this.form.imageUrl = data.url || `/api/attached-file/${data.uid}`;
       this.$message.success('이미지가 업로드되었습니다.');
     } catch {

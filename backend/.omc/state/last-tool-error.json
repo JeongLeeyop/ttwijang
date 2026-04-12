@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"npx eslint src/views/teamDashboard.vue 2>&1\",\"description\":\"Lint teamDashboard.vue\"}",
+  "error": "Exit code 2\nnpm WARN exec The following package was not found and will be installed: eslint@10.2.0\nnpm WARN EBADENGINE Unsupported engine {\nnpm WARN EBADENGINE   package: 'eslint@10.2.0',\nnpm WARN EBADENGINE   required: { node: '^20.19.0 || ^22.13.0 || >=24' },\nnpm WARN EBADENGINE   current: { node: 'v16.20.2', npm: '8.19.4' }\nnpm WARN EBADENGINE }\nnpm WARN EBADENGINE Unsupported engine {\nnpm WARN EBADENGINE   package: '@eslint/config-array@0.23.5',\nnpm WARN EBADENGINE   required: { node: '^20.1...",
+  "timestamp": "2026-04-12T01:01:42.118Z",
+  "retry_count": 1
+}

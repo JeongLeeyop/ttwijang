@@ -31,12 +31,17 @@ import { ElForm } from 'element-ui/types/form';
 @Component({ name: 'SponsorFee' })
 export default class extends Vue {
   private loading = false;
+
   private saving = false;
+
   private form = { amount: 0 };
+
   private rules = {
     amount: [
       { required: true, message: '금액을 입력하세요', trigger: 'blur' },
-      { type: 'number', min: 0, message: '0 이상의 숫자를 입력하세요', trigger: 'blur' },
+      {
+ type: 'number', min: 0, message: '0 이상의 숫자를 입력하세요', trigger: 'blur',
+},
     ],
   };
 

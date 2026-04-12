@@ -304,6 +304,7 @@ public class MatchService {
                     .amount(fee)
                     .description("매치 참가비 (" + applicantTeam.getName() + " / " + match.getStadiumName() + ")")
                     .referenceUid(match.getUid())
+                    .referenceType("MATCH")
                     .build();
             cashService.use(useRequest, userUid);
         }
@@ -439,6 +440,33 @@ public class MatchService {
         } */
     }
 
+    /**
+     * 내 매치 신청 내역 조회
+     */
+    @Transactional(readOnly = true)
+    public List<MatchDto.MyApplicationResponse> getMyApplications(String userUid) {
+        return matchApplicationRepository.findByApplicantUserUidOrderByCreatedDateDesc(userUid)
+                .stream()
+                .map(app -> {
+                    FutsalMatch match = matchRepository.findByUid(app.getMatchUid()).orElse(null);
+                    Team hostTeam = match != null ? teamRepository.findByUid(match.getHostTeamUid()).orElse(null) : null;
+                    return MatchDto.MyApplicationResponse.builder()
+                            .applicationUid(app.getUid())
+                            .matchUid(app.getMatchUid())
+                            .hostTeamName(hostTeam != null ? hostTeam.getName() : "")
+                            .stadiumName(match != null ? match.getStadiumName() : "")
+                            .matchDate(match != null ? match.getMatchDate() : null)
+                            .matchTime(match != null ? (match.getMatchTime() != null ? match.getMatchTime().toString() : null) : null)
+                            .matchType(match != null && match.getMatchType() != null ? match.getMatchType().name() : "")
+                            .matchFormat(match != null && match.getMatchFormat() != null ? match.getMatchFormat() : "")
+                            .matchStatus(match != null && match.getStatus() != null ? match.getStatus().name() : "")
+                            .applicationStatus(app.getStatus() != null ? app.getStatus().name() : "")
+                            .appliedAt(app.getCreatedDate())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     private MatchDto.DetailResponse toDetailResponse(FutsalMatch match) {
         return toDetailResponse(match, null);
     }
@@ -463,6 +491,7 @@ public class MatchService {
                             .uid(app.getApplicantUserUid())
                             .name(user != null ? user.getActualName() : "알 수 없음")
                             .teamName(applicantTeam != null ? applicantTeam.getName() : "")
+                            .profileImageUrl(user != null ? user.getProfileImageUrl() : null)
                             .build();
                 })
                 .collect(Collectors.toList()));
@@ -478,6 +507,7 @@ public class MatchService {
                                 .uid(gApp.getUserUid())
                                 .name(gUser != null ? gUser.getActualName() : "알 수 없음")
                                 .teamName("게스트")
+                                .profileImageUrl(gUser != null ? gUser.getProfileImageUrl() : null)
                                 .build());
                     });
                 });

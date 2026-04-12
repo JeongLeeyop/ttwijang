@@ -136,6 +136,66 @@ export const asyncRoutes: RouteConfig[] = [
     ],
   },
 
+  /* 팀 삭제 요청 */
+  {
+    path: '/team/delete-requests',
+    component: () => import('@/layout/default.vue'),
+    meta: { title: '팀 삭제 요청', roles: ['ROLE_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'TeamDeleteRequest',
+        component: () => import('@/views/team/deleteRequest.vue'),
+        meta: { title: '팀 삭제 요청', roles: ['ROLE_ADMIN'] },
+      },
+    ],
+  },
+
+  /* 공지사항 관리 */
+  {
+    path: '/notice',
+    component: () => import('@/layout/default.vue'),
+    meta: { title: '공지사항 관리', roles: ['ROLE_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'NoticeManage',
+        component: () => import('@/views/notice/index.vue'),
+        meta: { title: '공지사항 관리', roles: ['ROLE_ADMIN'] },
+      },
+    ],
+  },
+
+  /* FAQ 관리 */
+  {
+    path: '/faq',
+    component: () => import('@/layout/default.vue'),
+    meta: { title: 'FAQ 관리', roles: ['ROLE_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'FaqManage',
+        component: () => import('@/views/faq/index.vue'),
+        meta: { title: 'FAQ 관리', roles: ['ROLE_ADMIN'] },
+      },
+    ],
+  },
+
+  /* 정산 관리 */
+  {
+    path: '/settlement',
+    component: () => import('@/layout/default.vue'),
+    meta: { title: '정산 관리', roles: ['ROLE_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'Settlement',
+        component: () => import('@/views/settlement/index.vue'),
+        meta: { title: '정산 관리', roles: ['ROLE_ADMIN'] },
+      },
+    ],
+  },
+
   { path: '*', redirect: '/dashboard', meta: { hidden: true } },
 ];
 

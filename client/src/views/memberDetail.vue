@@ -1,108 +1,76 @@
 <template>
-  <div class="main member-detail-page">
-    <div class="background-wave"></div>
-    <div class="content">
-      <!-- Back Button -->
-      <div class="detail-top-bar">
-        <button class="back-btn" @click="goBack">
-          <i class="el-icon-arrow-left"></i>
-        </button>
-        <span class="top-bar-title">회원 상세</span>
-        <div class="top-bar-right"></div>
-      </div>
+  <div class="member-detail-page">
+    <!-- 헤더 -->
+    <div class="page-header">
+      <button class="btn-back" @click="goBack">
+        <i class="el-icon-arrow-left"></i>
+      </button>
+      <span class="page-title">회원 상세</span>
+      <div style="width:36px"></div>
+    </div>
 
-      <!-- Loading -->
-      <div v-if="isLoading" class="detail-loading">
-        <i class="el-icon-loading"></i>
-        <p>로딩 중...</p>
-      </div>
+    <!-- 로딩 -->
+    <div v-if="isLoading" class="state-center">
+      <div class="spinner"></div>
+    </div>
 
-      <!-- Content -->
-      <div v-else-if="memberInfo" class="detail-content">
-        <!-- Profile Section -->
-        <div class="profile-section">
-          <div class="profile-avatar-wrap">
-            <img
-              :src="memberInfo.profileImageUrl || defaultAvatar"
-              :alt="memberInfo.userName"
-              class="profile-avatar"
-            >
-          </div>
-          <h2 class="profile-name">{{ memberInfo.userName || '이름 없음' }}</h2>
-          <span
-            class="profile-role-badge"
-            :class="roleBadgeClass"
-          >{{ roleLabel }}</span>
+    <!-- 콘텐츠 -->
+    <div v-else-if="memberInfo" class="member-content">
+      <!-- 프로필 히어로 -->
+      <div class="profile-hero">
+        <div class="avatar-ring">
+          <img
+            :src="memberInfo.profileImageUrl || defaultAvatar"
+            :alt="memberInfo.userName"
+            class="profile-avatar"
+          >
         </div>
-
-        <!-- Info Card -->
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-title">기본 정보</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">성별</span>
-            <span class="info-value">{{ genderLabel }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">나이</span>
-            <span class="info-value">{{ ageLabel }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">생년월일</span>
-            <span class="info-value">{{ birthLabel }}</span>
-          </div>
-        </div>
-
-        <!-- Team Info Card -->
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-title">팀 정보</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">역할</span>
-            <span class="info-value">{{ roleLabel }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">포지션</span>
-            <span class="info-value">{{ memberInfo.position || '-' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">등번호</span>
-            <span class="info-value">{{ memberInfo.backNumber != null ? memberInfo.backNumber : '-' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">가입일</span>
-            <span class="info-value">{{ joinDateLabel }}</span>
-          </div>
-        </div>
-
-        <!-- Manner Score Card -->
-        <!-- <div class="info-card manner-card">
-          <div class="info-card-header">
-            <span class="info-card-title">매너점수</span>
-          </div>
-          <div class="manner-score-display">
-            <span class="manner-score-value">{{ memberInfo.mannerScore || 0 }}</span>
-            <span class="manner-score-unit">점</span>
-          </div>
-        </div> -->
+        <h2 class="profile-name">{{ memberInfo.userName || '이름 없음' }}</h2>
+        <span class="role-badge" :class="roleBadgeClass">{{ roleLabel }}</span>
       </div>
 
-      <!-- Not Found -->
-      <div v-else class="detail-empty">
-        <i class="el-icon-warning-outline"></i>
-        <p>회원 정보를 찾을 수 없습니다.</p>
-        <button class="go-back-btn" @click="goBack">돌아가기</button>
+      <!-- 기본 정보 -->
+      <div class="info-card">
+        <p class="card-title">기본 정보</p>
+        <div class="info-row">
+          <span class="info-label">성별</span>
+          <span class="info-value">{{ genderLabel }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">나이</span>
+          <span class="info-value">{{ ageLabel }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">생년월일</span>
+          <span class="info-value">{{ birthLabel }}</span>
+        </div>
       </div>
+
+      <!-- 팀 정보 -->
+      <div class="info-card">
+        <p class="card-title">팀 정보</p>
+        <div class="info-row">
+          <span class="info-label">역할</span>
+          <span class="info-value">{{ roleLabel }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">가입일</span>
+          <span class="info-value">{{ joinDateLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 없음 -->
+    <div v-else class="state-center">
+      <div class="empty-icon"><i class="el-icon-warning-outline"></i></div>
+      <p class="empty-text">회원 정보를 찾을 수 없습니다</p>
+      <button class="btn-go-back" @click="goBack">돌아가기</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  Vue, Component,
-} from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import { getTeamMembers } from '@/api/team';
 
 @Component
@@ -115,7 +83,7 @@ export default class MemberDetail extends Vue {
 
   private memberUid = ''
 
-  private defaultAvatar = 'https://ui-avatars.com/api/?name=U&background=ccc&color=fff&size=80'
+  private defaultAvatar = 'https://ui-avatars.com/api/?name=U&background=e8eaf6&color=3949ab&size=80&bold=true'
 
   get roleBadgeClass(): string {
     if (!this.memberInfo) return '';
@@ -181,11 +149,8 @@ export default class MemberDetail extends Vue {
     try {
       const res = await getTeamMembers(this.teamUid);
       const members: any[] = res.data || [];
-      this.memberInfo = members.find(
-        (m: any) => m.uid === this.memberUid,
-      ) || null;
+      this.memberInfo = members.find((m: any) => m.uid === this.memberUid) || null;
     } catch (error) {
-      console.error('회원 정보 로드 실패:', error);
       this.memberInfo = null;
     } finally {
       this.isLoading = false;
@@ -204,215 +169,209 @@ export default class MemberDetail extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .member-detail-page {
   min-height: 100vh;
-  background: #f5f6fa;
-  padding-bottom: 80px;
+  background: #f4f6fb;
 }
 
-.background-wave {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 200px;
-  background: linear-gradient(135deg, #1a73e8 0%, #4a90d9 100%);
-  border-radius: 0 0 30px 30px;
-  z-index: 0;
-}
-
-.content {
-  position: relative;
-  z-index: 1;
-  padding: 0 16px;
-}
-
-/* Top Bar */
-.detail-top-bar {
+/* 헤더 */
+.page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0 12px;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-
-.top-bar-title {
-  color: #fff;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.top-bar-right {
-  width: 38px;
-}
-
-/* Loading */
-.detail-loading {
-  text-align: center;
-  padding: 80px 0;
-  color: #fff;
-
-  i {
-    font-size: 32px;
-  }
-
-  p {
-    margin-top: 12px;
-    font-size: 14px;
-  }
-}
-
-/* Profile Section */
-.profile-section {
-  text-align: center;
-  padding: 20px 0 24px;
-}
-
-.profile-avatar-wrap {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 12px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.5);
+  padding: 16px 20px;
   background: #fff;
+  border-bottom: 1px solid #edf0f7;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.btn-back {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f4f6fb;
+  border: none;
+  color: #3d4a6b;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-back:active {
+  background: #e8ecf5;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a2340;
+  letter-spacing: -0.3px;
+}
+
+/* 공통 상태 */
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e8ecf5;
+  border-top-color: #3949ab;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #edf0f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #aab2cc;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #aab2cc;
+  margin: 0;
+}
+
+.btn-go-back {
+  padding: 10px 28px;
+  background: #3949ab;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 콘텐츠 */
+.member-content {
+  padding: 0 16px 40px;
+}
+
+/* 프로필 히어로 */
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 28px;
+  gap: 10px;
+}
+
+.avatar-ring {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #3949ab, #7986cb);
+  box-shadow: 0 4px 16px rgba(57, 73, 171, 0.25);
 }
 
 .profile-avatar {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
+  border: 3px solid #fff;
 }
 
 .profile-name {
-  //color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a2340;
+  margin: 0;
+  letter-spacing: -0.4px;
 }
 
-.profile-role-badge {
-  display: inline-block;
-  padding: 4px 14px;
-  border-radius: 12px;
+.role-badge {
   font-size: 12px;
-  font-weight: 600;
-
-  &.badge-owner {
-    background: #ff9800;
-  }
-
-  &.badge-manager {
-    background: #4caf50;
-  }
-
-  &.badge-member {
-    background: rgba(255, 255, 255, 0.3);
-  }
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
 }
 
-/* Info Cards */
+.badge-owner {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-manager {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-member {
+  background: #e8eaf6;
+  color: #3949ab;
+}
+
+/* 정보 카드 */
 .info-card {
   background: #fff;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 18px 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(57, 73, 171, 0.05);
+  border: 1px solid #edf0f7;
 }
 
-.info-card-header {
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.info-card-title {
-  font-size: 15px;
+.card-title {
+  font-size: 13px;
   font-weight: 700;
-  color: #222;
+  color: #aab2cc;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 11px 0;
+  border-bottom: 1px solid #f4f6fb;
+}
 
-  & + .info-row {
-    border-top: 1px solid #fafafa;
-  }
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-row:first-of-type {
+  padding-top: 0;
 }
 
 .info-label {
   font-size: 14px;
-  color: #888;
+  color: #6b7699;
 }
 
 .info-value {
   font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
-/* Manner Score */
-.manner-card {
-  text-align: center;
-}
-
-.manner-score-display {
-  padding: 16px 0 8px;
-}
-
-.manner-score-value {
-  font-size: 36px;
-  font-weight: 800;
-  color: #1a73e8;
-}
-
-.manner-score-unit {
-  font-size: 16px;
-  color: #888;
-  margin-left: 4px;
-}
-
-/* Empty */
-.detail-empty {
-  text-align: center;
-  padding: 80px 0;
-  color: #999;
-
-  i {
-    font-size: 48px;
-    color: #ddd;
-  }
-
-  p {
-    margin-top: 12px;
-    font-size: 14px;
-  }
-}
-
-.go-back-btn {
-  margin-top: 20px;
-  padding: 10px 24px;
-  background: #1a73e8;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.detail-content {
-  padding-bottom: 20px;
+  color: #1a2340;
+  font-weight: 600;
 }
 </style>

@@ -44,7 +44,7 @@
         <!-- 구단주 Info Bar -->
         <div class="team-owner-bar">
           <span class="owner-bar-text">
-            구단주 : {{ ownerSponsorName || 'OOO' }} ({{ teamInfo.name || '팀명' }})
+            구단주 : {{ ownerSponsorName || '모집중' }} ({{ teamInfo.name || '팀명' }})
           </span>
           <span class="owner-bar-link" @click="showOwnerInfo">구단주 정보</span>
         </div>
@@ -473,6 +473,36 @@
       <i class="el-icon-plus"></i>
     </div>
 
+    <!-- 구단주 정보 모달 -->
+    <transition name="fade">
+      <div v-if="ownerInfoVisible" class="action-modal-overlay" @click.self="ownerInfoVisible = false">
+        <transition name="slide-up">
+          <div v-if="ownerInfoVisible" class="action-modal-sheet">
+            <div class="action-modal-header">
+              <span class="action-modal-title">구단주 정보</span>
+              <i class="el-icon-close action-modal-close" @click="ownerInfoVisible = false"></i>
+            </div>
+            <div class="action-modal-body">
+              <div v-if="ownerSponsor" class="owner-info-card">
+                <img
+                  :src="ownerSponsor.sponsorProfileUrl || defaultAvatar"
+                  class="owner-info-avatar"
+                  alt="구단주"
+                >
+                <div class="owner-info-name">{{ ownerSponsor.sponsorName || '구단주' }}</div>
+                <div v-if="ownerSponsor.message" class="owner-info-message">{{ ownerSponsor.message }}</div>
+              </div>
+              <div v-else class="owner-info-empty">
+                <div class="owner-info-empty-icon">🔍</div>
+                <div class="owner-info-empty-text">구단주 모집중입니다</div>
+                <div class="owner-info-empty-desc">아직 구단주가 없어요. 첫 번째 구단주가 되어보세요!</div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </transition>
+
     <!-- Action Modal (Bottom Sheet) -->
     <transition name="fade">
       <div v-if="showActionModal" class="action-modal-overlay" @click.self="showActionModal = false">
@@ -673,6 +703,10 @@ export default class TeamPage extends Vue {
   private sponsorshipSummary: any = null
 
   private ownerSponsorName = ''
+
+  private ownerSponsor: any = null
+
+  private ownerInfoVisible = false
 
   private isLoading = false
 
@@ -887,10 +921,12 @@ export default class TeamPage extends Vue {
 
   private async loadOwnerSponsor(): Promise<void> {
     try {
-      const res = await getTeamSponsorshipSummary(this.teamUid);
-      const summary = res.data;
-      if (summary && summary.ownerName) {
-        this.ownerSponsorName = summary.ownerName;
+      const res = await getTeamSponsorships(this.teamUid);
+      const list: any[] = res.data || [];
+      const owner = list.find((s: any) => s.sponsorshipType === 'OWNER' && s.status === 'ACTIVE');
+      if (owner) {
+        this.ownerSponsor = owner;
+        this.ownerSponsorName = owner.sponsorName || '구단주';
       }
     } catch (e) {
       // 구단주 정보 없을 수 있음
@@ -1382,7 +1418,7 @@ export default class TeamPage extends Vue {
   }
 
   private showOwnerInfo(): void {
-    this.$message.info('구단주 정보 기능은 준비 중입니다.');
+    this.ownerInfoVisible = true;
   }
 
   private handleAction(action: string): void {
@@ -2677,6 +2713,63 @@ export default class TeamPage extends Vue {
 
 .action-modal-btn:active {
   background: #f5f5f5;
+}
+
+/* ========================================
+   구단주 정보 모달
+   ======================================== */
+.owner-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  gap: 10px;
+}
+
+.owner-info-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e8eaf6;
+}
+
+.owner-info-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111;
+}
+
+.owner-info-message {
+  font-size: 13px;
+  color: #777;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.owner-info-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  gap: 8px;
+}
+
+.owner-info-empty-icon {
+  font-size: 36px;
+}
+
+.owner-info-empty-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.owner-info-empty-desc {
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
 }
 
 /* ========================================

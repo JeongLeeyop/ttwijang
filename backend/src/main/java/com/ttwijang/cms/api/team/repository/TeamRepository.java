@@ -32,6 +32,8 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     List<Team> findByOwnerUid(String ownerUid);
 
+    List<Team> findByStatusOrderByUpdatedDateDesc(Team.TeamStatus status);
+
     /**
      * BR-02: 사용자가 이미 팀을 생성했는지 확인 (ACTIVE 상태 팀 기준)
      */

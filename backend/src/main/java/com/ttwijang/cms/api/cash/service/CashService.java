@@ -13,9 +13,11 @@ import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.repository.CashTransactionRepository;
 import com.ttwijang.cms.api.cash.repository.CashWalletRepository;
 import com.ttwijang.cms.api.cash.repository.TeamSponsorshipRepository;
+import com.ttwijang.cms.api.sponsor.repository.SponsorSettingRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.CashWallet;
+import com.ttwijang.cms.entity.SponsorSetting;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamSponsorship;
 
@@ -29,6 +31,9 @@ public class CashService {
     private final CashTransactionRepository transactionRepository;
     private final TeamSponsorshipRepository sponsorshipRepository;
     private final TeamRepository teamRepository;
+    private final SponsorSettingRepository sponsorSettingRepository;
+
+    private static final String DEFAULT_SETTING_UID = "default";
 
     /**
      * 지갑 조회 (없으면 생성)
@@ -109,6 +114,7 @@ public class CashService {
                 .balanceAfter(newBalance)
                 .description(request.getDescription())
                 .referenceUid(request.getReferenceUid())
+                .referenceType(request.getReferenceType())
                 .build();
         transaction = transactionRepository.save(transaction);
 
@@ -173,26 +179,43 @@ public class CashService {
 
     /**
      * 팀 후원하기
+     * - 후원 금액이 관리자 설정 구단주 기준금액 이상이고 아직 구단주가 없으면 자동으로 구단주 등록
      */
     @Transactional
     public CashDto.SponsorshipResponse sponsorTeam(CashDto.SponsorshipRequest request, String sponsorUid) {
         Team team = teamRepository.findByUid(request.getTeamUid())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
 
-        // 캐시 차감 (1회성, 정기 후원만)
-        if (request.getSponsorshipType() != TeamSponsorship.SponsorshipType.OWNER && request.getAmount() != null) {
-            CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
-                    .amount(request.getAmount())
-                    .description(team.getName() + " 팀 후원")
-                    .referenceUid(request.getTeamUid())
-                    .build();
-            use(useRequest, sponsorUid);
+        if (request.getAmount() == null || request.getAmount() < 1) {
+            throw new IllegalArgumentException("후원 금액을 입력해주세요.");
         }
+
+        // 구단주 기준 금액 조회
+        SponsorSetting setting = sponsorSettingRepository.findByUid(DEFAULT_SETTING_UID).orElse(null);
+        int ownerThreshold = (setting != null && setting.getOwnerAmount() != null) ? setting.getOwnerAmount() : 0;
+
+        // 구단주 자동 판정: 기준금액 이상 AND 아직 구단주 없음
+        boolean becomeOwner = ownerThreshold > 0
+                && request.getAmount() >= ownerThreshold
+                && team.getSponsorOwnerUid() == null;
+
+        TeamSponsorship.SponsorshipType actualType = becomeOwner
+                ? TeamSponsorship.SponsorshipType.OWNER
+                : TeamSponsorship.SponsorshipType.ONE_TIME;
+
+        // 캐시 차감 (모든 후원 유형)
+        CashDto.UseRequest useRequest = CashDto.UseRequest.builder()
+                .amount(request.getAmount())
+                .description(team.getName() + " 팀 후원")
+                .referenceUid(request.getTeamUid())
+                .referenceType("SPONSORSHIP")
+                .build();
+        use(useRequest, sponsorUid);
 
         TeamSponsorship sponsorship = TeamSponsorship.builder()
                 .teamUid(request.getTeamUid())
                 .sponsorUid(sponsorUid)
-                .type(request.getSponsorshipType())
+                .type(actualType)
                 .amount(request.getAmount())
                 .totalAmount(request.getAmount())
                 .message(request.getMessage())
@@ -200,12 +223,15 @@ public class CashService {
                 .build();
         sponsorship = sponsorshipRepository.save(sponsorship);
 
-        // 팀의 총 후원금 업데이트
-        if (request.getAmount() != null) {
-            int currentTotal = team.getTotalSponsorship() != null ? team.getTotalSponsorship() : 0;
-            team.setTotalSponsorship(currentTotal + request.getAmount());
-            teamRepository.save(team);
+        // 구단주로 등록
+        if (becomeOwner) {
+            team.setSponsorOwnerUid(sponsorUid);
         }
+
+        // 팀 총 후원금 업데이트
+        int currentTotal = team.getTotalSponsorship() != null ? team.getTotalSponsorship() : 0;
+        team.setTotalSponsorship(currentTotal + request.getAmount());
+        teamRepository.save(team);
 
         return toSponsorshipResponse(sponsorship, team);
     }

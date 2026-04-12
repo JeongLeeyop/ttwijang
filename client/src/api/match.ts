@@ -1,5 +1,13 @@
 import request from '@/utils/request';
 
+// 내 매치 신청 내역 조회
+export function getMyMatchApplications() {
+  return request({
+    url: '/match/my',
+    method: 'get',
+  });
+}
+
 // 매치 목록 조회
 export function getMatchList(params?: {
   date?: string

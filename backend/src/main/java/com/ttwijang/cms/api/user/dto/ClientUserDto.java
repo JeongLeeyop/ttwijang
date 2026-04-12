@@ -54,6 +54,7 @@ public class ClientUserDto {
         private String lat;
         private String lon;
         private Integer gender;
+        private String profileImageUrl;
 
         // 마케팅 동의 여부
         private boolean marketingStatus;
@@ -70,10 +71,11 @@ public class ClientUserDto {
         private String postCode;
         private String address;
         private String addressDetail;
-        private String lat;        
+        private String lat;
         private String lon;
         private Integer gender;
         private Integer point;
+        private String profileImageUrl;
 
         // 마케팅 동의 여부
         private boolean marketingStatus;

@@ -77,12 +77,19 @@ public class PaymentController {
             @RequestParam String orderId,
             @RequestParam int amount) throws Exception {
 
+        // 이미 처리된 결제 중복 호출 방어
+        PaymentRequest existing = paymentRequestRepository.findByOrderId(orderId).orElse(null);
+        HttpHeaders headers = new HttpHeaders();
+        if (existing != null && existing.getStatus() == 1) {
+            headers.setLocation(URI.create(frontendResultUrl + "?success=true&amount=" + amount + "&duplicate=true"));
+            return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+        }
+
         PaymentRequestDto.approval dto = new PaymentRequestDto.approval();
         dto.setPaymentKey(paymentKey);
         dto.setOrderId(orderId);
         dto.setAmount(amount);
 
-        HttpHeaders headers = new HttpHeaders();
         try {
             tossPaymentService.payment(dto);
             headers.setLocation(URI.create(frontendResultUrl

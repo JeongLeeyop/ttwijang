@@ -96,8 +96,7 @@ security:
 
 # Toss Payments
 toss:
-  secret-key: bGl2ZV9za19PQVE5MnlteE4zNE5LYWFQOWJ2cmFqUktYdmRrOg==  # 테스트용 시크릿 키 (실서버 교체 필요)
-  # secret-key: test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R  # 테스트용 시크릿 키 (실서버 교체 필요)
+  secret-key: test_sk_7DLJOpm5Qrlbz0xz9je3PNdxbWnY  # 테스트용 시크릿 키 (실서버 교체 필요)
   success-url: http://localhost:8080/api/client/payment/success
   frontend-result-url: http://localhost:3000/payment/result
 

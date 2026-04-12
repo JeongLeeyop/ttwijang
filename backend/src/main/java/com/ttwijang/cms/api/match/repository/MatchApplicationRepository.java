@@ -23,4 +23,6 @@ public interface MatchApplicationRepository extends JpaRepository<MatchApplicati
     long countByMatchUidAndStatus(String matchUid, MatchApplication.ApplicationStatus status);
 
     List<MatchApplication> findByMatchUidAndStatus(String matchUid, MatchApplication.ApplicationStatus status);
+
+    List<MatchApplication> findByApplicantUserUidOrderByCreatedDateDesc(String userUid);
 }

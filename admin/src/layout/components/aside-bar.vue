@@ -60,7 +60,7 @@ export default class extends Vue {
 
   private getSingleChild(route: RouteConfig): RouteConfig | null {
     const visible = (route.children || []).filter(
-      (c) => !c.meta?.hidden
+      (c) => !c.meta?.hidden,
     );
     return visible.length === 1 ? visible[0] : null;
   }

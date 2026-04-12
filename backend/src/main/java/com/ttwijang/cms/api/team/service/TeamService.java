@@ -9,11 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
+import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.team.dto.TeamDto;
 import com.ttwijang.cms.api.team.dto.TeamMemberDto;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
 
@@ -26,6 +30,8 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
+    private final FutsalMatchRepository futsalMatchRepository;
+    private final LeagueTeamRepository leagueTeamRepository;
 
     private static final String TEAM_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int TEAM_CODE_LENGTH = 8;
@@ -424,10 +430,10 @@ public class TeamService {
     }
 
     /**
-     * 팀 삭제 (소프트 삭제)
+     * 팀 삭제 요청 (운영자 → DELETE_REQUESTED)
      */
     @Transactional
-    public void deleteTeam(String teamUid, String ownerUid) {
+    public void requestDeleteTeam(String teamUid, String ownerUid) {
         Team team = teamRepository.findByUid(teamUid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
 
@@ -435,7 +441,55 @@ public class TeamService {
             throw new IllegalArgumentException("팀 삭제 권한이 없습니다.");
         }
 
+        if (team.getStatus() != Team.TeamStatus.ACTIVE) {
+            throw new IllegalArgumentException("활성 팀만 삭제 요청할 수 있습니다.");
+        }
+
+        team.setStatus(Team.TeamStatus.DELETE_REQUESTED);
+        teamRepository.save(team);
+    }
+
+    /**
+     * 삭제 요청 팀 목록 조회 (관리자용)
+     */
+    @Transactional(readOnly = true)
+    public List<TeamDto.DetailResponse> getDeleteRequestedTeams() {
+        return teamRepository.findByStatusOrderByUpdatedDateDesc(Team.TeamStatus.DELETE_REQUESTED)
+                .stream()
+                .map(this::toDetailResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 팀 삭제 승인 (관리자 → DELETED)
+     */
+    @Transactional
+    public void approveDeleteTeam(String teamUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (team.getStatus() != Team.TeamStatus.DELETE_REQUESTED) {
+            throw new IllegalArgumentException("삭제 요청 상태가 아닙니다.");
+        }
+
         team.setStatus(Team.TeamStatus.DELETED);
+        team.setDeletedDate(java.time.LocalDateTime.now());
+        teamRepository.save(team);
+    }
+
+    /**
+     * 팀 삭제 거절 (관리자 → ACTIVE)
+     */
+    @Transactional
+    public void rejectDeleteTeam(String teamUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (team.getStatus() != Team.TeamStatus.DELETE_REQUESTED) {
+            throw new IllegalArgumentException("삭제 요청 상태가 아닙니다.");
+        }
+
+        team.setStatus(Team.TeamStatus.ACTIVE);
         teamRepository.save(team);
     }
 
@@ -664,8 +718,75 @@ public class TeamService {
             builder.userName(member.getUser().getActualName());
             builder.gender(member.getUser().getGender());
             builder.birth(member.getUser().getBirth());
+            builder.profileImageUrl(member.getUser().getProfileImageUrl());
         }
 
         return builder.build();
+    }
+
+    /**
+     * 팀 대시보드 조회 — 매치 전적 + 리그 전적 + 매너 점수 집계
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.DashboardResponse getTeamDashboard(String teamUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        // 매치 전적 집계 (COMPLETED 매치 기준)
+        List<FutsalMatch> completedMatches = futsalMatchRepository.findCompletedMatchesByTeamUid(teamUid);
+        int matchWins = 0, matchDraws = 0, matchLosses = 0;
+        for (FutsalMatch m : completedMatches) {
+            if (m.getHomeScore() == null || m.getAwayScore() == null) continue;
+            boolean isHome = teamUid.equals(m.getHostTeamUid());
+            int myScore = isHome ? m.getHomeScore() : m.getAwayScore();
+            int oppScore = isHome ? m.getAwayScore() : m.getHomeScore();
+            if (myScore > oppScore) matchWins++;
+            else if (myScore == oppScore) matchDraws++;
+            else matchLosses++;
+        }
+        int matchTotal = matchWins + matchDraws + matchLosses;
+        double matchWinRate = matchTotal > 0 ? Math.round((matchWins * 100.0 / matchTotal) * 10.0) / 10.0 : 0.0;
+
+        // 리그 전적 집계 (참가 중인 모든 리그 합산)
+        List<LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
+        int leagueWins = 0, leagueDraws = 0, leagueLosses = 0, leaguePoints = 0;
+        int leagueGoalsFor = 0, leagueGoalsAgainst = 0;
+        Integer leagueRanking = null;
+        for (LeagueTeam lt : leagueTeams) {
+            leagueWins += lt.getWins() != null ? lt.getWins() : 0;
+            leagueDraws += lt.getDraws() != null ? lt.getDraws() : 0;
+            leagueLosses += lt.getLosses() != null ? lt.getLosses() : 0;
+            leaguePoints += lt.getPoints() != null ? lt.getPoints() : 0;
+            leagueGoalsFor += lt.getGoalsFor() != null ? lt.getGoalsFor() : 0;
+            leagueGoalsAgainst += lt.getGoalsAgainst() != null ? lt.getGoalsAgainst() : 0;
+            // 순위는 가장 높은 순위(숫자 작은 것) 사용
+            if (lt.getRanking() != null && lt.getRanking() > 0) {
+                if (leagueRanking == null || lt.getRanking() < leagueRanking) {
+                    leagueRanking = lt.getRanking();
+                }
+            }
+        }
+        int leaguePlayed = leagueWins + leagueDraws + leagueLosses;
+        double leagueWinRate = leaguePlayed > 0 ? Math.round((leagueWins * 100.0 / leaguePlayed) * 10.0) / 10.0 : 0.0;
+        int leagueGoalDifference = leagueGoalsFor - leagueGoalsAgainst;
+
+        return TeamDto.DashboardResponse.builder()
+                .matchTotal(matchTotal)
+                .matchWins(matchWins)
+                .matchDraws(matchDraws)
+                .matchLosses(matchLosses)
+                .matchWinRate(matchWinRate)
+                .leaguePlayed(leaguePlayed)
+                .leagueWins(leagueWins)
+                .leagueDraws(leagueDraws)
+                .leagueLosses(leagueLosses)
+                .leagueWinRate(leagueWinRate)
+                .leaguePoints(leaguePoints)
+                .leagueGoalsFor(leagueGoalsFor)
+                .leagueGoalsAgainst(leagueGoalsAgainst)
+                .leagueGoalDifference(leagueGoalDifference)
+                .leagueRanking(leagueRanking)
+                .mannerScore(team.getMannerScore() != null ? team.getMannerScore() : 0.0)
+                .build();
     }
 }

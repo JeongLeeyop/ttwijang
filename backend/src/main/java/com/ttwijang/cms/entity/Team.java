@@ -141,6 +141,6 @@ public class Team implements Serializable {
     private List<LeagueTeam> leagueTeams;
 
     public enum TeamStatus {
-        ACTIVE, INACTIVE, DELETED
+        ACTIVE, INACTIVE, DELETE_REQUESTED, DELETED
     }
 }

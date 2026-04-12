@@ -34,6 +34,13 @@ public class MatchController {
     private final MatchService matchService;
     private final RegionCodeService regionCodeService;
 
+    @Operation(summary = "내 매치 신청 내역 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/my")
+    public ResponseEntity<java.util.List<MatchDto.MyApplicationResponse>> getMyApplications(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(matchService.getMyApplications(userDetails.getUser().getUid()));
+    }
+
     @Operation(summary = "매치 생성", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ResponseEntity<MatchDto.DetailResponse> createMatch(

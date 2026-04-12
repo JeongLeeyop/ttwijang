@@ -310,9 +310,15 @@
           >
             <div
               class="participant-avatar"
-              :style="{ background: getAvatarColor(p.name) }"
+              :style="p.profileImageUrl ? {} : { background: getAvatarColor(p.name) }"
             >
-              {{ getInitial(p.name) }}
+              <img
+                v-if="p.profileImageUrl"
+                :src="p.profileImageUrl"
+                :alt="p.name"
+                class="participant-avatar-img"
+              />
+              <template v-else>{{ getInitial(p.name) }}</template>
             </div>
             <span class="participant-name">{{ p.name }}</span>
             <span v-if="p.teamName" class="participant-team">{{ p.teamName }}</span>
@@ -1788,6 +1794,14 @@ export default class MatchDetail extends Vue {
   color: #fff;
   font-size: 16px;
   font-weight: 700;
+  overflow: hidden;
+}
+
+.participant-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .participant-name {

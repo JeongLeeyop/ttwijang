@@ -242,6 +242,9 @@ public class MatchDto {
 
         @Schema(description = "팀 이름")
         private String teamName;
+
+        @Schema(description = "프로필 이미지 URL")
+        private String profileImageUrl;
     }
 
     @Data
@@ -277,5 +280,24 @@ public class MatchDto {
 
         @Schema(description = "신청 메시지")
         private String message;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "내 매치 신청 내역 응답")
+    public static class MyApplicationResponse {
+        private String applicationUid;
+        private String matchUid;
+        private String hostTeamName;
+        private String stadiumName;
+        private java.time.LocalDate matchDate;
+        private String matchTime;
+        private String matchType;
+        private String matchFormat;
+        private String matchStatus;
+        private String applicationStatus;
+        private java.time.LocalDateTime appliedAt;
     }
 }

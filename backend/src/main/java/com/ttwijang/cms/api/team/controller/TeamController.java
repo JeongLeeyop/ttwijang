@@ -181,12 +181,32 @@ public class TeamController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "팀 삭제", security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping("/{teamUid}")
-    public ResponseEntity<Void> deleteTeam(
+    @Operation(summary = "팀 삭제 요청 (운영자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/delete-request")
+    public ResponseEntity<Void> requestDeleteTeam(
             @PathVariable String teamUid,
             @AuthenticationPrincipal SinghaUser userDetails) {
-        teamService.deleteTeam(teamUid, userDetails.getUser().getUid());
+        teamService.requestDeleteTeam(teamUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "삭제 요청 팀 목록 조회 (관리자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/delete-requests")
+    public ResponseEntity<List<TeamDto.DetailResponse>> getDeleteRequestedTeams() {
+        return ResponseEntity.ok(teamService.getDeleteRequestedTeams());
+    }
+
+    @Operation(summary = "팀 삭제 승인 (관리자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/delete-approve")
+    public ResponseEntity<Void> approveDeleteTeam(@PathVariable String teamUid) {
+        teamService.approveDeleteTeam(teamUid);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "팀 삭제 거절 (관리자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/delete-reject")
+    public ResponseEntity<Void> rejectDeleteTeam(@PathVariable String teamUid) {
+        teamService.rejectDeleteTeam(teamUid);
         return ResponseEntity.ok().build();
     }
 
@@ -228,6 +248,13 @@ public class TeamController {
             @AuthenticationPrincipal SinghaUser userDetails) {
         teamService.stopRecruitment(teamUid, userDetails.getUser().getUid());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "팀 대시보드 조회 (매치/리그 전적, 매너 점수)")
+    @GetMapping("/{teamUid}/dashboard")
+    public ResponseEntity<TeamDto.DashboardResponse> getTeamDashboard(
+            @PathVariable String teamUid) {
+        return ResponseEntity.ok(teamService.getTeamDashboard(teamUid));
     }
 
     @Operation(summary = "팀 사진 업로드", security = @SecurityRequirement(name = "bearerAuth"))

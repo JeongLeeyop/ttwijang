@@ -186,15 +186,24 @@ import { getSidoList } from '@/api/region';
 @Component({ name: 'Dashboard' })
 export default class extends Vue {
   private loading = false;
+
   private leagueList: any[] = [];
-  private summary = { leagues: 0, teams: 0, users: 0, regions: 0 };
+
+  private summary = {
+ leagues: 0, teams: 0, users: 0, regions: 0,
+};
 
   // 리그 상세 다이얼로그
   private detailVisible = false;
+
   private detailLoading = false;
+
   private selectedLeague: any = null;
+
   private activeTab = 'standings';
+
   private standings: any[] = [];
+
   private matches: any[] = [];
 
   statusType(status: string) {
@@ -208,11 +217,15 @@ export default class extends Vue {
   }
 
   matchStatusType(s: string) {
-    return ({ SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger' } as any)[s] || '';
+    return ({
+ SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger',
+} as any)[s] || '';
   }
 
   matchStatusLabel(s: string) {
-    return ({ SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소' } as any)[s] || s;
+    return ({
+ SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소',
+} as any)[s] || s;
   }
 
   async created() {
