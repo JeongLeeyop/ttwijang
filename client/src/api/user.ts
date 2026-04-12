@@ -109,7 +109,7 @@ export const uploadProfileImage = (file: File) => {
   formData.append('file', file);
   formData.append('moduleName', 'profile');
   return request({
-    url: '/api/attached-file/upload',
+    url: '/attached-file/upload',
     method: 'post',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' },

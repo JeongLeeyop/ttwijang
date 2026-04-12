@@ -163,26 +163,31 @@ class ClientUserServiceImpl implements ClientUserService {
 
 		// if (user.isJoinStatus()) throw new BadRequestException(BadRequest.ALREADY_JOIN_USER);
 
+		// MapStruct가 null 값으로 덮어쓰지 않도록 변경 불가 필드를 미리 보관
+		String existingEmail = user.getEmail();
+		String existingUserId = user.getUserId();
+		String existingPassword = user.getUserPassword();
+
 		user = ClientUserMapper.INSTANCE.updateDtoToEntity(updateDto, user);
-		
+
+		// 변경 불가 필드 복원
+		user.setEmail(existingEmail);
+		user.setUserId(existingUserId);
+		user.setOriginalUserPassword(existingPassword);
+
 		user.setJoinStatus(true);
 
-		Map<String, String> map = this.findLatLon(user.getAddress());
-		if(map.containsKey("Lat")) user.setLat(map.get("Lat"));
-		if(map.containsKey("Lon")) user.setLon(map.get("Lon"));
+		if (user.getAddress() != null && !user.getAddress().isEmpty()) {
+			try {
+				Map<String, String> map = this.findLatLon(user.getAddress());
+				if (map.containsKey("Lat")) user.setLat(map.get("Lat"));
+				if (map.containsKey("Lon")) user.setLon(map.get("Lon"));
+			} catch (Exception ignored) {
+				// Kakao API 호출 실패 시 위경도 업데이트 건너뜀
+			}
+		}
 
 		userRepository.save(user);
-		
-		UserRole userRole = new UserRole();
-		userRole.setUserUid(user.getUid());
-		userRole.setRoleCode("ROLE_USER");
-		userRoleRepository.save(userRole);
-
-		
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("singha_oauth", user.getUserId());
-		for (OAuth2AccessToken token : tokens) {
-			tokenStore.removeAccessToken(token);
-		}
 	}
 
 	@Transactional

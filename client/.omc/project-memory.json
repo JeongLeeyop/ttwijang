@@ -238,6 +238,12 @@
       "type": "file"
     },
     {
+      "path": "src/api/user.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775957778123,
+      "type": "file"
+    },
+    {
       "path": "src/views/myPage.vue",
       "accessCount": 2,
       "lastAccessed": 1775954609000,
@@ -250,10 +256,10 @@
       "type": "file"
     },
     {
-      "path": "src/api/user.ts",
+      "path": "src/utils/request.ts",
       "accessCount": 2,
-      "lastAccessed": 1775957651393,
-      "type": "file"
+      "lastAccessed": 1775957770304,
+      "type": "directory"
     },
     {
       "path": "src/Layout/authLayout.vue",
