@@ -65,6 +65,8 @@ public class TeamService {
                 .description(request.getDescription())
                 .bankName(request.getBankName())
                 .bankAccount(request.getBankAccount())
+                .refundBankName(request.getRefundBankName())
+                .refundBankAccount(request.getRefundBankAccount())
                 .activeDays(request.getActiveDays())
                 .activeTimeSlots(request.getActiveTimeSlots())
                 .genderType(request.getGenderType())

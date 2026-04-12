@@ -12,6 +12,6 @@ public class BadRequestException extends RuntimeException {
     }
 
     public BadRequestException(BadRequest message) {
-        super(message.toString());
+        super(message.message());
     }
 }

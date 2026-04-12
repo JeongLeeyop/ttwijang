@@ -190,6 +190,12 @@
       "type": "directory"
     },
     {
+      "path": "src/views/register.vue",
+      "accessCount": 6,
+      "lastAccessed": 1775971428333,
+      "type": "directory"
+    },
+    {
       "path": "src/views/faq.vue",
       "accessCount": 5,
       "lastAccessed": 1775954448708,
@@ -208,16 +214,16 @@
       "type": "directory"
     },
     {
+      "path": "src",
+      "accessCount": 5,
+      "lastAccessed": 1775971407661,
+      "type": "directory"
+    },
+    {
       "path": "src/views/notice.vue",
       "accessCount": 4,
       "lastAccessed": 1775954437214,
       "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 4,
-      "lastAccessed": 1775957449641,
-      "type": "directory"
     },
     {
       "path": "",
@@ -241,6 +247,18 @@
       "path": "src/api/user.ts",
       "accessCount": 3,
       "lastAccessed": 1775957778123,
+      "type": "file"
+    },
+    {
+      "path": "src/api/team.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775971325964,
+      "type": "file"
+    },
+    {
+      "path": "src/views/teamComplete.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775971386601,
       "type": "file"
     },
     {
@@ -286,9 +304,21 @@
       "type": "file"
     },
     {
-      "path": "src/api/team.ts",
+      "path": "src/views/teamProfileEdit.vue",
       "accessCount": 1,
-      "lastAccessed": 1775956500773,
+      "lastAccessed": 1775971298250,
+      "type": "file"
+    },
+    {
+      "path": "src/views",
+      "accessCount": 1,
+      "lastAccessed": 1775971336787,
+      "type": "directory"
+    },
+    {
+      "path": "src/views/teamInfo.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775971358225,
       "type": "file"
     }
   ],

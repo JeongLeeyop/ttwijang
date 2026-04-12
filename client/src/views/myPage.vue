@@ -167,7 +167,7 @@ import { getWallet } from '@/api/cash';
 import { getMyTeams, checkMembershipStatus } from '@/api/team';
 import { getTeamMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
-import { getMatchList } from '@/api/match';
+import { getMyMatchApplications } from '@/api/match';
 import { getToken, getTokenInfo } from '@/utils/cookies';
 
 @Component({
@@ -357,11 +357,12 @@ export default class MyPage extends Vue {
         this.isLoadingStats = false;
       }
 
-      // 참여 경기수 로드
+      // 참여 경기수 로드 (내가 신청한 매치 중 COMPLETED인 것만)
       try {
-        const matchesResponse = await getMatchList({ status: 'COMPLETED' });
+        const matchesResponse = await getMyMatchApplications();
         if (matchesResponse.data) {
-          this.userStats.matches = matchesResponse.data.totalElements || 0;
+          const applications = Array.isArray(matchesResponse.data) ? matchesResponse.data : [];
+          this.userStats.matches = applications.filter((a: any) => a.matchStatus === 'COMPLETED').length;
         }
       } catch (matchError) {
         console.warn('경기 정보 로드 실패:', matchError);

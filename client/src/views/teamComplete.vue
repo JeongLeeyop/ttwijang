@@ -118,7 +118,7 @@ export default class TeamCompletePage extends Vue {
 
       // 활동 요일 비트마스크 변환
       const dayBitmask: Record<string, number> = {
-        mon: 1, tue: 2, wed: 4, thu: 8, fri: 16, sat: 32, sun: 64,
+        sunday: 1, monday: 2, tuesday: 4, wednesday: 8, thursday: 16, friday: 32, saturday: 64,
       };
       let activeDays = 0;
       if (teamInfoData.activeDays) {
@@ -129,7 +129,7 @@ export default class TeamCompletePage extends Vue {
 
       // 활동 시간 비트마스크 변환
       const timeBitmask: Record<string, number> = {
-        dawn: 1, morning: 2, afternoon: 4, evening: 8, night: 16,
+        아침: 1, 낮: 2, 저녁: 4, 심야: 8,
       };
       let activeTimeSlots = 0;
       if (teamInfoData.activeTimes) {
@@ -149,6 +149,8 @@ export default class TeamCompletePage extends Vue {
         homeStadium: teamLocationData.stadiumName,
         genderType: genderMap[teamInfoData.gender] ?? 2,
         ageGroups,
+        refundBankName: teamFormData.sponsorBank || undefined,
+        refundBankAccount: teamFormData.sponsorAccount || undefined,
       };
 
       const response = await createTeam(createRequest);
@@ -169,8 +171,7 @@ export default class TeamCompletePage extends Vue {
   }
 
   private goToTeamInvite(): void {
-    // 리그 페이지로 이동
-    this.$router.push('/league');
+    this.$router.push(`/team/${this.inviteCode}`);
   }
 
   private async shareInviteLink(): Promise<void> {
