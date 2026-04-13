@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { getSigunguList, Region } from '@/api/region';
+import { getAllSigunguList, Region } from '@/api/region';
 import {
   getNotifications, getUnreadNotificationCount, markAllNotificationsAsRead,
 } from '@/api/notification';
@@ -191,7 +191,7 @@ export default class extends Vue {
 
   private async loadRegionsAndInitialize(): Promise<void> {
     try {
-      const response = await getSigunguList('48'); // 경상남도
+      const response = await getAllSigunguList();
       if (response && response.data) {
         this.regionOptions = response.data.map((region: Region) => ({
           label: region.name,

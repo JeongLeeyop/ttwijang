@@ -50,6 +50,17 @@ public class RegionCodeService {
     }
 
     /**
+     * 전체 시/군/구 목록 조회 (시/도 구분 없이)
+     * @return 전체 시/군/구 목록
+     */
+    public List<RegionCodeDto.Response> getAllSigunguList() {
+        return regionCodeRepository.findByLevelAndEnabledTrueOrderBySortOrder(2)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 지역 코드로 시/군/구 이름 조회
      * @param code 지역 코드 (시/군/구 레벨)
      * @return 지역명 (예: "진주시"), 없으면 null

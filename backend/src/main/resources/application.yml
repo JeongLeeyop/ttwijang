@@ -13,8 +13,8 @@ server:
 
 spring:
   profiles:
-    # active: development
-    active: product
+    active: development
+    # active: product
   application:
     name: ttwijang
 #용량

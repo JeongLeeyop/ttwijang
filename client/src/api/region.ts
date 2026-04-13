@@ -10,12 +10,20 @@ export function getSidoList() {
   });
 }
 
-// 시/군/구 목록 조회
+// 시/군/구 목록 조회 (특정 시/도)
 export function getSigunguList(parentCode: string) {
   return request({
     url: `${PATH}/sigungu`,
     method: 'get',
     params: { parentCode },
+  });
+}
+
+// 전체 시/군/구 목록 조회 (시/도 구분 없이)
+export function getAllSigunguList() {
+  return request({
+    url: `${PATH}/sigungu/all`,
+    method: 'get',
   });
 }
 

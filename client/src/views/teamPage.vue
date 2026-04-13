@@ -76,6 +76,7 @@
               @click="togglePostExpand(notice.uid)"
             >
               <p class="notice-text">{{ notice.title }}</p>
+              <p v-if="expandedPostUid === notice.uid && notice.content" class="notice-desc">{{ notice.content }}</p>
             </div>
           </div>
 
@@ -115,7 +116,7 @@
                     <i :class="post.likeStatus ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
                     {{ post.likeCount || 0 }}
                   </span>
-                  <span class="reaction-item">
+                  <span class="reaction-item" @click.stop="togglePostExpand(post.uid)">
                     <i class="el-icon-chat-dot-round"></i>
                     {{ post.commentCount || 0 }}
                   </span>
@@ -1768,13 +1769,25 @@ export default class TeamPage extends Vue {
 
 .notice-content {
   cursor: pointer;
+  text-align: left;
 }
 
 .notice-text {
   font-size: 13px;
-  color: #555;
-  margin: 0;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 2px;
   line-height: 1.5;
+  text-align: left;
+}
+
+.notice-desc {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 0;
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre-line;
 }
 
 /* 게시글 피드 */
@@ -1837,6 +1850,7 @@ export default class TeamPage extends Vue {
   font-weight: 500;
   margin: 0 0 4px;
   line-height: 1.5;
+  text-align: left;
 }
 
 .post-content-desc {
@@ -1844,6 +1858,7 @@ export default class TeamPage extends Vue {
   color: #666;
   margin: 0 0 10px;
   line-height: 1.5;
+  text-align: left;
 }
 
 .post-image-wrap {
@@ -2652,7 +2667,7 @@ export default class TeamPage extends Vue {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 200;
+  z-index: 1100;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -2782,7 +2797,7 @@ export default class TeamPage extends Vue {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 200;
+  z-index: 1100;
   display: flex;
   align-items: flex-end;
   justify-content: center;

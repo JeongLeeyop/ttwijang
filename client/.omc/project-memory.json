@@ -143,8 +143,8 @@
   "hotPaths": [
     {
       "path": "src/views/teamPage.vue",
-      "accessCount": 24,
-      "lastAccessed": 1775956672518,
+      "accessCount": 49,
+      "lastAccessed": 1775972821824,
       "type": "directory"
     },
     {
@@ -184,6 +184,12 @@
       "type": "file"
     },
     {
+      "path": "src/assets/css/style.css",
+      "accessCount": 7,
+      "lastAccessed": 1775972636920,
+      "type": "directory"
+    },
+    {
       "path": "src/views/matchDetail.vue",
       "accessCount": 6,
       "lastAccessed": 1775957705164,
@@ -196,27 +202,21 @@
       "type": "directory"
     },
     {
+      "path": "src",
+      "accessCount": 6,
+      "lastAccessed": 1775972632997,
+      "type": "directory"
+    },
+    {
       "path": "src/views/faq.vue",
       "accessCount": 5,
       "lastAccessed": 1775954448708,
       "type": "file"
     },
     {
-      "path": "src/assets/css/style.css",
-      "accessCount": 5,
-      "lastAccessed": 1775956255646,
-      "type": "directory"
-    },
-    {
       "path": "src/api",
       "accessCount": 5,
       "lastAccessed": 1775957397281,
-      "type": "directory"
-    },
-    {
-      "path": "src",
-      "accessCount": 5,
-      "lastAccessed": 1775971407661,
       "type": "directory"
     },
     {
@@ -320,6 +320,12 @@
       "accessCount": 1,
       "lastAccessed": 1775971358225,
       "type": "file"
+    },
+    {
+      "path": "src/components",
+      "accessCount": 1,
+      "lastAccessed": 1775972633239,
+      "type": "directory"
     }
   ],
   "userDirectives": []

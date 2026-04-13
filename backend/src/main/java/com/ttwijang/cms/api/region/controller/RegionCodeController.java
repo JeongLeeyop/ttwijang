@@ -40,4 +40,13 @@ public class RegionCodeController {
     ) {
         return ResponseEntity.ok(regionCodeService.getSigunguList(parentCode));
     }
+
+    /**
+     * 전체 시/군/구 목록 조회
+     */
+    @Operation(summary = "전체 시/군/구 목록 조회", description = "시/도 구분 없이 전체 시/군/구 목록을 조회합니다.")
+    @GetMapping("/sigungu/all")
+    public ResponseEntity<List<RegionCodeDto.Response>> getAllSigunguList() {
+        return ResponseEntity.ok(regionCodeService.getAllSigunguList());
+    }
 }
