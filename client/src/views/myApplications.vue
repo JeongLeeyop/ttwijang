@@ -68,7 +68,12 @@
           </div>
           <div class="card-bottom">
             <span class="applied-at">신청일 {{ formatDate(item.appliedAt) }}</span>
-            <i class="el-icon-arrow-right"></i>
+            <button
+              v-if="isCancellable(item)"
+              class="btn-cancel-app"
+              @click="handleCancelApplication(item, $event)"
+            >신청 취소</button>
+            <i v-else class="el-icon-arrow-right"></i>
           </div>
         </div>
       </div>
@@ -115,7 +120,7 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import { getMyMatchApplications } from '@/api/match';
+import { getMyMatchApplications, cancelMyMatchApplication, getMatchConfig } from '@/api/match';
 import { getLeaguesByTeam } from '@/api/league';
 import { getMyTeams } from '@/api/team';
 
@@ -159,6 +164,8 @@ export default class MyApplicationsPage extends Vue {
 
   private myTeamUid = '';
 
+  private cancelDaysBeforeMatch = 1;
+
   created(): void {
     this.loadData();
   }
@@ -173,9 +180,18 @@ export default class MyApplicationsPage extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      await Promise.all([this.loadMatches(), this.loadTeamUid()]);
+      await Promise.all([this.loadMatches(), this.loadTeamUid(), this.loadMatchConfig()]);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private async loadMatchConfig(): Promise<void> {
+    try {
+      const res = await getMatchConfig();
+      this.cancelDaysBeforeMatch = res.data?.cancelDaysBeforeMatch ?? 1;
+    } catch (e) {
+      // 기본값 유지
     }
   }
 
@@ -216,6 +232,36 @@ export default class MyApplicationsPage extends Vue {
 
   private goToMatch(matchUid: string): void {
     this.$router.push({ name: 'MatchDetail', params: { uid: matchUid } });
+  }
+
+  private isCancellable(item: MatchApplication): boolean {
+    if (item.applicationStatus !== 'APPROVED') return false;
+    if (item.matchStatus !== 'RECRUITING' && item.matchStatus !== 'MATCHED') return false;
+    if (!item.matchDate) return false;
+    const matchDate = new Date(item.matchDate);
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + this.cancelDaysBeforeMatch);
+    return matchDate > deadline;
+  }
+
+  private async handleCancelApplication(item: MatchApplication, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.$confirm(
+        `경기 ${this.cancelDaysBeforeMatch}일 전까지만 취소 가능합니다. 신청을 취소하시겠습니까?`,
+        '신청 취소',
+        { confirmButtonText: '취소하기', cancelButtonText: '닫기', type: 'warning' },
+      );
+    } catch {
+      return;
+    }
+    try {
+      await cancelMyMatchApplication(item.matchUid);
+      this.$message.success('신청이 취소되었습니다.');
+      await this.loadMatches();
+    } catch (e: any) {
+      this.$message.error(e?.response?.data?.message || '취소 중 오류가 발생했습니다.');
+    }
   }
 
   private formatDate(dateStr: string): string {
@@ -542,5 +588,21 @@ export default class MyApplicationsPage extends Vue {
 .card-bottom i {
   font-size: 13px;
   color: #c5cae9;
+}
+
+.btn-cancel-app {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c62828;
+  background: #fce4ec;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-cancel-app:active {
+  background: #f8bbd0;
 }
 </style>

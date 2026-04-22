@@ -94,7 +94,7 @@
             <div class="league-join-team">
               <div class="join-team-header">
                 <h3 class="join-team-title">리그 참가 팀</h3>
-                <button class="add-team-button">
+                <button class="add-team-button" @click="$router.push('/league-teams')">
                   <i class="el-icon-circle-plus-outline"></i>
                 </button>
               </div>
@@ -215,6 +215,7 @@ interface Banner {
   title: string
   imageUrl: string
   linkUrl?: string
+  leagueUid?: string
   displayOrder: number
   targetPage: string
 }
@@ -659,7 +660,9 @@ export default class extends Vue {
   }
 
   private handleBannerClick(banner: Banner): void {
-    if (banner.linkUrl) {
+    if (banner.leagueUid) {
+      this.$router.push(`/league-detail/${banner.leagueUid}`);
+    } else if (banner.linkUrl) {
       if (banner.linkUrl.startsWith('http')) {
         window.open(banner.linkUrl, '_blank');
       } else {

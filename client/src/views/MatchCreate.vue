@@ -2,7 +2,10 @@
   <div class="match-create-page">
     <div class="content">
       <div class="form-container">
-        <h2 class="page-title">어떤 매치 일정을 <br> 만들까요?</h2>
+        <h2 class="page-title">
+          <template v-if="$route.query.matchUid">매치 일정을 <br> 수정합니다</template>
+          <template v-else>어떤 매치 일정을 <br> 만들까요?</template>
+        </h2>
 
         <!-- 날짜 및 시간 -->
         <div class="form-group">
@@ -183,7 +186,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import { createMatch } from '@/api/match';
+import { createMatch, updateMatch, getMatchDetail } from '@/api/match';
 
 @Component
 export default class MatchCreate extends Vue {
@@ -220,6 +223,43 @@ export default class MatchCreate extends Vue {
 
   get teamUid(): string {
     return (this.$route.query.teamUid as string) || '';
+  }
+
+  get matchUid(): string {
+    return (this.$route.query.matchUid as string) || '';
+  }
+
+  get isEditMode(): boolean {
+    return !!this.matchUid;
+  }
+
+  async created(): Promise<void> {
+    if (this.isEditMode) {
+      try {
+        const res = await getMatchDetail(this.matchUid);
+        const m = res.data;
+        if (m) {
+          this.selectedDate = m.matchDate || '';
+          if (m.matchDate) {
+            const d = new Date(m.matchDate);
+            this.calYear = d.getFullYear();
+            this.calMonth = d.getMonth();
+          }
+          if (m.matchTime) {
+            const parts = String(m.matchTime).split(':');
+            this.selectedHour = parts[0] || '20';
+            this.selectedMinute = parts[1] || '00';
+          }
+          this.matchDuration = m.durationHours || 2;
+          this.stadium = m.stadiumName || '';
+          this.matchType = m.matchType || 'FRIENDLY';
+          this.matchFormat = m.matchFormat || 'FIVE_VS_FIVE';
+          this.fee = m.fee || 0;
+        }
+      } catch (e) {
+        this.$message.error('매치 정보를 불러오지 못했습니다.');
+      }
+    }
   }
 
   get hours(): string[] {
@@ -339,31 +379,44 @@ export default class MatchCreate extends Vue {
         fee: this.fee,
       };
 
-      const response = await createMatch(matchData);
-      this.$message.success('매치 일정이 등록되었습니다!');
-
-      // 게스트 모집 여부 묻기
-      this.$confirm('게스트 모집도 함께 하시겠습니까?', '게스트 모집', {
-        confirmButtonText: '게스트 모집하기',
-        cancelButtonText: '나중에',
-        type: 'info',
-      }).then(() => {
-        this.$router.push({
-          path: '/guest-recruit',
-          query: {
-            teamUid: this.teamUid,
-            matchUid: response.data?.uid || '',
-            matchDate: this.selectedDate,
-            matchTime: `${this.selectedHour}:${this.selectedMinute}`,
-            stadium: this.stadium,
-          },
+      if (this.isEditMode) {
+        await updateMatch(this.matchUid, {
+          matchDate: matchData.matchDate,
+          matchTime: matchData.matchTime,
+          durationHours: matchData.durationHours,
+          stadiumName: matchData.stadiumName,
+          matchFormat: matchData.matchFormat,
+          fee: matchData.fee,
         });
-      }).catch(() => {
+        this.$message.success('매치가 수정되었습니다.');
         this.$router.go(-1);
-      });
+      } else {
+        const response = await createMatch(matchData);
+        this.$message.success('매치 일정이 등록되었습니다!');
+
+        // 게스트 모집 여부 묻기
+        this.$confirm('게스트 모집도 함께 하시겠습니까?', '게스트 모집', {
+          confirmButtonText: '게스트 모집하기',
+          cancelButtonText: '나중에',
+          type: 'info',
+        }).then(() => {
+          this.$router.push({
+            path: '/guest-recruit',
+            query: {
+              teamUid: this.teamUid,
+              matchUid: response.data?.uid || '',
+              matchDate: this.selectedDate,
+              matchTime: `${this.selectedHour}:${this.selectedMinute}`,
+              stadium: this.stadium,
+            },
+          });
+        }).catch(() => {
+          this.$router.go(-1);
+        });
+      }
     } catch (error) {
-      console.error('Failed to create match:', error);
-      this.$message.error('매치 일정 등록에 실패했습니다.');
+      console.error('Failed to save match:', error);
+      this.$message.error(this.isEditMode ? '매치 수정에 실패했습니다.' : '매치 일정 등록에 실패했습니다.');
     }
   }
 }

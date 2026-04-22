@@ -23,6 +23,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'Home',
 				meta: {
 					title: '',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/home.vue'),
 			},
@@ -31,6 +32,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'League',
 				meta: {
 					title: '',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/league.vue'),
 			},
@@ -55,6 +57,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'LeagueGuest',
 				meta: {
 					title: '리그 일정',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/leagueGuest.vue'),
 			},
@@ -71,6 +74,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'Match',
 				meta: {
 					title: '매치',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/match.vue'),
 			},
@@ -265,6 +269,14 @@ export const constantRoutes: Array<RouteConfig> = [
 				component: () => import('@/views/teamRecruit.vue'),
 			},
 			{
+				path: '/league-teams',
+				name: 'LeagueTeams',
+				meta: {
+					title: '리그 참가 팀',
+				},
+				component: () => import('@/views/leagueTeams.vue'),
+			},
+			{
 				path: '/team-dashboard',
 				name: 'TeamDashboard',
 				meta: {
@@ -347,6 +359,14 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '회원 상세',
 				},
 				component: () => import('@/views/memberDetail.vue'),
+			},
+			{
+				path: '/league-detail/:uid',
+				name: 'LeagueDetail',
+				meta: {
+					title: '리그 소개',
+				},
+				component: () => import('@/views/leagueDetail.vue'),
 			},
 		],
 	},

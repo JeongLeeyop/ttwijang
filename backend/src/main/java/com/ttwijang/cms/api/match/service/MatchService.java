@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ttwijang.cms.api.match.dto.MatchDto;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
+import com.ttwijang.cms.api.match.repository.MatchConfigRepository;
 import com.ttwijang.cms.api.cash.dto.CashDto;
+import com.ttwijang.cms.api.cash.repository.CashTransactionRepository;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
@@ -23,9 +25,11 @@ import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
+import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.MatchApplication;
+import com.ttwijang.cms.entity.MatchConfig;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
@@ -39,9 +43,11 @@ public class MatchService {
 
     private final FutsalMatchRepository matchRepository;
     private final MatchApplicationRepository matchApplicationRepository;
+    private final MatchConfigRepository matchConfigRepository;
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final CashService cashService;
+    private final CashTransactionRepository cashTransactionRepository;
     private final GuestApplicationRepository guestApplicationRepository;
     private final GuestRecruitmentRepository guestRecruitmentRepository;
     private final NotificationService notificationService;
@@ -324,7 +330,7 @@ public class MatchService {
     }
 
     /**
-     * 매치 취소
+     * 매치 삭제 (취소) — 참가비 전액 환불 + 알림
      */
     @Transactional
     public void cancelMatch(String matchUid, String userUid) {
@@ -338,8 +344,158 @@ public class MatchService {
             throw new IllegalArgumentException("매치 취소 권한이 없습니다.");
         }
 
+        String stadiumName = match.getStadiumName() != null ? match.getStadiumName() : "";
+        String matchInfo = match.getMatchDate() + " " + stadiumName;
+
+        // 팀 신청자 환불 + 알림
+        List<MatchApplication> approvedApps = matchApplicationRepository.findByMatchUidAndStatus(
+                matchUid, MatchApplication.ApplicationStatus.APPROVED);
+        List<CashTransaction> useTransactions = cashTransactionRepository
+                .findByReferenceUidAndReferenceTypeAndType(matchUid, "MATCH", CashTransaction.TransactionType.USE);
+        Map<String, Integer> refundMap = new HashMap<>();
+        for (CashTransaction tx : useTransactions) {
+            refundMap.merge(tx.getUserUid(), tx.getAmount(), Integer::sum);
+        }
+        for (MatchApplication app : approvedApps) {
+            int refundAmount = refundMap.getOrDefault(app.getApplicantUserUid(), 0);
+            if (refundAmount > 0) {
+                cashService.refund(app.getApplicantUserUid(), refundAmount,
+                        "매치 취소 환불 (" + stadiumName + ")", matchUid, "MATCH");
+            }
+            notificationService.createNotification(
+                    app.getApplicantUserUid(),
+                    Notification.NotificationType.MATCH,
+                    "매치가 취소되었습니다",
+                    matchInfo + " 매치가 취소되어 참가비가 환불 처리되었습니다.",
+                    matchUid, "MATCH", "/match-detail/" + matchUid);
+            app.setStatus(MatchApplication.ApplicationStatus.CANCELLED);
+            matchApplicationRepository.save(app);
+        }
+
+        // 게스트 신청자 환불 + 알림
+        guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(matchUid)
+                .ifPresent(recruitment -> {
+                    List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
+                            recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
+                    List<CashTransaction> guestTxs = cashTransactionRepository
+                            .findByReferenceUidAndReferenceTypeAndType(
+                                    recruitment.getUid(), "GUEST", CashTransaction.TransactionType.USE);
+                    Map<String, Integer> guestRefundMap = new HashMap<>();
+                    for (CashTransaction tx : guestTxs) {
+                        guestRefundMap.merge(tx.getUserUid(), tx.getAmount(), Integer::sum);
+                    }
+                    for (GuestApplication gApp : guestApps) {
+                        int refundAmount = guestRefundMap.getOrDefault(gApp.getUserUid(), 0);
+                        if (refundAmount > 0) {
+                            cashService.refund(gApp.getUserUid(), refundAmount,
+                                    "매치 취소 환불 (게스트) (" + stadiumName + ")",
+                                    recruitment.getUid(), "GUEST");
+                        }
+                        notificationService.createNotification(
+                                gApp.getUserUid(),
+                                Notification.NotificationType.MATCH,
+                                "매치가 취소되었습니다",
+                                matchInfo + " 매치가 취소되어 참가비가 환불 처리되었습니다.",
+                                matchUid, "MATCH", "/match-detail/" + matchUid);
+                        gApp.setStatus(GuestApplication.ApplicationStatus.CANCELLED);
+                        guestApplicationRepository.save(gApp);
+                    }
+                });
+
         match.setStatus(FutsalMatch.FutsalMatchStatus.CANCELLED);
         matchRepository.save(match);
+    }
+
+    /**
+     * 매치 수정 — OWNER 전용, RECRUITING 상태에서만 가능
+     */
+    @Transactional
+    public MatchDto.DetailResponse updateMatch(String matchUid, MatchDto.UpdateRequest request, String userUid) {
+        FutsalMatch match = matchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
+        Team hostTeam = teamRepository.findByUid(match.getHostTeamUid())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+        if (!hostTeam.getOwnerUid().equals(userUid)) {
+            throw new IllegalArgumentException("매치 수정 권한이 없습니다.");
+        }
+        if (match.getStatus() != FutsalMatch.FutsalMatchStatus.RECRUITING) {
+            throw new IllegalArgumentException("모집 중인 매치만 수정할 수 있습니다.");
+        }
+        if (request.getMatchDate() != null) match.setMatchDate(request.getMatchDate());
+        if (request.getMatchTime() != null) match.setMatchTime(request.getMatchTime());
+        if (request.getDurationHours() != null) match.setDurationHours(request.getDurationHours());
+        if (request.getStadiumName() != null) match.setStadiumName(request.getStadiumName());
+        if (request.getStadiumAddress() != null) match.setStadiumAddress(request.getStadiumAddress());
+        if (request.getMatchFormat() != null) match.setMatchFormat(request.getMatchFormat());
+        if (request.getFee() != null) match.setFee(request.getFee());
+        if (request.getAdditionalInfo() != null) match.setAdditionalInfo(request.getAdditionalInfo());
+        match = matchRepository.save(match);
+        return toDetailResponse(match);
+    }
+
+    /**
+     * 개인 매치 신청 취소 — N일 전까지만 가능, 참가비 환불
+     */
+    @Transactional
+    public void cancelMyApplication(String matchUid, String userUid) {
+        FutsalMatch match = matchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
+
+        MatchApplication application = matchApplicationRepository
+                .findByMatchUidAndStatus(matchUid, MatchApplication.ApplicationStatus.APPROVED)
+                .stream()
+                .filter(a -> a.getApplicantUserUid().equals(userUid))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
+
+        MatchConfig config = matchConfigRepository.findByUid("default")
+                .orElse(MatchConfig.builder().uid("default").cancelDaysBeforeMatch(1).build());
+
+        LocalDate cancelDeadline = LocalDate.now().plusDays(config.getCancelDaysBeforeMatch());
+        if (!match.getMatchDate().isAfter(cancelDeadline)) {
+            throw new IllegalArgumentException(
+                    "취소 기한이 지났습니다. 경기 " + config.getCancelDaysBeforeMatch() + "일 전까지만 취소 가능합니다.");
+        }
+
+        List<CashTransaction> useTxs = cashTransactionRepository
+                .findByReferenceUidAndReferenceTypeAndType(matchUid, "MATCH", CashTransaction.TransactionType.USE);
+        int refundAmount = useTxs.stream()
+                .filter(tx -> tx.getUserUid().equals(userUid))
+                .mapToInt(CashTransaction::getAmount)
+                .sum();
+        if (refundAmount > 0) {
+            cashService.refund(userUid, refundAmount,
+                    "매치 신청 취소 환불 (" + match.getStadiumName() + ")", matchUid, "MATCH");
+        }
+
+        application.setStatus(MatchApplication.ApplicationStatus.CANCELLED);
+        matchApplicationRepository.save(application);
+    }
+
+    /**
+     * 매치 설정 조회
+     */
+    @Transactional(readOnly = true)
+    public MatchDto.ConfigResponse getMatchConfig() {
+        MatchConfig config = matchConfigRepository.findByUid("default")
+                .orElse(MatchConfig.builder().uid("default").cancelDaysBeforeMatch(1).build());
+        return MatchDto.ConfigResponse.builder()
+                .cancelDaysBeforeMatch(config.getCancelDaysBeforeMatch())
+                .build();
+    }
+
+    /**
+     * 매치 설정 수정 — 관리자 전용
+     */
+    @Transactional
+    public MatchDto.ConfigResponse updateMatchConfig(MatchDto.ConfigUpdateRequest request) {
+        MatchConfig config = matchConfigRepository.findByUid("default")
+                .orElse(MatchConfig.builder().uid("default").cancelDaysBeforeMatch(1).build());
+        config.setCancelDaysBeforeMatch(request.getCancelDaysBeforeMatch());
+        config = matchConfigRepository.save(config);
+        return MatchDto.ConfigResponse.builder()
+                .cancelDaysBeforeMatch(config.getCancelDaysBeforeMatch())
+                .build();
     }
 
     /**

@@ -196,6 +196,21 @@ export const asyncRoutes: RouteConfig[] = [
     ],
   },
 
+  /* 전체설정 */
+  {
+    path: '/config',
+    component: () => import('@/layout/default.vue'),
+    meta: { title: '전체설정', roles: ['ROLE_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'GlobalConfig',
+        component: () => import('@/views/config/index.vue'),
+        meta: { title: '전체설정', roles: ['ROLE_ADMIN'] },
+      },
+    ],
+  },
+
   { path: '*', redirect: '/dashboard', meta: { hidden: true } },
 ];
 

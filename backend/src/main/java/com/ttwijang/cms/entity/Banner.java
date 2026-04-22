@@ -66,6 +66,9 @@ public class Banner {
     @Column(name = "team_uid", length = 50)
     private String teamUid;
 
+    @Column(name = "league_uid", length = 50)
+    private String leagueUid;
+
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 

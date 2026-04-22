@@ -50,12 +50,11 @@ export function getLeagueSchedule(leagueUid: string, params?: {
   });
 }
 
-// 리그 참가 신청
-export function applyToLeague(leagueUid: string, teamUid: string) {
+// 리그 참가 신청 (팀 OWNER 전용 — 서버에서 userUid로 팀 조회)
+export function applyToLeague(leagueUid: string) {
   return request({
     url: `/league/${leagueUid}/apply`,
     method: 'post',
-    data: { teamUid },
   });
 }
 
@@ -79,6 +78,22 @@ export function getLeagueTeams(leagueUid: string) {
   return request({
     url: `/league/${leagueUid}/teams`,
     method: 'get',
+  });
+}
+
+// 전체 리그 참가 팀 목록 조회 (지역/리그/키워드 필터)
+export function getAllLeagueTeams(params?: {
+  regionSido?: string
+  regionSigungu?: string
+  leagueUid?: string
+  keyword?: string
+  page?: number
+  size?: number
+}) {
+  return request({
+    url: '/league/all-teams',
+    method: 'get',
+    params,
   });
 }
 

@@ -39,6 +39,7 @@ public class BannerService {
                 .regionSigungu(request.getRegionSigungu())
                 .targetPage(request.getTargetPage() != null ? request.getTargetPage() : Banner.TargetPage.ALL)
                 .teamUid(request.getTeamUid())
+                .leagueUid(request.getLeagueUid())
                 .build();
 
         banner = bannerRepository.save(banner);
@@ -85,6 +86,9 @@ public class BannerService {
         }
         if (request.getTeamUid() != null) {
             banner.setTeamUid(request.getTeamUid());
+        }
+        if (request.getLeagueUid() != null) {
+            banner.setLeagueUid(request.getLeagueUid());
         }
         banner.setUpdatedDate(LocalDateTime.now());
 
@@ -161,6 +165,7 @@ public class BannerService {
                 .regionSigungu(banner.getRegionSigungu())
                 .targetPage(banner.getTargetPage())
                 .teamUid(banner.getTeamUid())
+                .leagueUid(banner.getLeagueUid())
                 .createdDate(banner.getCreatedDate())
                 .updatedDate(banner.getUpdatedDate())
                 .build();
@@ -180,6 +185,7 @@ public class BannerService {
                 .regionSigungu(banner.getRegionSigungu())
                 .targetPage(banner.getTargetPage())
                 .teamUid(banner.getTeamUid())
+                .leagueUid(banner.getLeagueUid())
                 .build();
     }
 }

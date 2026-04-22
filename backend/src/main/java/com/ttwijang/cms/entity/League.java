@@ -75,6 +75,14 @@ public class League implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String rules;
 
+    // 리그 소개글 (에디터 HTML)
+    @Column(columnDefinition = "LONGTEXT")
+    private String introContent;
+
+    // 리그 참여 포인트(캐시) — 0이면 무료
+    @Column(columnDefinition = "INT DEFAULT 0")
+    private Integer participationPoints;
+
     // 리그 배너 이미지 UID
     private String bannerFileUid;
 

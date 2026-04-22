@@ -2,25 +2,35 @@ package com.ttwijang.cms.api.league.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.cash.dto.CashDto;
+import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.league.dto.LeagueDto;
 import com.ttwijang.cms.api.league.repository.LeagueMatchRepository;
 import com.ttwijang.cms.api.league.repository.LeagueRepository;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
+import com.ttwijang.cms.api.notification.service.NotificationService;
+import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.LeagueMatch;
 import com.ttwijang.cms.entity.LeagueTeam;
+import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.TeamMember;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +42,9 @@ public class LeagueService {
     private final LeagueTeamRepository leagueTeamRepository;
     private final LeagueMatchRepository leagueMatchRepository;
     private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final CashService cashService;
+    private final NotificationService notificationService;
 
     /**
      * 리그 목록 조회
@@ -79,6 +92,8 @@ public class LeagueService {
                 .maxTeams(league.getMaxTeams())
                 .status(league.getStatus())
                 .rules(league.getRules())
+                .introContent(league.getIntroContent())
+                .participationPoints(league.getParticipationPoints())
                 .standings(standings)
                 .upcomingMatches(upcomingMatches)
                 .recentResults(recentResults)
@@ -277,6 +292,8 @@ public class LeagueService {
                 .currentTeams(0)
                 .status(League.LeagueStatus.RECRUITING)
                 .rules(request.getRules())
+                .introContent(request.getIntroContent())
+                .participationPoints(request.getParticipationPoints() != null ? request.getParticipationPoints() : 0)
                 .bannerFileUid(request.getBannerFileUid())
                 .build();
 
@@ -300,6 +317,8 @@ public class LeagueService {
         if (request.getMaxTeams() != null) league.setMaxTeams(request.getMaxTeams());
         if (request.getStatus() != null) league.setStatus(request.getStatus());
         if (request.getRules() != null) league.setRules(request.getRules());
+        if (request.getIntroContent() != null) league.setIntroContent(request.getIntroContent());
+        if (request.getParticipationPoints() != null) league.setParticipationPoints(request.getParticipationPoints());
         if (request.getBannerFileUid() != null) league.setBannerFileUid(request.getBannerFileUid());
 
         league = leagueRepository.save(league);
@@ -386,6 +405,90 @@ public class LeagueService {
     }
 
     /**
+     * 사용자 리그 참여 신청 (팀 OWNER 전용)
+     * - 캐시 차감 (participationPoints > 0)
+     * - 팀 배정 자동 처리
+     * - 팀 전체 멤버 알림 발송
+     */
+    @Transactional
+    public LeagueDto.LeagueTeamResponse applyToLeague(String leagueUid, String userUid) {
+        League league = leagueRepository.findByUid(leagueUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+
+        // 사용자가 OWNER인 ACTIVE 팀 조회
+        List<Team> ownedTeams = teamRepository.findByOwnerUid(userUid);
+        Team team = ownedTeams.stream()
+                .filter(t -> t.getStatus() == Team.TeamStatus.ACTIVE)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("운영 중인 팀이 없습니다. 팀 운영자만 리그에 참여할 수 있습니다."));
+
+        // 이미 참여한 팀 여부 확인
+        if (leagueTeamRepository.findByLeagueUidAndTeamUid(leagueUid, team.getUid()).isPresent()) {
+            throw new IllegalArgumentException("이미 리그에 참여한 팀입니다.");
+        }
+
+        // 최대 팀 수 확인
+        if (league.getCurrentTeams() != null && league.getMaxTeams() != null
+                && league.getCurrentTeams() >= league.getMaxTeams()) {
+            throw new IllegalArgumentException("리그 최대 참가 팀 수에 도달했습니다.");
+        }
+
+        // 캐시 차감 (참여 포인트가 있는 경우)
+        int points = league.getParticipationPoints() != null ? league.getParticipationPoints() : 0;
+        if (points > 0) {
+            cashService.use(CashDto.UseRequest.builder()
+                    .amount(points)
+                    .description("리그 참여비 - " + league.getName())
+                    .referenceUid(leagueUid)
+                    .referenceType("LEAGUE")
+                    .build(), userUid);
+        }
+
+        // LeagueTeam 생성
+        LeagueTeam leagueTeam = LeagueTeam.builder()
+                .leagueUid(leagueUid)
+                .teamUid(team.getUid())
+                .ranking(0)
+                .played(0)
+                .wins(0)
+                .draws(0)
+                .losses(0)
+                .goalsFor(0)
+                .goalsAgainst(0)
+                .goalDifference(0)
+                .points(0)
+                .mannerScore(0.0)
+                .build();
+        leagueTeamRepository.save(leagueTeam);
+
+        league.setCurrentTeams((league.getCurrentTeams() != null ? league.getCurrentTeams() : 0) + 1);
+        leagueRepository.save(league);
+
+        // 팀 전체 APPROVED 멤버에게 알림 발송
+        List<TeamMember> members = teamMemberRepository.findByTeamUidAndStatus(team.getUid(), TeamMember.MemberStatus.APPROVED);
+        String actionUrl = "/league-detail/" + leagueUid;
+        for (TeamMember member : members) {
+            notificationService.createNotification(
+                    member.getUserUid(),
+                    Notification.NotificationType.LEAGUE,
+                    "리그 참여 완료",
+                    "우리 팀이 '" + league.getName() + "'에 참여했습니다.",
+                    leagueUid,
+                    "LEAGUE",
+                    actionUrl
+            );
+        }
+
+        return LeagueDto.LeagueTeamResponse.builder()
+                .teamUid(team.getUid())
+                .teamName(team.getName())
+                .leagueName(league.getName())
+                .ranking(0)
+                .points(0)
+                .build();
+    }
+
+    /**
      * 리그 매치 생성 (최고관리자 전용)
      */
     @Transactional
@@ -416,26 +519,95 @@ public class LeagueService {
     @Transactional(readOnly = true)
     public List<LeagueDto.LeagueTeamResponse> getLeagueTeams(String leagueUid) {
         List<LeagueTeam> leagueTeams = leagueTeamRepository.findByLeagueUidOrderByRanking(leagueUid);
-        
+        League league = leagueRepository.findByUid(leagueUid).orElse(null);
+
         return leagueTeams.stream()
                 .map(lt -> {
                     Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
-                    if (team != null) {
-                        League league = leagueRepository.findByUid(leagueUid).orElse(null);
-                        return LeagueDto.LeagueTeamResponse.builder()
-                                .teamUid(team.getUid())
-                                .teamCode(team.getTeamCode())
-                                .teamName(team.getName())
-                                .teamLogoUrl(team.getLogoFileUid())
-                                .leagueName(league != null ? league.getName() : "")
-                                .ranking(lt.getRanking())
-                                .points(lt.getPoints())
-                                .build();
-                    }
-                    return null;
+                    if (team == null) return null;
+                    return LeagueDto.LeagueTeamResponse.builder()
+                            .teamUid(team.getUid())
+                            .teamCode(team.getTeamCode())
+                            .teamName(team.getName())
+                            .teamLogoUrl(team.getLogoFileUid())
+                            .leagueUid(leagueUid)
+                            .leagueName(league != null ? league.getName() : "")
+                            .regionSido(league != null ? league.getRegionSido() : "")
+                            .regionSigungu(league != null ? league.getRegionSigungu() : "")
+                            .ranking(lt.getRanking())
+                            .points(lt.getPoints())
+                            .build();
                 })
                 .filter(response -> response != null)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 전체 리그 참가 팀 목록 조회 (지역/리그/키워드 필터 + 페이징)
+     */
+    @Transactional(readOnly = true)
+    public Page<LeagueDto.LeagueTeamResponse> getAllLeagueTeams(
+            String regionSido, String regionSigungu, String leagueUid, String keyword, Pageable pageable) {
+
+        // 1. 필터 조건에 맞는 리그 목록 수집
+        Map<String, League> leagueCache = new HashMap<>();
+
+        if (leagueUid != null && !leagueUid.isEmpty()) {
+            leagueRepository.findByUid(leagueUid).ifPresent(l -> leagueCache.put(l.getUid(), l));
+        } else {
+            List<League> allLeagues = leagueRepository.findAll();
+            for (League l : allLeagues) {
+                if (l.getStatus() != League.LeagueStatus.IN_PROGRESS) continue;
+                if (regionSido != null && !regionSido.isEmpty()
+                        && !regionSido.equals(l.getRegionSido())) continue;
+                if (regionSigungu != null && !regionSigungu.isEmpty()
+                        && !regionSigungu.equals(l.getRegionSigungu())) continue;
+                leagueCache.put(l.getUid(), l);
+            }
+        }
+
+        if (leagueCache.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
+        // 2. 해당 리그 팀 목록 조회
+        List<String> targetLeagueUids = new ArrayList<>(leagueCache.keySet());
+        List<LeagueTeam> leagueTeams = leagueTeamRepository.findByLeagueUidIn(targetLeagueUids);
+
+        // 3. 팀 정보 매핑 + 키워드 필터
+        List<LeagueDto.LeagueTeamResponse> responses = leagueTeams.stream()
+                .map(lt -> {
+                    Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
+                    if (team == null) return null;
+                    if (keyword != null && !keyword.isEmpty()
+                            && !team.getName().contains(keyword)) return null;
+                    League league = leagueCache.get(lt.getLeagueUid());
+                    return LeagueDto.LeagueTeamResponse.builder()
+                            .teamUid(team.getUid())
+                            .teamCode(team.getTeamCode())
+                            .teamName(team.getName())
+                            .teamLogoUrl(team.getLogoFileUid())
+                            .leagueUid(lt.getLeagueUid())
+                            .leagueName(league != null ? league.getName() : "")
+                            .regionSido(league != null ? league.getRegionSido() : "")
+                            .regionSigungu(league != null ? league.getRegionSigungu() : "")
+                            .ranking(lt.getRanking())
+                            .points(lt.getPoints())
+                            .build();
+                })
+                .filter(r -> r != null)
+                .collect(Collectors.toList());
+
+        // 4. 인메모리 페이징
+        int total = responses.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), total);
+
+        if (start >= total) {
+            return new PageImpl<>(Collections.emptyList(), pageable, total);
+        }
+
+        return new PageImpl<>(responses.subList(start, end), pageable, total);
     }
 
     /**

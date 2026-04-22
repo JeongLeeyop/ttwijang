@@ -300,4 +300,56 @@ public class MatchDto {
         private String applicationStatus;
         private java.time.LocalDateTime appliedAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "매치 수정 요청")
+    public static class UpdateRequest {
+        @Schema(description = "경기 일자")
+        private LocalDate matchDate;
+
+        @Schema(description = "경기 시작 시간")
+        private LocalTime matchTime;
+
+        @Schema(description = "경기 소요 시간")
+        private Integer durationHours;
+
+        @Schema(description = "구장명")
+        private String stadiumName;
+
+        @Schema(description = "구장 주소")
+        private String stadiumAddress;
+
+        @Schema(description = "매치 방식 (4vs4, 5vs5, 6vs6, 7vs7)")
+        private String matchFormat;
+
+        @Schema(description = "참가비")
+        private Integer fee;
+
+        @Schema(description = "추가 안내 사항")
+        private String additionalInfo;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "매치 설정 응답")
+    public static class ConfigResponse {
+        @Schema(description = "취소 가능 기준일 (경기 N일 전까지)")
+        private int cancelDaysBeforeMatch;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "매치 설정 수정 요청 (관리자 전용)")
+    public static class ConfigUpdateRequest {
+        @NotNull(message = "취소 가능 기준일은 필수입니다")
+        @Schema(description = "취소 가능 기준일 (경기 N일 전까지)", required = true)
+        private Integer cancelDaysBeforeMatch;
+    }
 }

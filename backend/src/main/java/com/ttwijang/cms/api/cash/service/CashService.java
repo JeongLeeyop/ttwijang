@@ -155,6 +155,39 @@ public class CashService {
     }
 
     /**
+     * 캐시 환불
+     */
+    @Transactional
+    public void refund(String userUid, int amount, String description, String referenceUid, String referenceType) {
+        CashWallet wallet = walletRepository.findByUserUid(userUid)
+                .orElseGet(() -> {
+                    CashWallet newWallet = CashWallet.builder()
+                            .userUid(userUid)
+                            .balance(0)
+                            .totalCharged(0)
+                            .totalUsed(0)
+                            .build();
+                    return walletRepository.save(newWallet);
+                });
+
+        int newBalance = wallet.getBalance() + amount;
+        wallet.setBalance(newBalance);
+        walletRepository.save(wallet);
+
+        CashTransaction transaction = CashTransaction.builder()
+                .walletUid(wallet.getUid())
+                .userUid(userUid)
+                .type(CashTransaction.TransactionType.REFUND)
+                .amount(amount)
+                .balanceAfter(newBalance)
+                .description(description)
+                .referenceUid(referenceUid)
+                .referenceType(referenceType)
+                .build();
+        transactionRepository.save(transaction);
+    }
+
+    /**
      * 거래 내역 조회
      */
     @Transactional(readOnly = true)

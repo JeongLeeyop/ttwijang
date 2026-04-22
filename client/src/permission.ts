@@ -24,10 +24,16 @@ const initializeAuth = async () => {
   }
 };
 
-// 앱 시작 시 인증 초기화
-initializeAuth();
+const authReady = initializeAuth();
 
 router.beforeEach(async (to: Route, _: Route, next: any) => {
+  await authReady;
+  const requiresAuth = to.matched.some((record) => record.meta && record.meta.requiresAuth);
+  if (requiresAuth && !UserModule.isLogin) {
+    Message.warning('로그인이 필요한 페이지입니다.');
+    next({ path: '/login', query: { redirect: to.fullPath } });
+    return;
+  }
   next();
 });
 

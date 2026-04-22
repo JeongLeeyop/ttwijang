@@ -33,11 +33,14 @@
           {{ scope.row.regionSido }} {{ scope.row.regionSigungu || '' }}
         </template>
       </el-table-column>
-      <el-table-column label="노출 위치" width="120">
+      <el-table-column label="링크" min-width="140">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.targetPage === 'LEAGUE'" type="primary" size="small">리그</el-tag>
-          <el-tag v-else-if="scope.row.targetPage === 'TEAM'" type="success" size="small">팀 배너</el-tag>
-          <el-tag v-else size="small">{{ scope.row.targetPage }}</el-tag>
+          <span v-if="scope.row.leagueUid">
+            <el-tag type="primary" size="mini">리그</el-tag>
+            {{ leagueName(scope.row.leagueUid) }}
+          </span>
+          <span v-else-if="scope.row.linkUrl" style="color:#666;font-size:12px">{{ scope.row.linkUrl }}</span>
+          <span v-else style="color:#ccc">-</span>
         </template>
       </el-table-column>
       <el-table-column label="상태" width="90">
@@ -93,17 +96,24 @@
           </div>
           <div v-else style="color:#aaa;font-size:12px;margin-top:4px">이미지 파일을 선택하세요 (jpg, png, gif 등)</div>
         </el-form-item>
-        <el-form-item label="링크 URL" prop="linkUrl">
+        <el-form-item label="링크 방식">
+          <el-radio-group v-model="form.linkType">
+            <el-radio label="url">URL 직접 입력</el-radio>
+            <el-radio label="league">리그 연결</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.linkType === 'url'" label="링크 URL">
           <el-input v-model="form.linkUrl" placeholder="클릭 시 이동할 URL" />
         </el-form-item>
-        <el-form-item label="노출 위치" prop="targetPage">
-          <el-select v-model="form.targetPage" style="width:100%" @change="onTargetPageChange">
-            <el-option label="리그 페이지" value="LEAGUE" />
-            <el-option label="팀 후원 배너" value="TEAM" />
+        <el-form-item v-if="form.linkType === 'league'" label="리그 선택">
+          <el-select v-model="form.leagueUid" placeholder="리그 선택" clearable style="width:100%">
+            <el-option
+              v-for="l in leagueOptions"
+              :key="l.uid"
+              :label="`${l.name} (${l.season || '-'})`"
+              :value="l.uid"
+            />
           </el-select>
-        </el-form-item>
-        <el-form-item v-if="form.targetPage === 'TEAM'" label="팀 UID" prop="teamUid">
-          <el-input v-model="form.teamUid" placeholder="팀 UID를 입력하세요" />
         </el-form-item>
         <el-form-item label="노출 기간" prop="startDate">
           <el-date-picker
@@ -151,6 +161,7 @@ import {
  getBannerList, createBanner, updateBanner, deleteBanner, uploadBannerImage,
 } from '@/api/banner';
 import { getSidoList, getSigunguList } from '@/api/region';
+import { getLeagueList } from '@/api/league';
 import { ElForm } from 'element-ui/types/form';
 
 @Component({ name: 'BannerList' })
@@ -173,11 +184,15 @@ export default class extends Vue {
 
   private imageInputType: 'url' | 'file' = 'url';
 
+  private leagueOptions: any[] = [];
+
   private form: any = {
     uid: null,
 title: '',
 imageUrl: '',
 linkUrl: '',
+leagueUid: null,
+linkType: 'url',
     targetPage: 'LEAGUE',
 teamUid: '',
 startDate: '',
@@ -191,11 +206,19 @@ status: 'ACTIVE',
   private rules = {
     title: [{ required: true, message: '제목을 입력하세요', trigger: 'blur' }],
     imageUrl: [{ required: true, message: '이미지 URL을 입력하세요', trigger: 'blur' }],
-    targetPage: [{ required: true, message: '노출 페이지를 선택하세요', trigger: 'change' }],
   };
 
   async created() {
-    await Promise.all([this.fetchList(), this.fetchSido()]);
+    await Promise.all([this.fetchList(), this.fetchSido(), this.fetchLeagueOptions()]);
+  }
+
+  async fetchLeagueOptions() {
+    try {
+      const res = await getLeagueList({ size: 100 });
+      this.leagueOptions = res.data?.content || res.data || [];
+    } catch {
+      this.leagueOptions = [];
+    }
   }
 
   async fetchList() {
@@ -231,10 +254,10 @@ status: 'ACTIVE',
 
   openForm(row?: any) {
     if (row) {
-      this.form = { ...row };
+      this.form = { ...row, linkType: row.leagueUid ? 'league' : 'url' };
       this.dateRange = [row.startDate, row.endDate];
       if (row.regionSido) this.onSidoChange(row.regionSido);
-      this.imageInputType = row.imageUrl ? 'url' : 'url';
+      this.imageInputType = 'url';
     } else {
       this.resetForm();
     }
@@ -247,6 +270,8 @@ status: 'ACTIVE',
 title: '',
 imageUrl: '',
 linkUrl: '',
+leagueUid: null,
+linkType: 'url',
       targetPage: 'LEAGUE',
 teamUid: '',
 startDate: '',
@@ -258,10 +283,6 @@ status: 'ACTIVE',
     };
     this.dateRange = [];
     this.imageInputType = 'url';
-  }
-
-  onTargetPageChange() {
-    this.form.teamUid = '';
   }
 
   onImageInputTypeChange() {
@@ -290,11 +311,18 @@ status: 'ACTIVE',
       if (!valid) return;
       this.saving = true;
       try {
+        const payload = { ...this.form };
+        delete payload.linkType;
+        if (this.form.linkType === 'league') {
+          payload.linkUrl = '';
+        } else {
+          payload.leagueUid = null;
+        }
         if (this.form.uid) {
-          await updateBanner(this.form.uid, this.form);
+          await updateBanner(this.form.uid, payload);
           this.$message.success('수정되었습니다.');
         } else {
-          await createBanner(this.form);
+          await createBanner(payload);
           this.$message.success('등록되었습니다.');
         }
         this.dialogVisible = false;
@@ -305,6 +333,11 @@ status: 'ACTIVE',
         this.saving = false;
       }
     });
+  }
+
+  leagueName(uid: string): string {
+    const league = this.leagueOptions.find((l: any) => l.uid === uid);
+    return league ? league.name : uid;
   }
 
   async handleDelete(row: any) {

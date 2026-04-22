@@ -143,4 +143,35 @@ public class MatchController {
             @AuthenticationPrincipal SinghaUser userDetails) {
         return ResponseEntity.ok(matchService.completeMatch(request, userDetails.getUser().getUid()));
     }
+
+    @Operation(summary = "매치 수정 (팀 OWNER 전용)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/{uid}")
+    public ResponseEntity<MatchDto.DetailResponse> updateMatch(
+            @PathVariable String uid,
+            @Valid @RequestBody MatchDto.UpdateRequest request,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(matchService.updateMatch(uid, request, userDetails.getUser().getUid()));
+    }
+
+    @Operation(summary = "내 매치 신청 취소", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{matchUid}/cancel-application")
+    public ResponseEntity<Void> cancelMyApplication(
+            @PathVariable String matchUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        matchService.cancelMyApplication(matchUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "매치 설정 조회")
+    @GetMapping("/config")
+    public ResponseEntity<MatchDto.ConfigResponse> getMatchConfig() {
+        return ResponseEntity.ok(matchService.getMatchConfig());
+    }
+
+    @Operation(summary = "[관리자] 매치 설정 수정", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/admin/config")
+    public ResponseEntity<MatchDto.ConfigResponse> updateMatchConfig(
+            @Valid @RequestBody MatchDto.ConfigUpdateRequest request) {
+        return ResponseEntity.ok(matchService.updateMatchConfig(request));
+    }
 }

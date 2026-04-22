@@ -29,4 +29,7 @@ public interface CashTransactionRepository extends JpaRepository<CashTransaction
 
     @Query("SELECT SUM(ct.amount) FROM CashTransaction ct WHERE ct.walletUid = :walletUid AND ct.type = :type")
     Long sumAmountByWalletUidAndType(@Param("walletUid") String walletUid, @Param("type") CashTransaction.TransactionType type);
+
+    List<CashTransaction> findByReferenceUidAndReferenceTypeAndType(
+            String referenceUid, String referenceType, CashTransaction.TransactionType type);
 }

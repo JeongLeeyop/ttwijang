@@ -114,11 +114,30 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.getLeagueTeams(leagueUid));
     }
 
+    @Operation(summary = "전체 리그 참가 팀 목록 조회 (지역/리그/키워드 필터)")
+    @GetMapping("/all-teams")
+    public ResponseEntity<Page<LeagueDto.LeagueTeamResponse>> getAllLeagueTeams(
+            @RequestParam(required = false) String regionSido,
+            @RequestParam(required = false) String regionSigungu,
+            @RequestParam(required = false) String leagueUid,
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(leagueService.getAllLeagueTeams(regionSido, regionSigungu, leagueUid, keyword, pageable));
+    }
+
     @Operation(summary = "팀이 참가 중인 리그 목록 조회")
     @GetMapping("/team/{teamUid}")
     public ResponseEntity<List<LeagueDto.ListResponse>> getLeaguesByTeam(
             @PathVariable String teamUid) {
         return ResponseEntity.ok(leagueService.getLeaguesByTeam(teamUid));
+    }
+
+    @Operation(summary = "리그 참여 신청 (팀 OWNER 전용)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{leagueUid}/apply")
+    public ResponseEntity<LeagueDto.LeagueTeamResponse> applyToLeague(
+            @PathVariable String leagueUid,
+            @AuthenticationPrincipal SinghaUser user) {
+        return ResponseEntity.ok(leagueService.applyToLeague(leagueUid, user.getUid()));
     }
 
     // ==================== 최고관리자 전용 API (BR-11, BR-12) ====================

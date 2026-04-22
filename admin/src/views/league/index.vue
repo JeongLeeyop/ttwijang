@@ -73,7 +73,9 @@
     <el-dialog
       :title="leagueForm.uid ? '리그 수정' : '리그 생성'"
       :visible.sync="leagueDialogVisible"
-      width="600px"
+      width="700px"
+      :destroy-on-close="true"
+      @opened="editorReady = true"
       @close="resetLeagueForm"
     >
       <el-form ref="leagueFormRef" :model="leagueForm" :rules="leagueRules" label-width="130px">
@@ -119,6 +121,18 @@
         </el-form-item>
         <el-form-item label="규칙">
           <el-input v-model="leagueForm.rules" type="textarea" :rows="3" placeholder="리그 규칙을 입력하세요" />
+        </el-form-item>
+        <el-form-item label="참여비 (캐쉬)">
+          <el-input-number v-model="leagueForm.participationPoints" :min="0" :step="100" />
+          <span style="margin-left:8px;color:#999;font-size:12px">0이면 무료</span>
+        </el-form-item>
+        <el-form-item label="소개글">
+          <Editor
+            v-if="editorReady"
+            :inputValue="leagueForm.introContent"
+            @changeValue="leagueForm.introContent = $event"
+          />
+          <div v-else style="color:#ccc;font-size:13px;padding:8px 0">다이얼로그가 열린 후 에디터가 로드됩니다.</div>
         </el-form-item>
         <el-form-item v-if="leagueForm.uid" label="상태">
           <el-select v-model="leagueForm.status" style="width:100%">
@@ -298,8 +312,9 @@ import {
 } from '@/api/league';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
+import Editor from '@/components/Editor/index.vue';
 
-@Component({ name: 'LeagueList' })
+@Component({ name: 'LeagueList', components: { Editor } })
 export default class extends Vue {
   private loading = false;
 
@@ -322,6 +337,8 @@ export default class extends Vue {
 
   private leagueSigunguList: any[] = [];
 
+  private editorReady = false;
+
   private leagueForm: any = {
     uid: null,
 name: '',
@@ -333,6 +350,8 @@ endDate: '',
 regionSigungu: '',
 maxTeams: 8,
 rules: '',
+introContent: '',
+participationPoints: 0,
 status: 'RECRUITING',
   };
 
@@ -455,9 +474,12 @@ endDate: '',
 regionSigungu: '',
 maxTeams: 8,
 rules: '',
+introContent: '',
+participationPoints: 0,
 status: 'RECRUITING',
     };
     this.leagueSigunguList = [];
+    this.editorReady = false;
   }
 
   async onLeagueSidoChange(name: string) {

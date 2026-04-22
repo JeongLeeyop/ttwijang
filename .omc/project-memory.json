@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775948842376,
+  "lastScanned": 1776884163832,
   "projectRoot": "/Users/devyop/git/ttwijang",
   "techStack": {
     "languages": [],
@@ -36,7 +36,7 @@
       "path": "admin",
       "purpose": null,
       "fileCount": 12,
-      "lastAccessed": 1775948842365,
+      "lastAccessed": 1776884163824,
       "keyFiles": [
         "README.md",
         "babel.config.js",
@@ -49,27 +49,27 @@
       "path": "attached-file",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775948842365,
+      "lastAccessed": 1776884163824,
       "keyFiles": []
     },
     "backend": {
       "path": "backend",
       "purpose": null,
-      "fileCount": 11,
-      "lastAccessed": 1775948842366,
+      "fileCount": 12,
+      "lastAccessed": 1776884163824,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
         "SWAGGER_GUIDE.md",
-        "mvnw",
-        "mvnw.cmd"
+        "create_notice_faq_tables.sql",
+        "mvnw"
       ]
     },
     "client": {
       "path": "client",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1775948842366,
+      "lastAccessed": 1776884163824,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -82,7 +82,7 @@
       "path": "logs",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775948842366,
+      "lastAccessed": 1776884163825,
       "keyFiles": [
         "warosalad.log"
       ]
@@ -91,7 +91,7 @@
       "path": "admin/dist",
       "purpose": "Distribution/build output",
       "fileCount": 3,
-      "lastAccessed": 1775948842366,
+      "lastAccessed": 1776884163825,
       "keyFiles": [
         "favicon-chat.svg",
         "favicon.ico",
@@ -107,21 +107,21 @@
       "type": "file"
     },
     {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
+      "accessCount": 9,
+      "lastAccessed": 1776098748356,
+      "type": "file"
+    },
+    {
       "path": ".claude/CLAUDE.md",
       "accessCount": 7,
       "lastAccessed": 1775760227667,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
-      "accessCount": 6,
-      "lastAccessed": 1775951557341,
-      "type": "file"
-    },
-    {
       "path": "client/src/views/myPage.vue",
-      "accessCount": 6,
-      "lastAccessed": 1775952290342,
+      "accessCount": 7,
+      "lastAccessed": 1776884479114,
       "type": "file"
     },
     {

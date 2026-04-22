@@ -104,6 +104,42 @@ export function deleteMatch(uid: string) {
   });
 }
 
+// 매치 수정
+export interface UpdateMatchRequest {
+  matchDate?: string
+  matchTime?: string
+  durationHours?: number
+  stadiumName?: string
+  stadiumAddress?: string
+  matchFormat?: string
+  fee?: number
+  additionalInfo?: string
+}
+
+export function updateMatch(uid: string, data: UpdateMatchRequest) {
+  return request({
+    url: `/match/${uid}`,
+    method: 'put',
+    data,
+  });
+}
+
+// 내 매치 신청 취소 (N일 전 취소)
+export function cancelMyMatchApplication(matchUid: string) {
+  return request({
+    url: `/match/${matchUid}/cancel-application`,
+    method: 'post',
+  });
+}
+
+// 매치 설정 조회
+export function getMatchConfig() {
+  return request({
+    url: '/match/config',
+    method: 'get',
+  });
+}
+
 // 내 팀 매치 목록 조회
 export function getMyTeamMatches(teamUid: string, params?: {
   matchType?: string

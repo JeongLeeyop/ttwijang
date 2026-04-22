@@ -144,11 +144,11 @@ export default class LeagueModule extends VuexModule implements LeagueState {
   }
 
   @Action
-  async applyToJoinLeague(params: { leagueUid: string, teamUid: string }): Promise<void> {
+  async applyToJoinLeague(params: { leagueUid: string, teamUid?: string }): Promise<void> {
     this.SET_LOADING(true);
     this.SET_ERROR(null);
     try {
-      await applyToLeague(params.leagueUid, params.teamUid);
+      await applyToLeague(params.leagueUid);
     } catch (error: any) {
       this.SET_ERROR(error.message || '리그 참가 신청에 실패했습니다.');
       throw error;

@@ -104,6 +104,12 @@ public class LeagueDto {
         @Schema(description = "리그 규칙")
         private String rules;
 
+        @Schema(description = "리그 소개글 (HTML)")
+        private String introContent;
+
+        @Schema(description = "리그 참여 포인트(캐시) — 0이면 무료")
+        private Integer participationPoints;
+
         @Schema(description = "배너 이미지 URL")
         private String bannerUrl;
 
@@ -274,8 +280,17 @@ public class LeagueDto {
         @Schema(description = "팀 로고 URL")
         private String teamLogoUrl;
 
+        @Schema(description = "리그 UID")
+        private String leagueUid;
+
         @Schema(description = "리그 이름")
         private String leagueName;
+
+        @Schema(description = "리그 지역 - 도/시")
+        private String regionSido;
+
+        @Schema(description = "리그 지역 - 시/군/구")
+        private String regionSigungu;
 
         @Schema(description = "순위")
         private Integer ranking;
@@ -322,6 +337,12 @@ public class LeagueDto {
         @Schema(description = "리그 규칙")
         private String rules;
 
+        @Schema(description = "리그 소개글 (HTML)")
+        private String introContent;
+
+        @Schema(description = "리그 참여 포인트(캐시) — 0이면 무료")
+        private Integer participationPoints;
+
         @Schema(description = "배너 이미지 파일 UID")
         private String bannerFileUid;
     }
@@ -358,6 +379,12 @@ public class LeagueDto {
 
         @Schema(description = "리그 규칙")
         private String rules;
+
+        @Schema(description = "리그 소개글 (HTML)")
+        private String introContent;
+
+        @Schema(description = "리그 참여 포인트(캐시) — 0이면 무료")
+        private Integer participationPoints;
 
         @Schema(description = "배너 이미지 파일 UID")
         private String bannerFileUid;

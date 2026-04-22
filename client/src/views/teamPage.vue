@@ -219,6 +219,20 @@
                 >
                   {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
                 </span>
+                <el-dropdown
+                  v-if="isOwner && match.status === 'RECRUITING'"
+                  trigger="click"
+                  @command="(cmd) => handleMatchMenuCommand(cmd, match)"
+                  @click.native.stop
+                >
+                  <button class="match-more-btn" @click.stop>
+                    <i class="el-icon-more"></i>
+                  </button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="edit">수정</el-dropdown-item>
+                    <el-dropdown-item command="delete" style="color:#e53935;">삭제</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </div>
               <div class="match-card-datetime">
                 {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
@@ -608,7 +622,7 @@ import {
   getTeamDetail, getTeamMembers, getTeamByCode,
   checkMembershipStatus, getMyTeams,
 } from '@/api/team';
-import { getMyTeamMatches } from '@/api/match';
+import { getMyTeamMatches, deleteMatch } from '@/api/match';
 import {
   getLeaguesByTeam, getLeagueStandings, getLeagueSchedule,
 } from '@/api/league';
@@ -1249,6 +1263,32 @@ export default class TeamPage extends Vue {
       path: `/match-detail/${match.uid}`,
       query: { type: 'match' },
     });
+  }
+
+  private async handleMatchMenuCommand(command: string, match: any): Promise<void> {
+    if (command === 'edit') {
+      this.$router.push({
+        path: '/match-create',
+        query: { matchUid: match.uid, teamUid: match.hostTeamUid },
+      });
+    } else if (command === 'delete') {
+      try {
+        await this.$confirm(
+          '매치를 삭제하면 참가한 모든 팀과 게스트에게 참가비가 전액 환불됩니다. 삭제하시겠습니까?',
+          '매치 삭제',
+          { confirmButtonText: '삭제', cancelButtonText: '취소', type: 'warning' },
+        );
+      } catch {
+        return;
+      }
+      try {
+        await deleteMatch(match.uid);
+        this.$message.success('매치가 삭제되었습니다.');
+        await this.loadMatchData();
+      } catch (e: any) {
+        this.$message.error(e?.response?.data?.message || '삭제 중 오류가 발생했습니다.');
+      }
+    }
   }
 
   // ===== League Methods =====
@@ -2123,6 +2163,23 @@ export default class TeamPage extends Vue {
   gap: 6px;
   margin-bottom: 10px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.match-more-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: #aab2cc;
+  font-size: 16px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.match-more-btn:active {
+  background: #f0f2fa;
 }
 
 .match-badge {
