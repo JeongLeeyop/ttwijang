@@ -299,7 +299,7 @@ export default class extends Vue {
 
   private collapsedTop = 290
 
-  private expandedTop = 70
+  private expandedTop = 80
 
   private currentYear = 2025
 
@@ -333,9 +333,15 @@ export default class extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 0. 배너 조회 (API 연동)
+      // 0. 배너 조회 (API 연동, 선택된 지역 시/군/구 코드 적용)
       try {
-        const bannerRes = await getActiveBanners({ targetPage: 'LEAGUE' });
+        const bannerParams: { targetPage: 'LEAGUE', regionSigungu?: string } = {
+          targetPage: 'LEAGUE',
+        };
+        if (this.selectedRegion) {
+          bannerParams.regionSigungu = this.selectedRegion;
+        }
+        const bannerRes = await getActiveBanners(bannerParams);
         this.banners = bannerRes.data?.content || bannerRes.data || [];
       } catch {
         this.banners = [];

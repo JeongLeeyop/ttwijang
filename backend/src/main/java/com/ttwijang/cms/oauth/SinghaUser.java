@@ -19,4 +19,8 @@ public class SinghaUser extends User {
 		this.user = user;
 	}
 
+	public String getUid() {
+		return user != null ? user.getUid() : null;
+	}
+
 }

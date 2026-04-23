@@ -253,7 +253,14 @@ export default class MatchCreate extends Vue {
           this.matchDuration = m.durationHours || 2;
           this.stadium = m.stadiumName || '';
           this.matchType = m.matchType || 'FRIENDLY';
-          this.matchFormat = m.matchFormat || 'FIVE_VS_FIVE';
+          const formatNormalize: Record<string, string> = {
+            '4vs4': 'FOUR_VS_FOUR',
+            '5vs5': 'FIVE_VS_FIVE',
+            '6vs6': 'SIX_VS_SIX',
+            '7vs7': 'SEVEN_VS_SEVEN',
+          };
+          const rawFormat = m.matchFormat || '';
+          this.matchFormat = formatNormalize[rawFormat] || rawFormat || 'FIVE_VS_FIVE';
           this.fee = m.fee || 0;
         }
       } catch (e) {

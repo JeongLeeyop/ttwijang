@@ -19,18 +19,25 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.league.dto.LeagueDto;
+import com.ttwijang.cms.api.league.repository.LeagueMatchApplicationRepository;
 import com.ttwijang.cms.api.league.repository.LeagueMatchRepository;
 import com.ttwijang.cms.api.league.repository.LeagueRepository;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
+import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
+import com.ttwijang.cms.api.match.repository.MatchConfigRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.LeagueMatch;
+import com.ttwijang.cms.entity.LeagueMatchApplication;
 import com.ttwijang.cms.entity.LeagueTeam;
+import com.ttwijang.cms.entity.MatchConfig;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
+import com.ttwijang.cms.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,8 +48,12 @@ public class LeagueService {
     private final LeagueRepository leagueRepository;
     private final LeagueTeamRepository leagueTeamRepository;
     private final LeagueMatchRepository leagueMatchRepository;
+    private final LeagueMatchApplicationRepository leagueMatchApplicationRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final UserRepository userRepository;
+    private final MannerRatingRepository mannerRatingRepository;
+    private final MatchConfigRepository matchConfigRepository;
     private final CashService cashService;
     private final NotificationService notificationService;
 
@@ -117,6 +128,7 @@ public class LeagueService {
                         .teamUid(team.getUid())
                         .teamCode(team.getTeamCode())
                         .teamName(team.getName())
+                        .teamLogoUrl(team.getLogoFileUid())
                         .played(lt.getPlayed())
                         .wins(lt.getWins())
                         .draws(lt.getDraws())
@@ -558,10 +570,12 @@ public class LeagueService {
             List<League> allLeagues = leagueRepository.findAll();
             for (League l : allLeagues) {
                 if (l.getStatus() != League.LeagueStatus.IN_PROGRESS) continue;
-                if (regionSido != null && !regionSido.isEmpty()
-                        && !regionSido.equals(l.getRegionSido())) continue;
-                if (regionSigungu != null && !regionSigungu.isEmpty()
-                        && !regionSigungu.equals(l.getRegionSigungu())) continue;
+                // 시/군/구 우선 매칭 — 시/군/구가 지정되면 도는 무시 (시/군/구 이름은 사실상 고유)
+                if (regionSigungu != null && !regionSigungu.isEmpty()) {
+                    if (!regionSigungu.equals(l.getRegionSigungu())) continue;
+                } else if (regionSido != null && !regionSido.isEmpty()) {
+                    if (!regionSido.equals(l.getRegionSido())) continue;
+                }
                 leagueCache.put(l.getUid(), l);
             }
         }
@@ -647,27 +661,222 @@ public class LeagueService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public LeagueDto.MatchResponse getLeagueMatchDetail(String matchUid) {
+        return getLeagueMatchDetail(matchUid, null);
+    }
+
+    @Transactional(readOnly = true)
+    public LeagueDto.MatchResponse getLeagueMatchDetail(String matchUid, String userUid) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그 경기입니다."));
+        return toMatchResponse(match, userUid);
+    }
+
     private LeagueDto.MatchResponse toMatchResponse(LeagueMatch match) {
+        return toMatchResponse(match, null);
+    }
+
+    private LeagueDto.MatchResponse toMatchResponse(LeagueMatch match, String currentUserUid) {
         Team homeTeam = teamRepository.findByUid(match.getHomeTeamUid()).orElse(null);
         Team awayTeam = teamRepository.findByUid(match.getAwayTeamUid()).orElse(null);
         League league = leagueRepository.findByUid(match.getLeagueUid()).orElse(null);
+
+        // 참여자 명단 (APPROVED 신청자)
+        List<LeagueMatchApplication> approvedApps = leagueMatchApplicationRepository
+                .findByLeagueMatchUidAndStatus(match.getUid(), LeagueMatchApplication.ApplicationStatus.APPROVED);
+        List<LeagueDto.LeagueMatchParticipant> participants = approvedApps.stream()
+                .map(app -> {
+                    User u = userRepository.findById(app.getUserUid()).orElse(null);
+                    Team t = teamRepository.findByUid(app.getTeamUid()).orElse(null);
+                    return LeagueDto.LeagueMatchParticipant.builder()
+                            .uid(app.getUserUid())
+                            .name(u != null ? u.getActualName() : "알 수 없음")
+                            .teamName(t != null ? t.getName() : "")
+                            .profileImageUrl(u != null ? u.getProfileImageUrl() : null)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        boolean alreadyApplied = false;
+        boolean hasRatedManner = false;
+        boolean isTeamOwner = false;
+        String myTeamUid = null;
+        if (currentUserUid != null && !currentUserUid.isEmpty()) {
+            alreadyApplied = leagueMatchApplicationRepository
+                    .existsByLeagueMatchUidAndUserUidAndStatus(
+                            match.getUid(), currentUserUid,
+                            LeagueMatchApplication.ApplicationStatus.APPROVED);
+            hasRatedManner = mannerRatingRepository
+                    .existsByMatchUidAndRaterUserUid(match.getUid(), currentUserUid);
+            // 홈팀/원정팀의 OWNER 또는 MANAGER 여부 확인
+            isTeamOwner = isTeamManagerOrOwner(homeTeam, currentUserUid)
+                    || isTeamManagerOrOwner(awayTeam, currentUserUid);
+            // 사용자가 소속된 팀 확인 (홈팀 또는 원정팀)
+            if (teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                    match.getHomeTeamUid(), currentUserUid, TeamMember.MemberStatus.APPROVED)) {
+                myTeamUid = match.getHomeTeamUid();
+            } else if (teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                    match.getAwayTeamUid(), currentUserUid, TeamMember.MemberStatus.APPROVED)) {
+                myTeamUid = match.getAwayTeamUid();
+            }
+        }
 
         return LeagueDto.MatchResponse.builder()
                 .uid(match.getUid())
                 .leagueUid(match.getLeagueUid())
                 .leagueName(league != null ? league.getName() : "")
+                .leagueStatus(league != null ? league.getStatus() : null)
                 .homeTeamUid(match.getHomeTeamUid())
                 .homeTeamName(homeTeam != null ? homeTeam.getName() : "")
+                .homeTeamLogoUrl(homeTeam != null ? homeTeam.getLogoFileUid() : null)
                 .awayTeamUid(match.getAwayTeamUid())
                 .awayTeamName(awayTeam != null ? awayTeam.getName() : "")
+                .awayTeamLogoUrl(awayTeam != null ? awayTeam.getLogoFileUid() : null)
                 .matchDate(match.getMatchDate())
                 .matchTime(match.getMatchTime())
+                .durationMinutes(match.getDurationMinutes())
                 .stadiumName(match.getStadiumName())
                 .stadiumAddress(match.getStadiumAddress())
                 .homeScore(match.getHomeScore())
                 .awayScore(match.getAwayScore())
                 .status(match.getStatus())
                 .round(match.getRound())
+                .alreadyApplied(alreadyApplied)
+                .hasRatedManner(hasRatedManner)
+                .isTeamOwner(isTeamOwner)
+                .myTeamUid(myTeamUid)
+                .participants(participants)
                 .build();
+    }
+
+    private boolean isTeamManagerOrOwner(Team team, String userUid) {
+        if (team == null || userUid == null) return false;
+        if (userUid.equals(team.getOwnerUid())) return true;
+        return teamMemberRepository.findByTeamUidAndUserUid(team.getUid(), userUid)
+                .map(m -> m.getRole() == TeamMember.MemberRole.OWNER
+                        || m.getRole() == TeamMember.MemberRole.MANAGER)
+                .orElse(false);
+    }
+
+    /**
+     * 리그 경기 참가 신청
+     * - 참가 자격: 해당 LeagueMatch의 homeTeam 또는 awayTeam의 APPROVED 멤버만
+     * - 시점: 경기 시작 전까지 (matchDate + matchTime이 현재보다 미래)
+     * - 참가비: 무조건 무료
+     * - 중복 신청 방지 (기존 CANCELLED 레코드는 상태 복원하여 재신청 허용)
+     */
+    @Transactional
+    public void applyToLeagueMatch(String matchUid, String userUid) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그 경기입니다."));
+
+        if (match.getStatus() == LeagueMatch.MatchStatus.CANCELLED) {
+            throw new IllegalArgumentException("취소된 경기입니다.");
+        }
+        if (isMatchStarted(match)) {
+            throw new IllegalArgumentException("이미 시작된 경기는 신청할 수 없습니다.");
+        }
+
+        // 사용자의 소속 팀 — 홈팀 또는 원정팀 APPROVED 멤버 여부 확인
+        String belongingTeamUid = null;
+        if (teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                match.getHomeTeamUid(), userUid, TeamMember.MemberStatus.APPROVED)) {
+            belongingTeamUid = match.getHomeTeamUid();
+        } else if (teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                match.getAwayTeamUid(), userUid, TeamMember.MemberStatus.APPROVED)) {
+            belongingTeamUid = match.getAwayTeamUid();
+        }
+        if (belongingTeamUid == null) {
+            throw new IllegalArgumentException("해당 경기에 참여하는 팀의 승인된 멤버만 신청할 수 있습니다.");
+        }
+
+        // 기존 신청 레코드가 있으면 상태 복원 (재신청)
+        LeagueMatchApplication application = leagueMatchApplicationRepository
+                .findByLeagueMatchUidAndUserUid(matchUid, userUid)
+                .orElse(null);
+        if (application != null) {
+            if (application.getStatus() == LeagueMatchApplication.ApplicationStatus.APPROVED) {
+                throw new IllegalArgumentException("이미 신청한 경기입니다.");
+            }
+            application.setStatus(LeagueMatchApplication.ApplicationStatus.APPROVED);
+            application.setTeamUid(belongingTeamUid);
+            application.setProcessedDate(java.time.LocalDateTime.now());
+        } else {
+            application = LeagueMatchApplication.builder()
+                    .leagueMatchUid(matchUid)
+                    .teamUid(belongingTeamUid)
+                    .userUid(userUid)
+                    .status(LeagueMatchApplication.ApplicationStatus.APPROVED)
+                    .build();
+        }
+        leagueMatchApplicationRepository.save(application);
+    }
+
+    /**
+     * 리그 경기 참가 신청 취소
+     * - 취소 기한: match_config.cancelDaysBeforeMatch (N일 전까지)
+     */
+    @Transactional
+    public void cancelLeagueMatchApplication(String matchUid, String userUid) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그 경기입니다."));
+
+        LeagueMatchApplication application = leagueMatchApplicationRepository
+                .findByLeagueMatchUidAndUserUid(matchUid, userUid)
+                .filter(a -> a.getStatus() == LeagueMatchApplication.ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
+
+        MatchConfig config = matchConfigRepository.findByUid("default")
+                .orElse(MatchConfig.builder().uid("default").cancelDaysBeforeMatch(1).build());
+        LocalDate cancelDeadline = LocalDate.now().plusDays(config.getCancelDaysBeforeMatch());
+        if (!match.getMatchDate().isAfter(cancelDeadline)) {
+            throw new IllegalArgumentException(
+                    "취소 기한이 지났습니다. 경기 " + config.getCancelDaysBeforeMatch() + "일 전까지만 취소 가능합니다.");
+        }
+
+        application.setStatus(LeagueMatchApplication.ApplicationStatus.CANCELLED);
+        application.setProcessedDate(java.time.LocalDateTime.now());
+        leagueMatchApplicationRepository.save(application);
+    }
+
+    /**
+     * 내 리그 경기 신청 내역 조회
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.MyLeagueMatchApplicationResponse> getMyLeagueMatchApplications(String userUid) {
+        List<LeagueMatchApplication> apps = leagueMatchApplicationRepository
+                .findByUserUidOrderByCreatedDateDesc(userUid);
+        List<LeagueDto.MyLeagueMatchApplicationResponse> result = new ArrayList<>();
+        for (LeagueMatchApplication app : apps) {
+            LeagueMatch match = leagueMatchRepository.findByUid(app.getLeagueMatchUid()).orElse(null);
+            if (match == null) continue;
+            Team homeTeam = teamRepository.findByUid(match.getHomeTeamUid()).orElse(null);
+            Team awayTeam = teamRepository.findByUid(match.getAwayTeamUid()).orElse(null);
+            League league = leagueRepository.findByUid(match.getLeagueUid()).orElse(null);
+            result.add(LeagueDto.MyLeagueMatchApplicationResponse.builder()
+                    .applicationUid(app.getUid())
+                    .leagueMatchUid(match.getUid())
+                    .leagueName(league != null ? league.getName() : "")
+                    .homeTeamName(homeTeam != null ? homeTeam.getName() : "")
+                    .awayTeamName(awayTeam != null ? awayTeam.getName() : "")
+                    .stadiumName(match.getStadiumName())
+                    .matchDate(match.getMatchDate())
+                    .matchTime(match.getMatchTime() != null ? match.getMatchTime().toString() : null)
+                    .matchStatus(match.getStatus() != null ? match.getStatus().name() : "")
+                    .applicationStatus(app.getStatus() != null ? app.getStatus().name() : "")
+                    .appliedAt(app.getCreatedDate())
+                    .build());
+        }
+        return result;
+    }
+
+    private boolean isMatchStarted(LeagueMatch match) {
+        java.time.LocalDate date = match.getMatchDate();
+        if (date == null) return false;
+        java.time.LocalDateTime startAt = match.getMatchTime() != null
+                ? java.time.LocalDateTime.of(date, match.getMatchTime())
+                : date.atTime(23, 59, 59);
+        return java.time.LocalDateTime.now().isAfter(startAt);
     }
 }

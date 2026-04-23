@@ -16,7 +16,11 @@ public interface MatchApplicationRepository extends JpaRepository<MatchApplicati
 
     boolean existsByMatchUidAndApplicantUserUid(String matchUid, String userUid);
 
+    boolean existsByMatchUidAndApplicantUserUidAndStatus(String matchUid, String userUid, MatchApplication.ApplicationStatus status);
+
     boolean existsByMatchUidAndApplicantTeamUid(String matchUid, String teamUid);
+
+    boolean existsByMatchUidAndApplicantTeamUidAndStatus(String matchUid, String teamUid, MatchApplication.ApplicationStatus status);
 
     long countByMatchUidAndStatusIn(String matchUid, java.util.Collection<MatchApplication.ApplicationStatus> statuses);
 

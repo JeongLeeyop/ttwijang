@@ -44,6 +44,12 @@ public class TeamDto {
         @Schema(description = "후원 계좌 번호")
         private String bankAccount;
 
+        @Schema(description = "환불 계좌 은행명")
+        private String refundBankName;
+
+        @Schema(description = "환불 계좌 번호")
+        private String refundBankAccount;
+
         @Schema(description = "활동 요일 (비트마스크)")
         private Integer activeDays;
 

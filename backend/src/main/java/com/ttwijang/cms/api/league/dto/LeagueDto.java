@@ -228,6 +228,65 @@ public class LeagueDto {
 
         @Schema(description = "리그 이름")
         private String leagueName;
+
+        @Schema(description = "경기 소요 시간 (분)")
+        private Integer durationMinutes;
+
+        @Schema(description = "리그 상태")
+        private League.LeagueStatus leagueStatus;
+
+        @Schema(description = "현재 사용자의 신청 여부 (APPROVED 상태)")
+        private Boolean alreadyApplied;
+
+        @Schema(description = "현재 사용자의 매너 점수 평가 완료 여부")
+        private Boolean hasRatedManner;
+
+        @Schema(description = "현재 사용자의 운영자 권한 여부 (홈팀 또는 원정팀 OWNER/MANAGER)")
+        private Boolean isTeamOwner;
+
+        @Schema(description = "현재 사용자가 신청한 팀 UID (홈팀 또는 원정팀 중 하나)")
+        private String myTeamUid;
+
+        @Schema(description = "참여자 명단 (APPROVED 신청자)")
+        private List<LeagueMatchParticipant> participants;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "리그 경기 참여자")
+    public static class LeagueMatchParticipant {
+        @Schema(description = "사용자 UID")
+        private String uid;
+
+        @Schema(description = "이름")
+        private String name;
+
+        @Schema(description = "팀 이름")
+        private String teamName;
+
+        @Schema(description = "프로필 이미지 URL")
+        private String profileImageUrl;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "내 리그 경기 신청 응답")
+    public static class MyLeagueMatchApplicationResponse {
+        private String applicationUid;
+        private String leagueMatchUid;
+        private String leagueName;
+        private String homeTeamName;
+        private String awayTeamName;
+        private String stadiumName;
+        private LocalDate matchDate;
+        private String matchTime;
+        private String matchStatus;
+        private String applicationStatus;
+        private LocalDateTime appliedAt;
     }
 
     @Data

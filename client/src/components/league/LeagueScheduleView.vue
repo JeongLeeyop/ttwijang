@@ -8,6 +8,7 @@
           placeholder="리그 선택"
           size="small"
           class="league-select"
+          popper-class="league-select-popper"
           @change="onLeagueChange"
         >
           <el-option

@@ -9,42 +9,42 @@
 
     <!-- 요약 카드 -->
     <div class="dashboard-cards">
-      <el-card class="dashboard-card" shadow="hover">
+      <div class="dashboard-card dashboard-card--green">
         <div class="card-inner">
-          <div class="card-icon" style="background:#16a34a">🏟</div>
+          <div class="card-icon"><i class="el-icon-football" /></div>
           <div class="card-info">
             <p class="card-label">활성 리그</p>
             <p class="card-value">{{ summary.leagues }}</p>
           </div>
         </div>
-      </el-card>
-      <el-card class="dashboard-card" shadow="hover">
+      </div>
+      <div class="dashboard-card dashboard-card--blue">
         <div class="card-inner">
-          <div class="card-icon" style="background:#2563eb">👥</div>
+          <div class="card-icon"><i class="el-icon-s-custom" /></div>
           <div class="card-info">
             <p class="card-label">전체 팀</p>
             <p class="card-value">{{ summary.teams }}</p>
           </div>
         </div>
-      </el-card>
-      <el-card class="dashboard-card" shadow="hover">
+      </div>
+      <div class="dashboard-card dashboard-card--orange">
         <div class="card-inner">
-          <div class="card-icon" style="background:#d97706">👤</div>
+          <div class="card-icon"><i class="el-icon-user" /></div>
           <div class="card-info">
             <p class="card-label">전체 유저</p>
             <p class="card-value">{{ summary.users }}</p>
           </div>
         </div>
-      </el-card>
-      <el-card class="dashboard-card" shadow="hover">
+      </div>
+      <div class="dashboard-card dashboard-card--purple">
         <div class="card-inner">
-          <div class="card-icon" style="background:#7c3aed">📍</div>
+          <div class="card-icon"><i class="el-icon-location-outline" /></div>
           <div class="card-info">
             <p class="card-label">운영 지역</p>
             <p class="card-value">{{ summary.regions }}</p>
           </div>
         </div>
-      </el-card>
+      </div>
     </div>
 
     <!-- 지역별 리그 현황 -->
@@ -275,41 +275,67 @@ export default class extends Vue {
 
 <style scoped>
 .dashboard-cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 24px;
-  flex-wrap: wrap;
+}
+@media (max-width: 1200px) {
+  .dashboard-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .dashboard-cards { grid-template-columns: 1fr; }
 }
 .dashboard-card {
-  flex: 1;
-  min-width: 180px;
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 14px;
+  padding: 20px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+  border-color: #e3e7ee;
 }
 .card-inner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 .card-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
+}
+.card-info {
+  min-width: 0;
 }
 .card-label {
   font-size: 13px;
-  color: #888;
+  color: #6b7280;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 .card-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #222;
-  margin: 4px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 2px 0 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
+
+/* 카드별 아이콘 테마 (은은한 파스텔 배경 + 진한 아이콘) */
+.dashboard-card--green .card-icon  { background: #e6f7ee; color: #16a34a; }
+.dashboard-card--blue .card-icon   { background: #e7efff; color: #2563eb; }
+.dashboard-card--orange .card-icon { background: #fff1df; color: #d97706; }
+.dashboard-card--purple .card-icon { background: #f0ebff; color: #7c3aed; }
 .dashboard-table-card {
   margin-top: 8px;
 }

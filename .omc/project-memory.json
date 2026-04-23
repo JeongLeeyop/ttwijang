@@ -101,15 +101,21 @@
   },
   "hotPaths": [
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service/TeamService.java",
-      "accessCount": 9,
-      "lastAccessed": 1775951654979,
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
+      "accessCount": 31,
+      "lastAccessed": 1776895686507,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
-      "accessCount": 9,
-      "lastAccessed": 1776098748356,
+      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service/TeamService.java",
+      "accessCount": 12,
+      "lastAccessed": 1776894149154,
+      "type": "file"
+    },
+    {
+      "path": "client/src/views/home.vue",
+      "accessCount": 11,
+      "lastAccessed": 1776885080779,
       "type": "file"
     },
     {
@@ -126,8 +132,26 @@
     },
     {
       "path": "backend/src/main/java/com/ttwijang/cms/api/team/controller/TeamController.java",
+      "accessCount": 6,
+      "lastAccessed": 1776892381134,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/match/service/MatchService.java",
       "accessCount": 5,
-      "lastAccessed": 1775951662032,
+      "lastAccessed": 1776893864696,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/league/CLAUDE.md",
+      "accessCount": 5,
+      "lastAccessed": 1776895873123,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/FutsalMatch.java",
+      "accessCount": 4,
+      "lastAccessed": 1776893175936,
       "type": "file"
     },
     {
@@ -167,16 +191,16 @@
       "type": "file"
     },
     {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
+      "accessCount": 3,
+      "lastAccessed": 1776885341440,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 2,
       "lastAccessed": 1775490800647,
       "type": "directory"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/FutsalMatch.java",
-      "accessCount": 2,
-      "lastAccessed": 1775491054488,
-      "type": "file"
     },
     {
       "path": "client/src/views/teamInfo.vue",
@@ -203,27 +227,9 @@
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
-      "accessCount": 2,
-      "lastAccessed": 1775766194301,
-      "type": "file"
-    },
-    {
       "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
       "accessCount": 2,
       "lastAccessed": 1775766195140,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/home.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775948879928,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/match/service/MatchService.java",
-      "accessCount": 2,
-      "lastAccessed": 1775951516246,
       "type": "file"
     },
     {
@@ -332,12 +338,6 @@
       "path": "backend/src/main/java/com/ttwijang/cms/api/team/CLAUDE.md",
       "accessCount": 1,
       "lastAccessed": 1775760013698,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760027904,
       "type": "file"
     },
     {

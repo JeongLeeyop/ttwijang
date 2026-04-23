@@ -104,7 +104,7 @@
               </template>
               <template v-else>VS</template>
               <div
-                v-if="isAdmin && detailData && detailData.status !== 'FINISHED'"
+                v-if="isAdmin && detailData && detailData.status !== 'COMPLETED' && detailData.status !== 'CANCELLED'"
                 style="margin-top:8px"
               >
                 <el-button
@@ -113,6 +113,17 @@
                   @click="showLeagueResultModal = true"
                 >
                   결과 입력
+                </el-button>
+              </div>
+              <div
+                v-else-if="isAdmin && detailData && detailData.status === 'COMPLETED'"
+                style="margin-top:8px"
+              >
+                <el-button
+                  size="mini"
+                  @click="openLeagueResultEdit"
+                >
+                  결과 수정
                 </el-button>
               </div>
             </div>
@@ -690,7 +701,9 @@ import {
   getMatchDetail, applyToMatch, completeMatch, rateTeamManner,
 } from '@/api/match';
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
-import { getLeagueDetail, updateMatchResult } from '@/api/league';
+import {
+  getLeagueDetail, getLeagueMatchDetail, updateMatchResult, applyToLeagueMatch,
+} from '@/api/league';
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
 import { getMyTeams } from '@/api/team';
@@ -1000,11 +1013,15 @@ export default class MatchDetail extends Vue {
   get canApply(): boolean {
     if (this.alreadyApplied) return false;
     if (this.isMatchDatePassed) return false;
-    return this.detailType !== 'league' || this.detailData?.status === 'SCHEDULED';
+    if (this.detailType === 'league') {
+      return this.detailData?.status === 'SCHEDULED';
+    }
+    return true;
   }
 
   get applyButtonText(): string {
     if (this.isRecruitmentClosed) return '모집 완료';
+    if (this.detailType === 'league') return '리그 경기 참가 신청하기';
     const fee = this.detailData?.fee || 0;
     const feeText = fee > 0 ? ` (${fee.toLocaleString()}원)` : '';
     if (this.detailType === 'guest') return `게스트 신청하기${feeText}`;
@@ -1210,41 +1227,19 @@ export default class MatchDetail extends Vue {
   }
 
   private async loadLeagueMatchDetail(uid: string): Promise<void> {
-    const leagueUid = (this.$route.query.leagueUid as string) || '';
+    // 리그 경기 단건 조회
+    const matchResponse = await getLeagueMatchDetail(uid);
+    this.detailData = matchResponse.data;
 
-    // league match detail 은 schedule 에서 개별 매치 정보를 가져옴
-    // 리그 상세로 전체 정보를 가져오고, 해당 매치를 필터링
+    // 리그 메타(규칙 등) 로드
+    const leagueUid = (this.$route.query.leagueUid as string) || this.detailData?.leagueUid || '';
     if (leagueUid) {
       try {
         const leagueResponse = await getLeagueDetail(leagueUid);
         this.leagueData = leagueResponse.data;
-
-        // 다가오는 경기 + 최근 결과에서 uid 매칭
-        const allMatches = [
-          ...(this.leagueData?.upcomingMatches || []),
-          ...(this.leagueData?.recentResults || []),
-        ];
-        const matchData = allMatches.find((m: any) => m.uid === uid);
-
-        if (matchData) {
-          this.detailData = matchData;
-        } else {
-          // 매치를 찾지 못하면 기본 데이터 세팅
-          this.detailData = {
-            uid,
-            stadiumName: this.leagueData?.regionSido || '정보 없음',
-          };
-        }
       } catch {
-        this.detailData = {
-          uid,
-          stadiumName: '정보 없음',
-        };
+        // silent
       }
-    } else {
-      // leagueUid 없으면 match API로 fallback
-      const response = await getMatchDetail(uid);
-      this.detailData = response.data;
     }
 
     this.detailType = 'league';
@@ -1282,6 +1277,11 @@ export default class MatchDetail extends Vue {
   }
 
   private async handleApply(): Promise<void> {
+    if (this.detailType === 'league') {
+      await this.handleLeagueApply();
+      return;
+    }
+
     // 참가비 확인
     const fee = this.detailData?.fee || 0;
 
@@ -1401,12 +1401,64 @@ export default class MatchDetail extends Vue {
     }
   }
 
+  private async handleLeagueApply(): Promise<void> {
+    if (!this.matchUid) {
+      this.$message.error('경기 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    const leagueName = this.detailData?.leagueName || this.leagueData?.name || '리그';
+
+    try {
+      await this.$confirm(
+        `${leagueName} 경기에 참가 신청하시겠습니까?`,
+        '리그 경기 참가 신청',
+        { confirmButtonText: '신청', cancelButtonText: '취소', type: 'info' },
+      );
+    } catch {
+      return;
+    }
+
+    this.isApplying = true;
+    try {
+      await applyToLeagueMatch(this.matchUid);
+      this.$message.success('리그 경기 참가 신청이 완료되었습니다.');
+      await this.loadDetail();
+    } catch (err: any) {
+      const message = err?.response?.data?.message || '리그 경기 참가 신청에 실패했습니다.';
+      this.$message.error(message);
+    } finally {
+      this.isApplying = false;
+    }
+  }
+
   private openMannerForParticipant(): void {
     this.mannerScore = 0;
-    this.mannerRatedTeamUid = this.detailData?.hostTeamUid || '';
-    this.mannerRatedTeamName = this.hostTeamName;
-    this.mannerRatedTeamLogo = this.hostTeamLogo;
+    if (this.detailType === 'league') {
+      const myTeamUid = this.detailData?.myTeamUid;
+      const homeTeamUid = this.detailData?.homeTeamUid;
+      const awayTeamUid = this.detailData?.awayTeamUid;
+      if (myTeamUid && myTeamUid === homeTeamUid) {
+        this.mannerRatedTeamUid = awayTeamUid || '';
+        this.mannerRatedTeamName = this.detailData?.awayTeamName || '';
+        this.mannerRatedTeamLogo = this.awayTeamLogo;
+      } else {
+        this.mannerRatedTeamUid = homeTeamUid || '';
+        this.mannerRatedTeamName = this.detailData?.homeTeamName || '';
+        this.mannerRatedTeamLogo = this.homeTeamLogo;
+      }
+    } else {
+      this.mannerRatedTeamUid = this.detailData?.hostTeamUid || '';
+      this.mannerRatedTeamName = this.hostTeamName;
+      this.mannerRatedTeamLogo = this.hostTeamLogo;
+    }
     this.showMannerModal = true;
+  }
+
+  private openLeagueResultEdit(): void {
+    this.leagueInputHomeScore = this.detailData?.homeScore || 0;
+    this.leagueInputAwayScore = this.detailData?.awayScore || 0;
+    this.showLeagueResultModal = true;
   }
 
   private openCompleteModal(): void {

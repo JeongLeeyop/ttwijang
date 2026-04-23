@@ -66,6 +66,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 			.antMatchers("/api/guest", "/api/guest/").permitAll()
 			.antMatchers("/api/bank/info").permitAll()
 			.antMatchers("/api/admin/**").permitAll()
+			.antMatchers("/api/banner/active").permitAll()
+			.antMatchers("/api/regions/**").permitAll()
 			.antMatchers("/swagger-ui/**").permitAll()
 			.antMatchers("/swagger-ui.html").permitAll()
 			.antMatchers("/api-docs/**").permitAll()

@@ -30,7 +30,7 @@
       </el-table-column>
       <el-table-column label="지역" width="140">
         <template slot-scope="scope">
-          {{ scope.row.regionSido }} {{ scope.row.regionSigungu || '' }}
+          {{ regionDisplay(scope.row.regionSido, scope.row.regionSigungu) }}
         </template>
       </el-table-column>
       <el-table-column label="링크" min-width="140">
@@ -160,7 +160,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import {
  getBannerList, createBanner, updateBanner, deleteBanner, uploadBannerImage,
 } from '@/api/banner';
-import { getSidoList, getSigunguList } from '@/api/region';
+import { getSidoList, getSigunguList, getAllSigunguList } from '@/api/region';
 import { getLeagueList } from '@/api/league';
 import { ElForm } from 'element-ui/types/form';
 
@@ -179,6 +179,8 @@ export default class extends Vue {
   private sidoList: any[] = [];
 
   private sigunguList: any[] = [];
+
+  private allSigunguList: any[] = [];
 
   private dateRange: string[] = [];
 
@@ -209,7 +211,31 @@ status: 'ACTIVE',
   };
 
   async created() {
-    await Promise.all([this.fetchList(), this.fetchSido(), this.fetchLeagueOptions()]);
+    await Promise.all([
+      this.fetchList(),
+      this.fetchSido(),
+      this.fetchAllSigungu(),
+      this.fetchLeagueOptions(),
+    ]);
+  }
+
+  async fetchAllSigungu() {
+    try {
+      const res = await getAllSigunguList();
+      this.allSigunguList = res.data || [];
+    } catch {
+      this.allSigunguList = [];
+    }
+  }
+
+  regionDisplay(sidoCode: string, sigunguCode: string): string {
+    if (!sidoCode) return '-';
+    const sido = this.sidoList.find((s: any) => s.code === sidoCode);
+    const sidoName = sido ? sido.name : sidoCode;
+    if (!sigunguCode) return sidoName;
+    const sigungu = this.allSigunguList.find((s: any) => s.code === sigunguCode);
+    const sigunguName = sigungu ? sigungu.name : sigunguCode;
+    return `${sidoName} ${sigunguName}`;
   }
 
   async fetchLeagueOptions() {
@@ -238,6 +264,10 @@ status: 'ACTIVE',
 
   async onSidoChange(code: string) {
     this.form.regionSigungu = '';
+    await this.loadSigunguList(code);
+  }
+
+  async loadSigunguList(code: string) {
     this.sigunguList = [];
     if (code) {
       const res = await getSigunguList(code);
@@ -256,7 +286,7 @@ status: 'ACTIVE',
     if (row) {
       this.form = { ...row, linkType: row.leagueUid ? 'league' : 'url' };
       this.dateRange = [row.startDate, row.endDate];
-      if (row.regionSido) this.onSidoChange(row.regionSido);
+      if (row.regionSido) this.loadSigunguList(row.regionSido);
       this.imageInputType = 'url';
     } else {
       this.resetForm();

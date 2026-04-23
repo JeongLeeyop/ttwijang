@@ -57,7 +57,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { getLeagueDetail, getLeagueTeams, applyToLeague } from '@/api/league';
-import { getMyTeams } from '@/api/team';
+import { getMyTeams, checkMembershipStatus } from '@/api/team';
 import { UserModule } from '@/store/modules/user';
 
 @Component({ name: 'LeagueDetail' })
@@ -68,7 +68,7 @@ export default class extends Vue {
 
   private league: any = null;
 
-  private myTeam: any = null;
+  private isOwner = false;
 
   private alreadyJoined = false;
 
@@ -80,11 +80,6 @@ export default class extends Vue {
   get statusLabel(): string {
     if (!this.league) return '';
     return ({ RECRUITING: '모집중', IN_PROGRESS: '진행중', COMPLETED: '완료' } as any)[this.league.status] || this.league.status;
-  }
-
-  get isOwner(): boolean {
-    if (!this.myTeam || !UserModule.userId) return false;
-    return this.myTeam.ownerUid === UserModule.userId;
   }
 
   get joinButtonDisabled(): boolean {
@@ -124,11 +119,14 @@ export default class extends Vue {
 
       if (UserModule.isLogin) {
         try {
-          const myRes = await getMyTeams();
-          const myTeams: any[] = myRes.data || [];
-          this.myTeam = myTeams.find((t: any) => t.ownerUid === UserModule.userId) || null;
-          if (this.myTeam) {
-            this.alreadyJoined = leagueTeams.some((t: any) => t.teamUid === this.myTeam.uid);
+          const statusRes = await checkMembershipStatus();
+          this.isOwner = !!statusRes.data?.hasCreatedTeam;
+          if (this.isOwner) {
+            const myRes = await getMyTeams();
+            const myTeam: any = myRes.data;
+            if (myTeam && myTeam.uid) {
+              this.alreadyJoined = leagueTeams.some((t: any) => t.teamUid === myTeam.uid);
+            }
           }
         } catch {
           // 팀 정보 조회 실패는 무시
@@ -278,9 +276,12 @@ export default class extends Vue {
 .join-section {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
   padding: 16px;
+  box-sizing: border-box;
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);

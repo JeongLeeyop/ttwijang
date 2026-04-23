@@ -1,6 +1,11 @@
 <template>
   <div class="main league-schedule-page">
     <div class="background-wave"></div>
+    <div v-if="$route.query.returnTeamCode" class="page-back-wrap">
+      <button class="page-back-button" @click="goBackToTeamPage">
+        <i class="el-icon-arrow-left" />
+      </button>
+    </div>
     <!-- Content -->
     <div class="content">
       <!-- League Status View -->
@@ -10,6 +15,7 @@
         <div class="league-filter-row">
           <el-select
             v-model="selectedLeagueUid"
+            :popper-append-to-body="false"
             placeholder="리그 선택"
             size="small"
             class="league-filter-select"
@@ -46,7 +52,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(team, index) in leagueTable" :key="index">
+              <tr
+                v-for="(team, index) in leagueTable"
+                :key="index"
+                :class="{ 'my-team-row': isMyTeam(team.teamUid) }"
+              >
                 <td class="rank-cell">
                   <span class="rank-number">{{ index + 1 }}</span>
                   <img :src="team.logo" :alt="team.name" class="team-mini-logo">
@@ -95,9 +105,11 @@
 import {
   Vue, Component, Watch, Prop,
 } from 'vue-property-decorator';
-import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
+import { getLeagueStandings, getLeagueSchedule, getLeaguesByTeam } from '@/api/league';
+import { getMyTeams } from '@/api/team';
 
 interface LeagueTeam {
+  teamUid: string
   name: string
   logo: string
   played: number
@@ -139,6 +151,8 @@ export default class extends Vue {
 
   private availableLeagues: { uid: string, name: string }[] = []
 
+  private myTeamUids: string[] = []
+
   private leagueTable: LeagueTeam[] = []
 
   private recentMatches: Match[] = []
@@ -152,16 +166,15 @@ export default class extends Vue {
     await this.loadLeagueData();
   }
 
-  @Watch('selectedRegion')
-  async onRegionChange() {
-    await this.loadLeagueData();
-  }
-
   @Watch('currentMonthIndex')
   async onMonthChange() {
     if (this.currentLeagueUid) {
       await this.loadScheduleData();
     }
+  }
+
+  private isMyTeam(teamUid: string): boolean {
+    return !!teamUid && this.myTeamUids.includes(teamUid);
   }
 
   private async onLeagueSelect(): Promise<void> {
@@ -173,27 +186,52 @@ export default class extends Vue {
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 지역 필터 적용하여 리그 조회
-      const leagueParams: any = {
-        status: 'IN_PROGRESS',
-      };
-      if (this.selectedRegion) {
-        leagueParams.regionCode = this.selectedRegion;
+      // 본인 팀 목록 조회
+      let myTeams: any[] = [];
+      try {
+        const teamsRes = await getMyTeams();
+        myTeams = teamsRes.data || [];
+      } catch (e) {
+        myTeams = [];
       }
-      const leagueResponse = await getLeagueList(leagueParams);
-      const leagues = leagueResponse.data?.content || leagueResponse.data || [];
+      this.myTeamUids = myTeams.map((t: any) => t.uid);
 
-      this.availableLeagues = leagues.map((league: any) => ({
-        uid: league.uid,
-        name: league.name,
+      // 각 팀이 참여 중인 리그 수집 (IN_PROGRESS만)
+      const leagueMap = new Map<string, { uid: string, name: string }>();
+      await Promise.all(myTeams.map(async (team: any) => {
+        try {
+          const res = await getLeaguesByTeam(team.uid);
+          const teamLeagues: any[] = res.data || [];
+          teamLeagues.forEach((l: any) => {
+            if (!l.status || l.status === 'IN_PROGRESS') {
+              leagueMap.set(l.uid, { uid: l.uid, name: l.name });
+            }
+          });
+        } catch (e) {
+          // silent
+        }
       }));
+      this.availableLeagues = Array.from(leagueMap.values());
 
-      if (leagues.length > 0) {
-        this.currentLeagueUid = leagues[0].uid;
-        this.selectedLeagueUid = leagues[0].uid;
+      // URL 쿼리의 leagueUid 우선, 없으면 첫 번째
+      const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
+      if (routeLeagueUid && this.availableLeagues.some((l) => l.uid === routeLeagueUid)) {
+        this.currentLeagueUid = routeLeagueUid;
+        this.selectedLeagueUid = routeLeagueUid;
+      } else if (this.availableLeagues.length > 0) {
+        this.currentLeagueUid = this.availableLeagues[0].uid;
+        this.selectedLeagueUid = this.availableLeagues[0].uid;
+      } else {
+        this.currentLeagueUid = '';
+        this.selectedLeagueUid = '';
+      }
 
+      if (this.currentLeagueUid) {
         await this.loadStandingsData();
         await this.loadScheduleData();
+      } else {
+        this.leagueTable = [];
+        this.recentMatches = [];
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
@@ -208,6 +246,7 @@ export default class extends Vue {
       const standings = standingsResponse.data || [];
 
       this.leagueTable = standings.map((team: any) => ({
+        teamUid: team.teamUid,
         name: team.teamName,
         logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
         played: team.matchesPlayed,
@@ -276,6 +315,15 @@ export default class extends Vue {
       this.currentMonthIndex += 1;
     }
   }
+
+  private goBackToTeamPage(): void {
+    const code = this.$route.query.returnTeamCode as string;
+    if (code) {
+      this.$router.push({ path: `/team/${code}`, query: { tab: 'league' } });
+    } else {
+      this.$router.back();
+    }
+  }
 }
 </script>
 
@@ -307,5 +355,48 @@ export default class extends Vue {
 ::v-deep .league-filter-select .el-input__inner {
   border-radius: 8px;
   font-size: 13px;
+}
+
+.league-table tr.my-team-row {
+  background: #e8f0ff;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #061da1;
+}
+
+.league-table tr.my-team-row td {
+  color: #061da1;
+}
+
+.page-back-wrap {
+  position: fixed;
+  top: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  padding: 0 16px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+.page-back-button {
+  pointer-events: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.page-back-button i {
+  font-size: 18px;
+  color: #333;
 }
 </style>

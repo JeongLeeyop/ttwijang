@@ -13,6 +13,7 @@
         <div class="filter-content">
           <el-select
             v-model="filterSido"
+            :popper-append-to-body="false"
             placeholder="시/도"
             size="mini"
             clearable
@@ -28,6 +29,7 @@
           </el-select>
           <el-select
             v-model="filterSigungu"
+            :popper-append-to-body="false"
             placeholder="시/군/구"
             size="mini"
             clearable
@@ -50,6 +52,7 @@
         <div class="filter-content">
           <el-select
             v-model="filterLeagueUid"
+            :popper-append-to-body="false"
             placeholder="리그 선택"
             size="mini"
             clearable
@@ -159,7 +162,8 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { getAllLeagueTeams, getLeagueList } from '@/api/league';
-import { getSidoList, getSigunguList } from '@/api/region';
+import { getSidoList, getSigunguList, getAllSigunguList } from '@/api/region';
+import { storageKey } from '@/enums/localStorage';
 
 interface LeagueOption {
   uid: string
@@ -211,7 +215,27 @@ export default class LeagueTeams extends Vue {
 
   async created() {
     await Promise.all([this.loadSidoList(), this.loadLeagueOptions()]);
+    await this.initFilterFromStoredRegion();
     await this.fetchTeams();
+  }
+
+  private async initFilterFromStoredRegion(): Promise<void> {
+    const code = localStorage.getItem(storageKey.selectedRegion);
+    if (!code) return;
+    try {
+      const res = await getAllSigunguList();
+      const allSigungu: Array<{ code: string, name: string, parentCode: string }> = res.data || [];
+      const matched = allSigungu.find((r) => r.code === code);
+      if (!matched) return;
+      const parentSido = this.sidoList.find((s: any) => s.code === matched.parentCode);
+      if (!parentSido) return;
+      this.filterSido = parentSido.name;
+      const sigRes = await getSigunguList(parentSido.code);
+      this.sigunguList = sigRes.data || [];
+      this.filterSigungu = matched.name;
+    } catch (e) {
+      // silent
+    }
   }
 
   private async loadSidoList(): Promise<void> {
@@ -300,10 +324,12 @@ export default class LeagueTeams extends Vue {
 
 <style scoped>
 .league-teams-page {
-  min-height: 100vh;
+  height: calc(100vh - 60px);
+  margin-top: 60px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #f5f5f5;
   padding-bottom: 80px;
-  margin-top: 60px;
 }
 
 .page-header {

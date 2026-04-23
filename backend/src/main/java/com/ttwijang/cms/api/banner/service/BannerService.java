@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ttwijang.cms.api.banner.dto.BannerDto;
 import com.ttwijang.cms.api.banner.repository.BannerRepository;
+import com.ttwijang.cms.api.region.service.RegionCodeService;
 import com.ttwijang.cms.entity.Banner;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class BannerService {
 
     private final BannerRepository bannerRepository;
+
+    private final RegionCodeService regionCodeService;
 
     /**
      * 배너 생성
@@ -141,7 +144,10 @@ public class BannerService {
         if (teamUid != null && !teamUid.isEmpty()) {
             banners = bannerRepository.findActiveBannersByTeam(today, teamUid);
         } else if (sigungu != null && !sigungu.isEmpty()) {
-            banners = bannerRepository.findActiveBannersByPageAndRegion(today, targetPage, sigungu);
+            // 클라이언트는 sigungu 코드를 보내지만 DB에는 코드/이름이 혼재할 수 있어 양쪽 매칭
+            String resolvedName = regionCodeService.resolveRegionName(sigungu);
+            String sigunguName = resolvedName != null ? resolvedName : sigungu;
+            banners = bannerRepository.findActiveBannersByPageAndRegion(today, targetPage, sigungu, sigunguName);
         } else {
             banners = bannerRepository.findActiveBannersByPage(today, targetPage);
         }

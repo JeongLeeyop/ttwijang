@@ -123,7 +123,8 @@ public class MatchService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
         MatchDto.DetailResponse response = toDetailResponse(match, userUid);
         if (userUid != null && !userUid.isEmpty()) {
-            boolean appliedAsTeam = matchApplicationRepository.existsByMatchUidAndApplicantUserUid(match.getUid(), userUid);
+            boolean appliedAsTeam = matchApplicationRepository.existsByMatchUidAndApplicantUserUidAndStatus(
+                    match.getUid(), userUid, MatchApplication.ApplicationStatus.APPROVED);
             // 게스트로 참여했는지도 확인
             boolean appliedAsGuest = false;
             if (!appliedAsTeam) {
@@ -279,9 +280,10 @@ public class MatchService {
             // throw new IllegalArgumentException("자신의 팀에는 신청할 수 없습니다.");
         }
 
-        // 이미 신청했는지 확인
-        if (matchApplicationRepository.existsByMatchUidAndApplicantTeamUid(
-                request.getMatchUid(), request.getApplicantTeamUid())) {
+        // 이미 신청했는지 확인 (CANCELLED/REJECTED는 재신청 허용)
+        if (matchApplicationRepository.existsByMatchUidAndApplicantTeamUidAndStatus(
+                request.getMatchUid(), request.getApplicantTeamUid(),
+                MatchApplication.ApplicationStatus.APPROVED)) {
             throw new IllegalArgumentException("이미 신청한 매치입니다.");
         }
 

@@ -14,6 +14,11 @@ export const getSigunguList = (parentCode: string) => request({
   params: { parentCode },
 });
 
+export const getAllSigunguList = () => request({
+  url: `${PATH}/sigungu/all`,
+  method: 'get',
+});
+
 export const createSido = (data: { code: string, name: string, sortOrder?: number }) => request({ url: `${ADMIN_PATH}/sido`, method: 'post', data });
 
 export const createSigungu = (data: { code: string, name: string, parentCode: string, sortOrder?: number }) => request({ url: `${ADMIN_PATH}/sigungu`, method: 'post', data });

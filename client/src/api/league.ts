@@ -25,6 +25,14 @@ export function getLeagueDetail(uid: string) {
   });
 }
 
+// 리그 경기 단건 조회
+export function getLeagueMatchDetail(matchUid: string) {
+  return request({
+    url: `/league/match/${matchUid}`,
+    method: 'get',
+  });
+}
+
 // 리그 순위표 조회
 export function getLeagueStandings(leagueUid: string) {
   return request({
@@ -50,11 +58,35 @@ export function getLeagueSchedule(leagueUid: string, params?: {
   });
 }
 
-// 리그 참가 신청 (팀 OWNER 전용 — 서버에서 userUid로 팀 조회)
+// 리그 참가 신청 (팀 OWNER 전용 — 서버에서 userUid로 팀 조회, participationPoints 유료)
 export function applyToLeague(leagueUid: string) {
   return request({
     url: `/league/${leagueUid}/apply`,
     method: 'post',
+  });
+}
+
+// 리그 경기 참가 신청 — 팀 APPROVED 멤버, 무료
+export function applyToLeagueMatch(matchUid: string) {
+  return request({
+    url: `/league/match/${matchUid}/apply`,
+    method: 'post',
+  });
+}
+
+// 리그 경기 참가 신청 취소
+export function cancelLeagueMatchApplication(matchUid: string) {
+  return request({
+    url: `/league/match/${matchUid}/cancel-application`,
+    method: 'post',
+  });
+}
+
+// 내 리그 경기 신청 내역 조회
+export function getMyLeagueMatchApplications() {
+  return request({
+    url: '/league/match/my-applications',
+    method: 'get',
   });
 }
 

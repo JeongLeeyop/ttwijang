@@ -13,6 +13,7 @@
         <div class="filter-row-content">
           <el-select
             v-model="filterRegionSido"
+            :popper-append-to-body="false"
             placeholder="시/도"
             size="mini"
             clearable
@@ -28,6 +29,7 @@
           </el-select>
           <el-select
             v-model="filterRegionSigungu"
+            :popper-append-to-body="false"
             placeholder="시/군/구"
             size="mini"
             clearable
@@ -176,7 +178,8 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { getRecruitingTeams } from '@/api/team';
-import { getSidoList, getSigunguList } from '@/api/region';
+import { getSidoList, getSigunguList, getAllSigunguList } from '@/api/region';
+import { storageKey } from '@/enums/localStorage';
 
 @Component
 export default class TeamRecruit extends Vue {
@@ -233,6 +236,7 @@ export default class TeamRecruit extends Vue {
 
   async created() {
     await this.loadSidoList();
+    await this.initFilterFromStoredRegion();
     await this.fetchTeams();
   }
 
@@ -240,6 +244,25 @@ export default class TeamRecruit extends Vue {
     try {
       const res = await getSidoList();
       this.sidoList = res.data || [];
+    } catch (e) {
+      // silent
+    }
+  }
+
+  private async initFilterFromStoredRegion(): Promise<void> {
+    const code = localStorage.getItem(storageKey.selectedRegion);
+    if (!code) return;
+    try {
+      const res = await getAllSigunguList();
+      const allSigungu: Array<{ code: string, name: string, parentCode: string }> = res.data || [];
+      const matched = allSigungu.find((r) => r.code === code);
+      if (!matched) return;
+      const parentSido = this.sidoList.find((s) => s.code === matched.parentCode);
+      if (!parentSido) return;
+      this.filterRegionSido = parentSido.name;
+      const sigRes = await getSigunguList(parentSido.code);
+      this.sigunguList = sigRes.data || [];
+      this.filterRegionSigungu = matched.name;
     } catch (e) {
       // silent
     }

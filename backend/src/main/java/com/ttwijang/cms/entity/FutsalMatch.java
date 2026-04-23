@@ -49,7 +49,7 @@ public class FutsalMatch implements Serializable {
     private MatchType matchType;
 
     // 매치 방식 (4vs4, 5vs5, 6vs6, 7vs7)
-    @Column(length = 10)
+    @Column(length = 20)
     private String matchFormat;
 
     // 경기 일자

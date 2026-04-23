@@ -154,8 +154,8 @@
   "hotPaths": [
     {
       "path": "src/views/teamPage.vue",
-      "accessCount": 64,
-      "lastAccessed": 1776101251439,
+      "accessCount": 70,
+      "lastAccessed": 1776893940457,
       "type": "directory"
     },
     {
@@ -178,8 +178,14 @@
     },
     {
       "path": "src/router/index.ts",
+      "accessCount": 13,
+      "lastAccessed": 1776901878247,
+      "type": "file"
+    },
+    {
+      "path": "src/views/MatchCreate.vue",
       "accessCount": 11,
-      "lastAccessed": 1776100920654,
+      "lastAccessed": 1776891742547,
       "type": "file"
     },
     {
@@ -192,12 +198,6 @@
       "path": "src/views/league.vue",
       "accessCount": 10,
       "lastAccessed": 1776100005811,
-      "type": "file"
-    },
-    {
-      "path": "src/views/MatchCreate.vue",
-      "accessCount": 10,
-      "lastAccessed": 1776101298203,
       "type": "file"
     },
     {
@@ -220,8 +220,8 @@
     },
     {
       "path": "src/assets/css/style.css",
-      "accessCount": 7,
-      "lastAccessed": 1775972636920,
+      "accessCount": 8,
+      "lastAccessed": 1776893926912,
       "type": "directory"
     },
     {
@@ -270,6 +270,12 @@
       "path": "src/api/team.ts",
       "accessCount": 4,
       "lastAccessed": 1776099825268,
+      "type": "file"
+    },
+    {
+      "path": "src/views/GuestRecruit.vue",
+      "accessCount": 4,
+      "lastAccessed": 1776891803588,
       "type": "file"
     },
     {
@@ -408,6 +414,12 @@
       "path": "src/views/leagueDetail.vue",
       "accessCount": 1,
       "lastAccessed": 1776100044169,
+      "type": "file"
+    },
+    {
+      "path": "src/Layout/components/mainHeader.vue",
+      "accessCount": 1,
+      "lastAccessed": 1776901885186,
       "type": "file"
     }
   ],

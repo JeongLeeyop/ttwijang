@@ -218,6 +218,7 @@ import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/leag
 import { getMatchList } from '@/api/match';
 import { getGuestRecruitmentList } from '@/api/guest';
 import { getRecruitingTeams } from '@/api/team';
+import { storageKey } from '@/enums/localStorage';
 
 interface HomeCard {
   uid: string
@@ -290,7 +291,7 @@ export default class extends Vue {
 
   private collapsedTop = 290
 
-  private expandedTop = 70
+  private expandedTop = 80
 
   private currentYear = new Date().getFullYear()
 
@@ -337,11 +338,11 @@ export default class extends Vue {
 
   private upcomingMatches: Match[] = []
 
-  async created() {
-    await this.loadHomeData();
+  get effectiveRegion(): string {
+    return this.selectedRegion || localStorage.getItem(storageKey.selectedRegion) || '';
   }
 
-  @Watch('selectedRegion')
+  @Watch('selectedRegion', { immediate: true })
   async onRegionChange() {
     await this.loadHomeData();
   }
@@ -367,8 +368,8 @@ export default class extends Vue {
       const leagueParams: any = {
         status: 'IN_PROGRESS',
       };
-      if (this.selectedRegion) {
-        leagueParams.regionCode = this.selectedRegion;
+      if (this.effectiveRegion) {
+        leagueParams.regionCode = this.effectiveRegion;
       }
 
       const leaguesResponse = await getLeagueList(leagueParams);
@@ -404,8 +405,8 @@ export default class extends Vue {
   private async loadTeamCards(): Promise<void> {
     try {
       const regionParams: any = {};
-      if (this.selectedRegion) {
-        regionParams.regionCode = this.selectedRegion;
+      if (this.effectiveRegion) {
+        regionParams.regionCode = this.effectiveRegion;
       }
 
       // 일반 매치 + 게스트 모집 동시 호출
@@ -466,8 +467,8 @@ export default class extends Vue {
       const recruitParams: any = {
         size: 10,
       };
-      if (this.selectedRegion) {
-        recruitParams.regionCode = this.selectedRegion;
+      if (this.effectiveRegion) {
+        recruitParams.regionCode = this.effectiveRegion;
       }
       const recruitRes = await getRecruitingTeams(recruitParams);
       const data = recruitRes.data || recruitRes;

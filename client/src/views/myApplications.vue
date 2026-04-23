@@ -48,8 +48,8 @@
         >
           <div class="card-top">
             <div class="team-name">{{ item.hostTeamName }}</div>
-            <span class="status-chip" :class="matchStatusClass(item.matchStatus)">
-              {{ matchStatusLabel(item.matchStatus) }}
+            <span class="status-chip" :class="appStatusClass(item)">
+              {{ appStatusLabel(item) }}
             </span>
           </div>
           <div class="card-mid">
@@ -79,38 +79,48 @@
       </div>
     </div>
 
-    <!-- 리그 탭 -->
+    <!-- 리그 탭 (리그 경기 참가 내역) -->
     <div v-else class="list-wrap">
       <div v-if="leagueApplications.length === 0" class="state-center">
         <div class="empty-icon"><i class="el-icon-s-flag"></i></div>
-        <p class="empty-text">참가 중인 리그가 없습니다</p>
+        <p class="empty-text">신청한 리그 경기가 없습니다</p>
       </div>
       <div v-else class="card-list">
         <div
           v-for="(item, idx) in leagueApplications"
-          :key="item.uid"
-          class="app-card league-card"
+          :key="item.applicationUid"
+          class="app-card"
           :style="{ animationDelay: idx * 40 + 'ms' }"
+          @click="goToLeagueMatch(item.leagueMatchUid)"
         >
           <div class="card-top">
-            <div class="team-name">{{ item.name }}</div>
-            <span class="status-chip" :class="leagueStatusClass(item.status)">
-              {{ leagueStatusLabel(item.status) }}
+            <div class="team-name">{{ item.leagueName }}</div>
+            <span class="status-chip" :class="leagueAppStatusClass(item)">
+              {{ leagueAppStatusLabel(item) }}
             </span>
           </div>
           <div class="card-mid">
-            <div v-if="item.region || item.regionSido" class="info-row">
-              <i class="el-icon-location-outline"></i>
-              <span>{{ item.region || (item.regionSido + ' ' + (item.regionSigungu || '')) }}</span>
-            </div>
-            <div v-if="item.startDate" class="info-row">
-              <i class="el-icon-date"></i>
-              <span>{{ item.startDate }} ~ {{ item.endDate || '미정' }}</span>
+            <div class="info-row">
+              <i class="el-icon-football"></i>
+              <span>{{ item.homeTeamName }} vs {{ item.awayTeamName }}</span>
             </div>
             <div class="info-row">
-              <i class="el-icon-s-custom"></i>
-              <span>참가팀 {{ item.currentTeams }}팀 / 최대 {{ item.maxTeams }}팀</span>
+              <i class="el-icon-location-outline"></i>
+              <span>{{ item.stadiumName }}</span>
             </div>
+            <div class="info-row">
+              <i class="el-icon-date"></i>
+              <span>{{ item.matchDate }} {{ formatTime(item.matchTime) }}</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <span class="applied-at">신청일 {{ formatDate(item.appliedAt) }}</span>
+            <button
+              v-if="isLeagueCancellable(item)"
+              class="btn-cancel-app"
+              @click="handleCancelLeagueApplication(item, $event)"
+            >신청 취소</button>
+            <i v-else class="el-icon-arrow-right"></i>
           </div>
         </div>
       </div>
@@ -121,21 +131,20 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { getMyMatchApplications, cancelMyMatchApplication, getMatchConfig } from '@/api/match';
-import { getLeaguesByTeam } from '@/api/league';
-import { getMyTeams } from '@/api/team';
+import { getMyLeagueMatchApplications, cancelLeagueMatchApplication } from '@/api/league';
 
-interface LeagueListItem {
-  uid: string
-  name: string
-  season?: string
-  region?: string
-  regionSido?: string
-  regionSigungu?: string
-  startDate?: string
-  endDate?: string
-  currentTeams?: number
-  maxTeams?: number
-  status?: string
+interface LeagueMatchApplicationItem {
+  applicationUid: string
+  leagueMatchUid: string
+  leagueName: string
+  homeTeamName: string
+  awayTeamName: string
+  stadiumName: string
+  matchDate: string
+  matchTime: string
+  matchStatus: string
+  applicationStatus: string
+  appliedAt: string
 }
 
 interface MatchApplication {
@@ -160,9 +169,7 @@ export default class MyApplicationsPage extends Vue {
 
   private matchApplications: MatchApplication[] = [];
 
-  private leagueApplications: LeagueListItem[] = [];
-
-  private myTeamUid = '';
+  private leagueApplications: LeagueMatchApplicationItem[] = [];
 
   private cancelDaysBeforeMatch = 1;
 
@@ -180,7 +187,7 @@ export default class MyApplicationsPage extends Vue {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      await Promise.all([this.loadMatches(), this.loadTeamUid(), this.loadMatchConfig()]);
+      await Promise.all([this.loadMatches(), this.loadMatchConfig()]);
     } finally {
       this.isLoading = false;
     }
@@ -204,24 +211,10 @@ export default class MyApplicationsPage extends Vue {
     }
   }
 
-  private async loadTeamUid(): Promise<void> {
-    try {
-      const res = await getMyTeams();
-      const teamData = res.data;
-      const team = Array.isArray(teamData) ? teamData[0] : teamData;
-      if (team) {
-        this.myTeamUid = team.uid || '';
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-
   private async loadLeagues(): Promise<void> {
-    if (!this.myTeamUid) return;
     this.isLoading = true;
     try {
-      const res = await getLeaguesByTeam(this.myTeamUid);
+      const res = await getMyLeagueMatchApplications();
       this.leagueApplications = res.data || [];
     } catch (e) {
       // ignore
@@ -289,22 +282,87 @@ export default class MyApplicationsPage extends Vue {
     return map[status] || status;
   }
 
-  private leagueStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      RECRUITING: 'status-recruiting',
-      IN_PROGRESS: 'status-matched',
-      COMPLETED: 'status-completed',
-    };
-    return map[status] || '';
+  private appStatusClass(item: MatchApplication): string {
+    if (item.applicationStatus === 'CANCELLED' || item.applicationStatus === 'REJECTED') {
+      return 'status-cancelled';
+    }
+    return this.matchStatusClass(item.matchStatus);
   }
 
-  private leagueStatusLabel(status: string): string {
+  private appStatusLabel(item: MatchApplication): string {
+    if (item.applicationStatus === 'CANCELLED') return '취소 완료';
+    if (item.applicationStatus === 'REJECTED') return '신청 거절';
+    return this.matchStatusLabel(item.matchStatus);
+  }
+
+  private leagueAppStatusClass(item: LeagueMatchApplicationItem): string {
+    if (item.applicationStatus === 'CANCELLED') return 'status-cancelled';
     const map: Record<string, string> = {
-      RECRUITING: '모집 중',
-      IN_PROGRESS: '진행 중',
-      COMPLETED: '종료',
+      SCHEDULED: 'status-recruiting',
+      IN_PROGRESS: 'status-matched',
+      COMPLETED: 'status-completed',
+      CANCELLED: 'status-cancelled',
     };
-    return map[status] || status;
+    return map[item.matchStatus] || '';
+  }
+
+  private leagueAppStatusLabel(item: LeagueMatchApplicationItem): string {
+    if (item.applicationStatus === 'CANCELLED') return '취소 완료';
+    const map: Record<string, string> = {
+      SCHEDULED: '경기 예정',
+      IN_PROGRESS: '경기 중',
+      COMPLETED: '경기 종료',
+      CANCELLED: '경기 취소',
+    };
+    return map[item.matchStatus] || item.matchStatus;
+  }
+
+  private isLeagueCancellable(item: LeagueMatchApplicationItem): boolean {
+    if (item.applicationStatus !== 'APPROVED') return false;
+    if (item.matchStatus !== 'SCHEDULED') return false;
+    if (!item.matchDate) return false;
+    const matchDate = new Date(item.matchDate);
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + this.cancelDaysBeforeMatch);
+    return matchDate > deadline;
+  }
+
+  private async handleCancelLeagueApplication(
+    item: LeagueMatchApplicationItem,
+    event: Event,
+  ): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.$confirm(
+        `경기 ${this.cancelDaysBeforeMatch}일 전까지만 취소 가능합니다. 신청을 취소하시겠습니까?`,
+        '신청 취소',
+        { confirmButtonText: '취소하기', cancelButtonText: '닫기', type: 'warning' },
+      );
+    } catch {
+      return;
+    }
+    try {
+      await cancelLeagueMatchApplication(item.leagueMatchUid);
+      this.$message.success('신청이 취소되었습니다.');
+      await this.loadLeagues();
+    } catch (e: any) {
+      this.$message.error(e?.response?.data?.message || '취소 중 오류가 발생했습니다.');
+    }
+  }
+
+  private goToLeagueMatch(leagueMatchUid: string): void {
+    this.$router.push({
+      path: `/match-detail/${leagueMatchUid}`,
+      query: { type: 'league' },
+    });
+  }
+
+  private formatTime(time: string): string {
+    if (!time) return '';
+    if (typeof time === 'string' && time.includes(':')) {
+      return time.substring(0, 5);
+    }
+    return time;
   }
 
   private matchTypeLabel(type: string): string {

@@ -100,11 +100,45 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.getRecentResults(leagueUid, limit));
     }
 
+    @Operation(summary = "리그 경기 단건 조회")
+    @GetMapping("/match/{matchUid}")
+    public ResponseEntity<LeagueDto.MatchResponse> getLeagueMatchDetail(
+            @PathVariable String matchUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        String userUid = userDetails != null ? userDetails.getUser().getUid() : null;
+        return ResponseEntity.ok(leagueService.getLeagueMatchDetail(matchUid, userUid));
+    }
+
     @Operation(summary = "경기 결과 입력", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/match/result")
     public ResponseEntity<LeagueDto.MatchResponse> updateMatchResult(
             @Valid @RequestBody LeagueDto.MatchResultRequest request) {
         return ResponseEntity.ok(leagueService.updateMatchResult(request));
+    }
+
+    @Operation(summary = "내 리그 경기 신청 내역 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/match/my-applications")
+    public ResponseEntity<List<LeagueDto.MyLeagueMatchApplicationResponse>> getMyLeagueMatchApplications(
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(leagueService.getMyLeagueMatchApplications(userDetails.getUser().getUid()));
+    }
+
+    @Operation(summary = "리그 경기 참가 신청 (무료)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/match/{matchUid}/apply")
+    public ResponseEntity<Void> applyToLeagueMatch(
+            @PathVariable String matchUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        leagueService.applyToLeagueMatch(matchUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "리그 경기 참가 신청 취소", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/match/{matchUid}/cancel-application")
+    public ResponseEntity<Void> cancelLeagueMatchApplication(
+            @PathVariable String matchUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        leagueService.cancelLeagueMatchApplication(matchUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "리그 참가 팀 목록 조회")

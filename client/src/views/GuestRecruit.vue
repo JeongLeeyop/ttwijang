@@ -448,7 +448,12 @@ export default class GuestRecruit extends Vue {
 
       await createGuestRecruitment(data);
       this.$message.success('게스트 모집이 등록되었습니다!');
-      this.$router.go(-1);
+      const teamCode = this.teamInfo?.teamCode || this.teamInfo?.uid || this.teamUid;
+      this.$router.push({
+        name: 'TeamPage',
+        params: { teamCode },
+        query: { tab: 'match' },
+      }).catch(() => { /* ignore NavigationDuplicated */ });
     } catch (error) {
       console.error('Failed to create guest recruitment:', error);
       this.$message.error('게스트 모집 등록에 실패했습니다.');

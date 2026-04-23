@@ -212,38 +212,41 @@
               @click="goToMatchDetail(match)"
             >
               <div class="match-card-badges">
-                <span class="match-badge format-badge">{{ getMatchFormatLabel(match.matchFormat) }}</span>
-                <span
-                  class="match-badge type-badge"
-                  :class="match.matchType === 'FRIENDLY' ? 'friendly' : 'free'"
+                <div class="badge-list">
+                  <span class="match-badge format-badge">{{ getMatchFormatLabel(match.matchFormat) }}</span>
+                  <span
+                    class="match-badge type-badge"
+                    :class="match.matchType === 'FRIENDLY' ? 'friendly' : 'free'"
+                  >
+                    {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
+                  </span>
+                </div>
+                <div
+                  v-if="(isOwner || isManager) && match.status === 'RECRUITING'"
+                  class="match-more-wrap"
+                  @click.stop
                 >
-                  {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
-                </span>
-                <el-dropdown
-                  v-if="isOwner && match.status === 'RECRUITING'"
-                  trigger="click"
-                  @command="(cmd) => handleMatchMenuCommand(cmd, match)"
-                  @click.native.stop
-                >
-                  <button class="match-more-btn" @click.stop>
+                  <button class="match-more-btn" @click.stop="toggleMatchMenu(match.uid)">
                     <i class="el-icon-more"></i>
                   </button>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="edit">수정</el-dropdown-item>
-                    <el-dropdown-item command="delete" style="color:#e53935;">삭제</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
+                  <ul v-if="openMenuMatchUid === match.uid" class="match-more-menu">
+                    <li @click.stop="handleMatchMenuCommand('edit', match)">수정</li>
+                    <li class="danger" @click.stop="handleMatchMenuCommand('delete', match)">삭제</li>
+                  </ul>
+                </div>
               </div>
               <div class="match-card-datetime">
                 {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
               </div>
-              <div class="match-card-venue">
-                {{ match.stadiumName }}
-                <i class="el-icon-arrow-right"></i>
-              </div>
-              <div class="match-card-recruit">
-                <span class="recruit-dot"></span>
-                <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+              <div class="match-card-bottom">
+                <div class="match-card-venue">
+                  {{ match.stadiumName }}
+                  <i class="el-icon-arrow-right"></i>
+                </div>
+                <div class="match-card-recruit">
+                  <span class="recruit-dot"></span>
+                  <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -300,7 +303,7 @@
                       <td class="rank-cell">{{ standing.ranking || (idx + 1) }}</td>
                       <td class="team-name-cell">
                         <img
-                          :src="standing.teamLogoUrl || defaultLogo"
+                          :src="resolveLogo(standing.teamLogoUrl)"
                           class="standings-team-logo"
                           :alt="standing.teamName"
                         >
@@ -340,6 +343,7 @@
                 v-for="(lm, idx) in leagueSchedule"
                 :key="idx"
                 class="league-match-card"
+                @click="goToLeagueMatchDetail(lm)"
               >
                 <div class="league-match-date">
                   {{ formatLeagueMatchDate(lm.matchDate) }} {{ lm.matchTime || '' }}
@@ -350,7 +354,7 @@
                 <div class="league-match-teams">
                   <div class="lm-team">
                     <img
-                      :src="lm.homeTeamLogoUrl || defaultLogo"
+                      :src="resolveLogo(lm.homeTeamLogoUrl)"
                       class="lm-team-logo"
                       :alt="lm.homeTeamName"
                     >
@@ -364,7 +368,7 @@
                   </div>
                   <div class="lm-team">
                     <img
-                      :src="lm.awayTeamLogoUrl || defaultLogo"
+                      :src="resolveLogo(lm.awayTeamLogoUrl)"
                       class="lm-team-logo"
                       :alt="lm.awayTeamName"
                     >
@@ -688,7 +692,7 @@ export default class TeamPage extends Vue {
 
   private collapsedTop = 280
 
-  private expandedTop = 70
+  private expandedTop = 80
 
   // Team state
   private teamUid = ''
@@ -728,6 +732,8 @@ export default class TeamPage extends Vue {
   private showActionModal = false
 
   private myRole = ''
+
+  private openMenuMatchUid = ''
 
   // Community state
   private expandedPostUid = ''
@@ -781,6 +787,12 @@ export default class TeamPage extends Vue {
   // ===== Computed =====
   get defaultLogo(): string {
     return 'https://ui-avatars.com/api/?name=T&background=061da1&color=fff&size=60';
+  }
+
+  private resolveLogo(raw: string | null | undefined): string {
+    if (!raw) return this.defaultLogo;
+    if (raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `${process.env.VUE_APP_COMMON_API || ''}/attached-file/${raw}`;
   }
 
   get defaultAvatar(): string {
@@ -872,14 +884,32 @@ export default class TeamPage extends Vue {
         console.warn('내 팀 조회 실패:', e);
       }
     }
+    const tabQuery = this.$route.query.tab as string | undefined;
+    if (tabQuery) {
+      this.activeTab = tabQuery;
+    }
     if (this.teamUid) {
       await this.loadTeamInfo();
     }
   }
 
+  mounted(): void {
+    document.addEventListener('click', this.handleDocumentClickForMenu);
+  }
+
+  beforeDestroy(): void {
+    document.removeEventListener('click', this.handleDocumentClickForMenu);
+  }
+
   // ===== Watchers =====
   @Watch('activeTab')
   async onTabChange() {
+    if (this.$route.query.tab !== this.activeTab) {
+      this.$router.replace({
+        path: this.$route.path,
+        query: { ...this.$route.query, tab: this.activeTab },
+      }).catch(() => { /* ignore NavigationDuplicated */ });
+    }
     await this.loadTabData();
   }
 
@@ -1265,7 +1295,26 @@ export default class TeamPage extends Vue {
     });
   }
 
+  private goToLeagueMatchDetail(lm: any): void {
+    this.$router.push({
+      path: `/match-detail/${lm.uid}`,
+      query: {
+        type: 'league',
+        leagueUid: lm.leagueUid || this.selectedLeagueUid,
+      },
+    });
+  }
+
+  private toggleMatchMenu(uid: string): void {
+    this.openMenuMatchUid = this.openMenuMatchUid === uid ? '' : uid;
+  }
+
+  private handleDocumentClickForMenu(): void {
+    if (this.openMenuMatchUid) this.openMenuMatchUid = '';
+  }
+
   private async handleMatchMenuCommand(command: string, match: any): Promise<void> {
+    this.openMenuMatchUid = '';
     if (command === 'edit') {
       this.$router.push({
         path: '/match-create',
@@ -1326,17 +1375,27 @@ export default class TeamPage extends Vue {
     }
   }
 
+  private get returnTeamCode(): string {
+    return (this.$route.params.teamCode as string) || '';
+  }
+
   private goToLeagueSchedule(): void {
     this.$router.push({
       path: '/league-schedule',
-      query: { leagueUid: this.selectedLeagueUid },
+      query: {
+        leagueUid: this.selectedLeagueUid,
+        returnTeamCode: this.returnTeamCode,
+      },
     });
   }
 
   private goToLeagueStatus(): void {
     this.$router.push({
       path: '/league-status',
-      query: { leagueUid: this.selectedLeagueUid },
+      query: {
+        leagueUid: this.selectedLeagueUid,
+        returnTeamCode: this.returnTeamCode,
+      },
     });
   }
 
@@ -1346,6 +1405,7 @@ export default class TeamPage extends Vue {
       query: {
         leagueUid: this.selectedLeagueUid,
         teamUid: this.teamUid,
+        returnTeamCode: this.returnTeamCode,
       },
     });
   }
@@ -2160,14 +2220,21 @@ export default class TeamPage extends Vue {
 
 .match-card-badges {
   display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.match-card-badges .badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
 }
 
 .match-more-btn {
-  margin-left: auto;
   background: none;
   border: none;
   padding: 4px 6px;
@@ -2176,6 +2243,42 @@ export default class TeamPage extends Vue {
   font-size: 16px;
   border-radius: 6px;
   line-height: 1;
+}
+
+.match-more-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.match-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 6px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  min-width: 100px;
+  z-index: 2000;
+}
+
+.match-more-menu li {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #606266;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.match-more-menu li:hover {
+  background: #f5f7fa;
+}
+
+.match-more-menu li.danger {
+  color: #e53935;
 }
 
 .match-more-btn:active {
@@ -2211,9 +2314,17 @@ export default class TeamPage extends Vue {
 
 .match-card-datetime {
   font-size: 15px;
+  text-align: left;
   font-weight: 700;
   color: #333;
   margin-bottom: 6px;
+}
+
+.match-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .match-card-venue {
@@ -2223,8 +2334,8 @@ export default class TeamPage extends Vue {
   font-size: 13px;
   color: #4CAF50;
   font-weight: 600;
-  margin-bottom: 8px;
   cursor: pointer;
+  min-width: 0;
 }
 
 .match-card-venue i {
@@ -2235,6 +2346,7 @@ export default class TeamPage extends Vue {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .recruit-dot {
@@ -2345,7 +2457,7 @@ export default class TeamPage extends Vue {
 .league-action-buttons {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
@@ -2356,27 +2468,56 @@ export default class TeamPage extends Vue {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   background: #061da1;
   color: #fff;
-  transition: opacity 0.2s;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.league-action-btn:hover,
+.league-action-btn.outline:hover,
+.league-action-btn.link:hover {
+  background: inherit;
+  color: inherit;
+  transform: none;
+  box-shadow: none;
+}
+
+.league-action-btn:hover i,
+.league-action-btn:hover span {
+  color: inherit;
 }
 
 .league-action-btn:active {
   opacity: 0.8;
+  transform: none;
 }
 
 .league-action-btn.outline {
   background: #fff;
   color: #061da1;
-  border: 1px solid #061da1;
+  border-color: #061da1;
+}
+
+.league-action-btn.outline:hover {
+  background: #fff;
+  color: #061da1;
 }
 
 .league-action-btn.link {
-  background: transparent;
+  background: #eef1ff;
   color: #061da1;
-  text-decoration: underline;
-  padding: 8px 4px;
+  border-color: #eef1ff;
+}
+
+.league-action-btn.link:hover {
+  background: #eef1ff;
+  color: #061da1;
+}
+
+.league-action-btn.link:active {
+  background: #dde3ff;
+  opacity: 1;
 }
 
 /* 팀 리그 일정 */
@@ -2867,7 +3008,7 @@ export default class TeamPage extends Vue {
   border-radius: 20px 20px 0 0;
   max-height: 90vh;
   overflow-y: auto;
-  margin-bottom:80px;
+  padding-bottom:80px;
 }
 
 .write-modal-header {

@@ -4,6 +4,7 @@
         <i v-if="showBack" @click="goBack" class="el-icon-s-fold"></i>
         <!-- Region Filter (BR-04) -->
         <el-select
+          v-if="showRegionSelector"
           :popper-append-to-body="false"
           v-model="selectedRegion"
           placeholder="지역 선택"
@@ -93,6 +94,11 @@ export default class extends Vue {
     page: 0,
     size: 5,
   };
+
+  get showRegionSelector(): boolean {
+    const hiddenRoutes = ['Match', 'MyPage', 'TeamPage'];
+    return !hiddenRoutes.includes(String(this.$route.name));
+  }
 
   mounted() {
     this.loadNotifications();

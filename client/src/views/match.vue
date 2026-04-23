@@ -248,7 +248,7 @@ export default class extends Vue {
 
   private collapsedTop = 280
 
-  private expandedTop = 70
+  private expandedTop = 80
 
   private currentYear = new Date().getFullYear()
 
