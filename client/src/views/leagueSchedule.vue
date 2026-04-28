@@ -101,7 +101,7 @@ interface LeagueOption {
 export default class extends Vue {
   @Prop({ default: '' }) private selectedRegion!: string
 
-  private currentYear = 2025
+  private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
 
@@ -118,7 +118,6 @@ export default class extends Vue {
   }
 
   async created() {
-    this.currentYear = new Date().getFullYear();
     await this.loadLeagues();
   }
 
@@ -163,7 +162,7 @@ export default class extends Vue {
         this.selectedLeague = this.leagues[0].uid;
       }
     } catch (error) {
-      console.error('Failed to load leagues:', error);
+      this.$message.error('리그 목록을 불러오지 못했습니다.');
     } finally {
       this.isLoading = false;
     }
@@ -198,7 +197,7 @@ export default class extends Vue {
           };
         });
     } catch (error) {
-      console.error('Failed to load schedule data:', error);
+      this.$message.error('일정을 불러오지 못했습니다.');
     } finally {
       this.isLoading = false;
     }

@@ -139,7 +139,7 @@ interface Match {
 export default class extends Vue {
   @Prop({ default: '' }) private selectedRegion!: string
 
-  private currentYear = 2025
+  private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
 
@@ -162,7 +162,6 @@ export default class extends Vue {
   }
 
   async created() {
-    this.currentYear = new Date().getFullYear();
     await this.loadLeagueData();
   }
 
@@ -234,7 +233,7 @@ export default class extends Vue {
         this.recentMatches = [];
       }
     } catch (error) {
-      console.error('Failed to load league data:', error);
+      this.$message.error('리그 정보를 불러오지 못했습니다.');
     } finally {
       this.isLoading = false;
     }
@@ -249,28 +248,25 @@ export default class extends Vue {
         teamUid: team.teamUid,
         name: team.teamName,
         logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
-        played: team.matchesPlayed,
+        played: team.played,
         wins: team.wins,
         draws: team.draws,
         losses: team.losses,
         points: team.points,
-        goals: team.goalsScored,
-        conceded: team.goalsConceded,
+        goals: team.goalsFor,
+        conceded: team.goalsAgainst,
         difference: team.goalDifference,
       }));
     } catch (error) {
-      console.error('Failed to load standings data:', error);
+      this.$message.error('순위표를 불러오지 못했습니다.');
     }
   }
 
   private async loadScheduleData(): Promise<void> {
     try {
-      const startDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-01`;
-      const endDate = `${this.currentYear}-${String(this.currentMonthIndex + 1).padStart(2, '0')}-31`;
-
       const scheduleResponse = await getLeagueSchedule(this.currentLeagueUid, {
-        startDate,
-        endDate,
+        year: this.currentYear,
+        month: this.currentMonthIndex + 1,
       });
       const matches = scheduleResponse.data?.content || scheduleResponse.data || [];
 
@@ -294,7 +290,7 @@ export default class extends Vue {
           };
         });
     } catch (error) {
-      console.error('Failed to load schedule data:', error);
+      this.$message.error('일정을 불러오지 못했습니다.');
     }
   }
 

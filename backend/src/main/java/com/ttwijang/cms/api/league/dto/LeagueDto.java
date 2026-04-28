@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.LeagueMatch;
@@ -300,10 +301,12 @@ public class LeagueDto {
         private String matchUid;
 
         @NotNull(message = "홈팀 득점은 필수입니다")
+        @PositiveOrZero(message = "홈팀 득점은 0 이상이어야 합니다")
         @Schema(description = "홈팀 득점", required = true)
         private Integer homeScore;
 
         @NotNull(message = "원정팀 득점은 필수입니다")
+        @PositiveOrZero(message = "원정팀 득점은 0 이상이어야 합니다")
         @Schema(description = "원정팀 득점", required = true)
         private Integer awayScore;
     }

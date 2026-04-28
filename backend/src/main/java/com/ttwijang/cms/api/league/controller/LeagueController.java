@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,7 +110,8 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.getLeagueMatchDetail(matchUid, userUid));
     }
 
-    @Operation(summary = "경기 결과 입력", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "경기 결과 입력 (관리자 전용)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/match/result")
     public ResponseEntity<LeagueDto.MatchResponse> updateMatchResult(
             @Valid @RequestBody LeagueDto.MatchResultRequest request) {
@@ -177,6 +179,7 @@ public class LeagueController {
     // ==================== 최고관리자 전용 API (BR-11, BR-12) ====================
 
     @Operation(summary = "[관리자] 리그 생성 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/admin")
     public ResponseEntity<LeagueDto.DetailResponse> createLeague(
             @Valid @RequestBody LeagueDto.CreateRequest request) {
@@ -184,6 +187,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그 수정 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/admin/{uid}")
     public ResponseEntity<LeagueDto.DetailResponse> updateLeague(
             @PathVariable String uid,
@@ -192,6 +196,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그 삭제 (BR-11)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/admin/{uid}")
     public ResponseEntity<Void> deleteLeague(@PathVariable String uid) {
         leagueService.deleteLeague(uid);
@@ -199,6 +204,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그에 팀 추가 (BR-12)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/admin/{leagueUid}/teams/{teamUid}")
     public ResponseEntity<LeagueDto.LeagueTeamResponse> addTeamToLeague(
             @PathVariable String leagueUid,
@@ -207,6 +213,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그에서 팀 제거 (BR-12)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/admin/{leagueUid}/teams/{teamUid}")
     public ResponseEntity<Void> removeTeamFromLeague(
             @PathVariable String leagueUid,
@@ -216,6 +223,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그 매치 생성", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/admin/match")
     public ResponseEntity<LeagueDto.MatchResponse> createLeagueMatch(
             @Valid @RequestBody LeagueDto.CreateMatchRequest request) {
@@ -223,6 +231,7 @@ public class LeagueController {
     }
 
     @Operation(summary = "[관리자] 리그 전체 경기 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/{leagueUid}/matches")
     public ResponseEntity<List<LeagueDto.MatchResponse>> getAllLeagueMatches(
             @PathVariable String leagueUid) {

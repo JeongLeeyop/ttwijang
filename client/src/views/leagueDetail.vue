@@ -26,7 +26,7 @@
       <div
         v-if="league.introContent"
         class="league-intro"
-        v-html="league.introContent"
+        v-html="safeIntroContent"
       />
       <div v-else class="league-empty-intro">
         등록된 소개글이 없습니다.
@@ -100,6 +100,16 @@ export default class extends Vue {
     if (this.alreadyJoined) return '이미 참여 중';
     if (!this.isOwner) return '팀 운영자만 신청 가능';
     return '리그 참여하기';
+  }
+
+  get safeIntroContent(): string {
+    const raw = this.league?.introContent || '';
+    return raw
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
+      .replace(/\son\w+\s*=\s*"(?:[^"]*)"/gi, '')
+      .replace(/\son\w+\s*=\s*'(?:[^']*)'/gi, '')
+      .replace(/javascript:/gi, '');
   }
 
   async created(): Promise<void> {

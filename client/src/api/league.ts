@@ -141,14 +141,6 @@ export function getUpcomingLeagueMatches(params?: {
   });
 }
 
-// 내 팀의 리그 정보 조회
-export function getMyTeamLeagueInfo(teamUid: string) {
-  return request({
-    url: `/league/my-team/${teamUid}`,
-    method: 'get',
-  });
-}
-
 // 팀이 참가 중인 리그 목록 조회
 export function getLeaguesByTeam(teamUid: string) {
   return request({
@@ -187,15 +179,16 @@ export interface LeagueStanding {
   teamCode?: string
   teamName: string
   teamLogoUrl?: string
-  rank: number
+  ranking: number
   points: number
-  matchesPlayed: number
+  played: number
   wins: number
   draws: number
   losses: number
   goalsFor: number
   goalsAgainst: number
   goalDifference: number
+  mannerScore?: number
 }
 
 export interface LeagueMatch {

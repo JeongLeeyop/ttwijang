@@ -22,4 +22,6 @@ public interface LeagueMatchApplicationRepository extends JpaRepository<LeagueMa
             String leagueMatchUid, LeagueMatchApplication.ApplicationStatus status);
 
     List<LeagueMatchApplication> findByUserUidOrderByCreatedDateDesc(String userUid);
+
+    void deleteByLeagueMatchUidIn(List<String> leagueMatchUids);
 }

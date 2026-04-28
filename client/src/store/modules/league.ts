@@ -36,7 +36,7 @@ export default class LeagueModule extends VuexModule implements LeagueState {
   error: string | null = null;
 
   get sortedStandings(): LeagueStanding[] {
-    return [...this.standings].sort((a, b) => a.rank - b.rank);
+    return [...this.standings].sort((a, b) => a.ranking - b.ranking);
   }
 
   get upcomingMatches(): LeagueMatch[] {

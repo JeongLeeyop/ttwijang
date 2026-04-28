@@ -178,15 +178,14 @@ public class LeagueService {
     }
 
     /**
-     * 다가오는 경기 조회
+     * 다가오는 경기 조회 (DB 레벨에서 SCHEDULED 필터링)
      */
     @Transactional(readOnly = true)
     public List<LeagueDto.MatchResponse> getUpcomingMatches(String leagueUid, int limit) {
-        Page<LeagueMatch> matches = leagueMatchRepository.findByLeagueUidOrderByMatchDateAscMatchTimeAsc(
+        List<LeagueMatch> matches = leagueMatchRepository.findScheduledByLeagueUid(
                 leagueUid, PageRequest.of(0, limit));
 
-        return matches.getContent().stream()
-                .filter(m -> m.getStatus() == LeagueMatch.MatchStatus.SCHEDULED)
+        return matches.stream()
                 .map(this::toMatchResponse)
                 .collect(Collectors.toList());
     }
@@ -219,11 +218,23 @@ public class LeagueService {
 
     /**
      * 경기 결과 입력 (순위 자동 업데이트)
+     * - 이미 COMPLETED 상태면 거부 (전적 중복 누적 방지)
+     * - 점수 음수 입력 차단
      */
     @Transactional
     public LeagueDto.MatchResponse updateMatchResult(LeagueDto.MatchResultRequest request) {
         LeagueMatch match = leagueMatchRepository.findByUid(request.getMatchUid())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
+
+        if (match.getStatus() == LeagueMatch.MatchStatus.COMPLETED) {
+            throw new IllegalArgumentException("이미 결과가 입력된 경기입니다.");
+        }
+        if (match.getStatus() == LeagueMatch.MatchStatus.CANCELLED) {
+            throw new IllegalArgumentException("취소된 경기에는 결과를 입력할 수 없습니다.");
+        }
+        if (request.getHomeScore() < 0 || request.getAwayScore() < 0) {
+            throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
+        }
 
         match.setHomeScore(request.getHomeScore());
         match.setAwayScore(request.getAwayScore());
@@ -339,11 +350,26 @@ public class LeagueService {
 
     /**
      * BR-11: 리그 삭제 (최고관리자 전용)
+     * - 연관된 LeagueMatchApplication / LeagueMatch / LeagueTeam을 명시적으로 정리하여 고아 레코드 방지
      */
     @Transactional
     public void deleteLeague(String uid) {
         League league = leagueRepository.findByUid(uid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
+
+        // 1) 리그 매치 신청 내역 삭제
+        List<LeagueMatch> matches = leagueMatchRepository.findByLeagueUid(uid);
+        if (!matches.isEmpty()) {
+            List<String> matchUids = matches.stream()
+                    .map(LeagueMatch::getUid)
+                    .collect(Collectors.toList());
+            leagueMatchApplicationRepository.deleteByLeagueMatchUidIn(matchUids);
+        }
+        // 2) 리그 매치 삭제
+        leagueMatchRepository.deleteAll(matches);
+        // 3) 리그 참가 팀 삭제
+        leagueTeamRepository.deleteAll(leagueTeamRepository.findByLeagueUid(uid));
+        // 4) 리그 본체 삭제
         leagueRepository.delete(league);
     }
 
@@ -362,9 +388,9 @@ public class LeagueService {
             throw new IllegalArgumentException("이미 리그에 등록된 팀입니다.");
         }
 
-        // 최대 팀 수 확인
-        if (league.getCurrentTeams() != null && league.getMaxTeams() != null
-                && league.getCurrentTeams() >= league.getMaxTeams()) {
+        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준
+        long actualCount = leagueTeamRepository.countByLeagueUid(leagueUid);
+        if (league.getMaxTeams() != null && actualCount >= league.getMaxTeams()) {
             throw new IllegalArgumentException("리그 최대 참가 팀 수를 초과했습니다.");
         }
 
@@ -427,6 +453,11 @@ public class LeagueService {
         League league = leagueRepository.findByUid(leagueUid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리그입니다."));
 
+        // 모집 중인 리그만 참가 가능 (IN_PROGRESS / COMPLETED 차단 — 캐시 차감 방지)
+        if (league.getStatus() != League.LeagueStatus.RECRUITING) {
+            throw new IllegalArgumentException("모집 중인 리그만 참가 신청이 가능합니다.");
+        }
+
         // 사용자가 OWNER인 ACTIVE 팀 조회
         List<Team> ownedTeams = teamRepository.findByOwnerUid(userUid);
         Team team = ownedTeams.stream()
@@ -439,9 +470,9 @@ public class LeagueService {
             throw new IllegalArgumentException("이미 리그에 참여한 팀입니다.");
         }
 
-        // 최대 팀 수 확인
-        if (league.getCurrentTeams() != null && league.getMaxTeams() != null
-                && league.getCurrentTeams() >= league.getMaxTeams()) {
+        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준 (currentTeams 동기화 어긋남 방지)
+        long actualCount = leagueTeamRepository.countByLeagueUid(leagueUid);
+        if (league.getMaxTeams() != null && actualCount >= league.getMaxTeams()) {
             throw new IllegalArgumentException("리그 최대 참가 팀 수에 도달했습니다.");
         }
 
@@ -827,6 +858,9 @@ public class LeagueService {
                 .filter(a -> a.getStatus() == LeagueMatchApplication.ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
 
+        if (match.getMatchDate() == null) {
+            throw new IllegalArgumentException("경기 일자 정보가 없습니다.");
+        }
         MatchConfig config = matchConfigRepository.findByUid("default")
                 .orElse(MatchConfig.builder().uid("default").cancelDaysBeforeMatch(1).build());
         LocalDate cancelDeadline = LocalDate.now().plusDays(config.getCancelDaysBeforeMatch());

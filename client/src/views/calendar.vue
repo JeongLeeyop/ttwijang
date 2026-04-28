@@ -47,7 +47,7 @@
 
       <!-- Tabs Section -->
       <div class="tabs-section">
-        <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+        <el-tabs v-model="activeTab">
           <el-tab-pane label="매치 구함" name="match">
             <div v-if="isLoading" class="loading-container">
               <i class="el-icon-loading"></i>
@@ -246,8 +246,11 @@ export default class CalendarPage extends Vue {
     await this.loadCalendarData();
   }
 
-  @Watch('currentMonthIndex')
-  @Watch('currentYear')
+  get yearMonth(): string {
+    return `${this.currentYear}-${this.currentMonthIndex}`;
+  }
+
+  @Watch('yearMonth')
   async onMonthChange() {
     await this.loadCalendarData();
   }
@@ -303,7 +306,7 @@ export default class CalendarPage extends Vue {
               uid: m.uid,
               name: m.hostTeamName || '',
               logo: this.resolveLogoUrl(m.hostTeamLogoUrl, m.hostTeamName),
-              matchType: m.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+              matchType: this.formatMatchType(m.matchType),
               teamSize: this.formatMatchFormat(m.matchFormat),
               matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
               matchDay: dayNames[d.getDay()],
@@ -330,19 +333,19 @@ export default class CalendarPage extends Vue {
         this.guestData = guests.map((g: any) => {
           const d = new Date(g.matchDate);
           const isFull = g.currentGuests >= g.maxGuests;
-            const guestLogo = this.resolveLogoUrl(g.teamLogoUrl, g.teamName);
-            return {
-              uid: g.uid,
-              name: g.teamName || '',
-              logo: guestLogo,
-            matchType: g.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기',
+          const guestLogo = this.resolveLogoUrl(g.teamLogoUrl, g.teamName);
+          return {
+            uid: g.uid,
+            name: g.teamName || '',
+            logo: guestLogo,
+            matchType: this.formatMatchType(g.matchType),
             teamSize: this.formatMatchFormat(g.matchFormat),
             matchDate: `${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`,
             matchDay: dayNames[d.getDay()],
             matchTime: g.matchTime,
             location: g.stadiumName || '',
             dateKey: this.toDateKey(d),
-              teamLogo: guestLogo,
+            teamLogo: guestLogo,
             currentMembers: g.currentGuests,
             maxMembers: g.maxGuests,
             isRecruitmentClosed: isFull,
@@ -406,6 +409,15 @@ export default class CalendarPage extends Vue {
       CANCELLED: 'cancelled',
     };
     return map[status] || '';
+  }
+
+  private formatMatchType(type: string): string {
+    const map: Record<string, string> = {
+      FRIENDLY: '친선 경기',
+      FREE: '자유 경기',
+      LEAGUE: '리그 경기',
+    };
+    return map[type] || type || '';
   }
 
   private formatMatchFormat(format: string): string {
@@ -531,10 +543,6 @@ export default class CalendarPage extends Vue {
     this.currentYear = this.selectedYear;
     this.currentMonthIndex = this.selectedMonth - 1;
     this.showYearMonthPicker = false;
-  }
-
-  private handleTabClick(): void {
-    // 탭 전환 시 카운트가 자동으로 반영됨
   }
 
   private getCountForDate(dateKey: string): number {

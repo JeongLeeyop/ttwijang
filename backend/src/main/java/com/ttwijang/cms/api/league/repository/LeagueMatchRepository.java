@@ -26,6 +26,10 @@ public interface LeagueMatchRepository extends JpaRepository<LeagueMatch, String
 
     Page<LeagueMatch> findByLeagueUidOrderByMatchDateAscMatchTimeAsc(String leagueUid, Pageable pageable);
 
+    @Query("SELECT lm FROM LeagueMatch lm WHERE lm.leagueUid = :leagueUid AND lm.status = 'SCHEDULED' "
+            + "ORDER BY lm.matchDate ASC, lm.matchTime ASC")
+    List<LeagueMatch> findScheduledByLeagueUid(@Param("leagueUid") String leagueUid, Pageable pageable);
+
     List<LeagueMatch> findByHomeTeamUidOrAwayTeamUid(String homeTeamUid, String awayTeamUid);
 
     @Query("SELECT lm FROM LeagueMatch lm WHERE lm.leagueUid = :leagueUid AND (lm.homeTeamUid = :teamUid OR lm.awayTeamUid = :teamUid)")

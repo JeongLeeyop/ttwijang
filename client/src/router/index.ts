@@ -41,6 +41,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'LeagueStatus',
 				meta: {
 					title: '리그 현황',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/leagueStatus.vue'),
 			},
@@ -49,6 +50,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'LeagueSchedule',
 				meta: {
 					title: '리그 일정',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/leagueSchedule.vue'),
 			},
