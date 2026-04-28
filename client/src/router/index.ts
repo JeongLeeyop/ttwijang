@@ -68,6 +68,7 @@ export const constantRoutes: Array<RouteConfig> = [
 				name: 'MyPage',
 				meta: {
 					title: '마이페이지',
+					requiresAuth: true,
 				},
 				component: () => import('@/views/myPage.vue'),
 			},

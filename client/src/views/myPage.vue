@@ -88,6 +88,7 @@
             <span class="menu-text">신청 내역</span>
             <i class="el-icon-arrow-right"></i>
           </div>
+          <!-- 팀 내역 — 미구현 (TODO)
           <div class="menu-item" @click="navigateTo('my-leagues')">
             <div class="menu-icon">
               <i class="el-icon-user-solid"></i>
@@ -95,6 +96,7 @@
             <span class="menu-text">팀 내역</span>
             <i class="el-icon-arrow-right"></i>
           </div>
+          -->
           <div class="menu-item" @click="navigateToCashHistory">
             <div class="menu-icon">
               <i class="el-icon-s-management"></i>
@@ -102,6 +104,7 @@
             <span class="menu-text">캐쉬 사용내역</span>
             <i class="el-icon-arrow-right"></i>
           </div>
+          <!-- 구장 제휴 — 미구현 (TODO)
           <div class="menu-item" @click="navigateTo('my-coupons')">
             <div class="menu-icon">
               <i class="el-icon-location"></i>
@@ -109,6 +112,7 @@
             <span class="menu-text">구장 제휴</span>
             <i class="el-icon-arrow-right"></i>
           </div>
+          -->
           <div class="menu-item" @click="navigateTo('sponsor-apply')">
             <div class="menu-icon">
               <i class="el-icon-thumb"></i>
@@ -130,6 +134,7 @@
             <span class="menu-text">공지사항</span>
             <i class="el-icon-arrow-right"></i>
           </div>
+          <!-- 설정 — 미구현 (TODO)
           <div class="menu-item" @click="navigateTo('settings')">
             <div class="menu-icon">
               <i class="el-icon-setting"></i>
@@ -137,13 +142,16 @@
             <span class="menu-text">설정</span>
             <i class="el-icon-arrow-right"></i>
           </div>
-          <!-- <div class="menu-item" @click="navigateTo('help')">
+          -->
+          <!-- 도움말 — 미구현 (TODO)
+          <div class="menu-item" @click="navigateTo('help')">
             <div class="menu-icon">
               <i class="el-icon-question"></i>
             </div>
             <span class="menu-text">도움말</span>
             <i class="el-icon-arrow-right"></i>
-          </div> -->
+          </div>
+          -->
           <div class="menu-item logout-item" @click="logout">
             <div class="menu-icon">
               <i class="el-icon-switch-button"></i>
@@ -178,18 +186,10 @@ export default class MyPage extends Vue {
 
   private userProfile = {
     name: '',
-    email: '',
-    avatar: 'https://ui-avatars.com/api/?name=?&background=061da1&color=fff&size=80&bold=true',
   };
 
   private userStats = {
     matches: 0,
-    wins: 0,
-    losses: 0,
-    totalMatches: 0,
-    avgGoals: 0,
-    winRate: 0,
-    ranking: 0,
     mannerscore: 0,
     team: '-',
     teamLabel: '소속 팀',
@@ -197,10 +197,7 @@ export default class MyPage extends Vue {
 
   private userWallet = {
     points: 0,
-    coupons: 0,
   };
-
-  private isLoading = false;
 
   private isLoadingStats = true;
 
@@ -235,9 +232,6 @@ export default class MyPage extends Vue {
     if (this.userModule.infoName) {
       this.userProfile.name = this.userModule.infoName;
     }
-    if (this.userModule.infoEmail) {
-      this.userProfile.email = this.userModule.infoEmail;
-    }
 
     await this.loadUserData();
   }
@@ -251,17 +245,13 @@ export default class MyPage extends Vue {
   }
 
   private async loadUserData(): Promise<void> {
-    this.isLoading = true;
     try {
       // 사용자 프로필 정보 로드 (API → Store → JWT 순으로 fallback)
-      let userUid = '';
       let userPoint = 0;
       try {
         const userInfoResponse = await getUserInfo();
         if (userInfoResponse.data) {
           this.userProfile.name = userInfoResponse.data.actualName || userInfoResponse.data.name || '';
-          this.userProfile.email = userInfoResponse.data.email || '';
-          userUid = userInfoResponse.data.uid || userInfoResponse.data.userId || '';
           userPoint = userInfoResponse.data.point || 0;
         }
       } catch (infoError) {
@@ -271,9 +261,6 @@ export default class MyPage extends Vue {
       // API로 이름을 못 가져온 경우 Store fallback
       if (!this.userProfile.name && this.userModule.infoName) {
         this.userProfile.name = this.userModule.infoName;
-      }
-      if (!this.userProfile.email && this.userModule.infoEmail) {
-        this.userProfile.email = this.userModule.infoEmail;
       }
 
       // 여전히 이름이 없으면 JWT에서 시도
@@ -372,8 +359,6 @@ export default class MyPage extends Vue {
     } catch (error) {
       console.error('사용자 데이터 로드 실패:', error);
       this.$message.error('사용자 정보를 불러오는데 실패했습니다.');
-    } finally {
-      this.isLoading = false;
     }
   }
 
@@ -387,23 +372,6 @@ export default class MyPage extends Vue {
 
   private chargePoints(): void {
     this.$router.push({ name: 'CashCharge' });
-  }
-
-  private exchangePoints(): void {
-    this.$message.info('포인트 교환 페이지로 이동합니다');
-  }
-
-  private viewPointHistory(): void {
-    this.$message.info('포인트 내역 페이지로 이동합니다');
-  }
-
-  private openGuide(type: string): void {
-    const guideMap: { [key: string]: string } = {
-      league: '리그 시작하기',
-      match: '경기 예약하기',
-      team: '팀 관리하기',
-    };
-    this.$message.info(`${guideMap[type]} 가이드를 엽니다`);
   }
 
   private navigateTo(name: string): void {

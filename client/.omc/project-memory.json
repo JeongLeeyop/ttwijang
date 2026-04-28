@@ -165,6 +165,12 @@
       "type": "file"
     },
     {
+      "path": "src/router/index.ts",
+      "accessCount": 16,
+      "lastAccessed": 1777419503719,
+      "type": "file"
+    },
+    {
       "path": "src/views/guide.vue",
       "accessCount": 14,
       "lastAccessed": 1775954610724,
@@ -177,9 +183,9 @@
       "type": "file"
     },
     {
-      "path": "src/router/index.ts",
-      "accessCount": 13,
-      "lastAccessed": 1776901878247,
+      "path": "src/views/myPage.vue",
+      "accessCount": 12,
+      "lastAccessed": 1777419581839,
       "type": "file"
     },
     {
@@ -231,6 +237,12 @@
       "type": "directory"
     },
     {
+      "path": "src/store/modules/user.ts",
+      "accessCount": 7,
+      "lastAccessed": 1777418087973,
+      "type": "directory"
+    },
+    {
       "path": "src/views/register.vue",
       "accessCount": 6,
       "lastAccessed": 1775971428333,
@@ -240,12 +252,6 @@
       "path": "src",
       "accessCount": 6,
       "lastAccessed": 1775972632997,
-      "type": "directory"
-    },
-    {
-      "path": "src/store/modules/user.ts",
-      "accessCount": 6,
-      "lastAccessed": 1776099934883,
       "type": "directory"
     },
     {
@@ -318,12 +324,6 @@
       "path": "src/api/cash.ts",
       "accessCount": 3,
       "lastAccessed": 1776098390978,
-      "type": "file"
-    },
-    {
-      "path": "src/views/myPage.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775954609000,
       "type": "file"
     },
     {
