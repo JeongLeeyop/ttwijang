@@ -65,18 +65,16 @@ export default class extends Vue {
   private stationList: any = [];
 
   private async loginSuccess() {
-    // 테스트를 위해 토큰 강제 지정
-  //   this.fcmToken = {
-	// 	token: 'f1p50GeSQiW7KR3wDOyPiE:APA91bGZba9jaOOxC364u3qS5rFcfV623M8nNem4kk_Na6tAS6b6bSK_OhM3x38UTMSPSD3-9yCzcCDm6OOcO1IjQ3dfDy6rEDseeIHXMzVHU7L-6-N2nLgxPI30VvJ-5E4xRnnI3aVY',
-  // };
-    getUserInfo().then(async (res) => {
-      if (res.data.registerInfoStatus) {
+    try {
+      const res = await getUserInfo();
+      if (res.data.joinStatus) {
         this.$router.push({ name: 'Home' });
       } else {
-        window.localStorage.setItem('isRegister', 'false');
-        this.$router.push({ name: 'Agree' });
+        this.$router.push({ name: 'Register', query: { social: 'true' } });
       }
-    });
+    } catch (e) {
+      this.$router.push({ name: 'Register', query: { social: 'true' } });
+    }
   }
 
   private kakaoLogin() {
@@ -89,7 +87,9 @@ export default class extends Vue {
   }
 
   private naverLogin() {
-    window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${process.env.VUE_APP_NAVER_CLIENT_ID}&redirect_uri=${process.env.VUE_APP_NAVER_REDIRECT_URL}`;
+    const clientId = process.env.VUE_APP_NAVER_CLIENT_ID;
+    const redirectUri = encodeURIComponent(`${window.location.origin}/login`);
+    window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=state`;
   }
 
   private appleLogin() {
@@ -102,22 +102,36 @@ export default class extends Vue {
     const { code, state, id_token } = (this.$route.query as any);
     if (code && state) {
       this.loading = true;
-      await UserModule.NaverLogin(code);
-      const routeName2: any = UserModule.NaverMe();
-      const routeName3: any = await UserModule.NaverAccess();
-      this.loading = false;
-      this.loginSuccess();
+      try {
+        await UserModule.NaverLogin(code);
+        UserModule.NaverMe();
+        await UserModule.NaverAccess();
+        this.loading = false;
+        this.loginSuccess();
+      } catch (e) {
+        this.loading = false;
+        this.$router.replace({ path: '/login' });
+      }
     } else if (code && id_token) {
       this.loading = true;
-      await UserModule.AppleLogin({code: code, idToken: id_token });
-      this.loading = false;
-      this.loginSuccess();
+      try {
+        await UserModule.AppleLogin({ code: code, idToken: id_token });
+        this.loading = false;
+        this.loginSuccess();
+      } catch (e) {
+        this.loading = false;
+        this.$router.replace({ path: '/login' });
+      }
     } else if (code) {
       this.loading = true;
-      const routeName: any = await UserModule.KakaoLogin(code); 
-      this.loading = false;
-      this.loginSuccess();
-      // this.$router.push({ name: routeName });
+      try {
+        await UserModule.KakaoLogin(code);
+        this.loading = false;
+        this.loginSuccess();
+      } catch (e) {
+        this.loading = false;
+        this.$router.replace({ path: '/login' });
+      }
     }
   }
   /* eslint-enable */

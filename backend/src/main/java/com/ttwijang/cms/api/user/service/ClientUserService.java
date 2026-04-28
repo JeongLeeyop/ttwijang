@@ -56,6 +56,8 @@ void join(ClientUserDto.join dto);
 	String requestPasswordReset(String email, String phoneNumber);
 
 	boolean resetPassword(String resetToken, String newPassword);
+
+	void completeSocialProfile(ClientUserDto.completeSocialProfile dto, SinghaUser authUser);
 }
 
 @Service
@@ -291,6 +293,34 @@ class ClientUserServiceImpl implements ClientUserService {
 		resetTokenStore.put(resetToken, new PasswordResetToken(email, phoneNumber));
 
 		return resetToken;
+	}
+
+	@Transactional
+	@Override
+	public void completeSocialProfile(ClientUserDto.completeSocialProfile dto, SinghaUser authUser) {
+		User user = userRepository.findById(authUser.getUser().getUid())
+			.orElseThrow(() -> new NotFoundException(NotFound.USER));
+
+		if (user.isJoinStatus()) {
+			throw new IllegalStateException("이미 회원가입이 완료된 계정입니다.");
+		}
+
+		if (userRepository.existsByConcatNumber(dto.getConcatNumber())) {
+			throw new BadRequestException(BadRequest.DUPLICATE_PHONE_NUMBER);
+		}
+
+		user.setActualName(dto.getActualName());
+		user.setBirth(dto.getBirth());
+		user.setGender(dto.getGender());
+		user.setConcatNumber(dto.getConcatNumber());
+		user.setMarketingStatus(dto.isMarketingStatus());
+		user.setJoinStatus(true);
+		userRepository.save(user);
+
+		UserRole userRole = new UserRole();
+		userRole.setUserUid(user.getUid());
+		userRole.setRoleCode("ROLE_USER");
+		userRoleRepository.save(userRole);
 	}
 
 	@Transactional

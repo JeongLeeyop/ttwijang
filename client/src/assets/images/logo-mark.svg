@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>뛰장 — Mark</title>
+  <circle cx="128" cy="128" r="108" fill="#061da1"/>
+  <polygon points="128,92 162.24,116.88 149.16,157.12 106.84,157.12 93.76,116.88" fill="#ffffff"/>
+  <line x1="128"    y1="92"     x2="128"    y2="20"    stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <line x1="162.24" y1="116.88" x2="230.7"  y2="94.6"  stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <line x1="149.16" y1="157.12" x2="191.5"  y2="215.4" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <line x1="106.84" y1="157.12" x2="64.5"   y2="215.4" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <line x1="93.76"  y1="116.88" x2="25.3"   y2="94.6"  stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <path d="M212 60 Q236 92 232 132" stroke="#061da1" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.35"/>
+  <path d="M226 48 Q254 88 248 134" stroke="#061da1" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18"/>
+</svg>

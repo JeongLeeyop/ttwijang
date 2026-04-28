@@ -48,12 +48,13 @@ export const getNaverAccess = (code: any) => {
   });
 };
 
-export const getNaverLogin = (code: any) => {
+export const getNaverLogin = (code: any, redirectUri: string) => {
   return axios({
     url: '/oauth/naver/login',
     method: 'get',
     params: {
       code,
+      redirectUri,
     },
   });
 };

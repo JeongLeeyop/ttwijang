@@ -192,8 +192,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     }
 
     private User registerUser(OAuth2UserInfo userInfo) {
+        // 소셜에서 제공하는 email 사용, 없으면 고유 플레이스홀더 생성
+        String email = userInfo.getEmail();
+        if (email == null || email.isBlank()) {
+            email = userInfo.getSocialType().toString().toLowerCase()
+                + "_" + userInfo.getId() + "@social.ttwijang.co.kr";
+        }
+
+        // 같은 email로 이미 가입된 일반 계정이 있으면 소셜 정보를 연결
+        Optional<User> existingByEmail = userRepository.findByEmail(email);
+        if (existingByEmail.isPresent()) {
+            User existing = existingByEmail.get();
+            existing.setProvider(userInfo.getSocialType());
+            existing.setProviderId(userInfo.getId());
+            return userRepository.save(existing);
+        }
+
         User user = new User();
         user.setUserId(userInfo.getSocialType().toString() + "/" + userInfo.getId());
+        user.setEmail(email);
         user.setUserPassword(userInfo.getSocialType().toString() + userInfo.getId());
         user.setJoinStatus(false);
         user.setProvider(userInfo.getSocialType());

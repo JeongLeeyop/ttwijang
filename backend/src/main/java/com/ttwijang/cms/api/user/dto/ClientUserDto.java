@@ -60,6 +60,29 @@ public class ClientUserDto {
         private boolean marketingStatus;
 
         private Integer point;
+
+        // 소셜 로그인 회원가입 완료 여부
+        private boolean joinStatus;
+
+        // 소셜 제공자 (KAKAO, NAVER, APPLE 등)
+        private String provider;
+    }
+
+    @Data
+    public static class completeSocialProfile {
+        @NotBlank(message = "이름을 입력하세요.")
+        private String actualName;
+
+        @NotNull(message = "생년월일을 입력하세요.")
+        private LocalDate birth;
+
+        @NotNull(message = "성별을 선택하세요.")
+        private Integer gender;
+
+        @NotBlank(message = "휴대폰 번호를 입력하세요.")
+        private String concatNumber;
+
+        private boolean marketingStatus;
     }
 
     @Data

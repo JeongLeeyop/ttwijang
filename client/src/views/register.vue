@@ -1,7 +1,10 @@
 <template>
   <div class="content register-page">
     <div class="form-container">
-        <div class="form-group">
+        <div
+          v-if="!isSocialMode"
+          class="form-group"
+        >
           <label for="email">이메일</label>
           <input
             id="email"
@@ -11,7 +14,10 @@
           />
         </div>
 
-        <div class="form-group">
+        <div
+          v-if="!isSocialMode"
+          class="form-group"
+        >
           <label for="password">비밀번호</label>
           <input
             id="password"
@@ -21,7 +27,10 @@
           />
         </div>
 
-        <div class="form-group">
+        <div
+          v-if="!isSocialMode"
+          class="form-group"
+        >
           <label for="passwordConfirm">비밀번호 확인</label>
           <input
             id="passwordConfirm"
@@ -199,9 +208,12 @@ import AuthLayout from '@/Layout/authLayout.vue';
 import {
   register,
   RegisterData,
+  completeSocialProfile,
+  SocialProfileData,
   checkPhoneNumberDuplicate,
 } from '@/api/user';
 import { sendVerificationCode, verifyCode } from '@/api/sms';
+import { UserModule } from '@/store/modules/user';
 
 @Component({
   components: {
@@ -247,6 +259,10 @@ export default class Register extends Vue {
       this.form.verificationCode = '';
       this.clearTimer();
     }
+  }
+
+  private get isSocialMode(): boolean {
+    return this.$route.query.social === 'true';
   }
 
   private get years(): number[] {
@@ -382,35 +398,37 @@ export default class Register extends Vue {
   }
 
   private validateForm(): boolean {
-    if (!this.form.email) {
-      this.$message.warning('이메일을 입력해주세요.');
-      return false;
-    }
+    if (!this.isSocialMode) {
+      if (!this.form.email) {
+        this.$message.warning('이메일을 입력해주세요.');
+        return false;
+      }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.form.email)) {
-      this.$message.warning('올바른 이메일 형식이 아닙니다.');
-      return false;
-    }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.form.email)) {
+        this.$message.warning('올바른 이메일 형식이 아닙니다.');
+        return false;
+      }
 
-    if (!this.form.password) {
-      this.$message.warning('비밀번호를 입력해주세요.');
-      return false;
-    }
+      if (!this.form.password) {
+        this.$message.warning('비밀번호를 입력해주세요.');
+        return false;
+      }
 
-    if (this.form.password.length < 8) {
-      this.$message.warning('비밀번호는 8자 이상이어야 합니다.');
-      return false;
-    }
+      if (this.form.password.length < 8) {
+        this.$message.warning('비밀번호는 8자 이상이어야 합니다.');
+        return false;
+      }
 
-    if (!this.form.passwordConfirm) {
-      this.$message.warning('비밀번호 확인을 입력해주세요.');
-      return false;
-    }
+      if (!this.form.passwordConfirm) {
+        this.$message.warning('비밀번호 확인을 입력해주세요.');
+        return false;
+      }
 
-    if (this.form.password !== this.form.passwordConfirm) {
-      this.$message.warning('비밀번호가 일치하지 않습니다.');
-      return false;
+      if (this.form.password !== this.form.passwordConfirm) {
+        this.$message.warning('비밀번호가 일치하지 않습니다.');
+        return false;
+      }
     }
 
     if (!this.form.name) {
@@ -467,26 +485,40 @@ export default class Register extends Vue {
       return;
     }
 
+    const birth = `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`;
+    const gender = this.form.gender === '남자' ? 0 : 1;
+
     try {
-      // 실제 회원가입 API 호출
-      const registerData: RegisterData = {
-        email: this.form.email,
-        password: this.form.password,
-        actualName: this.form.name,
-        birth: `${this.form.birthYear}-${String(this.form.birthMonth).padStart(2, '0')}-${String(this.form.birthDay).padStart(2, '0')}`,
-        gender: this.form.gender === '남자' ? 0 : 1, // 0: 남성, 1: 여성
-        concatNumber: this.form.phoneNumber,
-        marketingStatus: this.form.terms.term6,
-      };
-
-      await register(registerData);
-
-      this.$message.success('회원가입이 완료되었습니다.');
-
-      // 로그인 페이지로 이동
-      setTimeout(() => {
-        this.$router.push({ name: 'Login' });
-      }, 1500);
+      if (this.isSocialMode) {
+        const profileData: SocialProfileData = {
+          actualName: this.form.name,
+          birth,
+          gender,
+          concatNumber: this.form.phoneNumber,
+          marketingStatus: this.form.terms.term6,
+        };
+        await completeSocialProfile(profileData);
+        UserModule.SetJoinStatus(true);
+        this.$message.success('회원가입이 완료되었습니다.');
+        setTimeout(() => {
+          this.$router.push({ name: 'Home' });
+        }, 1500);
+      } else {
+        const registerData: RegisterData = {
+          email: this.form.email,
+          password: this.form.password,
+          actualName: this.form.name,
+          birth,
+          gender,
+          concatNumber: this.form.phoneNumber,
+          marketingStatus: this.form.terms.term6,
+        };
+        await register(registerData);
+        this.$message.success('회원가입이 완료되었습니다.');
+        setTimeout(() => {
+          this.$router.push({ name: 'Login' });
+        }, 1500);
+      }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '회원가입에 실패했습니다.';
       this.$message.error(errorMsg);

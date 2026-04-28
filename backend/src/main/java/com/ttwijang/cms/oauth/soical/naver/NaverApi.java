@@ -46,14 +46,16 @@ public class NaverApi {
         return template.exchange("https://openapi.naver.com/v1/nid/me", HttpMethod.GET, entity, responseType);
     }
     
-    public ResponseEntity token(String code) {
+    public ResponseEntity token(String code, String redirectUri) {
+        String resolvedRedirectUri = (redirectUri != null && !redirectUri.isEmpty())
+            ? redirectUri
+            : (profile.equals("development") ? "http://localhost:3000/login" : "http://1.234.10.116:3000/login");
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(HOST+"/oauth2.0/token")
             .queryParam("code", code)
             .queryParam("grant_type", "authorization_code")
             .queryParam("client_id", naverClientId)
             .queryParam("client_secret", naverClientSecret)
-            // .queryParam("redirect_uri", profile.equals("development") ? "http://leeyop.unids.kr/oauth/token" : "https://ttwijang.co.kr/oauth/token")
-            .queryParam("redirect_uri", profile.equals("development") ? "http://localhost:3000/oauth/token" : "https://ttwijang.co.kr/oauth/token")
+            .queryParam("redirect_uri", resolvedRedirectUri)
             .queryParam("state", "state");
         String url = builder.toUriString();
         RestTemplate template = new RestTemplate();

@@ -1,6 +1,7 @@
 package com.ttwijang.cms.api.user.dto.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
@@ -13,6 +14,7 @@ public interface ClientUserMapper {
 
     User joinDtoToEntity(ClientUserDto.join dto, @MappingTarget User entity);
 
+    @Mapping(target = "provider", expression = "java(entity.getProvider() != null ? entity.getProvider().toString() : null)")
     ClientUserDto.info entityToInfoDto(User entity);
 
     User updateDtoToEntity(ClientUserDto.update dto, @MappingTarget User entity);

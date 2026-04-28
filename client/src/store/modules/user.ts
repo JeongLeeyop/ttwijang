@@ -17,6 +17,7 @@ import {
   getNaverAccess,
   emailLogin,
 } from '@/api/oauth';
+import { getUserInfo } from '@/api/user';
 import store from '@/store';
 import router from '@/router';
 import { storageKey } from '@/enums/localStorage';
@@ -50,6 +51,8 @@ class User extends VuexModule implements IUserState {
   public roles: string[] = []
 
   public errorMessage = ''
+
+  public joinStatus = true
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -94,6 +97,11 @@ class User extends VuexModule implements IUserState {
     this.errorMessage = errorMessage;
   }
 
+  @Mutation
+  private SET_JOIN_STATUS(status: boolean) {
+    this.joinStatus = status;
+  }
+
   /**
    * 이메일/비밀번호 로그인
    */
@@ -115,54 +123,53 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action
-  public async KakaoLogin(code: string) {
-    return new Promise((resolve, reject) => {
-      getAccessToken(code).then((res) => {
-        getKakaoLogin(res.data.access_token).then((jwt) => {
-          setToken(jwt.data.access_token);
-          this.SET_TOKEN(jwt.data.access_token);
-          window.localStorage.setItem('jwttoken', jwt.data.access_token);
-          this.GetUserInfo();
-          resolve('');
-        });
-      }).catch((error) => {
-        reject(error);
-      });
-    });
+  public async KakaoLogin(code: string): Promise<void> {
+    try {
+      const tokenRes = await getAccessToken(code);
+      const jwtRes = await getKakaoLogin(tokenRes.data.access_token);
+      const accessToken = jwtRes.data.access_token;
+      setToken(accessToken);
+      this.SET_TOKEN(accessToken);
+      window.localStorage.setItem('jwttoken', accessToken);
+      await this.GetUserInfo();
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error_description || '카카오 로그인에 실패했습니다.';
+      this.SET_ERROR_MESSAGE(errorMsg);
+      throw error;
+    }
   }
 
   @Action
   public async NaverLogin(code: string) {
     return new Promise((resolve, reject) => {
-      getNaverLogin(code).then((jwt) => {
-        // setToken(jwt.data.body.access_token);
+      const redirectUri = `${window.location.origin}/login`;
+      getNaverLogin(code, redirectUri).then((jwt) => {
         this.SET_TOKEN(jwt.data.body.access_token);
-        // this.GetUserInfo();
         resolve('');
-      });
+      }).catch(reject);
     });
   }
 
   @Action
-  public async NaverAccess() {
-    return new Promise((resolve, reject) => {
-      getNaverAccess(this.token).then((jwt) => {
-        setToken(jwt.data.body.access_token);
-        this.SET_TOKEN(jwt.data.body.access_token);
-        window.localStorage.setItem('jwttoken', jwt.data.body.access_token);
-        this.GetUserInfo();
-        resolve('');
-      });
-    });
+  public async NaverAccess(): Promise<void> {
+    const jwt = await getNaverAccess(this.token);
+    const accessToken = jwt.data.body.access_token;
+    setToken(accessToken);
+    this.SET_TOKEN(accessToken);
+    window.localStorage.setItem('jwttoken', accessToken);
+    await this.GetUserInfo();
   }
 
   @Action
-  public async NaverMe() {
-      getNaverMe(this.token).then((res) => {
-        this.SET_NAME(res.data.body.response.name);
-        this.SET_TEL(res.data.body.response.mobile);
-        this.SET_EMAIL(res.data.body.response.email);
-      });
+  public async NaverMe(): Promise<void> {
+    try {
+      const res = await getNaverMe(this.token);
+      this.SET_NAME(res.data.body.response.name);
+      this.SET_TEL(res.data.body.response.mobile);
+      this.SET_EMAIL(res.data.body.response.email);
+    } catch (e) {
+      // 프로필 정보 조회 실패는 로그인 흐름에 영향 없음
+    }
   }
 
   @Action
@@ -194,7 +201,18 @@ class User extends VuexModule implements IUserState {
       this.SET_ROLES(data.authorities);
       this.SET_USER_ID(data.user_name);
       this.SET_IS_LOGIN(true);
+      try {
+        const res = await getUserInfo();
+        this.SET_JOIN_STATUS(res.data.joinStatus ?? true);
+      } catch (e) {
+        // API 실패 시 기존 로그인 상태 유지
+      }
     }
+  }
+
+  @Action
+  public SetJoinStatus(status: boolean) {
+    this.SET_JOIN_STATUS(status);
   }
 
   @Action
@@ -209,6 +227,7 @@ class User extends VuexModule implements IUserState {
     this.SET_TOKEN('');
     this.SET_ROLES([]);
     this.SET_USER_ID('');
+    this.SET_JOIN_STATUS(true);
   }
 
   @Action

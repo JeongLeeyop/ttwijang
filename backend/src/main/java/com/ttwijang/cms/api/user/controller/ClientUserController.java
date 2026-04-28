@@ -50,6 +50,14 @@ public class ClientUserController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PostMapping("complete-social-profile")
+	public ResponseEntity completeSocialProfile(
+			@Valid @RequestBody ClientUserDto.completeSocialProfile dto,
+			@AuthenticationPrincipal SinghaUser authUser) {
+		clientUserService.completeSocialProfile(dto, authUser);
+		return ResponseEntity.ok().build();
+	}
+
 	@PutMapping("info")
 	public ResponseEntity updateInfo(@RequestBody ClientUserDto.update updateDto, @AuthenticationPrincipal SinghaUser authUser) {
 		clientUserService.updateInfo(updateDto, authUser);

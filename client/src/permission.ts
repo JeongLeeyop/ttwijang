@@ -28,6 +28,17 @@ const authReady = initializeAuth();
 
 router.beforeEach(async (to: Route, _: Route, next: any) => {
   await authReady;
+
+  // 소셜 로그인 후 회원가입 미완료 사용자는 로그인 페이지로 강제 이동
+  if (UserModule.isLogin && !UserModule.joinStatus) {
+    if (to.name !== 'Login' && to.name !== 'Register') {
+      next({ path: '/login' });
+      return;
+    }
+    next();
+    return;
+  }
+
   const requiresAuth = to.matched.some((record) => record.meta && record.meta.requiresAuth);
   if (requiresAuth && !UserModule.isLogin) {
     Message.warning('로그인이 필요한 페이지입니다.');

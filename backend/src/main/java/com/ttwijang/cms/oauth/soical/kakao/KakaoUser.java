@@ -29,25 +29,25 @@ public class KakaoUser extends OAuth2UserInfo {
     }
 
     public String getName() {
-        if (this.properties.get("name") == null) return "";
+        if (this.properties == null || this.properties.get("name") == null) return "";
         return (String) properties.get("name");
     }
-    
+
     @Override
     public String getEmail() {
-        if (this.properties.get("email") == null) return "";
+        if (this.properties == null || this.properties.get("email") == null) return "";
         return (String) properties.get("email");
     }
 
     @Override
     public String getImageUrl() {
-        if (this.properties.get("profile_image_url") == null) return "";
-        return (String) profile.get("profile_image_url");
+        if (this.properties == null || this.properties.get("profile_image_url") == null) return "";
+        return (String) properties.get("profile_image_url");
     }
-    
+
     @Override
     public String getBirth() {
-        if (this.properties.get("birthyear") == null) return "";
+        if (this.properties == null || this.properties.get("birthyear") == null) return "";
         String birth = "";
 
         Object objYear = this.properties.get("birthyear");
@@ -62,10 +62,10 @@ public class KakaoUser extends OAuth2UserInfo {
 
     	return birth;
     }
-    
+
     @Override
     public String getGender() {
-        if (this.properties.get("gender") == null) return "";
+        if (this.properties == null || this.properties.get("gender") == null) return "";
         String gender = "";
     	Object objGender = this.properties.get("gender");
         if (objGender != null) {
@@ -82,7 +82,7 @@ public class KakaoUser extends OAuth2UserInfo {
 
 	@Override
 	public String getPhoneNumber() {
-        if (this.properties.get("phone_number") == null) return "";
+        if (this.properties == null || this.properties.get("phone_number") == null) return "";
         String phone = "";
         Object objPhone = this.properties.get("phone_number");
         if (objPhone != null) {

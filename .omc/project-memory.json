@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776884163832,
+  "lastScanned": 1777403751185,
   "projectRoot": "/Users/devyop/git/ttwijang",
   "techStack": {
     "languages": [],
@@ -36,7 +36,7 @@
       "path": "admin",
       "purpose": null,
       "fileCount": 12,
-      "lastAccessed": 1776884163824,
+      "lastAccessed": 1777403751174,
       "keyFiles": [
         "README.md",
         "babel.config.js",
@@ -49,14 +49,14 @@
       "path": "attached-file",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776884163824,
+      "lastAccessed": 1777403751174,
       "keyFiles": []
     },
     "backend": {
       "path": "backend",
       "purpose": null,
       "fileCount": 12,
-      "lastAccessed": 1776884163824,
+      "lastAccessed": 1777403751175,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -69,7 +69,7 @@
       "path": "client",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1776884163824,
+      "lastAccessed": 1777403751175,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -82,7 +82,7 @@
       "path": "logs",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776884163825,
+      "lastAccessed": 1777403751175,
       "keyFiles": [
         "warosalad.log"
       ]
@@ -91,7 +91,7 @@
       "path": "admin/dist",
       "purpose": "Distribution/build output",
       "fileCount": 3,
-      "lastAccessed": 1776884163825,
+      "lastAccessed": 1777403751175,
       "keyFiles": [
         "favicon-chat.svg",
         "favicon.ico",
@@ -101,303 +101,165 @@
   },
   "hotPaths": [
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league/service/LeagueService.java",
-      "accessCount": 31,
-      "lastAccessed": 1776895686507,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service/TeamService.java",
-      "accessCount": 12,
-      "lastAccessed": 1776894149154,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/home.vue",
-      "accessCount": 11,
-      "lastAccessed": 1776885080779,
-      "type": "file"
-    },
-    {
-      "path": ".claude/CLAUDE.md",
-      "accessCount": 7,
-      "lastAccessed": 1775760227667,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/myPage.vue",
-      "accessCount": 7,
-      "lastAccessed": 1776884479114,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/controller/TeamController.java",
-      "accessCount": 6,
-      "lastAccessed": 1776892381134,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/match/service/MatchService.java",
-      "accessCount": 5,
-      "lastAccessed": 1776893864696,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league/CLAUDE.md",
-      "accessCount": 5,
-      "lastAccessed": 1776895873123,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/FutsalMatch.java",
-      "accessCount": 4,
-      "lastAccessed": 1776893175936,
-      "type": "file"
-    },
-    {
-      "path": ".claude/rules/backend.md",
-      "accessCount": 3,
-      "lastAccessed": 1775759815948,
-      "type": "file"
-    },
-    {
-      "path": ".claude/rules/frontend.md",
-      "accessCount": 3,
-      "lastAccessed": 1775759924583,
-      "type": "file"
-    },
-    {
-      "path": ".claude/rules/validation.md",
-      "accessCount": 3,
-      "lastAccessed": 1775759925091,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/cashCharge.vue",
-      "accessCount": 3,
-      "lastAccessed": 1775948892845,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views",
-      "accessCount": 3,
-      "lastAccessed": 1775948908663,
-      "type": "directory"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/Team.java",
-      "accessCount": 3,
-      "lastAccessed": 1775951524094,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/League.java",
-      "accessCount": 3,
-      "lastAccessed": 1776885341440,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 2,
-      "lastAccessed": 1775490800647,
-      "type": "directory"
-    },
-    {
-      "path": "client/src/views/teamInfo.vue",
-      "accessCount": 2,
-      "lastAccessed": 1775491128452,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/UserService.java",
-      "accessCount": 2,
-      "lastAccessed": 1775760296924,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/service/GuestService.java",
-      "accessCount": 2,
-      "lastAccessed": 1775760298582,
-      "type": "file"
-    },
-    {
-      "path": ".claude/request.md",
-      "accessCount": 2,
-      "lastAccessed": 1775766161416,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
-      "accessCount": 2,
-      "lastAccessed": 1775766195140,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/league",
-      "accessCount": 2,
-      "lastAccessed": 1775951596015,
-      "type": "directory"
-    },
-    {
-      "path": "backend/pom.xml",
-      "accessCount": 1,
-      "lastAccessed": 1775490847539,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/resources/db/migration/V001__Create_Team_Tables.sql",
-      "accessCount": 1,
-      "lastAccessed": 1775490855490,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/resources/db/migration/V006__Create_User_And_Auth_Tables.sql",
-      "accessCount": 1,
-      "lastAccessed": 1775490874697,
-      "type": "file"
-    },
-    {
       "path": "client/src/views/register.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775490938404,
+      "accessCount": 11,
+      "lastAccessed": 1777407518185,
       "type": "file"
     },
     {
-      "path": "client/src/views/findId.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775490938458,
+      "path": "client/src/store/modules/user.ts",
+      "accessCount": 10,
+      "lastAccessed": 1777407496791,
       "type": "file"
     },
     {
-      "path": "client/src/views/emailLogin.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775490938510,
+      "path": "client/.env.development",
+      "accessCount": 6,
+      "lastAccessed": 1777406738139,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity/GuestRecruitment.java",
-      "accessCount": 1,
-      "lastAccessed": 1775490969944,
+      "path": "client/src/views/index.vue",
+      "accessCount": 4,
+      "lastAccessed": 1777405892691,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/service",
-      "accessCount": 1,
-      "lastAccessed": 1775490982926,
-      "type": "directory"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team",
-      "accessCount": 1,
-      "lastAccessed": 1775490982981,
-      "type": "directory"
-    },
-    {
-      "path": "client/src/views/createTeam.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491041802,
+      "path": "client/.env.production",
+      "accessCount": 4,
+      "lastAccessed": 1777406739277,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/entity",
-      "accessCount": 1,
-      "lastAccessed": 1775491054435,
-      "type": "directory"
-    },
-    {
-      "path": "client/src/views/teamLocation.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491104201,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/teamComplete.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491121970,
-      "type": "file"
-    },
-    {
-      "path": "client/src/views/uploadTeamMark.vue",
-      "accessCount": 1,
-      "lastAccessed": 1775491122022,
-      "type": "file"
-    },
-    {
-      "path": "backend/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775759995108,
-      "type": "file"
-    },
-    {
-      "path": "client/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775759995446,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/team/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760013698,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/match/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760046577,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/service/PaymentService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775760297552,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/notification/service/NotificationService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775760298342,
-      "type": "file"
-    },
-    {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/service/TossPaymentService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775760310838,
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/soical/naver/NaverApi.java",
+      "accessCount": 4,
+      "lastAccessed": 1777407132905,
       "type": "file"
     },
     {
       "path": "backend/src/main/java/com/ttwijang/cms/api/user/service/ClientUserService.java",
-      "accessCount": 1,
-      "lastAccessed": 1775760311074,
+      "accessCount": 3,
+      "lastAccessed": 1777404022831,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/user/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760342797,
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/dto/ClientUserDto.java",
+      "accessCount": 3,
+      "lastAccessed": 1777404111456,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/payment/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760353194,
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/CustomAuthenticationProvider.java",
+      "accessCount": 3,
+      "lastAccessed": 1777407132078,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/guest/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760370257,
+      "path": "backend/src/main/java/com/ttwijang/cms/api/login/LoginController.java",
+      "accessCount": 3,
+      "lastAccessed": 1777407138723,
       "type": "file"
     },
     {
-      "path": "backend/src/main/java/com/ttwijang/cms/api/notification/CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1775760383080,
+      "path": "client/src/api/user.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777407438958,
       "type": "file"
     },
     {
-      "path": "admin/package.json",
+      "path": "client/src/permission.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777407715035,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/dto/mapper/ClientUserMapper.java",
+      "accessCount": 2,
+      "lastAccessed": 1777404012334,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/controller/ClientUserController.java",
+      "accessCount": 2,
+      "lastAccessed": 1777404024732,
+      "type": "file"
+    },
+    {
+      "path": "client/src/utils/request.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777404110738,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml",
+      "accessCount": 2,
+      "lastAccessed": 1777404377507,
+      "type": "file"
+    },
+    {
+      "path": "client/src/api/oauth.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777405287532,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/soical/kakao/KakaoUser.java",
+      "accessCount": 2,
+      "lastAccessed": 1777407014265,
+      "type": "file"
+    },
+    {
+      "path": "client/src/router/index.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777407396317,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/User.java",
       "accessCount": 1,
-      "lastAccessed": 1775766176962,
+      "lastAccessed": 1777403775077,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/ResourceServerConfig.java",
+      "accessCount": 1,
+      "lastAccessed": 1777404117790,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/soical/naver/NaverUser.java",
+      "accessCount": 1,
+      "lastAccessed": 1777405458895,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/oauth/SinghaUser.java",
+      "accessCount": 1,
+      "lastAccessed": 1777405459237,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/api/user/repository/UserRepository.java",
+      "accessCount": 1,
+      "lastAccessed": 1777405552404,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/entity/UserRole.java",
+      "accessCount": 1,
+      "lastAccessed": 1777405560356,
+      "type": "file"
+    },
+    {
+      "path": "backend/src/main/java/com/ttwijang/cms/service/SmsService.java",
+      "accessCount": 1,
+      "lastAccessed": 1777407912448,
+      "type": "file"
+    },
+    {
+      "path": "client/src/api/sms.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777407912654,
       "type": "file"
     }
   ],

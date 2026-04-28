@@ -39,6 +39,20 @@ export const register = (data: RegisterData) => request({
   data,
 });
 
+export interface SocialProfileData {
+  actualName: string
+  birth: string
+  gender: number
+  concatNumber: string
+  marketingStatus: boolean
+}
+
+export const completeSocialProfile = (data: SocialProfileData) => request({
+  url: `${PATH}/complete-social-profile`,
+  method: 'post',
+  data,
+});
+
 /**
  * 휴대폰 인증 요청
  */

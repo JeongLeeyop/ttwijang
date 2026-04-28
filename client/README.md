@@ -1,5 +1,8 @@
 # ttwijang
 
+
+brew services start redis    
+
 ## Project setup
 ```
 npm install

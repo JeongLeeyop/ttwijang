@@ -73,9 +73,10 @@ public class LoginController {
 
     @GetMapping(value = "/oauth/naver/login")
     public ResponseEntity naverAccess(
-            @RequestParam("code") String code
+            @RequestParam("code") String code,
+            @RequestParam(value = "redirectUri", required = false) String redirectUri
     ) {
-        return ResponseEntity.ok(naverApi.token(code));
+        return ResponseEntity.ok(naverApi.token(code, redirectUri));
     }
 
     @GetMapping(value = "/oauth/naver/me")

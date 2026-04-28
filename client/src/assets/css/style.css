@@ -2271,9 +2271,13 @@
 }
 
 .league-join-team .join-team-logo {
-  width: 55px;
-  height: 55px;
-  object-fit: contain;
+  /* width: 55px; */
+  /* height: 55px; */
+  /* object-fit: contain; */
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 100%;
 }
 
 .league-join-team .join-team-name {

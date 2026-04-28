@@ -117,8 +117,8 @@ server:
 spring:
   profiles: development
   config:
-    naver-client-id: ItEwz1Wu8XTmdqSiLVao
-    naver-client-secret: _SrigIq9uE
+    naver-client-id: Ia15hzdCVZJ00I_3A4Wo
+    naver-client-secret: Y_hq2Xo78M
   datasource:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -157,8 +157,8 @@ server:
 spring:
   profiles: product
   config:
-    naver-client-id: ItEwz1Wu8XTmdqSiLVao
-    naver-client-secret: _SrigIq9uE
+    naver-client-id: Ia15hzdCVZJ00I_3A4Wo
+    naver-client-secret: Y_hq2Xo78M
   datasource:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
