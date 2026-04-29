@@ -1552,10 +1552,14 @@ export default class TeamPage extends Vue {
   }
 
   private copyInviteLink(): void {
-    const link = `${window.location.origin}/team-recruit-detail/${this.teamUid}`;
+    if (!this.teamInfo.teamCode) {
+      this.$message.error('팀 코드를 찾을 수 없습니다.');
+      return;
+    }
+    const link = `${window.location.origin}/team-recruit-detail/${this.teamUid}?code=${this.teamInfo.teamCode}`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(link).then(() => {
-        this.$message.success('초대 링크가 복사되었습니다.');
+        this.$message.success('초대 링크가 복사되었습니다!');
       }).catch(() => {
         this.fallbackCopyText(link);
       });

@@ -131,6 +131,20 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import { getSidoList, getSigunguList } from '@/api/region';
+
+interface City {
+  label: string
+  value: string
+  code: string
+}
+
+interface District {
+  label: string
+  value: string
+  code: string
+  parentCode: string
+}
 
 @Component
 export default class TeamLocationPage extends Vue {
@@ -142,11 +156,15 @@ export default class TeamLocationPage extends Vue {
 
   private selectedCity = ''
 
+  private selectedCityCode = ''
+
   private selectedDistrict = ''
 
   private searchDialogVisible = false
 
   private searchKeyword = ''
+
+  private isLoadingRegions = false
 
   private stadiums = [
     {
@@ -211,58 +229,11 @@ export default class TeamLocationPage extends Vue {
     },
   ]
 
-  private cities = [
-    { label: '서울', value: 'seoul' },
-    { label: '경기', value: 'gyeonggi' },
-    { label: '인천', value: 'incheon' },
-    { label: '부산', value: 'busan' },
-    { label: '대구', value: 'daegu' },
-    { label: '대전', value: 'daejeon' },
-    { label: '광주', value: 'gwangju' },
-    { label: '울산', value: 'ulsan' },
-    { label: '세종', value: 'sejong' },
-    { label: '경남', value: 'gyeongnam' },
-    { label: '경북', value: 'gyeongbuk' },
-    { label: '전남', value: 'jeonnam' },
-    { label: '전북', value: 'jeonbuk' },
-    { label: '충남', value: 'chungnam' },
-    { label: '충북', value: 'chungbuk' },
-    { label: '강원', value: 'gangwon' },
-    { label: '제주', value: 'jeju' },
-  ]
+  private cities: City[] = []
 
-  private districtsByCity: { [key: string]: Array<{ label: string, value: string }> } = {
-    gyeongnam: [
-      { label: '진주시', value: 'jinju' },
-      { label: '창원시', value: 'changwon' },
-      { label: '김해시', value: 'gimhae' },
-      { label: '양산시', value: 'yangsan' },
-      { label: '거제시', value: 'geoje' },
-      { label: '통영시', value: 'tongyeong' },
-      { label: '사천시', value: 'sacheon' },
-      { label: '밀양시', value: 'miryang' },
-    ],
-    seoul: [
-      { label: '강남구', value: 'gangnam' },
-      { label: '서초구', value: 'seocho' },
-      { label: '송파구', value: 'songpa' },
-      { label: '강동구', value: 'gangdong' },
-      { label: '마포구', value: 'mapo' },
-      { label: '영등포구', value: 'yeongdeungpo' },
-    ],
-    gyeonggi: [
-      { label: '수원시', value: 'suwon' },
-      { label: '성남시', value: 'seongnam' },
-      { label: '고양시', value: 'goyang' },
-      { label: '용인시', value: 'yongin' },
-      { label: '부천시', value: 'bucheon' },
-      { label: '안산시', value: 'ansan' },
-    ],
-  }
+  private districts: District[] = []
 
-  get districts() {
-    return this.selectedCity ? this.districtsByCity[this.selectedCity] || [] : [];
-  }
+  private districtMap: Map<string, District[]> = new Map()
 
   get filteredStadiums() {
     if (!this.searchKeyword) {
@@ -274,6 +245,48 @@ export default class TeamLocationPage extends Vue {
 
   mounted() {
     this.loadTeamData();
+    this.loadCities();
+  }
+
+  private async loadCities(): Promise<void> {
+    try {
+      this.isLoadingRegions = true;
+      const response = await getSidoList();
+      const data = Array.isArray(response) ? response : response.data;
+      this.cities = data.map((item: any) => ({
+        label: item.name,
+        value: item.code,
+        code: item.code,
+      }));
+    } catch (error) {
+      this.$message.error('지역 정보를 불러올 수 없습니다.');
+      console.error('Failed to load cities:', error);
+    } finally {
+      this.isLoadingRegions = false;
+    }
+  }
+
+  private async loadDistricts(cityCode: string): Promise<void> {
+    if (this.districtMap.has(cityCode)) {
+      this.districts = this.districtMap.get(cityCode) || [];
+      return;
+    }
+
+    try {
+      const response = await getSigunguList(cityCode);
+      const data = Array.isArray(response) ? response : response.data;
+      const districts = data.map((item: any) => ({
+        label: item.name,
+        value: item.code,
+        code: item.code,
+        parentCode: item.parentCode,
+      }));
+      this.districtMap.set(cityCode, districts);
+      this.districts = districts;
+    } catch (error) {
+      this.$message.error('지역 정보를 불러올 수 없습니다.');
+      console.error('Failed to load districts:', error);
+    }
   }
 
   private openSearchDialog(): void {
@@ -309,8 +322,14 @@ export default class TeamLocationPage extends Vue {
   }
 
   private onCityChange(): void {
-    // 도시가 변경되면 지역 초기화
     this.selectedDistrict = '';
+    if (this.selectedCity) {
+      const selectedCityObj = this.cities.find((c) => c.value === this.selectedCity);
+      if (selectedCityObj) {
+        this.selectedCityCode = selectedCityObj.code;
+        this.loadDistricts(selectedCityObj.code);
+      }
+    }
   }
 
   private goBack(): void {

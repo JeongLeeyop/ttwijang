@@ -117,12 +117,16 @@
 
       <!-- Apply Button -->
       <div class="apply-bar">
+        <div v-if="isInvitedJoin" class="invited-notice">
+          <i class="el-icon-circle-check"></i>
+          <span>초대 링크를 통한 가입입니다. 승인 없이 바로 가입됩니다.</span>
+        </div>
         <button
           class="apply-button"
           :disabled="isApplying"
           @click="applyToTeam"
         >
-          가입 신청하기
+          {{ isInvitedJoin ? '바로 가입하기' : '가입 신청하기' }}
         </button>
       </div>
     </template>
@@ -135,7 +139,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { Message, MessageBox } from 'element-ui';
-import { getTeamDetail, joinTeam } from '@/api/team';
+import {
+  getTeamDetail,
+  joinTeam,
+  joinTeamByCode,
+  getTeamByCode,
+} from '@/api/team';
 
 @Component
 export default class TeamRecruitDetail extends Vue {
@@ -144,6 +153,10 @@ export default class TeamRecruitDetail extends Vue {
   private isApplying = false
 
   private team: any = null
+
+  private isInvitedJoin = false
+
+  private invitationCode = ''
 
   get featureTags(): string[] {
     if (!this.team?.featureTags) return [];
@@ -207,17 +220,29 @@ export default class TeamRecruitDetail extends Vue {
   }
 
   async created() {
+    this.invitationCode = this.$route.query.code as string;
+    if (this.invitationCode) {
+      this.isInvitedJoin = true;
+    }
     await this.fetchTeamDetail();
   }
 
   private async fetchTeamDetail(): Promise<void> {
     this.isLoading = true;
     try {
-      const uid = this.$route.params.teamUid;
-      const res = await getTeamDetail(uid);
-      this.team = res.data || res;
+      let team;
+      if (this.invitationCode) {
+        const res = await getTeamByCode(this.invitationCode);
+        team = res.data || res;
+      } else {
+        const uid = this.$route.params.teamUid;
+        const res = await getTeamDetail(uid);
+        team = res.data || res;
+      }
+      this.team = team;
     } catch (error) {
       Message.error('팀 정보를 불러오지 못했습니다.');
+      console.error('Failed to load team detail:', error);
     } finally {
       this.isLoading = false;
     }
@@ -228,31 +253,37 @@ export default class TeamRecruitDetail extends Vue {
   }
 
   private async applyToTeam(): Promise<void> {
+    const confirmMsg = this.isInvitedJoin ? '이 팀에 바로 가입하시겠습니까?' : '이 팀에 가입 신청을 하시겠습니까?';
+    const confirmTitle = this.isInvitedJoin ? '가입하기' : '가입 신청';
+    const confirmBtnText = this.isInvitedJoin ? '가입하기' : '신청하기';
+
     try {
-      await MessageBox.confirm(
-        '이 팀에 가입 신청을 하시겠습니까?',
-        '가입 신청',
-        {
-          confirmButtonText: '신청하기',
-          cancelButtonText: '취소',
-          type: 'info',
-        },
-      );
+      await MessageBox.confirm(confirmMsg, confirmTitle, {
+        confirmButtonText: confirmBtnText,
+        cancelButtonText: '취소',
+        type: 'info',
+      });
     } catch (e) {
-      return; // 취소
+      return;
     }
 
     this.isApplying = true;
     try {
-      await joinTeam({
-        teamUid: this.team.uid,
-        message: '회원 모집을 보고 신청합니다.',
-      });
-      Message.success('가입 신청이 완료되었습니다!');
-      this.$router.push(`/team-recruit-detail/${this.team.uid || this.team.teamUid}`);
+      if (this.isInvitedJoin) {
+        await joinTeamByCode(this.invitationCode);
+        Message.success('팀에 가입되었습니다!');
+        this.$router.push('/team-dashboard');
+      } else {
+        await joinTeam({
+          teamUid: this.team.uid,
+          message: '회원 모집을 보고 신청합니다.',
+        });
+        Message.success('가입 신청이 완료되었습니다!');
+        this.$router.push(`/team-recruit-detail/${this.team.uid || this.team.teamUid}`);
+      }
     } catch (error: any) {
       const serverMsg = error?.response?.data?.message;
-      Message.error(serverMsg || '가입 신청에 실패했습니다.');
+      Message.error(serverMsg || (this.isInvitedJoin ? '팀 가입에 실패했습니다.' : '가입 신청에 실패했습니다.'));
     } finally {
       this.isApplying = false;
     }
@@ -476,5 +507,24 @@ export default class TeamRecruitDetail extends Vue {
 .apply-button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.invited-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: #e8f5e9;
+  border: 1px solid #81c784;
+  border-radius: 8px;
+  color: #2e7d32;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.invited-notice i {
+  font-size: 16px;
+  flex-shrink: 0;
 }
 </style>
