@@ -210,4 +210,4 @@ $RECYCLE.BIN/
 # attached-file/**
 # backend/attached-file/**
 
-.omc
+**/.omc
