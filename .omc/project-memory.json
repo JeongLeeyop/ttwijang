@@ -245,6 +245,12 @@
       "type": "file"
     },
     {
+      "path": "client/src/Layout/components/mainHeader.vue",
+      "accessCount": 3,
+      "lastAccessed": 1777422567802,
+      "type": "file"
+    },
+    {
       "path": "backend/src/main/java/com/ttwijang/cms/api/user/dto/mapper/ClientUserMapper.java",
       "accessCount": 2,
       "lastAccessed": 1777404012334,
@@ -296,6 +302,12 @@
       "path": "backend/src/main/java/com/ttwijang/cms/api/league/repository/LeagueTeamRepository.java",
       "accessCount": 2,
       "lastAccessed": 1777412829565,
+      "type": "file"
+    },
+    {
+      "path": "client/src/assets/css/style.css",
+      "accessCount": 2,
+      "lastAccessed": 1777422270733,
       "type": "file"
     },
     {

@@ -63,11 +63,9 @@
   padding: 20px;
 }
 
-.el-popover.el-popper.alarm { 
+.el-popover.el-popper.alarm {
   margin-top: 12px;
   border-radius: 20px;
-  /* top: 64px !important; */
-  left: 13px !important;
   max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -85,15 +83,14 @@
   content: '';
   position: absolute;
   bottom: 100%;
-  right: 11.8%;
-  transform: translateX(-50%);
+  right: 12px;
   border-style: solid;
   border-color: transparent transparent #fff transparent;
   border-width: 10px;
 }
 
-.alarm .empty { 
-  padding: 80px 100px 70px; display: flex; justify-content: center;
+.alarm .empty {
+  padding: 60px 20px 50px; display: flex; justify-content: center;
   flex-direction: column;text-align: center; gap:40px;
 }
 .alarm .empty .logo {}

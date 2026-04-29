@@ -25,6 +25,8 @@
       <div class="header-right">
         <i class="el-icon-date" @click="goToCalendar"></i>
         <el-popover v-model="showPopover" width="450" trigger="click" popper-class="alarm"
+          placement="bottom-end"
+          :append-to-body="false"
           :title="alarmList.length > 0 ? '띵동! 알림이 도착했어요 🎶' : ''"
           @show="onPopoverShow">
           <div @click="showPopover = false" class="alarm-close">

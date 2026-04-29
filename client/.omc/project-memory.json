@@ -207,6 +207,12 @@
       "type": "file"
     },
     {
+      "path": "src/assets/css/style.css",
+      "accessCount": 11,
+      "lastAccessed": 1777422049455,
+      "type": "directory"
+    },
+    {
       "path": "src/views/matchDetail.vue",
       "accessCount": 10,
       "lastAccessed": 1776099592641,
@@ -231,16 +237,16 @@
       "type": "file"
     },
     {
-      "path": "src/assets/css/style.css",
-      "accessCount": 8,
-      "lastAccessed": 1776893926912,
-      "type": "directory"
-    },
-    {
       "path": "src/store/modules/user.ts",
       "accessCount": 7,
       "lastAccessed": 1777418087973,
       "type": "directory"
+    },
+    {
+      "path": "src/Layout/components/mainHeader.vue",
+      "accessCount": 7,
+      "lastAccessed": 1777422926248,
+      "type": "file"
     },
     {
       "path": "src/views/register.vue",
@@ -438,12 +444,6 @@
       "path": "src/views/leagueDetail.vue",
       "accessCount": 1,
       "lastAccessed": 1776100044169,
-      "type": "file"
-    },
-    {
-      "path": "src/Layout/components/mainHeader.vue",
-      "accessCount": 1,
-      "lastAccessed": 1776901885186,
       "type": "file"
     },
     {

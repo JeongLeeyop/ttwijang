@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"find /Users/devyop/git/ttwijang/client/src -type f | xargs grep -l -i \\\"sms\\\\|verification\\\" 2>/dev/null\",\"description\":\"Find SMS/verification related client files\"}",
-  "error": "Exit code 1\n/Users/devyop/git/ttwijang/client/src/api/sms.ts\n/Users/devyop/git/ttwijang/client/src/api/user.ts\n/Users/devyop/git/ttwijang/client/src/views/findPassword.vue\n/Users/devyop/git/ttwijang/client/src/views/findId.vue\n/Users/devyop/git/ttwijang/client/src/views/profileEdit.vue\n/Users/devyop/git/ttwijang/client/src/views/register.vue\n/Users/devyop/git/ttwijang/client/src/assets/images/home-ca7.jpg\n/Users/devyop/git/ttwijang/client/src/assets/images/home-ca2.jpg\n/Users/devyop/git/ttwijang...",
-  "timestamp": "2026-04-28T20:25:07.880Z",
-  "retry_count": 1
-}
