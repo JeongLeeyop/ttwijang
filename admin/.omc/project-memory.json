@@ -359,6 +359,12 @@
       "accessCount": 1,
       "lastAccessed": 1775951894906,
       "type": "file"
+    },
+    {
+      "path": "src/views/user/index.vue",
+      "accessCount": 1,
+      "lastAccessed": 1777450993294,
+      "type": "file"
     }
   ],
   "userDirectives": []
