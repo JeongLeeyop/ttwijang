@@ -294,9 +294,9 @@ export default class extends Vue {
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 .dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
-  border-color: #e3e7ee;
+  /* transform: translateY(-2px); */
+  /* box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06); */
+  /* border-color: #e3e7ee; */
 }
 .card-inner {
   display: flex;

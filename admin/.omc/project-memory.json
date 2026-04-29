@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775878684670,
+  "lastScanned": 1777451073509,
   "projectRoot": "/Users/devyop/git/ttwijang/admin",
   "techStack": {
     "languages": [
@@ -72,7 +72,7 @@
       "path": "dist",
       "purpose": "Distribution/build output",
       "fileCount": 3,
-      "lastAccessed": 1775878684655,
+      "lastAccessed": 1777451073499,
       "keyFiles": [
         "favicon-chat.svg",
         "favicon.ico",
@@ -82,11 +82,12 @@
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 3,
-      "lastAccessed": 1775878684656,
+      "fileCount": 4,
+      "lastAccessed": 1777451073499,
       "keyFiles": [
         "favicon-chat.svg",
         "favicon.ico",
+        "favicon.svg",
         "index.html"
       ]
     },
@@ -94,7 +95,7 @@
       "path": "server",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775878684659,
+      "lastAccessed": 1777451073501,
       "keyFiles": [
         "index.js"
       ]
@@ -103,7 +104,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 5,
-      "lastAccessed": 1775878684659,
+      "lastAccessed": 1777451073501,
       "keyFiles": [
         "App.vue",
         "main.ts",
@@ -115,8 +116,8 @@
     "src/api": {
       "path": "src/api",
       "purpose": "API routes",
-      "fileCount": 10,
-      "lastAccessed": 1775878684659,
+      "fileCount": 15,
+      "lastAccessed": 1777451073501,
       "keyFiles": [
         "attached-file.ts",
         "bank.ts",
@@ -127,7 +128,7 @@
       "path": "src/assets",
       "purpose": "Static assets",
       "fileCount": 1,
-      "lastAccessed": 1775878684659,
+      "lastAccessed": 1777451073502,
       "keyFiles": [
         "logo.png"
       ]
@@ -136,7 +137,7 @@
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 2,
-      "lastAccessed": 1775878684660,
+      "lastAccessed": 1777451073502,
       "keyFiles": [
         "HelloI18n.vue",
         "HelloWorld.vue"

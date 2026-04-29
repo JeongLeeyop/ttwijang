@@ -31,8 +31,9 @@
             type="text"
             placeholder="팀 코드를 입력하세요."
             class="form-input"
+            @input="filterTeamCode"
           >
-          <p class="form-hint">팀 코드는 팀 페이지 URL 주소로 사용됩니다.</p>
+          <p class="form-hint">팀 코드는 팀 페이지 URL 주소로 사용됩니다. (영문, 숫자만 가능)</p>
         </div>
 
         <!-- Sponsor Account - Bank Name -->
@@ -100,6 +101,10 @@ export default class CreateTeam extends Vue {
 
   private goBack(): void {
     this.$router.go(-1);
+  }
+
+  private filterTeamCode(): void {
+    this.teamCode = this.teamCode.replace(/[^a-zA-Z0-9]/g, '');
   }
 
   private async submitForm(): Promise<void> {

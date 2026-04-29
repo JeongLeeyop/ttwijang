@@ -92,6 +92,9 @@ public class CashDto {
         @Schema(description = "지갑 UID")
         private String walletUid;
 
+        @Schema(description = "사용자 UID")
+        private String userUid;
+
         @Schema(description = "거래 유형")
         private CashTransaction.TransactionType transactionType;
 
@@ -106,6 +109,29 @@ public class CashDto {
 
         @Schema(description = "거래 일시")
         private LocalDateTime createdDate;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "관리자 포인트 조정 요청")
+    public static class AdminAdjustRequest {
+        @NotNull(message = "대상 사용자 UID는 필수입니다")
+        @Schema(description = "대상 사용자 UID", required = true)
+        private String userUid;
+
+        @NotNull(message = "금액은 필수입니다")
+        @Min(value = 1, message = "최소 금액은 1원입니다")
+        @Schema(description = "금액", required = true, minimum = "1")
+        private Integer amount;
+
+        @NotNull(message = "유형은 필수입니다")
+        @Schema(description = "EARN(지급) 또는 USE(차감)", required = true)
+        private CashTransaction.TransactionType type;
+
+        @Schema(description = "조정 사유")
+        private String description;
     }
 
     @Data

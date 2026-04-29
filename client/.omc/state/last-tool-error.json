@@ -1,7 +1,7 @@
 {
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/devyop/git/ttwijang/client/src/views/teamPage.vue\"}",
-  "error": "File content (32821 tokens) exceeds maximum allowed tokens (25000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-22T21:37:33.865Z",
-  "retry_count": 1
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"mysql -h 1.234.10.116 -u ttwijang -p'dhkfh2026!@#' ttwijang --ssl-mode=DISABLED -e \\\"UPDATE user SET user_password = '\\\\$2y\\\\$10\\\\$wXS./TSecSJBPTlJ6qT0fOeewOHnpGNM0t04CP4IQMPpSZIPMjkRy' WH...",
+  "error": "Exit code 7\nmysql: unknown variable 'ssl-mode=DISABLED'",
+  "timestamp": "2026-04-29T08:07:10.882Z",
+  "retry_count": 5
 }

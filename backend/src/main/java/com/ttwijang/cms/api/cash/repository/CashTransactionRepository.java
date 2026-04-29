@@ -32,4 +32,6 @@ public interface CashTransactionRepository extends JpaRepository<CashTransaction
 
     List<CashTransaction> findByReferenceUidAndReferenceTypeAndType(
             String referenceUid, String referenceType, CashTransaction.TransactionType type);
+
+    Page<CashTransaction> findByUserUid(String userUid, Pageable pageable);
 }

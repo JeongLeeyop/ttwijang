@@ -97,6 +97,12 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import('@/views/user/index.vue'),
         meta: { title: '유저 관리', roles: ['ROLE_ADMIN'] },
       },
+      {
+        path: ':userUid/point-history',
+        name: 'UserPointHistory',
+        component: () => import('@/views/user/pointHistory.vue'),
+        meta: { title: '포인트 내역', roles: ['ROLE_ADMIN'], hidden: true },
+      },
     ],
   },
 

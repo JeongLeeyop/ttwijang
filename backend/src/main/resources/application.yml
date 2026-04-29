@@ -13,8 +13,8 @@ server:
 
 spring:
   profiles:
-    active: development
-    # active: product
+    # active: development
+    active: product
   application:
     name: ttwijang
 #용량
@@ -123,29 +123,15 @@ spring:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
       jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-      # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
-      # jdbc-url: jdbc:mysql://http://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: ttwijang1!
       connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
     oauth:
       driver-class-name: com.mysql.cj.jdbc.Driver
       jdbc-url: jdbc:mysql://localhost:3306/ttwijang
-      # jdbc-url: jdbc:mysql://192.168.0.9:3306/ttwijang?characterEncoding=UTF-8
-      # jdbc-url: jdbc:mysql://http://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: ttwijang1!
       connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-    # resource:
-    #   driver-class-name: com.mysql.cj.jdbc.Driver
-    #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    #   username: ttwijang
-    #   password: gamepark
-    # oauth:
-    #   driver-class-name: com.mysql.cj.jdbc.Driver
-    #   jdbc-url: jdbc:mysql://110.10.147.145:3306/ttwijang_oauth?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    #   username: ttwijang
-    #   password: gamepark
 
 #첨부파일 경로
 attached-file:
@@ -162,12 +148,14 @@ spring:
   datasource:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      # jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: dhkfh2026!@#
     oauth:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      # jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: dhkfh2026!@#
   

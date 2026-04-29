@@ -13,10 +13,12 @@ import com.ttwijang.cms.api.cash.dto.CashDto;
 import com.ttwijang.cms.api.cash.repository.CashTransactionRepository;
 import com.ttwijang.cms.api.cash.repository.CashWalletRepository;
 import com.ttwijang.cms.api.cash.repository.TeamSponsorshipRepository;
+import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.sponsor.repository.SponsorSettingRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.CashWallet;
+import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.SponsorSetting;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamSponsorship;
@@ -32,6 +34,7 @@ public class CashService {
     private final TeamSponsorshipRepository sponsorshipRepository;
     private final TeamRepository teamRepository;
     private final SponsorSettingRepository sponsorSettingRepository;
+    private final NotificationService notificationService;
 
     private static final String DEFAULT_SETTING_UID = "default";
 
@@ -327,6 +330,71 @@ public class CashService {
                 .build();
     }
 
+    /**
+     * 관리자 포인트 지급/차감
+     */
+    @Transactional
+    public CashDto.TransactionResponse adminAdjust(CashDto.AdminAdjustRequest request) {
+        CashWallet wallet = walletRepository.findByUserUid(request.getUserUid())
+                .orElseGet(() -> walletRepository.save(CashWallet.builder()
+                        .userUid(request.getUserUid())
+                        .balance(0).totalCharged(0).totalUsed(0).build()));
+
+        String desc = request.getDescription() != null ? request.getDescription() : "";
+        int newBalance;
+        CashTransaction.TransactionType type;
+
+        if (request.getType() == CashTransaction.TransactionType.EARN) {
+            newBalance = wallet.getBalance() + request.getAmount();
+            wallet.setBalance(newBalance);
+            type = CashTransaction.TransactionType.EARN;
+            notificationService.createNotification(
+                    request.getUserUid(), Notification.NotificationType.SYSTEM,
+                    "포인트 지급",
+                    request.getAmount() + "원이 지급되었습니다." + (desc.isEmpty() ? "" : " (" + desc + ")"),
+                    null, "ADMIN", "/cash-history");
+        } else if (request.getType() == CashTransaction.TransactionType.USE) {
+            if (wallet.getBalance() < request.getAmount()) {
+                throw new IllegalArgumentException("잔액 부족. 현재 잔액: " + wallet.getBalance() + "원");
+            }
+            newBalance = wallet.getBalance() - request.getAmount();
+            wallet.setBalance(newBalance);
+            wallet.setTotalUsed(wallet.getTotalUsed() + request.getAmount());
+            type = CashTransaction.TransactionType.USE;
+            notificationService.createNotification(
+                    request.getUserUid(), Notification.NotificationType.SYSTEM,
+                    "포인트 차감",
+                    request.getAmount() + "원이 차감되었습니다." + (desc.isEmpty() ? "" : " (" + desc + ")"),
+                    null, "ADMIN", "/cash-history");
+        } else {
+            throw new IllegalArgumentException("지급(EARN) 또는 차감(USE)만 가능합니다.");
+        }
+
+        walletRepository.save(wallet);
+
+        String defaultDesc = type == CashTransaction.TransactionType.EARN ? "관리자 포인트 지급" : "관리자 포인트 차감";
+        CashTransaction transaction = CashTransaction.builder()
+                .walletUid(wallet.getUid())
+                .userUid(request.getUserUid())
+                .type(type)
+                .amount(request.getAmount())
+                .balanceAfter(newBalance)
+                .description(desc.isEmpty() ? defaultDesc : desc)
+                .referenceType("ADMIN")
+                .status(CashTransaction.TransactionStatus.COMPLETED)
+                .build();
+        return toTransactionResponse(transactionRepository.save(transaction));
+    }
+
+    /**
+     * 관리자용 유저별 거래 내역 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<CashDto.TransactionResponse> getTransactionsByUserUid(String userUid, Pageable pageable) {
+        return transactionRepository.findByUserUid(userUid, pageable)
+                .map(this::toTransactionResponse);
+    }
+
     private CashDto.WalletResponse toWalletResponse(CashWallet wallet) {
         return CashDto.WalletResponse.builder()
                 .uid(wallet.getUid())
@@ -342,6 +410,7 @@ public class CashService {
         return CashDto.TransactionResponse.builder()
                 .uid(transaction.getUid())
                 .walletUid(transaction.getWalletUid())
+                .userUid(transaction.getUserUid())
                 .transactionType(transaction.getType())
                 .amount(transaction.getAmount())
                 .balanceAfter(transaction.getBalanceAfter())
