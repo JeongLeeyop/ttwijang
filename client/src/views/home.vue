@@ -177,6 +177,9 @@
 
         <!-- Upcoming Match Cards -->
         <div v-if="!showLeagueStatus" class="match-cards">
+          <div v-if="upcomingMatches.length === 0" class="league-empty-message">
+            예정된 경기 일정이 없습니다.
+          </div>
           <div
             v-for="(match, index) in upcomingMatches"
             :key="index"
@@ -487,7 +490,7 @@ export default class extends Vue {
       if (standingsResponse.data && standingsResponse.data.standings) {
         this.leagueTable = standingsResponse.data.standings.map((team: any) => ({
           name: team.teamName,
-          logo: this.getTeamLogo(team.teamName),
+          logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
           played: team.played,
           wins: team.wins,
           draws: team.draws,
@@ -548,14 +551,20 @@ export default class extends Vue {
       location: match.stadiumName || '',
       homeTeam: match.homeTeamName || '',
       awayTeam: match.awayTeamName || '',
-      homeLogo: this.getTeamLogo(match.homeTeamName),
-      awayLogo: this.getTeamLogo(match.awayTeamName),
+      homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+      awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
     };
     if (includeScore) {
       matchObj.homeScore = match.homeScore ?? 0;
       matchObj.awayScore = match.awayScore ?? 0;
     }
     return matchObj;
+  }
+
+  private resolveLogoUrl(raw: string | null | undefined, name: string): string {
+    if (!raw) return this.getTeamLogo(name || '');
+    if (raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `/api/attached-file/${raw}`;
   }
 
   private formatDate(dateStr: string): string {
@@ -832,6 +841,16 @@ export default class extends Vue {
   padding: 40px;
   color: #999;
   font-size: 14px;
+}
+
+.league-empty-message {
+  text-align: center;
+  padding: 30px 16px;
+  color: #888;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  margin: 8px 0;
 }
 
 /* Recruiting Teams Section */

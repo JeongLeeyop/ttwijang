@@ -4,7 +4,6 @@
       <div class="league-title-row">
         <el-select
           v-model="selectedLeague"
-          :popper-append-to-body="false"
           placeholder="리그 선택"
           size="small"
           class="league-select"
@@ -142,6 +141,15 @@ export default class LeagueScheduleView extends Vue {
     }
   }
 
+  private resolveLogoUrl(raw: string | null | undefined, name: string): string {
+    if (!raw) {
+      const initials = (name || '??').substring(0, 2);
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random&color=fff&size=40`;
+    }
+    if (raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `/api/attached-file/${raw}`;
+  }
+
   private async loadScheduleData(): Promise<void> {
     if (!this.selectedLeague) return;
 
@@ -167,8 +175,8 @@ export default class LeagueScheduleView extends Vue {
             location: match.stadiumName,
             homeTeam: match.homeTeamName,
             awayTeam: match.awayTeamName,
-            homeLogo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.homeTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
-            awayLogo: match.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.awayTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
+            homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+            awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
           };
         });
     } catch (error) {

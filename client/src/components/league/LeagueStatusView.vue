@@ -5,7 +5,6 @@
     <div class="league-filter-row">
       <el-select
         v-model="selectedLeagueUid"
-        :popper-append-to-body="false"
         placeholder="리그 선택"
         size="small"
         class="league-filter-select"
@@ -209,6 +208,15 @@ export default class LeagueStatusView extends Vue {
     }
   }
 
+  private resolveLogoUrl(raw: string | null | undefined, name: string): string {
+    if (!raw) {
+      const initials = (name || '??').substring(0, 2);
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random&color=fff&size=40`;
+    }
+    if (raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `/api/attached-file/${raw}`;
+  }
+
   private async loadStandingsData(): Promise<void> {
     try {
       const standingsResponse = await getLeagueStandings(this.currentLeagueUid);
@@ -217,7 +225,7 @@ export default class LeagueStatusView extends Vue {
       this.leagueTable = standings.map((team: any) => ({
         teamCode: team.teamCode,
         name: team.teamName,
-        logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
+        logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
         played: team.played,
         wins: team.wins,
         draws: team.draws,
@@ -254,8 +262,8 @@ export default class LeagueStatusView extends Vue {
             location: match.stadiumName,
             homeTeam: match.homeTeamName,
             awayTeam: match.awayTeamName,
-            homeLogo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.homeTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
-            awayLogo: match.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.awayTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
+            homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+            awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
             homeScore: match.homeScore,
             awayScore: match.awayScore,
           };

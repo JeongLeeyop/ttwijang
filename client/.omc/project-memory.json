@@ -201,16 +201,16 @@
       "type": "file"
     },
     {
+      "path": "src/views/league.vue",
+      "accessCount": 11,
+      "lastAccessed": 1777421150757,
+      "type": "file"
+    },
+    {
       "path": "src/views/matchDetail.vue",
       "accessCount": 10,
       "lastAccessed": 1776099592641,
       "type": "directory"
-    },
-    {
-      "path": "src/views/league.vue",
-      "accessCount": 10,
-      "lastAccessed": 1776100005811,
-      "type": "file"
     },
     {
       "path": "src/views/teamDashboard.vue",
@@ -255,6 +255,18 @@
       "type": "directory"
     },
     {
+      "path": "src/views/home.vue",
+      "accessCount": 6,
+      "lastAccessed": 1777420314174,
+      "type": "file"
+    },
+    {
+      "path": "src/components/league/LeagueScheduleView.vue",
+      "accessCount": 6,
+      "lastAccessed": 1777421245722,
+      "type": "file"
+    },
+    {
       "path": "src/views/faq.vue",
       "accessCount": 5,
       "lastAccessed": 1775954448708,
@@ -276,6 +288,12 @@
       "path": "src/store/modules/league.ts",
       "accessCount": 5,
       "lastAccessed": 1777417472688,
+      "type": "file"
+    },
+    {
+      "path": "src/components/league/LeagueStatusView.vue",
+      "accessCount": 5,
+      "lastAccessed": 1777421214078,
       "type": "file"
     },
     {
