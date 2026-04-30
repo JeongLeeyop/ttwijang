@@ -35,6 +35,7 @@
             placeholder="팀 이름 검색"
             :remote-method="searchTeams"
             :loading="teamSearchLoading"
+            :popper-append-to-body="false"
             class="full-width"
             @change="onTeamChange"
           >
@@ -161,11 +162,25 @@ export default class SponsorApply extends Vue {
   }
 
   private async searchTeams(keyword: string): Promise<void> {
-    if (!keyword) return;
+    if (!keyword || keyword.trim() === '') {
+      this.teamOptions = [];
+      return;
+    }
     this.teamSearchLoading = true;
     try {
       const res = await searchTeams(keyword);
-      this.teamOptions = res.data?.content || res.data || [];
+      const data = res.data;
+      // 응답이 배열이면 직접 사용, 객체이면 content 필드 추출
+      if (Array.isArray(data)) {
+        this.teamOptions = data;
+      } else if (data && Array.isArray(data.content)) {
+        this.teamOptions = data.content;
+      } else {
+        this.teamOptions = [];
+      }
+    } catch (error) {
+      console.error('팀 검색 실패:', error);
+      this.teamOptions = [];
     } finally {
       this.teamSearchLoading = false;
     }

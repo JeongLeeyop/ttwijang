@@ -182,6 +182,12 @@
       "type": "file"
     },
     {
+      "path": "src/views/user/index.vue",
+      "accessCount": 6,
+      "lastAccessed": 1777507154396,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 5,
       "lastAccessed": 1775899757687,
@@ -362,9 +368,9 @@
       "type": "file"
     },
     {
-      "path": "src/views/user/index.vue",
+      "path": "src/api/user.ts",
       "accessCount": 1,
-      "lastAccessed": 1777450993294,
+      "lastAccessed": 1777505878318,
       "type": "file"
     }
   ],

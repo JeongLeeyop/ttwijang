@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ttwijang.cms.api.post.repository.PostRepository;
+import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.user.dto.UserDto;
 import com.ttwijang.cms.api.user.dto.mapper.UserMapper;
 import com.ttwijang.cms.api.user.dto.search.UserSearch;
@@ -38,6 +40,7 @@ import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.api.user.repository.UserRoleRepository;
 import com.ttwijang.cms.common.exception.NotFoundException;
 import com.ttwijang.cms.common.exception.code.NotFound;
+import com.ttwijang.cms.entity.TeamMember;
 import com.ttwijang.cms.entity.User;
 import com.ttwijang.cms.entity.UserRole;
 
@@ -70,11 +73,28 @@ class UserServiceImpl implements UserService {
 	private final PostRepository postRepository;
 	private final TokenStore tokenStore;
 	private final UserFcmTokenRepository userFcmTokenRepository;
+	private final TeamMemberRepository teamMemberRepository;
 
 	@Override
 	public Page<UserDto.Page> list(UserSearch userSearch, Pageable pageable) {
 		Page<UserDto.Page> userList = userRepository.findAll(userSearch.search(), pageable)
 				.map(data -> UserMapper.INSTANCE.entityToPageDto(data));
+
+		// 팀 정보 일괄 조회 (N+1 방지)
+		List<String> userUids = userList.getContent().stream()
+				.map(UserDto.Page::getUid).collect(Collectors.toList());
+		if (!userUids.isEmpty()) {
+			Map<String, TeamMember> membershipMap = new HashMap<>();
+			teamMemberRepository.findApprovedMembershipsByUserUids(userUids)
+					.forEach(tm -> membershipMap.put(tm.getUserUid(), tm));
+			userList.getContent().forEach(dto -> {
+				TeamMember tm = membershipMap.get(dto.getUid());
+				if (tm != null) {
+					dto.setTeamName(tm.getTeam().getName());
+					dto.setTeamOwner(tm.getRole() == TeamMember.MemberRole.OWNER);
+				}
+			});
+		}
 		return userList;
 	}
 

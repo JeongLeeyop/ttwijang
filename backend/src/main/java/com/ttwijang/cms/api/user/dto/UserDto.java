@@ -80,6 +80,8 @@ public class UserDto {
         private String provider;
         private List<String> roles = new ArrayList<String>();
         private LocalDateTime createDate;
+        private String teamName;
+        private boolean teamOwner;
 
         public void setRoles(List<UserRole> userRoles) {
             this.roles = new ArrayList<String>();

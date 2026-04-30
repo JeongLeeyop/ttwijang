@@ -69,6 +69,12 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
     List<Team> findByRegionSidoAndStatusNotOrderByCreatedDateDesc(String regionSido, Team.TeamStatus status);
 
     /**
+     * 팀 이름으로 검색
+     */
+    @Query("SELECT t FROM Team t WHERE t.status = 'ACTIVE' AND t.name LIKE CONCAT('%', :keyword, '%') ORDER BY t.name ASC")
+    List<Team> searchByName(@Param("keyword") String keyword);
+
+    /**
      * 회원 모집 중인 팀 목록 조회 (다중 필터)
      * native query 사용: JPQL의 function('BIT_AND',...) 은 MySQL 집계 함수로 매핑되므로
      * MySQL 비트 AND 연산자(&)를 직접 사용하기 위해 nativeQuery = true 처리

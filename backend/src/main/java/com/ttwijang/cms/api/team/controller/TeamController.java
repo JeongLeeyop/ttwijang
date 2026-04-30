@@ -147,6 +147,13 @@ public class TeamController {
         return ResponseEntity.ok(teamService.checkMembershipStatus(userDetails.getUser().getUid()));
     }
 
+    @Operation(summary = "팀 검색 (이름으로 검색)")
+    @GetMapping("/search")
+    public ResponseEntity<List<TeamDto.ListResponse>> searchTeams(
+            @RequestParam(required = true) String keyword) {
+        return ResponseEntity.ok(teamService.searchTeams(keyword));
+    }
+
     @Operation(summary = "내 소속 팀 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/my")
     public ResponseEntity<TeamDto.DetailResponse> getMyTeam(

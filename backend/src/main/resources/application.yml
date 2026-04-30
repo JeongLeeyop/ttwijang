@@ -162,6 +162,7 @@ spring:
 #첨부파일 경로
 attached-file:
   upload-directory: /home/ttwijang/attached-file
+  # upload-directory: ./attached-file
 
 
 # logging:

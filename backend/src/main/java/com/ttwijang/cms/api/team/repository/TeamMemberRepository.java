@@ -55,4 +55,10 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
      */
     @Query("SELECT tm FROM TeamMember tm JOIN FETCH tm.team WHERE tm.userUid = :userUid AND tm.status = 'PENDING'")
     Optional<TeamMember> findPendingMembershipByUserUid(@Param("userUid") String userUid);
+
+    /**
+     * 여러 사용자의 승인된 팀 멤버십 일괄 조회 (N+1 방지용)
+     */
+    @Query("SELECT tm FROM TeamMember tm JOIN FETCH tm.team WHERE tm.userUid IN :userUids AND tm.status = 'APPROVED'")
+    List<TeamMember> findApprovedMembershipsByUserUids(@Param("userUids") List<String> userUids);
 }

@@ -791,4 +791,16 @@ public class TeamService {
                 .mannerScore(team.getMannerScore() != null ? team.getMannerScore() : 0.0)
                 .build();
     }
+
+    /**
+     * 팀 이름으로 검색
+     */
+    @Transactional(readOnly = true)
+    public List<TeamDto.ListResponse> searchTeams(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        List<Team> teams = teamRepository.searchByName(keyword.trim());
+        return teams.stream().map(this::toListResponse).collect(Collectors.toList());
+    }
 }

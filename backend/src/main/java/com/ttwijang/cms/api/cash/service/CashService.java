@@ -251,6 +251,7 @@ public class CashService {
         TeamSponsorship sponsorship = TeamSponsorship.builder()
                 .teamUid(request.getTeamUid())
                 .sponsorUid(sponsorUid)
+                .sponsorUserUid(sponsorUid)
                 .type(actualType)
                 .amount(request.getAmount())
                 .totalAmount(request.getAmount())

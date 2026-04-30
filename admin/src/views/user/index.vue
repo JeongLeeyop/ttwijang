@@ -55,6 +55,13 @@
             {{ scope.row.createDate | parseDate }}
           </template>
         </el-table-column>
+        <el-table-column label="소속팀" width="160">
+          <template slot-scope="scope">
+            <span v-if="scope.row.teamName">{{ scope.row.teamName }}</span>
+            <el-tag v-if="scope.row.teamOwner" type="warning" size="mini" effect="dark" style="margin-left:4px">운영자</el-tag>
+            <span v-if="!scope.row.teamName">-</span>
+          </template>
+        </el-table-column>
         <el-table-column label="보유 포인트" width="120" align="right">
           <template slot-scope="scope">
             <span v-if="balanceLoading" class="balance-loading"><i class="el-icon-loading" /></span>
@@ -106,7 +113,6 @@
         <el-descriptions-item label="연락처">{{ selectedUser.concatNumber }}</el-descriptions-item>
         <el-descriptions-item label="가입방식">{{ selectedUser.provider || '이메일' }}</el-descriptions-item>
         <el-descriptions-item label="상태">{{ selectedUser.enabled ? '활성' : '비활성' }}</el-descriptions-item>
-        <el-descriptions-item label="매너점수">{{ selectedUser.mannerScore }}</el-descriptions-item>
       </el-descriptions>
     </el-dialog>
 
