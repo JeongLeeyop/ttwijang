@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"mysql -h 1.234.10.116 -u ttwijang -p'dhkfh2026!@#' ttwijang --ssl-mode=DISABLED -e \\\"UPDATE user SET user_password = '\\\\$2y\\\\$10\\\\$wXS./TSecSJBPTlJ6qT0fOeewOHnpGNM0t04CP4IQMPpSZIPMjkRy' WH...",
-  "error": "Exit code 7\nmysql: unknown variable 'ssl-mode=DISABLED'",
-  "timestamp": "2026-04-29T08:07:10.882Z",
-  "retry_count": 5
-}
