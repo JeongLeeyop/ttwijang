@@ -20,6 +20,8 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     Optional<Team> findByTeamCode(String teamCode);
 
+    Optional<Team> findByInviteCode(String inviteCode);
+
     boolean existsByTeamCode(String teamCode);
 
     Page<Team> findByStatus(Team.TeamStatus status, Pageable pageable);

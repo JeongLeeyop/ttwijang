@@ -61,6 +61,7 @@ public class TeamService {
         Team team = Team.builder()
                 .name(request.getName())
                 .teamCode(request.getTeamCode())
+                .inviteCode(java.util.UUID.randomUUID().toString().replace("-", ""))
                 .logoFileUid(request.getLogoFileUid())
                 .description(request.getDescription())
                 .bankName(request.getBankName())
@@ -115,6 +116,50 @@ public class TeamService {
         Team team = teamRepository.findByTeamCode(teamCode)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
         return toDetailResponse(team);
+    }
+
+    /**
+     * 초대 코드로 팀 조회
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.DetailResponse getTeamByInviteCode(String inviteCode) {
+        Team team = teamRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 초대 코드입니다."));
+        return toDetailResponse(team);
+    }
+
+    /**
+     * 초대 코드로 즉시 팀 가입
+     */
+    @Transactional
+    public TeamMemberDto.Response joinTeamByInviteCode(String inviteCode, String userUid) {
+        if (teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.APPROVED)) {
+            throw new IllegalArgumentException("이미 소속된 팀이 있습니다. 계정 하나당 하나의 팀에만 가입할 수 있습니다.");
+        }
+
+        if (teamMemberRepository.existsActiveOrPendingMembershipByUserUid(userUid)) {
+            throw new IllegalArgumentException("이미 다른 팀에 가입 신청 중입니다. 기존 신청을 취소 후 다시 시도해주세요.");
+        }
+
+        Team team = teamRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 초대 코드입니다."));
+
+        if (teamMemberRepository.existsByTeamUidAndUserUid(team.getUid(), userUid)) {
+            throw new IllegalArgumentException("이미 팀원입니다.");
+        }
+
+        TeamMember member = TeamMember.builder()
+                .teamUid(team.getUid())
+                .userUid(userUid)
+                .role(TeamMember.MemberRole.MEMBER)
+                .status(TeamMember.MemberStatus.APPROVED)
+                .build();
+
+        member = teamMemberRepository.save(member);
+        team.setMemberCount(team.getMemberCount() + 1);
+        teamRepository.save(team);
+
+        return toMemberResponse(member);
     }
 
     /**
@@ -625,6 +670,7 @@ public class TeamService {
                 .uid(team.getUid())
                 .name(team.getName())
                 .teamCode(team.getTeamCode())
+                .inviteCode(team.getInviteCode())
                 .logoUrl(logoUrl)
                 .description(team.getDescription())
                 .bankName(team.getBankName())

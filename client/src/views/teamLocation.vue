@@ -47,7 +47,7 @@
             <el-select
               :popper-append-to-body="false"
               v-model="selectedCity"
-              placeholder="경남"
+              placeholder="도시를 선택하세요"
               class="location-select"
               @change="onCityChange"
             >
@@ -66,7 +66,7 @@
             <el-select
               :popper-append-to-body="false"
               v-model="selectedDistrict"
-              placeholder="진주시"
+              placeholder="지역을 선택하세요"
               class="location-select"
               :disabled="!selectedCity"
             >

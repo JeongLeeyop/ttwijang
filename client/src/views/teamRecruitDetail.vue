@@ -144,6 +144,8 @@ import {
   joinTeam,
   joinTeamByCode,
   getTeamByCode,
+  joinTeamByInviteCode,
+  getTeamByInviteCode,
 } from '@/api/team';
 
 @Component
@@ -232,7 +234,7 @@ export default class TeamRecruitDetail extends Vue {
     try {
       let team;
       if (this.invitationCode) {
-        const res = await getTeamByCode(this.invitationCode);
+        const res = await getTeamByInviteCode(this.invitationCode);
         team = res.data || res;
       } else {
         const uid = this.$route.params.teamUid;
@@ -270,7 +272,7 @@ export default class TeamRecruitDetail extends Vue {
     this.isApplying = true;
     try {
       if (this.isInvitedJoin) {
-        await joinTeamByCode(this.invitationCode);
+        await joinTeamByInviteCode(this.invitationCode);
         Message.success('팀에 가입되었습니다!');
         this.$router.push('/team-dashboard');
       } else {

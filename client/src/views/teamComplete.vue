@@ -155,7 +155,7 @@ export default class TeamCompletePage extends Vue {
 
       const response = await createTeam(createRequest);
       this.teamUid = response.data.uid;
-      this.inviteCode = response.data.teamCode;
+      this.inviteCode = response.data.inviteCode || response.data.teamCode;
 
       // 세션 스토리지 정리
       sessionStorage.removeItem('teamFormData');
@@ -174,26 +174,38 @@ export default class TeamCompletePage extends Vue {
     this.$router.push(`/team/${this.inviteCode}`);
   }
 
-  private async shareInviteLink(): Promise<void> {
-    // 초대 코드 복사
-    const inviteLink = `https://yourapp.com/join/${this.inviteCode}`;
-
-    try {
-      await navigator.clipboard.writeText(inviteLink);
-      this.$message.success('초대 링크가 복사되었습니다!');
-    } catch (err) {
-      // 클립보드 API 지원하지 않는 경우
-      const textArea = document.createElement('textarea');
-      textArea.value = inviteLink;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
+  private shareInviteLink(): void {
+    if (!this.inviteCode) {
+      this.$message.error('팀 코드를 찾을 수 없습니다.');
+      return;
+    }
+    const link = `${window.location.origin}/team-recruit-detail/${this.teamUid}?code=${this.inviteCode}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(() => {
         this.$message.success('초대 링크가 복사되었습니다!');
-      } catch (e) {
-        this.$message.error('복사에 실패했습니다.');
-      }
-      document.body.removeChild(textArea);
+      }).catch(() => {
+        this.fallbackCopyText(link);
+      });
+    } else {
+      this.fallbackCopyText(link);
+    }
+  }
+
+  private fallbackCopyText(text: string): void {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      this.$message.success('초대 링크가 복사되었습니다.');
+    } catch (e) {
+      this.$message.error('링크 복사에 실패했습니다.');
+    } finally {
+      document.body.removeChild(textarea);
     }
   }
 }

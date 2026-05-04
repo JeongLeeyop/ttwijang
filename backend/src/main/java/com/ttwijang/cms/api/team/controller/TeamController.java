@@ -105,6 +105,21 @@ public class TeamController {
         return ResponseEntity.ok(teamService.joinTeamByCode(teamCode, userDetails.getUser().getUid()));
     }
 
+    @Operation(summary = "초대 링크 코드로 팀 조회")
+    @GetMapping("/by-invite/{inviteCode}")
+    public ResponseEntity<TeamDto.DetailResponse> getTeamByInviteCode(
+            @PathVariable String inviteCode) {
+        return ResponseEntity.ok(teamService.getTeamByInviteCode(inviteCode));
+    }
+
+    @Operation(summary = "초대 링크 코드로 즉시 팀 가입", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/join/invite/{inviteCode}")
+    public ResponseEntity<TeamMemberDto.Response> joinTeamByInviteCode(
+            @PathVariable String inviteCode,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(teamService.joinTeamByInviteCode(inviteCode, userDetails.getUser().getUid()));
+    }
+
     @Operation(summary = "가입 신청 처리", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/join/process")
     public ResponseEntity<TeamMemberDto.Response> processJoinRequest(

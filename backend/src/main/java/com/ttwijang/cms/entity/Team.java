@@ -38,9 +38,13 @@ public class Team implements Serializable {
     @Column(nullable = false, length = 100)
     private String name;
 
-    // 팀 코드 (URL 슬러그 및 초대 코드)
+    // 팀 코드 (URL 슬러그)
     @Column(nullable = false, unique = true, length = 20)
     private String teamCode;
+
+    // 초대 코드 (UUID 기반 랜덤, teamCode와 독립적)
+    @Column(unique = true, length = 64)
+    private String inviteCode;
 
     // 팀 로고 이미지 UID
     private String logoFileUid;

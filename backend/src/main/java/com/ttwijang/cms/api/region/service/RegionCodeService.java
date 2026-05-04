@@ -61,9 +61,7 @@ public class RegionCodeService {
     }
 
     /**
-     * 지역 코드로 시/군/구 이름 조회
-     * @param code 지역 코드 (시/군/구 레벨)
-     * @return 지역명 (예: "진주시"), 없으면 null
+     * 지역 코드로 이름 조회
      */
     public String resolveRegionName(String code) {
         if (code == null || code.isEmpty()) {
@@ -71,6 +69,17 @@ public class RegionCodeService {
         }
         RegionCode regionCode = regionCodeRepository.findByCode(code);
         return regionCode != null ? regionCode.getName() : null;
+    }
+
+    /**
+     * 시/군/구 코드로 부모 시/도 코드 조회
+     */
+    public String resolveParentCode(String childCode) {
+        if (childCode == null || childCode.isEmpty()) {
+            return null;
+        }
+        RegionCode region = regionCodeRepository.findByCode(childCode);
+        return region != null ? region.getParentCode() : null;
     }
 
     /**

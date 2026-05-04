@@ -20,6 +20,7 @@
             type="text"
             placeholder="팀 이름을 입력하세요."
             class="form-input"
+            maxlength="20"
           >
         </div>
 
@@ -31,6 +32,7 @@
             type="text"
             placeholder="팀 코드를 입력하세요."
             class="form-input"
+            maxlength="20"
             @input="filterTeamCode"
           >
           <p class="form-hint">팀 코드는 팀 페이지 URL 주소로 사용됩니다. (영문, 숫자만 가능)</p>
@@ -44,6 +46,7 @@
             type="text"
             placeholder="은행명 (예: 국민은행, 신한은행)"
             class="form-input"
+            maxlength="20"
           >
         </div>
 
@@ -54,6 +57,7 @@
             type="text"
             placeholder="계좌번호"
             class="form-input"
+            maxlength="20"
           >
         </div>
 

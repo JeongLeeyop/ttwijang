@@ -144,10 +144,17 @@ public class BannerService {
         if (teamUid != null && !teamUid.isEmpty()) {
             banners = bannerRepository.findActiveBannersByTeam(today, teamUid);
         } else if (sigungu != null && !sigungu.isEmpty()) {
-            // 클라이언트는 sigungu 코드를 보내지만 DB에는 코드/이름이 혼재할 수 있어 양쪽 매칭
             String resolvedName = regionCodeService.resolveRegionName(sigungu);
             String sigunguName = resolvedName != null ? resolvedName : sigungu;
-            banners = bannerRepository.findActiveBannersByPageAndRegion(today, targetPage, sigungu, sigunguName);
+
+            // 시/군/구의 부모 시/도 코드·이름 조회 (시/도만 설정된 배너 필터에 사용)
+            String parentSidoCode = regionCodeService.resolveParentCode(sigungu);
+            String parentSidoName = parentSidoCode != null ? regionCodeService.resolveRegionName(parentSidoCode) : "";
+            String sidoCode = parentSidoCode != null ? parentSidoCode : "";
+            String sidoName = parentSidoName != null ? parentSidoName : "";
+
+            banners = bannerRepository.findActiveBannersByPageAndSidoSigungu(
+                    today, targetPage, sidoCode, sidoName, sigungu, sigunguName);
         } else {
             banners = bannerRepository.findActiveBannersByPage(today, targetPage);
         }

@@ -38,15 +38,19 @@ public class TeamDto {
         @Schema(description = "팀 소개")
         private String description;
 
+        @Size(max = 50, message = "은행명은 50자를 초과할 수 없습니다")
         @Schema(description = "후원 계좌 은행명")
         private String bankName;
 
+        @Size(max = 30, message = "계좌번호는 30자를 초과할 수 없습니다")
         @Schema(description = "후원 계좌 번호")
         private String bankAccount;
 
+        @Size(max = 50, message = "은행명은 50자를 초과할 수 없습니다")
         @Schema(description = "환불 계좌 은행명")
         private String refundBankName;
 
+        @Size(max = 30, message = "계좌번호는 30자를 초과할 수 없습니다")
         @Schema(description = "환불 계좌 번호")
         private String refundBankAccount;
 
@@ -68,9 +72,11 @@ public class TeamDto {
         @Schema(description = "활동 지역 - 시/군/구")
         private String regionSigungu;
 
+        @Size(max = 100, message = "홈 구장명은 100자를 초과할 수 없습니다")
         @Schema(description = "홈 구장명")
         private String homeStadium;
 
+        @Size(max = 200, message = "홈 구장 주소는 200자를 초과할 수 없습니다")
         @Schema(description = "홈 구장 주소")
         private String homeStadiumAddress;
 
@@ -93,15 +99,19 @@ public class TeamDto {
         @Schema(description = "팀 소개")
         private String description;
 
+        @Size(max = 50, message = "은행명은 50자를 초과할 수 없습니다")
         @Schema(description = "후원 계좌 은행명")
         private String bankName;
 
+        @Size(max = 30, message = "계좌번호는 30자를 초과할 수 없습니다")
         @Schema(description = "후원 계좌 번호")
         private String bankAccount;
 
+        @Size(max = 50, message = "은행명은 50자를 초과할 수 없습니다")
         @Schema(description = "환불 계좌 은행명")
         private String refundBankName;
 
+        @Size(max = 30, message = "계좌번호는 30자를 초과할 수 없습니다")
         @Schema(description = "환불 계좌 번호")
         private String refundBankAccount;
 
@@ -123,9 +133,11 @@ public class TeamDto {
         @Schema(description = "활동 지역 - 시/군/구")
         private String regionSigungu;
 
+        @Size(max = 100, message = "홈 구장명은 100자를 초과할 수 없습니다")
         @Schema(description = "홈 구장명")
         private String homeStadium;
 
+        @Size(max = 200, message = "홈 구장 주소는 200자를 초과할 수 없습니다")
         @Schema(description = "홈 구장 주소")
         private String homeStadiumAddress;
 
@@ -190,6 +202,9 @@ public class TeamDto {
 
         @Schema(description = "팀 코드")
         private String teamCode;
+
+        @Schema(description = "초대 코드")
+        private String inviteCode;
 
         @Schema(description = "팀 로고 URL")
         private String logoUrl;

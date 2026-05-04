@@ -200,6 +200,22 @@ export function joinTeamByCode(teamCode: string) {
   });
 }
 
+// 초대 링크 코드로 팀 조회
+export function getTeamByInviteCode(inviteCode: string) {
+  return request({
+    url: `/team/by-invite/${inviteCode}`,
+    method: 'get',
+  });
+}
+
+// 초대 링크 코드로 즉시 팀 가입
+export function joinTeamByInviteCode(inviteCode: string) {
+  return request({
+    url: `/team/join/invite/${inviteCode}`,
+    method: 'post',
+  });
+}
+
 // 회원 모집 설정 저장
 export interface RecruitmentRequest {
   featureTags?: string
