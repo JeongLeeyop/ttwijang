@@ -13,8 +13,8 @@ server:
 
 spring:
   profiles:
-    # active: development
-    active: product
+    active: development
+    # active: product
   application:
     name: ttwijang
 #용량
@@ -122,13 +122,13 @@ spring:
   datasource:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang2
       username: ttwijang
       password: ttwijang1!
       connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
     oauth:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/ttwijang
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang2
       username: ttwijang
       password: ttwijang1!
       connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
@@ -148,21 +148,21 @@ spring:
   datasource:
     resource:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      # jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      # jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: dhkfh2026!@#
     oauth:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      # jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      jdbc-url: jdbc:mysql://localhost:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      # jdbc-url: jdbc:mysql://1.234.10.116:3306/ttwijang?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       username: ttwijang
       password: dhkfh2026!@#
   
 #첨부파일 경로
 attached-file:
-  upload-directory: /home/ttwijang/attached-file
-  # upload-directory: ./attached-file
+  # upload-directory: /home/ttwijang/attached-file
+  upload-directory: ./attached-file
 
 
 # logging:

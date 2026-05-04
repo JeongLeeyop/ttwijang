@@ -9,15 +9,20 @@
           v-model="selectedRegion"
           placeholder="지역 선택"
           size="small"
-          clearable
           @change="onRegionChange"
         >
-          <el-option
-            v-for="region in regionOptions"
-            :key="region.value"
-            :label="region.label"
-            :value="region.value"
-          ></el-option>
+          <el-option-group
+            v-for="sido in sidoGroups"
+            :key="sido.code"
+            :label="sido.label"
+          >
+            <el-option
+              v-for="sg in sido.options"
+              :key="sg.value"
+              :label="sg.label"
+              :value="sg.value"
+            />
+          </el-option-group>
         </el-select>
       </div>
       <div class="header-center">
@@ -58,7 +63,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { getAllSigunguList, Region } from '@/api/region';
+import { getSidoList, getAllSigunguList, Region } from '@/api/region';
 import {
   getNotifications, getUnreadNotificationCount, markAllNotificationsAsRead,
 } from '@/api/notification';
@@ -76,7 +81,7 @@ export default class extends Vue {
 
   private selectedRegion = ''
 
-  private regionOptions: Array<{ label: string, value: string, code: string }> = []
+  private sidoGroups: Array<{ label: string, code: string, options: Array<{ label: string, value: string }> }> = []
 
   private showPopover = false;
 
@@ -120,15 +125,16 @@ export default class extends Vue {
     this.$router.push('/calendar');
   }
 
-  private onRegionChange(): void {
-    // BR-04: 지역 필터 변경 시 이벤트 발생
-    // localStorage에 선택된 지역 저장
-    if (this.selectedRegion) {
+  private onRegionChange(value: string): void {
+    if (!value) {
+      // clearable 없이는 발생하지 않지만, 방어 처리
+      this.selectedRegion = this.getDefaultRegionCode();
       localStorage.setItem(storageKey.selectedRegion, this.selectedRegion);
-    } else {
-      localStorage.removeItem(storageKey.selectedRegion);
+      this.$emit('region-change', this.selectedRegion);
+      return;
     }
-    this.$emit('region-change', this.selectedRegion);
+    localStorage.setItem(storageKey.selectedRegion, value);
+    this.$emit('region-change', value);
   }
 
   private async loadNotifications(): Promise<void> {
@@ -199,58 +205,53 @@ export default class extends Vue {
 
   private async loadRegionsAndInitialize(): Promise<void> {
     try {
-      const response = await getAllSigunguList();
-      if (response && response.data) {
-        this.regionOptions = response.data.map((region: Region) => ({
-          label: region.name,
-          value: region.code, // 코드값으로 검색하도록 변경
-          code: region.code,
-        }));
-      }
+      const [sidoRes, sigunguRes] = await Promise.all([getSidoList(), getAllSigunguList()]);
+      const sidoList: Region[] = sidoRes?.data || [];
+      const sigunguList: Region[] = sigunguRes?.data || [];
 
-      // 지역 목록 로드 완료 후 선택된 지역 초기화
-      this.initializeSelectedRegion();
+      // 시/도별로 시/군/구 그루핑
+      this.sidoGroups = sidoList.map((sido) => ({
+        label: sido.name,
+        code: sido.code,
+        options: sigunguList
+          .filter((sg) => sg.parentCode === sido.code)
+          .map((sg) => ({ label: sg.name, value: sg.code })),
+      })).filter((g) => g.options.length > 0);
     } catch (error) {
       console.error('Failed to load regions:', error);
-      // 에러 발생 시에도 기본값 설정
-      this.initializeSelectedRegion();
     }
+    this.initializeSelectedRegion();
   }
 
   private initializeSelectedRegion(): void {
-    // localStorage에서 선택된 지역 코드 가져오기
+    const allOptions = this.sidoGroups.flatMap((g) => g.options);
     const savedRegion = localStorage.getItem(storageKey.selectedRegion);
+
     if (savedRegion) {
-      // 저장된 지역 코드가 옵션 목록에 있는지 확인
-      const isValid = this.regionOptions.some((opt) => opt.value === savedRegion);
+      const isValid = allOptions.some((opt) => opt.value === savedRegion);
       if (isValid) {
         this.selectedRegion = savedRegion;
       } else {
-        // 기존 한글 이름이 저장되어 있는 경우 코드로 변환 시도
-        const matchByName = this.regionOptions.find((opt) => opt.label === savedRegion);
-        this.selectedRegion = matchByName
-          ? matchByName.value
-          : this.getDefaultRegionCode();
+        const matchByName = allOptions.find((opt) => opt.label === savedRegion);
+        this.selectedRegion = matchByName ? matchByName.value : this.getDefaultRegionCode();
       }
     } else {
-      // 저장된 지역이 없으면 기본값으로 진주시 코드 설정
       this.selectedRegion = this.getDefaultRegionCode();
     }
+
+    // 항상 하나는 선택된 상태를 보장
+    if (!this.selectedRegion && allOptions.length > 0) {
+      this.selectedRegion = allOptions[0].value;
+    }
+
     localStorage.setItem(storageKey.selectedRegion, this.selectedRegion);
-    // 초기 로드 시에도 region-change 이벤트 발생
     this.$emit('region-change', this.selectedRegion);
   }
 
   private getDefaultRegionCode(): string {
-    // 진주시 코드를 옵션에서 찾기
-    const jinju = this.regionOptions.find((opt) => opt.label === '진주시');
-    if (jinju) {
-      return jinju.value;
-    }
-    if (this.regionOptions.length > 0) {
-      return this.regionOptions[0].value;
-    }
-    return '';
+    const allOptions = this.sidoGroups.flatMap((g) => g.options);
+    const jinju = allOptions.find((opt) => opt.label === '진주시');
+    return jinju ? jinju.value : (allOptions[0]?.value || '');
   }
 }
 </script>

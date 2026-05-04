@@ -146,6 +146,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/views/league/index.vue",
+      "accessCount": 22,
+      "lastAccessed": 1777905755884,
+      "type": "file"
+    },
+    {
       "path": "src/views/settlement/index.vue",
       "accessCount": 18,
       "lastAccessed": 1775957469583,
@@ -158,9 +164,9 @@
       "type": "file"
     },
     {
-      "path": "src/views/league/index.vue",
-      "accessCount": 16,
-      "lastAccessed": 1775900246183,
+      "path": "src/views/region/index.vue",
+      "accessCount": 11,
+      "lastAccessed": 1777905280527,
       "type": "file"
     },
     {
@@ -194,12 +200,6 @@
       "type": "directory"
     },
     {
-      "path": "src/views/region/index.vue",
-      "accessCount": 5,
-      "lastAccessed": 1775900619389,
-      "type": "file"
-    },
-    {
       "path": "src/views/sponsor/team-banner.vue",
       "accessCount": 5,
       "lastAccessed": 1775940194856,
@@ -225,8 +225,14 @@
     },
     {
       "path": "src/api/league.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775899525307,
+      "accessCount": 4,
+      "lastAccessed": 1777905651482,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Editor/index.vue",
+      "accessCount": 4,
+      "lastAccessed": 1777916853741,
       "type": "file"
     },
     {
@@ -261,8 +267,8 @@
     },
     {
       "path": "src/api/region.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775884273078,
+      "accessCount": 3,
+      "lastAccessed": 1777507386953,
       "type": "file"
     },
     {
@@ -308,6 +314,18 @@
       "type": "file"
     },
     {
+      "path": "src/api/team.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777507387005,
+      "type": "file"
+    },
+    {
+      "path": "src/api/attached-file.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777905670377,
+      "type": "file"
+    },
+    {
       "path": "src/utils/request.ts",
       "accessCount": 1,
       "lastAccessed": 1775879632370,
@@ -341,18 +359,6 @@
       "path": "src/permission.ts",
       "accessCount": 1,
       "lastAccessed": 1775898159614,
-      "type": "file"
-    },
-    {
-      "path": "src/api/attached-file.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775901186008,
-      "type": "file"
-    },
-    {
-      "path": "src/api/team.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775950589349,
       "type": "file"
     },
     {

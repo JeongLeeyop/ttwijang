@@ -23,11 +23,9 @@
         {{ league.startDate }} ~ {{ league.endDate }}
       </div>
 
-      <div
-        v-if="league.introContent"
-        class="league-intro"
-        v-html="safeIntroContent"
-      />
+      <div v-if="league.introContent" class="league-intro">
+        <div class="toastui-editor-contents" v-html="safeIntroContent" />
+      </div>
       <div v-else class="league-empty-intro">
         등록된 소개글이 없습니다.
       </div>
@@ -56,6 +54,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import '@toast-ui/editor/dist/toastui-editor-viewer.css';
 import { getLeagueDetail, getLeagueTeams, applyToLeague } from '@/api/league';
 import { getMyTeams, checkMembershipStatus } from '@/api/team';
 import { UserModule } from '@/store/modules/user';
@@ -253,26 +252,27 @@ export default class extends Vue {
 }
 
 .league-intro {
-  padding: 20px 16px;
+  padding: 20px;
   background: #fff;
-  line-height: 1.7;
   font-size: 15px;
   color: #333;
+  text-align: left;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.league-intro ::v-deep .toastui-editor-contents {
+  text-align: left;
+}
+
+.league-intro ::v-deep .toastui-editor-contents p {
+  margin: unset;
 }
 
 .league-intro ::v-deep img {
   max-width: 100%;
   height: auto;
-}
-
-.league-intro ::v-deep h1,
-.league-intro ::v-deep h2,
-.league-intro ::v-deep h3 {
-  margin: 12px 0 8px;
-}
-
-.league-intro ::v-deep p {
-  margin: 8px 0;
 }
 
 .league-empty-intro {

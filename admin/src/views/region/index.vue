@@ -8,6 +8,14 @@
       <el-button type="primary" size="small" icon="el-icon-plus" @click="openSidoDialog">시/도 추가</el-button>
     </div>
 
+    <el-alert
+      title="지역 코드는 수정 및 삭제가 어렵습니다. 생성 전 코드와 지역명을 신중하게 확인하세요."
+      type="warning"
+      show-icon
+      :closable="false"
+      style="margin-bottom: 16px"
+    />
+
     <el-table
       :data="sidoList"
       v-loading="loading"
@@ -56,7 +64,7 @@
               시/군/구 {{ expandedRows.includes(scope.row.code) ? '닫기' : '보기' }}
             </el-button>
             <el-button size="mini" type="info" @click="openLeagueDialog(scope.row)">리그 확인</el-button>
-            <!-- <el-button size="mini" type="success" @click="openTeamDialog(scope.row)">팀 확인</el-button> -->
+            <el-button size="mini" type="success" @click="openTeamDialog(scope.row)">팀 확인</el-button>
           </div>
         </template>
       </el-table-column>
@@ -70,9 +78,6 @@
         </el-form-item>
         <el-form-item label="지역명">
           <el-input v-model="sidoForm.name" placeholder="예: 경남" />
-        </el-form-item>
-        <el-form-item label="정렬 순서">
-          <el-input-number v-model="sidoForm.sortOrder" :min="1" :max="99" />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -89,9 +94,6 @@
         </el-form-item>
         <el-form-item label="지역명">
           <el-input v-model="sigunguForm.name" placeholder="예: 진주시" />
-        </el-form-item>
-        <el-form-item label="정렬 순서">
-          <el-input-number v-model="sigunguForm.sortOrder" :min="1" :max="99" />
         </el-form-item>
       </el-form>
       <div slot="footer">

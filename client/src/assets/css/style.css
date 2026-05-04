@@ -47,6 +47,10 @@
   }
 }
 
+/* 헤더 select */
+.header .el-select-group__title {
+  padding-left: 0;
+}
 
 /* 헤더 알림 */
 .header-right .el-icon-bell:before {

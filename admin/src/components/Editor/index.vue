@@ -41,35 +41,41 @@ export default class extends Vue {
 
   mounted() {
     const el: any = document.querySelector('#editor');
+    let ready = false;
     this.editor = new Editor({
       el,
       language: 'ko-KR',
       previewStyle: 'vertical',
       height: '500px',
-      // plugins: [[codeSyntaxHightlight, { hljs }]],
       hooks: {
-        addImageBlobHook: async (blob, callback) => {
+        addImageBlobHook: async (blob: any, callback: any) => {
           const fileUid = await this.handleUploadImage(blob);
-          callback(`http://localhost:3000/newok/api/attached-file/${fileUid}`, '');
+          if (fileUid) {
+            callback(`${process.env.VUE_APP_BASE_API}/attached-file/${fileUid}`, '');
+          }
           return false;
         },
       },
       events: {
-        change: this.handleChangeEditor,
+        change: () => { if (ready) this.handleChangeEditor(); },
       },
     });
+    if (this.inputValue) {
+      this.editor.setHTML(this.inputValue);
+    }
+    ready = true;
   }
 
-  private handleUploadImage(blob: any) {
+  private async handleUploadImage(blob: any): Promise<string | false> {
     const formData = new FormData();
     formData.append('file', blob);
-    /* eslint-disable */
-    upload('post', formData).then((res) => {
+    try {
+      const res = await upload('attached-file', formData);
       return res.data.uid;
-    }).catch(() => {
+    } catch {
       alert('이미지를 업로드 하는데 실패했습니다.');
       return false;
-    });
+    }
   }
 }
 </script>

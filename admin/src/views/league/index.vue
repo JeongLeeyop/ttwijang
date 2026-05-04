@@ -111,8 +111,8 @@
             <el-option v-for="r in sidoList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
         </el-form-item>
-        <el-form-item label="지역 (시/군/구)">
-          <el-select v-model="leagueForm.regionSigungu" clearable placeholder="선택 (선택사항)" style="width:100%">
+        <el-form-item label="지역 (시/군/구)" prop="regionSigungu">
+          <el-select v-model="leagueForm.regionSigungu" placeholder="시/군/구 선택" style="width:100%">
             <el-option v-for="r in leagueSigunguList" :key="r.code" :label="r.name" :value="r.name" />
           </el-select>
         </el-form-item>
@@ -307,7 +307,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import {
-  getLeagueList, createLeague, updateLeague, deleteLeague,
+  getLeagueList, getLeague, createLeague, updateLeague, deleteLeague,
   getLeagueTeams, createLeagueMatch, updateMatchResult, getAdminLeagueMatches,
 } from '@/api/league';
 import { getSidoList, getSigunguList } from '@/api/region';
@@ -358,7 +358,8 @@ status: 'RECRUITING',
   private leagueRules = {
     name: [{ required: true, message: '리그명을 입력하세요', trigger: 'blur' }],
     season: [{ required: true, message: '시즌을 입력하세요', trigger: 'blur' }],
-    regionSido: [{ required: true, message: '지역을 선택하세요', trigger: 'change' }],
+    regionSido: [{ required: true, message: '시/도를 선택하세요', trigger: 'change' }],
+    regionSigungu: [{ required: true, message: '시/군/구를 선택하세요', trigger: 'change' }],
     startDate: [{ required: true, message: '시작일을 선택하세요', trigger: 'change' }],
     endDate: [{ required: true, message: '종료일을 선택하세요', trigger: 'change' }],
     maxTeams: [{ required: true, message: '최대 팀 수를 입력하세요', trigger: 'blur' }],
@@ -452,10 +453,17 @@ stadiumAddress: '',
   }
 
   // ── 리그 폼 ──
-  openLeagueForm(row?: any) {
+  async openLeagueForm(row?: any) {
     if (row) {
-      this.leagueForm = { ...row };
-      if (row.regionSido) this.onLeagueSidoChange(row.regionSido);
+      try {
+        const res = await getLeague(row.uid);
+        this.leagueForm = { ...res.data };
+      } catch {
+        this.leagueForm = { ...row };
+      }
+      if (this.leagueForm.regionSido) {
+        await this.loadLeagueSigunguList(this.leagueForm.regionSido);
+      }
     } else {
       this.resetLeagueForm();
     }
@@ -482,16 +490,18 @@ status: 'RECRUITING',
     this.editorReady = false;
   }
 
+  async loadLeagueSigunguList(name: string) {
+    this.leagueSigunguList = [];
+    const sido = this.sidoList.find((r: any) => r.name === name);
+    if (sido) {
+      const res = await getSigunguList(sido.code);
+      this.leagueSigunguList = res.data || [];
+    }
+  }
+
   async onLeagueSidoChange(name: string) {
     this.leagueForm.regionSigungu = '';
-    this.leagueSigunguList = [];
-    if (name) {
-      const sido = this.sidoList.find((r: any) => r.name === name);
-      if (sido) {
-        const res = await getSigunguList(sido.code);
-        this.leagueSigunguList = res.data || [];
-      }
-    }
+    await this.loadLeagueSigunguList(name);
   }
 
   handleLeagueSave() {
