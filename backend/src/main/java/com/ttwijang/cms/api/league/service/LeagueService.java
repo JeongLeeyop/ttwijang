@@ -693,7 +693,8 @@ public class LeagueService {
         } else {
             List<League> allLeagues = leagueRepository.findAll();
             for (League l : allLeagues) {
-                if (l.getStatus() != League.LeagueStatus.IN_PROGRESS) continue;
+                if (l.getStatus() != League.LeagueStatus.IN_PROGRESS
+                        && l.getStatus() != League.LeagueStatus.RECRUITING) continue;
                 // 시/군/구 우선 매칭 — 시/군/구가 지정되면 도는 무시 (시/군/구 이름은 사실상 고유)
                 if (regionSigungu != null && !regionSigungu.isEmpty()) {
                     if (!regionSigungu.equals(l.getRegionSigungu())) continue;

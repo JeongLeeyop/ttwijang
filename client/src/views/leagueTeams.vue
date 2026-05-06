@@ -249,7 +249,7 @@ export default class LeagueTeams extends Vue {
 
   private async loadLeagueOptions(): Promise<void> {
     try {
-      const res = await getLeagueList({ status: 'IN_PROGRESS', size: 100 });
+      const res = await getLeagueList({ size: 100 });
       const leagues = res.data?.content || [];
       this.leagueOptions = leagues.map((l: any) => ({ uid: l.uid, name: l.name }));
     } catch (e) {

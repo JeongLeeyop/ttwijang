@@ -14,7 +14,7 @@
         <!-- Stats Row Section -->
         <section class="stats-row-section">
           <div class="stat-button">
-            <div class="stat-label">팀 매너점수</div>
+            <div class="stat-label">매너점수</div>
             <div class="stat-value">
               <i v-if="isLoadingStats" class="el-icon-loading"></i>
               <span v-else>{{ userStats.mannerscore }}</span>
