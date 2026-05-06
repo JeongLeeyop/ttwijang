@@ -149,8 +149,7 @@ export default class CreateTeam extends Vue {
       sponsorAccount: this.sponsorAccount.number,
     };
 
-    // 세션 스토리지에 저장
-    sessionStorage.setItem('teamFormData', JSON.stringify(teamData));
+    this.$store.commit('teamCreation/SET_FORM_DATA', teamData);
 
     console.log('Creating team:', teamData);
     this.$message.success('팀 정보가 저장되었습니다!');

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
+import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.dto.TeamDto;
 import com.ttwijang.cms.api.team.dto.TeamMemberDto;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
@@ -18,6 +19,7 @@ import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.LeagueTeam;
+import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
 
@@ -32,6 +34,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final FutsalMatchRepository futsalMatchRepository;
     private final LeagueTeamRepository leagueTeamRepository;
+    private final NotificationService notificationService;
 
     private static final String TEAM_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int TEAM_CODE_LENGTH = 8;
@@ -286,6 +289,17 @@ public class TeamService {
                 .build();
 
         member = teamMemberRepository.save(member);
+
+        notificationService.createNotification(
+                userUid,
+                Notification.NotificationType.TEAM,
+                "가입 신청 완료",
+                team.getName() + " 팀에 가입 신청이 완료되었습니다. 팀 운영자의 승인을 기다려주세요.",
+                team.getUid(),
+                "TEAM",
+                "/team-recruit-detail/" + team.getTeamCode()
+        );
+
         return toMemberResponse(member);
     }
 
@@ -354,8 +368,28 @@ public class TeamService {
             member.setStatus(TeamMember.MemberStatus.APPROVED);
             team.setMemberCount(team.getMemberCount() + 1);
             teamRepository.save(team);
+
+            notificationService.createNotification(
+                    member.getUserUid(),
+                    Notification.NotificationType.TEAM,
+                    "팀 가입 승인",
+                    team.getName() + " 팀 운영자가 가입을 승인하였습니다.",
+                    team.getUid(),
+                    "TEAM",
+                    "/team/" + team.getTeamCode()
+            );
         } else {
             member.setStatus(TeamMember.MemberStatus.REJECTED);
+
+            notificationService.createNotification(
+                    member.getUserUid(),
+                    Notification.NotificationType.TEAM,
+                    "팀 가입 거절",
+                    team.getName() + " 팀 가입 신청이 거절되었습니다.",
+                    team.getUid(),
+                    "TEAM",
+                    "/team-recruit-detail/" + team.getTeamCode()
+            );
         }
 
         member = teamMemberRepository.save(member);

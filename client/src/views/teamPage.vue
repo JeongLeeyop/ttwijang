@@ -539,7 +539,7 @@
                 게스트 모집하기
               </button>
               <button class="action-modal-btn" @click="handleAction('recruit')">
-                신규 회원 모집하기
+                {{ teamInfo && teamInfo.recruitingMembers ? '회원 모집 종료하기' : '신규 회원 모집하기' }}
               </button>
               <button class="action-modal-btn" @click="handleAction('invite')">
                 초대 링크 복사하기
@@ -624,7 +624,7 @@ import {
 } from 'vue-property-decorator';
 import {
   getTeamDetail, getTeamMembers, getTeamByCode,
-  checkMembershipStatus, getMyTeams,
+  checkMembershipStatus, getMyTeams, stopRecruitment,
 } from '@/api/team';
 import { getMyTeamMatches, deleteMatch } from '@/api/match';
 import {
@@ -1538,16 +1538,39 @@ export default class TeamPage extends Vue {
         });
         break;
       case 'recruit':
-        this.$router.push({
-          path: '/recruitment-create',
-          query: { teamUid: this.teamUid },
-        });
+        if (this.teamInfo && this.teamInfo.recruitingMembers) {
+          this.handleStopRecruitment();
+        } else {
+          this.$router.push({
+            path: '/recruitment-create',
+            query: { teamUid: this.teamUid },
+          });
+        }
         break;
       case 'invite':
         this.copyInviteLink();
         break;
       default:
         break;
+    }
+  }
+
+  private async handleStopRecruitment(): Promise<void> {
+    try {
+      await this.$confirm('회원 모집을 종료하시겠습니까?', '모집 종료', {
+        confirmButtonText: '종료',
+        cancelButtonText: '취소',
+        type: 'warning',
+      });
+    } catch (e) {
+      return;
+    }
+    try {
+      await stopRecruitment(this.teamUid);
+      this.teamInfo.recruitingMembers = false;
+      this.$message.success('회원 모집이 종료되었습니다.');
+    } catch (e) {
+      this.$message.error('모집 종료에 실패했습니다.');
     }
   }
 

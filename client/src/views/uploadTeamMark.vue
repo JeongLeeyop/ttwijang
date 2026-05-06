@@ -78,16 +78,14 @@ export default class UploadTeamMark extends Vue {
       const uploadedFile = uploadResponse.data;
 
       if (uploadedFile && uploadedFile.uid) {
-        // 팀 데이터 준비
-        const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');
+        const teamFormData = this.$store.state.teamCreation.formData;
         const completeTeamData = {
           ...teamFormData,
-          logo: this.teamMarkImage, // 미리보기용
-          logoFileUid: uploadedFile.uid, // 서버에 저장된 파일 UID
+          logo: this.teamMarkImage,
+          logoFileUid: uploadedFile.uid,
         };
 
-        // 세션 스토리지에 저장
-        sessionStorage.setItem('teamFormData', JSON.stringify(completeTeamData));
+        this.$store.commit('teamCreation/SET_FORM_DATA', completeTeamData);
 
         this.$message.success('팀 마크가 등록되었습니다!');
         this.$router.push('/team-info');

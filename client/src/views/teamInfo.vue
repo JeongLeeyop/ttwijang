@@ -154,13 +154,9 @@ export default class TeamInfoPage extends Vue {
       this.teamName = teamData.name || '';
       this.teamLogo = teamData.logo || '';
     } else {
-      // 세션 스토리지에서 팀 정보 가져오기
-      const storedTeamData = sessionStorage.getItem('teamFormData');
-      if (storedTeamData) {
-        const teamData = JSON.parse(storedTeamData);
-        this.teamName = teamData.name || '';
-        this.teamLogo = teamData.logo || '';
-      }
+      const teamData = this.$store.state.teamCreation.formData;
+      this.teamName = teamData.name || '';
+      this.teamLogo = teamData.logo || '';
     }
   }
 
@@ -204,8 +200,7 @@ export default class TeamInfoPage extends Vue {
       ageRanges: this.selectedAges,
     };
 
-    console.log('Team Info:', teamInfo);
-    sessionStorage.setItem('teamInfoData', JSON.stringify(teamInfo));
+    this.$store.commit('teamCreation/SET_INFO_DATA', teamInfo);
     this.$message.success('팀 정보가 저장되었습니다!');
     this.$router.push('/team-location');
   }

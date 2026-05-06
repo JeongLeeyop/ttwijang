@@ -305,20 +305,9 @@ export default class TeamLocationPage extends Vue {
   }
 
   private loadTeamData(): void {
-    // 세션 스토리지에서 팀 정보 가져오기
-    const storedTeamData = sessionStorage.getItem('teamFormData');
-    if (storedTeamData) {
-      const teamData = JSON.parse(storedTeamData);
-      this.teamName = teamData.name || '';
-      this.teamLogo = teamData.logo || '';
-    }
-
-    // 이전에 저장된 팀 정보 데이터 가져오기
-    const storedTeamInfo = sessionStorage.getItem('teamInfoData');
-    if (storedTeamInfo) {
-      const teamInfo = JSON.parse(storedTeamInfo);
-      // 필요시 이전 데이터 활용
-    }
+    const teamData = this.$store.state.teamCreation.formData;
+    this.teamName = teamData.name || '';
+    this.teamLogo = teamData.logo || '';
   }
 
   private onCityChange(): void {
@@ -359,8 +348,7 @@ export default class TeamLocationPage extends Vue {
       district: districtLabel,
     };
 
-    console.log('Location Info:', locationInfo);
-    sessionStorage.setItem('teamLocationData', JSON.stringify(locationInfo));
+    this.$store.commit('teamCreation/SET_LOCATION_DATA', locationInfo);
     this.$message.success('팀 활동 지역이 저장되었습니다!');
     this.$router.push('/team-complete');
   }

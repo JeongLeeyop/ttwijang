@@ -70,13 +70,9 @@ export default class TeamCompletePage extends Vue {
   }
 
   private loadTeamData(): void {
-    // 세션 스토리지에서 팀 정보 가져오기
-    const storedTeamData = sessionStorage.getItem('teamFormData');
-    if (storedTeamData) {
-      const teamData = JSON.parse(storedTeamData);
-      this.teamName = teamData.name || '팀';
-      this.teamLogo = teamData.logo || '';
-    }
+    const teamData = this.$store.state.teamCreation.formData;
+    this.teamName = teamData.name || '팀';
+    this.teamLogo = teamData.logo || '';
   }
 
   private async submitTeamCreation(): Promise<void> {
@@ -88,17 +84,14 @@ export default class TeamCompletePage extends Vue {
       const status = statusResponse.data as MembershipStatus;
       if (!status.canCreateTeam) {
         this.$message.error('이미 팀을 생성하였거나 소속된 팀이 있습니다.');
-        sessionStorage.removeItem('teamFormData');
-        sessionStorage.removeItem('teamInfoData');
-        sessionStorage.removeItem('teamLocationData');
+        this.$store.commit('teamCreation/CLEAR');
         this.$router.replace('/match');
         return;
       }
 
-      // 세션 스토리지에서 데이터 수집
-      const teamFormData = JSON.parse(sessionStorage.getItem('teamFormData') || '{}');
-      const teamInfoData = JSON.parse(sessionStorage.getItem('teamInfoData') || '{}');
-      const teamLocationData = JSON.parse(sessionStorage.getItem('teamLocationData') || '{}');
+      const teamFormData = this.$store.state.teamCreation.formData;
+      const teamInfoData = this.$store.state.teamCreation.infoData;
+      const teamLocationData = this.$store.state.teamCreation.locationData;
 
       // 나이대 비트마스크 변환
       const ageGroupMap: { [key: string]: number } = {
@@ -157,10 +150,7 @@ export default class TeamCompletePage extends Vue {
       this.teamUid = response.data.uid;
       this.inviteCode = response.data.inviteCode || response.data.teamCode;
 
-      // 세션 스토리지 정리
-      sessionStorage.removeItem('teamFormData');
-      sessionStorage.removeItem('teamInfoData');
-      sessionStorage.removeItem('teamLocationData');
+      this.$store.commit('teamCreation/CLEAR');
     } catch (error: any) {
       console.error('Team creation failed:', error);
       this.$message.error(error.response?.data?.message || '팀 생성에 실패했습니다.');

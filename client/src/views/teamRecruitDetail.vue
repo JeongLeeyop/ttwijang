@@ -5,23 +5,13 @@
     </div>
     <template v-else-if="team">
       <!-- Team Photo -->
-      <!-- <div class="team-photo-section">
+      <div v-if="team.teamPhotoFileUid" class="team-photo-section">
         <img
-          v-if="team.teamPhotoUrl"
-          :src="team.teamPhotoUrl"
+          :src="`/api/attached-file/${team.teamPhotoFileUid}`"
           alt="팀 사진"
           class="team-photo"
         >
-        <div v-else class="team-photo-placeholder">
-          <img
-            v-if="team.logoUrl"
-            :src="team.logoUrl"
-            alt="팀 로고"
-            class="placeholder-logo"
-          >
-          <i v-else class="el-icon-football placeholder-icon"></i>
-        </div>
-      </div> -->
+      </div>
 
       <!-- Team Info Header -->
       <div class="detail-header">
@@ -295,7 +285,10 @@ export default class TeamRecruitDetail extends Vue {
 
 <style scoped>
 .recruit-detail-page {
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #fff;
   padding-bottom: 80px;
   margin-top: 60px;

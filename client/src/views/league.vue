@@ -373,18 +373,20 @@ export default class extends Vue {
         };
       });
 
-      // 2. 리그 목록 조회 (지역 필터 적용)
-      const leagueParams: any = {
-        status: 'IN_PROGRESS',
-        page: 0,
-        size: 10,
-      };
+      // 2. 리그 목록 조회 (RECRUITING + IN_PROGRESS 모두 포함)
+      const leagueBaseParams: any = { page: 0, size: 10 };
       if (this.selectedRegion) {
-        leagueParams.regionCode = this.selectedRegion;
+        leagueBaseParams.regionCode = this.selectedRegion;
       }
 
-      const leagueResponse = await getLeagueList(leagueParams);
-      const leagues = leagueResponse.data?.content || [];
+      const [inProgressRes, recruitingRes] = await Promise.all([
+        getLeagueList({ ...leagueBaseParams, status: 'IN_PROGRESS' }),
+        getLeagueList({ ...leagueBaseParams, status: 'RECRUITING' }),
+      ]);
+      const leagues = [
+        ...(inProgressRes.data?.content || []),
+        ...(recruitingRes.data?.content || []),
+      ];
 
       if (leagues.length > 0) {
         // 모든 조회된 리그의 참가 팀 합산 (Promise.all 사용)

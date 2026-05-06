@@ -6,6 +6,7 @@ import LeagueModule from './modules/league';
 import MatchModule from './modules/match';
 import GuestModule from './modules/guest';
 import CashModule from './modules/cash';
+import TeamCreationModule from './modules/teamCreation';
 
 Vue.use(Vuex);
 
@@ -20,6 +21,7 @@ const store = new Vuex.Store<IRootState>({
     match: MatchModule,
     guest: GuestModule,
     cash: CashModule,
+    teamCreation: TeamCreationModule,
   },
 });
 

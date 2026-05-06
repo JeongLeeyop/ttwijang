@@ -238,6 +238,8 @@ export default class RecruitmentCreate extends Vue {
 
   private teamUid = ''
 
+  private teamCode = ''
+
   private teamName = ''
 
   // Step 1
@@ -384,6 +386,7 @@ export default class RecruitmentCreate extends Vue {
         this.selectedFeatureTags = [];
       }
     }
+    if (detail.teamCode) this.teamCode = detail.teamCode;
     if (detail.activeDays) this.activeDays = detail.activeDays;
     if (detail.activeTimeSlots) this.activeTimeSlots = detail.activeTimeSlots;
     if (detail.regionSido) this.regionSido = detail.regionSido;
@@ -396,6 +399,10 @@ export default class RecruitmentCreate extends Vue {
     if (detail.ageGroups) this.ageGroups = detail.ageGroups;
     if (detail.recruitmentDescription) {
       this.recruitmentDescription = detail.recruitmentDescription;
+    }
+    if (detail.teamPhotoFileUid) {
+      this.teamPhotoFileUid = detail.teamPhotoFileUid;
+      this.teamPhotoPreview = `/api/attached-file/${detail.teamPhotoFileUid}`;
     }
   }
 
@@ -550,7 +557,7 @@ export default class RecruitmentCreate extends Vue {
       });
 
       Message.success('회원 모집이 등록되었습니다!');
-      this.$router.push(`/team/${this.teamUid}`);
+      this.$router.push(`/team/${this.teamCode}`);
     } catch (error) {
       Message.error('등록에 실패했습니다.');
     } finally {
