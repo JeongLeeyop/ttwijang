@@ -200,6 +200,12 @@ public class GuestDto {
         @Schema(description = "보장 시간")
         private Integer guaranteedMinutes;
 
+        @Schema(description = "경기 소요 시간 (시간, 연결된 매치 기준)")
+        private Integer durationHours;
+
+        @Schema(description = "매치 규칙 (연결된 매치 기준)")
+        private String matchRules;
+
         @Schema(description = "추가 안내 사항")
         private String additionalInfo;
 

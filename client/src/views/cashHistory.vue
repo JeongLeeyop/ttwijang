@@ -9,9 +9,6 @@
           <span class="balance-unit">원</span>
         </div>
         <div class="balance-actions">
-          <button class="action-btn refund-btn" @click="handleRefund">
-            캐쉬 환불
-          </button>
           <button class="action-btn charge-btn" @click="goToCharge">
             충전하기
           </button>
@@ -104,7 +101,6 @@ export default class CashHistory extends Vue {
 
   private filterTabs: FilterTab[] = [
     { label: '전체', value: 'ALL' },
-    { label: '환불', value: 'REFUND' },
     { label: '충전/적립', value: 'CHARGE_EARN' },
     { label: '사용/취소', value: 'USE_CANCEL' },
   ];

@@ -114,6 +114,7 @@ export interface UpdateMatchRequest {
   matchFormat?: string
   fee?: number
   additionalInfo?: string
+  matchRules?: string
 }
 
 export function updateMatch(uid: string, data: UpdateMatchRequest) {

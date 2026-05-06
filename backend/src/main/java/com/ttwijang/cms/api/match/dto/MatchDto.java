@@ -65,6 +65,9 @@ public class MatchDto {
 
         @Schema(description = "추가 안내 사항")
         private String additionalInfo;
+
+        @Schema(description = "매치 규칙")
+        private String matchRules;
     }
 
     @Data
@@ -226,6 +229,18 @@ public class MatchDto {
 
         @Schema(description = "생성일")
         private LocalDateTime createdDate;
+
+        @Schema(description = "매치 규칙")
+        private String matchRules;
+
+        @Schema(description = "홈팀 성별 (0:남, 1:여, 2:무관)")
+        private Integer genderType;
+
+        @Schema(description = "홈팀 연령대 비트마스크")
+        private Integer ageGroups;
+
+        @Schema(description = "홈팀 최고 리그 순위")
+        private Integer leagueRanking;
     }
 
     @Data
@@ -330,6 +345,9 @@ public class MatchDto {
 
         @Schema(description = "추가 안내 사항")
         private String additionalInfo;
+
+        @Schema(description = "매치 규칙")
+        private String matchRules;
     }
 
     @Data

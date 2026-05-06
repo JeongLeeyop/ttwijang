@@ -192,14 +192,28 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="결과 입력" width="120" align="center">
+        <el-table-column label="결과" width="120" align="center">
           <template slot-scope="scope">
             <el-button
-              v-if="scope.row.status !== 'FINISHED'"
+              v-if="scope.row.status !== 'COMPLETED'"
               size="mini"
               type="primary"
               @click="openResultForm(scope.row)"
             >결과 입력</el-button>
+            <el-button
+              v-else
+              size="mini"
+              type="warning"
+              @click="openResultForm(scope.row)"
+            >결과 수정</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="경기 수정" width="90" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="openMatchEditForm(scope.row)"
+            >수정</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -208,9 +222,9 @@
       </div>
     </el-dialog>
 
-    <!-- 경기 결과 입력 다이얼로그 -->
+    <!-- 경기 결과 입력/수정 다이얼로그 -->
     <el-dialog
-      title="경기 결과 입력"
+      :title="selectedMatch && selectedMatch.status === 'COMPLETED' ? '경기 결과 수정' : '경기 결과 입력'"
       :visible.sync="resultDialogVisible"
       width="360px"
     >
@@ -301,6 +315,59 @@
         <el-button type="primary" :loading="savingMatch" @click="handleMatchSave">생성</el-button>
       </div>
     </el-dialog>
+    <!-- 경기 수정 다이얼로그 -->
+    <el-dialog
+      title="경기 수정"
+      :visible.sync="matchEditDialogVisible"
+      width="560px"
+      @close="resetMatchEditForm"
+    >
+      <el-form ref="matchEditFormRef" :model="matchEditForm" label-width="120px">
+        <el-form-item label="홈팀">
+          <span style="font-weight:600">{{ matchEditTarget ? matchEditTarget.homeTeamName : '' }}</span>
+        </el-form-item>
+        <el-form-item label="원정팀">
+          <span style="font-weight:600">{{ matchEditTarget ? matchEditTarget.awayTeamName : '' }}</span>
+        </el-form-item>
+        <el-form-item label="경기 일시" prop="matchDate">
+          <el-date-picker
+            v-model="matchEditForm.matchDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="날짜 선택"
+            style="width:100%"
+          />
+        </el-form-item>
+        <el-form-item label="시작 시간" prop="matchTime">
+          <el-time-picker
+            v-model="matchEditForm.matchTime"
+            value-format="HH:mm"
+            placeholder="시간 선택"
+            style="width:100%"
+          />
+        </el-form-item>
+        <el-form-item label="소요 시간(분)">
+          <el-select v-model="matchEditForm.durationMinutes" style="width:100%">
+            <el-option label="60분" :value="60" />
+            <el-option label="90분" :value="90" />
+            <el-option label="120분" :value="120" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="회차">
+          <el-input-number v-model="matchEditForm.round" :min="1" />
+        </el-form-item>
+        <el-form-item label="구장명">
+          <el-input v-model="matchEditForm.stadiumName" />
+        </el-form-item>
+        <el-form-item label="구장 주소">
+          <el-input v-model="matchEditForm.stadiumAddress" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="matchEditDialogVisible = false">취소</el-button>
+        <el-button type="primary" :loading="savingMatchEdit" @click="handleMatchEditSave">저장</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -309,6 +376,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import {
   getLeagueList, getLeague, createLeague, updateLeague, deleteLeague,
   getLeagueTeams, createLeagueMatch, updateMatchResult, getAdminLeagueMatches,
+  updateLeagueMatch,
 } from '@/api/league';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
@@ -385,6 +453,22 @@ status: 'RECRUITING',
 
   private resultForm = { matchUid: '', homeScore: 0, awayScore: 0 };
 
+  // 경기 수정 폼
+  private matchEditDialogVisible = false;
+
+  private savingMatchEdit = false;
+
+  private matchEditTarget: any = null;
+
+  private matchEditForm: any = {
+    matchDate: '',
+    matchTime: '',
+    durationMinutes: 90,
+    round: 1,
+    stadiumName: '',
+    stadiumAddress: '',
+  };
+
   // 경기 폼
   private matchDialogVisible = false;
 
@@ -393,15 +477,15 @@ status: 'RECRUITING',
   private selectedLeagueTeams: any[] = [];
 
   private matchForm: any = {
-    leagueUid: '',
-homeTeamUid: '',
-awayTeamUid: '',
-    matchDate: '',
-matchTime: '',
-durationMinutes: 90,
-round: 1,
+    leagueUid: null,
+    homeTeamUid: null,
+    awayTeamUid: null,
+    matchDate: null,
+    matchTime: null,
+    durationMinutes: 90,
+    round: 1,
     stadiumName: '',
-stadiumAddress: '',
+    stadiumAddress: '',
   };
 
   private matchRules = {
@@ -553,14 +637,14 @@ status: 'RECRUITING',
     this.selectedLeague = league;
     this.matchForm = {
       leagueUid: league.uid,
-homeTeamUid: '',
-awayTeamUid: '',
-      matchDate: '',
-matchTime: '',
-durationMinutes: 90,
-round: 1,
+      homeTeamUid: null,
+      awayTeamUid: null,
+      matchDate: null,
+      matchTime: null,
+      durationMinutes: 90,
+      round: 1,
       stadiumName: '',
-stadiumAddress: '',
+      stadiumAddress: '',
     };
     try {
       const res = await getLeagueTeams(league.uid);
@@ -593,15 +677,13 @@ stadiumAddress: '',
   }
 
   matchStatusType(s: string) {
-    return ({
- SCHEDULED: '', IN_PROGRESS: 'warning', FINISHED: 'success', CANCELLED: 'danger',
-} as any)[s] || '';
+    return ({ SCHEDULED: '', IN_PROGRESS: 'warning', COMPLETED: 'success', CANCELLED: 'danger' } as any)[s] || '';
   }
 
   matchStatusLabel(s: string) {
     return ({
- SCHEDULED: '예정', IN_PROGRESS: '진행중', FINISHED: '종료', CANCELLED: '취소',
-} as any)[s] || s;
+      SCHEDULED: '예정', IN_PROGRESS: '진행중', COMPLETED: '종료', CANCELLED: '취소',
+    } as any)[s] || s;
   }
 
   openResultForm(match: any) {
@@ -628,6 +710,48 @@ stadiumAddress: '',
       this.$message.error(msg);
     } finally {
       this.savingResult = false;
+    }
+  }
+
+  // ── 경기 수정 ──
+  openMatchEditForm(match: any) {
+    this.matchEditTarget = match;
+    this.matchEditForm = {
+      matchDate: match.matchDate || '',
+      matchTime: match.matchTime || '',
+      durationMinutes: match.durationMinutes || 90,
+      round: match.round || 1,
+      stadiumName: match.stadiumName || '',
+      stadiumAddress: match.stadiumAddress || '',
+    };
+    this.matchEditDialogVisible = true;
+  }
+
+  resetMatchEditForm() {
+    this.matchEditTarget = null;
+    this.matchEditForm = {
+      matchDate: '',
+      matchTime: '',
+      durationMinutes: 90,
+      round: 1,
+      stadiumName: '',
+      stadiumAddress: '',
+    };
+  }
+
+  async handleMatchEditSave() {
+    this.savingMatchEdit = true;
+    try {
+      await updateLeagueMatch(this.matchEditTarget.uid, this.matchEditForm);
+      this.$message.success('경기가 수정되었습니다.');
+      this.matchEditDialogVisible = false;
+      const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
+      this.scheduleMatches = res.data || [];
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || '수정 중 오류가 발생했습니다.';
+      this.$message.error(msg);
+    } finally {
+      this.savingMatchEdit = false;
     }
   }
 

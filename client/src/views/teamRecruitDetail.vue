@@ -113,10 +113,10 @@
         </div>
         <button
           class="apply-button"
-          :disabled="isApplying"
+          :disabled="isApplying || hasPendingRequest"
           @click="applyToTeam"
         >
-          {{ isInvitedJoin ? '바로 가입하기' : '가입 신청하기' }}
+          {{ hasPendingRequest ? '가입 승인 대기중입니다' : (isInvitedJoin ? '바로 가입하기' : '가입 신청하기') }}
         </button>
       </div>
     </template>
@@ -136,6 +136,7 @@ import {
   getTeamByCode,
   joinTeamByInviteCode,
   getTeamByInviteCode,
+  checkMembershipStatus,
 } from '@/api/team';
 
 @Component
@@ -149,6 +150,8 @@ export default class TeamRecruitDetail extends Vue {
   private isInvitedJoin = false
 
   private invitationCode = ''
+
+  private hasPendingRequest = false
 
   get featureTags(): string[] {
     if (!this.team?.featureTags) return [];
@@ -232,6 +235,14 @@ export default class TeamRecruitDetail extends Vue {
         team = res.data || res;
       }
       this.team = team;
+      if (!this.invitationCode) {
+        try {
+          const statusRes = await checkMembershipStatus();
+          this.hasPendingRequest = statusRes.data?.hasPendingRequest || false;
+        } catch (e) {
+          // 상태 조회 실패 무시
+        }
+      }
     } catch (error) {
       Message.error('팀 정보를 불러오지 못했습니다.');
       console.error('Failed to load team detail:', error);
@@ -271,7 +282,7 @@ export default class TeamRecruitDetail extends Vue {
           message: '회원 모집을 보고 신청합니다.',
         });
         Message.success('가입 신청이 완료되었습니다!');
-        this.$router.push(`/team-recruit-detail/${this.team.uid || this.team.teamUid}`);
+        this.hasPendingRequest = true;
       }
     } catch (error: any) {
       const serverMsg = error?.response?.data?.message;

@@ -66,3 +66,9 @@ export const getAdminLeagueMatches = (leagueUid: string) => request({
   url: `${PATH}/admin/${leagueUid}/matches`,
   method: 'get',
 });
+
+export const updateLeagueMatch = (matchUid: string, data: any) => request({
+  url: `${PATH}/admin/match/${matchUid}`,
+  method: 'put',
+  data,
+});

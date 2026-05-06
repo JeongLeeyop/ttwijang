@@ -138,32 +138,56 @@
           </div>
         </div>
 
-        <!-- 리그 매치 상세 정보 -->
+        <!-- 홈팀 정보 -->
         <div class="section-block">
+          <h3 class="section-title">{{ homeTeamName }}</h3>
           <div class="info-list">
             <div class="info-list-item">
               <span class="info-list-label">- 팀 명</span>
-              <span class="info-list-value">{{ homeTeamName }} vs {{ awayTeamName }}</span>
+              <span class="info-list-value">{{ homeTeamName }}</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 홈 구장</span>
-              <span class="info-list-value">{{ stadiumName }}</span>
+              <span class="info-list-value">{{ detailData && detailData.homeTeamHomeStadium || '-' }}</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 팀 회원수</span>
-              <span class="info-list-value">{{ detailData?.homeTeamMemberCount || '-' }}</span>
-            </div>
-            <div class="info-list-item">
-              <span class="info-list-label">- 평균 나이</span>
-              <span class="info-list-value">{{ detailData?.averageAge || '-' }}</span>
+              <span class="info-list-value">{{ detailData && detailData.homeTeamMemberCount ? detailData.homeTeamMemberCount + '명' : '-' }}</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 경기 전적 (전체)</span>
-              <span class="info-list-value">{{ leagueRecord }}</span>
+              <span class="info-list-value">{{ homeTeamTotalRecord }}</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 리그 전적</span>
-              <span class="info-list-value">{{ leagueStandingRecord }}</span>
+              <span class="info-list-value">{{ homeTeamLeagueRecord }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 원정팀 정보 -->
+        <div class="section-block">
+          <h3 class="section-title">{{ awayTeamName }}</h3>
+          <div class="info-list">
+            <div class="info-list-item">
+              <span class="info-list-label">- 팀 명</span>
+              <span class="info-list-value">{{ awayTeamName }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 홈 구장</span>
+              <span class="info-list-value">{{ detailData && detailData.awayTeamHomeStadium || '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 팀 회원수</span>
+              <span class="info-list-value">{{ detailData && detailData.awayTeamMemberCount ? detailData.awayTeamMemberCount + '명' : '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 경기 전적 (전체)</span>
+              <span class="info-list-value">{{ awayTeamTotalRecord }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 리그 전적</span>
+              <span class="info-list-value">{{ awayTeamLeagueRecord }}</span>
             </div>
           </div>
         </div>
@@ -202,16 +226,12 @@
               <span class="info-list-value">{{ durationText }}</span>
             </div>
             <div class="info-list-item">
-              <span class="info-list-label">- 경기 수</span>
-              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
-            </div>
-            <div class="info-list-item">
               <span class="info-list-label">- 매너 점수</span>
               <span class="info-list-value">{{ hostMannerScore || '-' }}점</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 리그 등급</span>
-              <span class="info-list-value">{{ detailData?.leagueGrade || '-' }}</span>
+              <span class="info-list-value">{{ leagueRankingText }}</span>
             </div>
           </div>
         </div>
@@ -248,10 +268,6 @@
               <span class="info-list-value">{{ durationText }}</span>
             </div>
             <div class="info-list-item">
-              <span class="info-list-label">- 경기 수</span>
-              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
-            </div>
-            <div class="info-list-item">
               <span class="info-list-label">- 필드/골키퍼</span>
               <span class="info-list-value">{{ positionLabel }}</span>
             </div>
@@ -272,10 +288,7 @@
             >
             <div class="host-info">
               <span class="host-name">{{ hostTeamName }}</span>
-              <span
-                v-if="hostMannerScore"
-                class="host-manner"
-              >매너 {{ hostMannerScore }}점</span>
+              <span class="host-manner">매너 {{ hostMannerScore ? hostMannerScore + '점' : '0.0점' }}</span>
             </div>
           </div>
           <div class="info-list">
@@ -292,16 +305,8 @@
               <span class="info-list-value">{{ durationText }}</span>
             </div>
             <div class="info-list-item">
-              <span class="info-list-label">- 경기 수</span>
-              <span class="info-list-value">{{ detailData?.matchCount || 1 }}경기</span>
-            </div>
-            <div class="info-list-item">
               <span class="info-list-label">- 매너 점수</span>
-              <span class="info-list-value">{{ hostMannerScore || '-' }}점</span>
-            </div>
-            <div class="info-list-item">
-              <span class="info-list-label">- 리그 등급</span>
-              <span class="info-list-value">{{ detailData?.leagueGrade || '-' }}</span>
+              <span class="info-list-value">{{ hostMannerScore ? hostMannerScore + '점' : '0.0점' }}</span>
             </div>
           </div>
         </div>
@@ -531,6 +536,13 @@
         >
           모집 완료
         </el-button>
+        <el-button
+          v-else
+          class="apply-button apply-button--closed"
+          disabled
+        >
+          신청 불가
+        </el-button>
       </div>
 
       <!-- 리그 경기 결과 입력 모달 (관리자 전용) -->
@@ -707,6 +719,7 @@ import {
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
 import { getMyTeams } from '@/api/team';
+import { ElButton } from 'element-ui/types/button';
 
 type DetailType = 'league' | 'friendly' | 'free' | 'guest'
 
@@ -1041,8 +1054,8 @@ export default class MatchDetail extends Vue {
 
   get ageGroupsText(): string {
     const val = this.detailData?.ageGroups;
-    if (!val) return '';
-    if (val === 31) return '나이 무관';
+    if (val == null) return '';
+    if (val === 0 || val === 31) return '나이 무관';
     const labels = ['10대', '20대', '30대', '40대', '50대 이상'];
     const ages: string[] = [];
     labels.forEach((label, i) => {
@@ -1072,6 +1085,36 @@ export default class MatchDetail extends Vue {
     const home = this.leagueData.standings.find((s: any) => s.teamUid === this.detailData?.homeTeamUid);
     if (!home) return '-';
     return `${home.wins || 0}승 ${home.draws || 0}무 ${home.losses || 0}패`;
+  }
+
+  get homeTeamTotalRecord(): string {
+    const d = this.detailData;
+    if (!d) return '-';
+    return `${d.homeTeamTotalWins || 0}승 ${d.homeTeamTotalDraws || 0}무 ${d.homeTeamTotalLosses || 0}패`;
+  }
+
+  get awayTeamTotalRecord(): string {
+    const d = this.detailData;
+    if (!d) return '-';
+    return `${d.awayTeamTotalWins || 0}승 ${d.awayTeamTotalDraws || 0}무 ${d.awayTeamTotalLosses || 0}패`;
+  }
+
+  get homeTeamLeagueRecord(): string {
+    const s = this.leagueData?.standings?.find((st: any) => st.teamUid === this.detailData?.homeTeamUid);
+    if (!s) return '-';
+    return `${s.wins || 0}승 ${s.draws || 0}무 ${s.losses || 0}패`;
+  }
+
+  get awayTeamLeagueRecord(): string {
+    const s = this.leagueData?.standings?.find((st: any) => st.teamUid === this.detailData?.awayTeamUid);
+    if (!s) return '-';
+    return `${s.wins || 0}승 ${s.draws || 0}무 ${s.losses || 0}패`;
+  }
+
+  get leagueRankingText(): string {
+    const ranking = this.detailData?.leagueRanking;
+    if (!ranking) return '-';
+    return `${ranking}위`;
   }
 
   get participants(): any[] {
@@ -1119,8 +1162,9 @@ export default class MatchDetail extends Vue {
   get showMannerButton(): boolean {
     const status = this.detailData?.status;
     if (status !== 'COMPLETED') return false;
-    if (this.detailData?.isTeamOwner) return false;
     if (this.detailData?.hasRatedManner) return false;
+    // 리그 경기는 관리자가 결과를 입력하므로 팀 오너도 참가자로서 평가 가능
+    if (this.detailType !== 'league' && this.detailData?.isTeamOwner) return false;
     return this.alreadyApplied;
   }
 

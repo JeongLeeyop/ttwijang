@@ -177,6 +177,17 @@
           </div>
         </div>
 
+        <!-- 매치 규칙 -->
+        <div class="form-group">
+          <label>매치 규칙 (선택)</label>
+          <textarea
+            v-model="matchRules"
+            rows="3"
+            class="form-textarea"
+            placeholder="특별한 규칙이 있으면 입력해주세요"
+          ></textarea>
+        </div>
+
         <!-- 등록하기 버튼 -->
         <button class="submit-button" @click="handleSubmit">등록하기</button>
       </div>
@@ -213,6 +224,8 @@ export default class MatchCreate extends Vue {
   private durationOptions = [1, 2, 3, 4]
 
   private feePresets = [10000, 20000, 30000, 50000]
+
+  private matchRules = ''
 
   private formatOptions = [
     { label: '4 vs 4', value: 'FOUR_VS_FOUR' },
@@ -262,6 +275,7 @@ export default class MatchCreate extends Vue {
           const rawFormat = m.matchFormat || '';
           this.matchFormat = formatNormalize[rawFormat] || rawFormat || 'FIVE_VS_FIVE';
           this.fee = m.fee || 0;
+          this.matchRules = m.matchRules || '';
         }
       } catch (e) {
         this.$message.error('매치 정보를 불러오지 못했습니다.');
@@ -384,6 +398,7 @@ export default class MatchCreate extends Vue {
         matchType: this.matchType,
         matchFormat: this.matchFormat,
         fee: this.fee,
+        matchRules: this.matchRules,
       };
 
       if (this.isEditMode) {
@@ -394,6 +409,7 @@ export default class MatchCreate extends Vue {
           stadiumName: matchData.stadiumName,
           matchFormat: matchData.matchFormat,
           fee: matchData.fee,
+          matchRules: matchData.matchRules,
         });
         this.$message.success('매치가 수정되었습니다.');
         this.$router.go(-1);
@@ -748,5 +764,23 @@ export default class MatchCreate extends Vue {
   background: #e8ecff;
   border-color: #061da1;
   color: #061da1;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.form-textarea:focus {
+  border-color: #061da1;
 }
 </style>

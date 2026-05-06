@@ -22,11 +22,13 @@ import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
+import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.MatchApplication;
 import com.ttwijang.cms.entity.MatchConfig;
@@ -53,6 +55,7 @@ public class MatchService {
     private final NotificationService notificationService;
     private final TeamMemberRepository teamMemberRepository;
     private final MannerRatingRepository mannerRatingRepository;
+    private final LeagueTeamRepository leagueTeamRepository;
 
     private static final Map<String, Integer> FORMAT_MAX_PLAYERS = new HashMap<>();
     static {
@@ -99,6 +102,7 @@ public class MatchService {
                 .regionSido(request.getRegionSido())
                 .regionSigungu(request.getRegionSigungu())
                 .additionalInfo(request.getAdditionalInfo())
+                .matchRules(request.getMatchRules())
                 .status(FutsalMatch.FutsalMatchStatus.RECRUITING)
                 .build();
 
@@ -431,6 +435,7 @@ public class MatchService {
         if (request.getMatchFormat() != null) match.setMatchFormat(request.getMatchFormat());
         if (request.getFee() != null) match.setFee(request.getFee());
         if (request.getAdditionalInfo() != null) match.setAdditionalInfo(request.getAdditionalInfo());
+        if (request.getMatchRules() != null) match.setMatchRules(request.getMatchRules());
         match = matchRepository.save(match);
         return toDetailResponse(match);
     }
@@ -704,6 +709,7 @@ public class MatchService {
                 .regionSido(match.getRegionSido())
                 .regionSigungu(match.getRegionSigungu())
                 .additionalInfo(match.getAdditionalInfo())
+                .matchRules(match.getMatchRules())
                 .homeScore(match.getHomeScore())
                 .awayScore(match.getAwayScore())
                 .status(match.getStatus())
@@ -713,6 +719,9 @@ public class MatchService {
                 .isTeamOwner(isTeamOwner)
                 .guestTeamMannerScore(guestTeam != null ? guestTeam.getMannerScore() : 0.0)
                 .createdDate(match.getCreatedDate())
+                .genderType(hostTeam != null ? hostTeam.getGenderType() : null)
+                .ageGroups(hostTeam != null ? hostTeam.getAgeGroups() : null)
+                .leagueRanking(resolveLeagueRanking(match.getHostTeamUid()))
                 .build();
     }
 
@@ -770,5 +779,16 @@ public class MatchService {
                 .guestMaxMembers(guestMaxMembers)
                 .teamMemberCount(teamMemberCount)
                 .build();
+    }
+
+    private Integer resolveLeagueRanking(String teamUid) {
+        Integer ranking = null;
+        for (LeagueTeam lt : leagueTeamRepository.findByTeamUid(teamUid)) {
+            if (lt.getRanking() != null && lt.getRanking() > 0
+                    && (ranking == null || lt.getRanking() < ranking)) {
+                ranking = lt.getRanking();
+            }
+        }
+        return ranking;
     }
 }

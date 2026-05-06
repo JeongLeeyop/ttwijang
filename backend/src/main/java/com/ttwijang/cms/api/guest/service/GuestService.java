@@ -410,11 +410,20 @@ public class GuestService {
                     .build());
         });
 
+        FutsalMatch linkedMatch = recruitment.getMatch();
+        Integer ageGroups = (recruitment.getAgeGroups() != null && recruitment.getAgeGroups() != 0)
+                ? recruitment.getAgeGroups()
+                : (team != null ? team.getAgeGroups() : null);
+        Integer genderType = recruitment.getGenderType() != null ? recruitment.getGenderType()
+                : (team != null ? team.getGenderType() : null);
         return GuestDto.DetailResponse.builder()
                 .uid(recruitment.getUid())
                 .teamUid(recruitment.getTeamUid())
                 .teamName(team != null ? team.getName() : "")
+                .teamLogoUrl(team != null ? team.getLogoFileUid() : null)
                 .teamMannerScore(team != null ? team.getMannerScore() : 0.0)
+                .durationHours(linkedMatch != null ? linkedMatch.getDurationHours() : null)
+                .matchRules(linkedMatch != null ? linkedMatch.getMatchRules() : null)
                 .matchUid(recruitment.getMatchUid())
                 .matchDate(recruitment.getMatchDate())
                 .matchTime(recruitment.getMatchTime())
@@ -422,8 +431,8 @@ public class GuestService {
                 .stadiumAddress(recruitment.getStadiumAddress())
                 .regionSido(recruitment.getRegionSido())
                 .regionSigungu(recruitment.getRegionSigungu())
-                .genderType(recruitment.getGenderType())
-                .ageGroups(recruitment.getAgeGroups())
+                .genderType(genderType)
+                .ageGroups(ageGroups)
                 .positionType(recruitment.getPositionType())
                 .maxGuests(recruitment.getMaxGuests())
                 .currentGuests(recruitment.getCurrentGuests())

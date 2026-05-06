@@ -95,6 +95,10 @@ public class FutsalMatch implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String additionalInfo;
 
+    // 매치 규칙
+    @Column(columnDefinition = "TEXT")
+    private String matchRules;
+
     // 모집 마감일
     private LocalDateTime recruitmentDeadline;
 

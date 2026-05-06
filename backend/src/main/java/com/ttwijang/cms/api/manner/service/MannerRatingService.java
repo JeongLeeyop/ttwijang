@@ -3,11 +3,13 @@ package com.ttwijang.cms.api.manner.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.league.repository.LeagueMatchRepository;
 import com.ttwijang.cms.api.manner.dto.MannerRatingDto;
 import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.LeagueMatch;
 import com.ttwijang.cms.entity.MannerRating;
 import com.ttwijang.cms.entity.Team;
 
@@ -19,6 +21,7 @@ public class MannerRatingService {
 
     private final MannerRatingRepository mannerRatingRepository;
     private final FutsalMatchRepository matchRepository;
+    private final LeagueMatchRepository leagueMatchRepository;
     private final TeamRepository teamRepository;
 
     /**
@@ -26,13 +29,18 @@ public class MannerRatingService {
      */
     @Transactional
     public MannerRatingDto.RateResponse rateTeam(MannerRatingDto.RateTeamRequest request, String raterUserUid) {
-        // 매치 존재 확인
-        FutsalMatch match = matchRepository.findByUid(request.getMatchUid())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
-
-        // 매치가 완료 상태인지 확인
-        if (match.getStatus() != FutsalMatch.FutsalMatchStatus.COMPLETED) {
-            throw new IllegalArgumentException("완료된 매치에서만 매너 점수를 평가할 수 있습니다.");
+        // FutsalMatch 또는 LeagueMatch 존재 및 완료 상태 확인
+        FutsalMatch futsalMatch = matchRepository.findByUid(request.getMatchUid()).orElse(null);
+        if (futsalMatch != null) {
+            if (futsalMatch.getStatus() != FutsalMatch.FutsalMatchStatus.COMPLETED) {
+                throw new IllegalArgumentException("완료된 매치에서만 매너 점수를 평가할 수 있습니다.");
+            }
+        } else {
+            LeagueMatch leagueMatch = leagueMatchRepository.findByUid(request.getMatchUid())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
+            if (leagueMatch.getStatus() != LeagueMatch.MatchStatus.COMPLETED) {
+                throw new IllegalArgumentException("완료된 매치에서만 매너 점수를 평가할 수 있습니다.");
+            }
         }
 
         // 평가 대상 팀 존재 확인

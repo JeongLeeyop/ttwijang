@@ -313,7 +313,7 @@ export default class LeagueStatusView extends Vue {
 }
 
 .league-filter-row {
-  margin-bottom: 8px;
+  margin: 8px 0;
 }
 
 .league-filter-select {

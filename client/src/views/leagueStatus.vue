@@ -105,7 +105,9 @@
 import {
   Vue, Component, Watch, Prop,
 } from 'vue-property-decorator';
-import { getLeagueStandings, getLeagueSchedule, getLeaguesByTeam } from '@/api/league';
+import {
+  getLeagueStandings, getLeagueSchedule, getLeaguesByTeam, getLeagueDetail,
+} from '@/api/league';
 import { getMyTeams } from '@/api/team';
 
 interface LeagueTeam {
@@ -185,17 +187,26 @@ export default class extends Vue {
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 본인 팀 목록 조회
+      const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
+
+      // 본인 팀 목록 조회 (단일 객체 또는 배열 모두 처리)
       let myTeams: any[] = [];
       try {
         const teamsRes = await getMyTeams();
-        myTeams = teamsRes.data || [];
+        const teamData = teamsRes.data;
+        if (Array.isArray(teamData)) {
+          myTeams = teamData;
+        } else if (teamData) {
+          myTeams = [teamData];
+        } else {
+          myTeams = [];
+        }
       } catch (e) {
         myTeams = [];
       }
       this.myTeamUids = myTeams.map((t: any) => t.uid);
 
-      // 각 팀이 참여 중인 리그 수집 (IN_PROGRESS만)
+      // 각 팀이 참여 중인 리그 수집
       const leagueMap = new Map<string, { uid: string, name: string }>();
       await Promise.all(myTeams.map(async (team: any) => {
         try {
@@ -210,11 +221,22 @@ export default class extends Vue {
           // silent
         }
       }));
+
+      // URL의 leagueUid가 있지만 내 리그 목록에 없는 경우 직접 추가 (다른 팀 리그 조회)
+      if (routeLeagueUid && !leagueMap.has(routeLeagueUid)) {
+        try {
+          const leagueRes = await getLeagueDetail(routeLeagueUid);
+          const league = leagueRes.data;
+          leagueMap.set(routeLeagueUid, { uid: routeLeagueUid, name: league?.name || '리그' });
+        } catch (e) {
+          leagueMap.set(routeLeagueUid, { uid: routeLeagueUid, name: '리그' });
+        }
+      }
+
       this.availableLeagues = Array.from(leagueMap.values());
 
       // URL 쿼리의 leagueUid 우선, 없으면 첫 번째
-      const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
-      if (routeLeagueUid && this.availableLeagues.some((l) => l.uid === routeLeagueUid)) {
+      if (routeLeagueUid) {
         this.currentLeagueUid = routeLeagueUid;
         this.selectedLeagueUid = routeLeagueUid;
       } else if (this.availableLeagues.length > 0) {

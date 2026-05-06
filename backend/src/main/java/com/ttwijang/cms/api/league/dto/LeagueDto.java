@@ -250,6 +250,36 @@ public class LeagueDto {
 
         @Schema(description = "참여자 명단 (APPROVED 신청자)")
         private List<LeagueMatchParticipant> participants;
+
+        @Schema(description = "홈팀 홈구장")
+        private String homeTeamHomeStadium;
+
+        @Schema(description = "홈팀 회원수")
+        private Integer homeTeamMemberCount;
+
+        @Schema(description = "홈팀 전체 승")
+        private Integer homeTeamTotalWins;
+
+        @Schema(description = "홈팀 전체 무")
+        private Integer homeTeamTotalDraws;
+
+        @Schema(description = "홈팀 전체 패")
+        private Integer homeTeamTotalLosses;
+
+        @Schema(description = "원정팀 홈구장")
+        private String awayTeamHomeStadium;
+
+        @Schema(description = "원정팀 회원수")
+        private Integer awayTeamMemberCount;
+
+        @Schema(description = "원정팀 전체 승")
+        private Integer awayTeamTotalWins;
+
+        @Schema(description = "원정팀 전체 무")
+        private Integer awayTeamTotalDraws;
+
+        @Schema(description = "원정팀 전체 패")
+        private Integer awayTeamTotalLosses;
     }
 
     @Data
@@ -455,6 +485,31 @@ public class LeagueDto {
     /**
      * 리그 매치 생성 요청 (최고관리자 전용)
      */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "리그 매치 수정 요청")
+    public static class UpdateMatchRequest {
+        @Schema(description = "경기 일자")
+        private LocalDate matchDate;
+
+        @Schema(description = "경기 시작 시간")
+        private LocalTime matchTime;
+
+        @Schema(description = "경기 소요 시간 (분)")
+        private Integer durationMinutes;
+
+        @Schema(description = "라운드")
+        private Integer round;
+
+        @Schema(description = "구장명")
+        private String stadiumName;
+
+        @Schema(description = "구장 주소")
+        private String stadiumAddress;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

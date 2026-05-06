@@ -226,14 +226,17 @@ public class LeagueService {
         LeagueMatch match = leagueMatchRepository.findByUid(request.getMatchUid())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
 
-        if (match.getStatus() == LeagueMatch.MatchStatus.COMPLETED) {
-            throw new IllegalArgumentException("이미 결과가 입력된 경기입니다.");
-        }
         if (match.getStatus() == LeagueMatch.MatchStatus.CANCELLED) {
             throw new IllegalArgumentException("취소된 경기에는 결과를 입력할 수 없습니다.");
         }
         if (request.getHomeScore() < 0 || request.getAwayScore() < 0) {
             throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
+        }
+
+        boolean alreadyCompleted = match.getStatus() == LeagueMatch.MatchStatus.COMPLETED;
+        if (alreadyCompleted) {
+            // 기존 결과 역산 후 새 결과 적용
+            reverseTeamStats(match);
         }
 
         match.setHomeScore(request.getHomeScore());
@@ -244,7 +247,37 @@ public class LeagueService {
         // 팀 전적 업데이트
         updateTeamStats(match);
 
+        // 첫 완료 시 참가자에게 매너 평가 알림 발송
+        if (!alreadyCompleted) {
+            sendMannerRatingNotifications(match);
+        }
+
         return toMatchResponse(match);
+    }
+
+    private void sendMannerRatingNotifications(LeagueMatch match) {
+        List<LeagueMatchApplication> participants = leagueMatchApplicationRepository
+                .findByLeagueMatchUidAndStatus(match.getUid(), LeagueMatchApplication.ApplicationStatus.APPROVED);
+
+        String actionUrl = "/match-detail/" + match.getUid() + "?type=league&leagueUid=" + match.getLeagueUid();
+
+        for (LeagueMatchApplication app : participants) {
+            String opponentTeamUid = match.getHomeTeamUid().equals(app.getTeamUid())
+                    ? match.getAwayTeamUid()
+                    : match.getHomeTeamUid();
+            Team opponentTeam = teamRepository.findByUid(opponentTeamUid).orElse(null);
+            String opponentTeamName = opponentTeam != null ? opponentTeam.getName() : "상대팀";
+
+            notificationService.createNotification(
+                    app.getUserUid(),
+                    Notification.NotificationType.MATCH,
+                    "매너 점수를 입력해주세요",
+                    "'" + opponentTeamName + "'과의 경기가 종료되었습니다. 상대팀 매너 점수를 기록해주세요.",
+                    match.getUid(),
+                    "LEAGUE_MATCH",
+                    actionUrl
+            );
+        }
     }
 
     /**
@@ -291,6 +324,50 @@ public class LeagueService {
                 homeTeam.setPoints(homeTeam.getPoints() + 1);
                 awayTeam.setDraws(awayTeam.getDraws() + 1);
                 awayTeam.setPoints(awayTeam.getPoints() + 1);
+            }
+
+            leagueTeamRepository.save(homeTeam);
+            leagueTeamRepository.save(awayTeam);
+        }
+    }
+
+    /**
+     * 팀 전적 역산 (결과 수정 시 기존 결과 취소)
+     */
+    private void reverseTeamStats(LeagueMatch match) {
+        LeagueTeam homeTeam = leagueTeamRepository.findByLeagueUidAndTeamUid(
+                match.getLeagueUid(), match.getHomeTeamUid()).orElse(null);
+        LeagueTeam awayTeam = leagueTeamRepository.findByLeagueUidAndTeamUid(
+                match.getLeagueUid(), match.getAwayTeamUid()).orElse(null);
+
+        if (homeTeam != null && awayTeam != null) {
+            int homeScore = match.getHomeScore();
+            int awayScore = match.getAwayScore();
+
+            homeTeam.setPlayed(homeTeam.getPlayed() - 1);
+            awayTeam.setPlayed(awayTeam.getPlayed() - 1);
+
+            homeTeam.setGoalsFor(homeTeam.getGoalsFor() - homeScore);
+            homeTeam.setGoalsAgainst(homeTeam.getGoalsAgainst() - awayScore);
+            awayTeam.setGoalsFor(awayTeam.getGoalsFor() - awayScore);
+            awayTeam.setGoalsAgainst(awayTeam.getGoalsAgainst() - homeScore);
+
+            homeTeam.setGoalDifference(homeTeam.getGoalsFor() - homeTeam.getGoalsAgainst());
+            awayTeam.setGoalDifference(awayTeam.getGoalsFor() - awayTeam.getGoalsAgainst());
+
+            if (homeScore > awayScore) {
+                homeTeam.setWins(homeTeam.getWins() - 1);
+                homeTeam.setPoints(homeTeam.getPoints() - 3);
+                awayTeam.setLosses(awayTeam.getLosses() - 1);
+            } else if (homeScore < awayScore) {
+                awayTeam.setWins(awayTeam.getWins() - 1);
+                awayTeam.setPoints(awayTeam.getPoints() - 3);
+                homeTeam.setLosses(homeTeam.getLosses() - 1);
+            } else {
+                homeTeam.setDraws(homeTeam.getDraws() - 1);
+                homeTeam.setPoints(homeTeam.getPoints() - 1);
+                awayTeam.setDraws(awayTeam.getDraws() - 1);
+                awayTeam.setPoints(awayTeam.getPoints() - 1);
             }
 
             leagueTeamRepository.save(homeTeam);
@@ -556,6 +633,22 @@ public class LeagueService {
         return toMatchResponse(match);
     }
 
+    @Transactional
+    public LeagueDto.MatchResponse updateLeagueMatch(String matchUid, LeagueDto.UpdateMatchRequest request) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
+
+        if (request.getMatchDate() != null) match.setMatchDate(request.getMatchDate());
+        if (request.getMatchTime() != null) match.setMatchTime(request.getMatchTime());
+        if (request.getDurationMinutes() != null) match.setDurationMinutes(request.getDurationMinutes());
+        if (request.getRound() != null) match.setRound(request.getRound());
+        if (request.getStadiumName() != null) match.setStadiumName(request.getStadiumName());
+        if (request.getStadiumAddress() != null) match.setStadiumAddress(request.getStadiumAddress());
+
+        match = leagueMatchRepository.save(match);
+        return toMatchResponse(match);
+    }
+
     /**
      * 리그 참가 팀 목록 조회
      */
@@ -753,6 +846,9 @@ public class LeagueService {
             }
         }
 
+        int[] homeRecord = getTeamTotalRecord(match.getHomeTeamUid());
+        int[] awayRecord = getTeamTotalRecord(match.getAwayTeamUid());
+
         return LeagueDto.MatchResponse.builder()
                 .uid(match.getUid())
                 .leagueUid(match.getLeagueUid())
@@ -778,6 +874,16 @@ public class LeagueService {
                 .isTeamOwner(isTeamOwner)
                 .myTeamUid(myTeamUid)
                 .participants(participants)
+                .homeTeamHomeStadium(homeTeam != null ? homeTeam.getHomeStadium() : null)
+                .homeTeamMemberCount(homeTeam != null ? homeTeam.getMemberCount() : null)
+                .homeTeamTotalWins(homeRecord[0])
+                .homeTeamTotalDraws(homeRecord[1])
+                .homeTeamTotalLosses(homeRecord[2])
+                .awayTeamHomeStadium(awayTeam != null ? awayTeam.getHomeStadium() : null)
+                .awayTeamMemberCount(awayTeam != null ? awayTeam.getMemberCount() : null)
+                .awayTeamTotalWins(awayRecord[0])
+                .awayTeamTotalDraws(awayRecord[1])
+                .awayTeamTotalLosses(awayRecord[2])
                 .build();
     }
 
@@ -912,5 +1018,16 @@ public class LeagueService {
                 ? java.time.LocalDateTime.of(date, match.getMatchTime())
                 : date.atTime(23, 59, 59);
         return java.time.LocalDateTime.now().isAfter(startAt);
+    }
+
+    private int[] getTeamTotalRecord(String teamUid) {
+        List<com.ttwijang.cms.entity.LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
+        int wins = 0, draws = 0, losses = 0;
+        for (com.ttwijang.cms.entity.LeagueTeam lt : leagueTeams) {
+            wins += lt.getWins() != null ? lt.getWins() : 0;
+            draws += lt.getDraws() != null ? lt.getDraws() : 0;
+            losses += lt.getLosses() != null ? lt.getLosses() : 0;
+        }
+        return new int[]{wins, draws, losses};
     }
 }

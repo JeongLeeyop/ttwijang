@@ -157,8 +157,11 @@ export default class extends Vue {
         name: league.name,
       }));
 
-      // 첫 번째 리그 선택
-      if (this.leagues.length > 0) {
+      // URL의 leagueUid 우선, 없으면 첫 번째 리그 선택
+      const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
+      if (routeLeagueUid && this.leagues.some((l) => l.uid === routeLeagueUid)) {
+        this.selectedLeague = routeLeagueUid;
+      } else if (this.leagues.length > 0) {
         this.selectedLeague = this.leagues[0].uid;
       }
     } catch (error) {

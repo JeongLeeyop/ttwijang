@@ -14,7 +14,7 @@
         <!-- Stats Row Section -->
         <section class="stats-row-section">
           <div class="stat-button">
-            <div class="stat-label">매너점수</div>
+            <div class="stat-label">팀 매너점수</div>
             <div class="stat-value">
               <i v-if="isLoadingStats" class="el-icon-loading"></i>
               <span v-else>{{ userStats.mannerscore }}</span>
@@ -176,6 +176,7 @@ import { getMyTeams, checkMembershipStatus } from '@/api/team';
 import { getTeamMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMyMatchApplications } from '@/api/match';
+import { getMyLeagueMatchApplications } from '@/api/league';
 import { getToken, getTokenInfo } from '@/utils/cookies';
 
 @Component({
@@ -344,13 +345,19 @@ export default class MyPage extends Vue {
         this.isLoadingStats = false;
       }
 
-      // 참여 경기수 로드 (내가 신청한 매치 중 COMPLETED인 것만)
+      // 참여 경기수 로드 (일반 매치 + 리그 경기 중 COMPLETED인 것)
       try {
-        const matchesResponse = await getMyMatchApplications();
-        if (matchesResponse.data) {
-          const applications = Array.isArray(matchesResponse.data) ? matchesResponse.data : [];
-          this.userStats.matches = applications.filter((a: any) => a.matchStatus === 'COMPLETED').length;
-        }
+        const [matchesResponse, leagueMatchesResponse] = await Promise.allSettled([
+          getMyMatchApplications(),
+          getMyLeagueMatchApplications(),
+        ]);
+        const normalMatches = matchesResponse.status === 'fulfilled' && Array.isArray(matchesResponse.value.data)
+          ? matchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
+          : 0;
+        const leagueMatches = leagueMatchesResponse.status === 'fulfilled' && Array.isArray(leagueMatchesResponse.value.data)
+          ? leagueMatchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
+          : 0;
+        this.userStats.matches = normalMatches + leagueMatches;
       } catch (matchError) {
         console.warn('경기 정보 로드 실패:', matchError);
       } finally {

@@ -230,6 +230,15 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.createLeagueMatch(request));
     }
 
+    @Operation(summary = "[관리자] 리그 경기 수정", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/admin/match/{matchUid}")
+    public ResponseEntity<LeagueDto.MatchResponse> updateLeagueMatch(
+            @PathVariable String matchUid,
+            @RequestBody LeagueDto.UpdateMatchRequest request) {
+        return ResponseEntity.ok(leagueService.updateLeagueMatch(matchUid, request));
+    }
+
     @Operation(summary = "[관리자] 리그 전체 경기 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/{leagueUid}/matches")
