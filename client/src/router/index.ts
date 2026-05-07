@@ -37,24 +37,6 @@ export const constantRoutes: Array<RouteConfig> = [
 				component: () => import('@/views/league.vue'),
 			},
 			{
-				path: 'league-status',
-				name: 'LeagueStatus',
-				meta: {
-					title: '리그 현황',
-					requiresAuth: true,
-				},
-				component: () => import('@/views/leagueStatus.vue'),
-			},
-			{
-				path: 'league-schedule',
-				name: 'LeagueSchedule',
-				meta: {
-					title: '리그 일정',
-					requiresAuth: true,
-				},
-				component: () => import('@/views/leagueSchedule.vue'),
-			},
-			{
 				path: 'league-guest',
 				name: 'LeagueGuest',
 				meta: {
@@ -111,6 +93,24 @@ export const constantRoutes: Array<RouteConfig> = [
 					title: '경기 상세',
 				},
 				component: () => import('@/views/matchDetail.vue'),
+			},
+			{
+				path: '/league-status',
+				name: 'LeagueStatus',
+				meta: {
+					title: '리그 현황',
+					requiresAuth: true,
+				},
+				component: () => import('@/views/leagueStatus.vue'),
+			},
+			{
+				path: '/league-schedule',
+				name: 'LeagueSchedule',
+				meta: {
+					title: '리그 일정',
+					requiresAuth: true,
+				},
+				component: () => import('@/views/leagueSchedule.vue'),
 			},
 		],
 	},

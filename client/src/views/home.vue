@@ -28,7 +28,7 @@
             <div class="team-card-right">
               <div class="team-tags">
                 <span class="tag" :class="card.cardType === 'MATCH' ? 'tag-match' : 'tag-guest'">{{ card.cardType === 'MATCH' ? '매치' : '게스트' }}</span>
-                <span v-if="card.matchFormat" class="tag">{{ card.matchFormat }}</span>
+                <span v-if="card.matchFormat" class="tag">{{ formatMatchFormat(card.matchFormat) }}</span>
                 <span v-if="card.positionType" class="tag">{{ card.positionLabel }}</span>
               </div>
               <!-- <div class="match-teams-names">
@@ -600,6 +600,19 @@ export default class extends Vue {
       date: `${month}월 ${day}일`,
       day: dayNames[date.getDay()],
     };
+  }
+
+  private formatMatchFormat(format: string): string {
+    const map: Record<string, string> = {
+      ONE_VS_ONE: '1 vs 1',
+      TWO_VS_TWO: '2 vs 2',
+      THREE_VS_THREE: '3 vs 3',
+      FOUR_VS_FOUR: '4 vs 4',
+      FIVE_VS_FIVE: '5 vs 5',
+      SIX_VS_SIX: '6 vs 6',
+      SEVEN_VS_SEVEN: '7 vs 7',
+    };
+    return map[format] || format;
   }
 
   private formatMatchTime(timeStr: string): string {

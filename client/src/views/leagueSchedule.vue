@@ -1,11 +1,6 @@
 <template>
   <div class="main league-schedule-page">
     <div class="background-wave"></div>
-    <div v-if="$route.query.returnTeamCode" class="page-back-wrap">
-      <button class="page-back-button" @click="goBackToTeamPage">
-        <i class="el-icon-arrow-left" />
-      </button>
-    </div>
     <!-- Content -->
     <div class="content">
       <!-- League Status View -->
@@ -238,51 +233,14 @@ export default class extends Vue {
 }
 
 .league-schedule-page .content {
-  margin-top: 73px;
+  margin-top: 50px;
   padding: 20px;
   background: #fff;
-}
-
-.league-schedule-page {
-  max-height: none !important;
 }
 
 .league-status-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.page-back-wrap {
-  position: fixed;
-  top: 85px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 480px;
-  width: 100%;
-  padding: 0 16px;
-  display: flex;
-  justify-content: flex-end;
-  z-index: 1001;
-  pointer-events: none;
-}
-
-.page-back-button {
-  pointer-events: auto;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.page-back-button i {
-  font-size: 18px;
-  color: #333;
 }
 </style>

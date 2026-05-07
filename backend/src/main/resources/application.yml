@@ -13,8 +13,8 @@ server:
 
 spring:
   profiles:
-    active: development
-    # active: product
+    # active: development
+    active: product
   application:
     name: ttwijang
 #용량
@@ -161,8 +161,8 @@ spring:
   
 #첨부파일 경로
 attached-file:
-  upload-directory: /home/ttwijang/attached-file
-  # upload-directory: ./attached-file
+  # upload-directory: /home/ttwijang/attached-file
+  upload-directory: ./attached-file
 
 
 # logging:

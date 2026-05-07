@@ -1,11 +1,6 @@
 <template>
   <div class="main league-schedule-page">
     <div class="background-wave"></div>
-    <div v-if="$route.query.returnTeamCode" class="page-back-wrap">
-      <button class="page-back-button" @click="goBackToTeamPage">
-        <i class="el-icon-arrow-left" />
-      </button>
-    </div>
     <!-- Content -->
     <div class="content">
       <!-- League Status View -->
@@ -160,6 +155,8 @@ export default class extends Vue {
 
   private recentMatches: Match[] = []
 
+  private allMatches: any[] = []
+
   get currentMonth(): string {
     return `${this.currentYear}년 ${this.currentMonthIndex + 1}월`;
   }
@@ -250,8 +247,7 @@ export default class extends Vue {
       }
 
       if (this.currentLeagueUid) {
-        await this.loadStandingsData();
-        await this.loadScheduleData();
+        await Promise.all([this.loadStandingsData(), this.loadScheduleData()]);
       } else {
         this.leagueTable = [];
         this.recentMatches = [];
@@ -267,8 +263,7 @@ export default class extends Vue {
     try {
       const standingsResponse = await getLeagueStandings(this.currentLeagueUid);
       const standings = standingsResponse.data || [];
-
-      this.leagueTable = standings.map((team: any) => ({
+      this.allStandings = standings.map((team: any) => ({
         teamUid: team.teamUid,
         name: team.teamName,
         logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
@@ -289,48 +284,101 @@ export default class extends Vue {
   private async loadScheduleData(): Promise<void> {
     try {
       const scheduleResponse = await getLeagueAllMatches(this.currentLeagueUid);
-      const matches = scheduleResponse.data?.content || scheduleResponse.data || [];
-
-      const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-
-      this.recentMatches = matches
-        .map((match: any) => {
-          const matchDate = new Date(match.matchDate);
-          return {
-            uid: match.uid,
-            date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
-            day: dayNames[matchDate.getDay()],
-            time: match.matchTime,
-            location: match.stadiumName,
-            homeTeam: match.homeTeamName,
-            awayTeam: match.awayTeamName,
-            homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
-            awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
-            homeScore: match.homeScore,
-            awayScore: match.awayScore,
-          };
-        });
+      this.allMatches = scheduleResponse.data?.content || scheduleResponse.data || [];
+      this.updateDisplay();
     } catch (error) {
       this.$message.error('일정을 불러오지 못했습니다.');
     }
   }
 
-  private async previousMonth(): Promise<void> {
+  private toMatchEntry(match: any): Match {
+    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const matchDate = new Date(match.matchDate);
+    return {
+      uid: match.uid,
+      date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
+      day: dayNames[matchDate.getDay()],
+      time: match.matchTime,
+      location: match.stadiumName,
+      homeTeam: match.homeTeamName,
+      awayTeam: match.awayTeamName,
+      homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+      awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+    };
+  }
+
+  private computeMonthlyStandings(rawMatches: any[]): LeagueTeam[] {
+    const teamMap = new Map<string, any>();
+    rawMatches
+      .filter((m: any) => m.status === 'COMPLETED')
+      .forEach((m: any) => {
+        [
+          { uid: m.homeTeamUid, name: m.homeTeamName, logoUrl: m.homeTeamLogoUrl },
+          { uid: m.awayTeamUid, name: m.awayTeamName, logoUrl: m.awayTeamLogoUrl },
+        ].forEach(({ uid, name, logoUrl }) => {
+          if (!teamMap.has(uid)) {
+            teamMap.set(uid, {
+              teamUid: uid, name, logoUrl, played: 0, wins: 0, draws: 0, losses: 0, points: 0, goals: 0, conceded: 0,
+            });
+          }
+        });
+        const home = teamMap.get(m.homeTeamUid);
+        const away = teamMap.get(m.awayTeamUid);
+        const hs = m.homeScore ?? 0;
+        const as2 = m.awayScore ?? 0;
+        home.played += 1; away.played += 1;
+        home.goals += hs; home.conceded += as2;
+        away.goals += as2; away.conceded += hs;
+        if (hs > as2) { home.wins += 1; home.points += 3; away.losses += 1; } else if (hs < as2) { away.wins += 1; away.points += 3; home.losses += 1; } else { home.draws += 1; home.points += 1; away.draws += 1; away.points += 1; }
+      });
+    return Array.from(teamMap.values())
+      .sort((a, b) => b.points - a.points || (b.goals - b.conceded) - (a.goals - a.conceded))
+      .map((t) => ({
+        teamUid: t.teamUid,
+        name: t.name,
+        logo: this.resolveLogoUrl(t.logoUrl, t.name),
+        played: t.played,
+        wins: t.wins,
+        draws: t.draws,
+        losses: t.losses,
+        points: t.points,
+        goals: t.goals,
+        conceded: t.conceded,
+        difference: t.goals - t.conceded,
+      }));
+  }
+
+  private updateDisplay(): void {
+    const filtered = this.allMatches.filter((m: any) => {
+      const d = new Date(m.matchDate);
+      return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonthIndex;
+    });
+    this.leagueTable = this.computeMonthlyStandings(filtered);
+    this.recentMatches = filtered.map((m) => this.toMatchEntry(m));
+  }
+
+  private previousMonth(): void {
+    this.isShowingAll = false;
     if (this.currentMonthIndex === 0) {
       this.currentMonthIndex = 11;
       this.currentYear -= 1;
     } else {
       this.currentMonthIndex -= 1;
     }
+    this.updateDisplay();
   }
 
-  private async nextMonth(): Promise<void> {
+  private nextMonth(): void {
+    this.isShowingAll = false;
     if (this.currentMonthIndex === 11) {
       this.currentMonthIndex = 0;
       this.currentYear += 1;
     } else {
       this.currentMonthIndex += 1;
     }
+    this.updateDisplay();
   }
 
   private goToMatchDetail(matchUid: string): void {
@@ -354,13 +402,9 @@ export default class extends Vue {
 }
 
 .league-schedule-page .content {
-  margin-top: 73px;
+  margin-top: 50px;
   padding: 20px;
   background: #fff;
-}
-
-.league-schedule-page {
-  max-height: none !important;
 }
 
 .league-status-section {
@@ -392,32 +436,11 @@ export default class extends Vue {
   color: #061da1;
 }
 
-.page-back-wrap {
-  position: absolute;
-  top: 85px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 480px;
-  width: 100%;
-  padding: 0 16px;
-  display: flex;
-  justify-content: flex-end;
-  z-index: 1001;
-  pointer-events: none;
-}
-
-.page-back-button {
-  pointer-events: auto;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.calendar-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  gap: 12px;
 }
 
 .page-back-button i {
