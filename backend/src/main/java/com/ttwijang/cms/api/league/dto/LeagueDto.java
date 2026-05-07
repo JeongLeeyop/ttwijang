@@ -280,6 +280,12 @@ public class LeagueDto {
 
         @Schema(description = "원정팀 전체 패")
         private Integer awayTeamTotalLosses;
+
+        @Schema(description = "홈팀 평균 나이")
+        private Double homeTeamAverageAge;
+
+        @Schema(description = "원정팀 평균 나이")
+        private Double awayTeamAverageAge;
     }
 
     @Data

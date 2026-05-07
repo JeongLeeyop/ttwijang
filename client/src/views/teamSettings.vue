@@ -185,6 +185,7 @@ import {
   getTeamMembers,
   delegateOwner,
   updateTeam,
+  checkTeamDeleteEligibility,
   requestDeleteTeam,
 } from '@/api/team';
 
@@ -347,7 +348,26 @@ export default class TeamSettings extends Vue {
     this.members = [];
   }
 
-  private openDeleteDialog(): void {
+  private async openDeleteDialog(): Promise<void> {
+    try {
+      const res = await checkTeamDeleteEligibility(this.teamUid);
+      const eligibility = res.data;
+      if (!eligibility.canDelete) {
+        const reasons: string[] = [];
+        if (eligibility.hasActiveMatches) reasons.push('진행 중인 팀 매치(모집중·매칭완료·경기중)가 있습니다.');
+        if (eligibility.hasActiveGuestRecruitments) reasons.push('진행 중인 게스트 모집이 있습니다.');
+        this.$message({
+          type: 'warning',
+          message: `팀 삭제를 요청하려면 모든 진행 중인 매치와 게스트 모집을 먼저 취소해주세요.\n\n${reasons.join('\n')}`,
+          duration: 5000,
+          showClose: true,
+        });
+        return;
+      }
+    } catch (e) {
+      this.$message.error('삭제 가능 여부를 확인하지 못했습니다.');
+      return;
+    }
     this.deleteDialogVisible = true;
   }
 

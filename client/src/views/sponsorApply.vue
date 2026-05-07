@@ -66,9 +66,11 @@
           <el-input
             v-model.number="amount"
             type="number"
-            placeholder="금액을 입력하세요"
+            placeholder="금액을 입력하세요 (1,000원 단위)"
             :min="1000"
+            :step="1000"
             class="full-width"
+            @change="snapToThousand"
           >
             <template slot="append">원</template>
           </el-input>
@@ -90,7 +92,7 @@
             type="textarea"
             :rows="3"
             placeholder="응원 메시지를 남겨보세요"
-            :maxlength="200"
+            :maxlength="80"
             show-word-limit
           />
         </div>
@@ -136,7 +138,10 @@ export default class SponsorApply extends Vue {
   private isSubmitting = false;
 
   get canSubmit(): boolean {
-    return !!this.selectedTeamUid && this.amount >= 1000 && this.amount <= this.balance;
+    return !!this.selectedTeamUid
+      && this.amount >= 1000
+      && this.amount % 1000 === 0
+      && this.amount <= this.balance;
   }
 
   async created(): Promise<void> {
@@ -158,6 +163,12 @@ export default class SponsorApply extends Vue {
       this.balance = res.data?.balance || 0;
     } catch (e) {
       this.balance = 0;
+    }
+  }
+
+  private snapToThousand(): void {
+    if (this.amount > 0) {
+      this.amount = Math.round(this.amount / 1000) * 1000;
     }
   }
 

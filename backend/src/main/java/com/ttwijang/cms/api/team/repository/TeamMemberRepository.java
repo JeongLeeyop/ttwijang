@@ -23,6 +23,8 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
 
     List<TeamMember> findByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
 
+    List<TeamMember> findByTeamUidAndStatusIn(String teamUid, java.util.List<TeamMember.MemberStatus> statuses);
+
     @EntityGraph(attributePaths = {"user"})
     List<TeamMember> findWithUserByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
 

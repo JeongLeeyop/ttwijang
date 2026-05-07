@@ -520,4 +520,18 @@ public class TeamDto {
         @Schema(description = "매너 점수")
         private double mannerScore;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 삭제 가능 여부")
+    public static class DeleteEligibility {
+        @Schema(description = "삭제 요청 가능 여부")
+        private boolean canDelete;
+        @Schema(description = "진행 중인 팀 매치 존재 여부")
+        private boolean hasActiveMatches;
+        @Schema(description = "진행 중인 게스트 모집 존재 여부")
+        private boolean hasActiveGuestRecruitments;
+    }
 }

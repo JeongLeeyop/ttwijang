@@ -155,6 +155,10 @@
               <span class="info-list-value">{{ detailData && detailData.homeTeamMemberCount ? detailData.homeTeamMemberCount + '명' : '-' }}</span>
             </div>
             <div class="info-list-item">
+              <span class="info-list-label">- 평균 나이</span>
+              <span class="info-list-value">{{ detailData && detailData.homeTeamAverageAge ? Math.round(detailData.homeTeamAverageAge) + '세' : '-' }}</span>
+            </div>
+            <div class="info-list-item">
               <span class="info-list-label">- 경기 전적 (전체)</span>
               <span class="info-list-value">{{ homeTeamTotalRecord }}</span>
             </div>
@@ -180,6 +184,10 @@
             <div class="info-list-item">
               <span class="info-list-label">- 팀 회원수</span>
               <span class="info-list-value">{{ detailData && detailData.awayTeamMemberCount ? detailData.awayTeamMemberCount + '명' : '-' }}</span>
+            </div>
+            <div class="info-list-item">
+              <span class="info-list-label">- 평균 나이</span>
+              <span class="info-list-value">{{ detailData && detailData.awayTeamAverageAge ? Math.round(detailData.awayTeamAverageAge) + '세' : '-' }}</span>
             </div>
             <div class="info-list-item">
               <span class="info-list-label">- 경기 전적 (전체)</span>

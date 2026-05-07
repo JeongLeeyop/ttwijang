@@ -31,16 +31,16 @@
           >
         </div>
 
-        <!-- 팀 이름 (읽기 전용) -->
+        <!-- 팀 이름 -->
         <div class="form-group">
           <label>팀 이름</label>
           <input
-            :value="teamName"
+            v-model="teamNameInput"
             type="text"
-            class="form-input disabled"
-            disabled
+            :class="['form-input', canEditName ? '' : 'disabled']"
+            :disabled="!canEditName"
           >
-          <p class="form-hint">팀 이름은 변경할 수 없습니다.</p>
+          <p class="form-hint">{{ canEditName ? '팀 생성 7일 이내에만 수정 가능합니다.' : '팀 이름은 변경할 수 없습니다.' }}</p>
         </div>
 
         <!-- 팀 코드 (읽기 전용) -->
@@ -53,25 +53,6 @@
             disabled
           >
           <p class="form-hint">팀 코드는 변경할 수 없습니다.</p>
-        </div>
-
-        <!-- 후원 계좌 -->
-        <div class="form-group">
-          <label>팀 후원 계좌번호</label>
-          <input
-            v-model="bankName"
-            type="text"
-            placeholder="은행명 (예: 국민은행, 신한은행)"
-            class="form-input"
-          >
-        </div>
-        <div class="form-group">
-          <input
-            v-model="bankAccount"
-            type="text"
-            placeholder="계좌번호"
-            class="form-input"
-          >
         </div>
 
         <div class="section-divider"></div>
@@ -224,6 +205,8 @@ export default class TeamProfileEdit extends Vue {
 
   private teamName = ''
 
+  private teamNameInput = ''
+
   private teamCode = ''
 
   private logoPreview = ''
@@ -249,6 +232,8 @@ export default class TeamProfileEdit extends Vue {
   private selectedCity = ''
 
   private selectedDistrict = ''
+
+  private createdDate = ''
 
   private isSaving = false
 
@@ -385,6 +370,12 @@ export default class TeamProfileEdit extends Vue {
       : [];
   }
 
+  get canEditName(): boolean {
+    if (!this.createdDate) return false;
+    const diffMs = Date.now() - new Date(this.createdDate).getTime();
+    return diffMs <= 7 * 24 * 60 * 60 * 1000;
+  }
+
   async created(): Promise<void> {
     this.teamUid = (this.$route.query.teamUid as string) || '';
     if (!this.teamUid) {
@@ -409,7 +400,9 @@ export default class TeamProfileEdit extends Vue {
       const team = res.data || {};
 
       this.teamName = team.name || '';
+      this.teamNameInput = team.name || '';
       this.teamCode = team.teamCode || '';
+      this.createdDate = team.createdDate || '';
       this.logoPreview = team.logoUrl || '';
       this.logoFileUid = team.logoFileUid || '';
       this.bankName = team.bankName || '';
@@ -515,6 +508,7 @@ export default class TeamProfileEdit extends Vue {
 
       await updateTeam({
         uid: this.teamUid,
+        name: this.canEditName ? this.teamNameInput : undefined,
         logoFileUid: this.logoFileUid || undefined,
         bankName: this.bankName || undefined,
         bankAccount: this.bankAccount || undefined,

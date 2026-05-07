@@ -83,6 +83,10 @@ public class LeagueTeam implements Serializable {
     @Column(columnDefinition = "DECIMAL(3,2) DEFAULT 0.0")
     private Double mannerScore;
 
+    // 리그에서 해제 여부 (true = 해제됨, 기록은 보존)
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean withdrawn;
+
     @CreationTimestamp
     private LocalDateTime createdDate;
 

@@ -328,12 +328,12 @@
               <button class="league-action-btn" @click="goToLeagueSchedule">
                 전체 일정
               </button>
-              <button class="league-action-btn outline" @click="goToLeagueStatus">
+              <button class="league-action-btn outline" @click="goToTeamLeagueStatus">
                 리그 현황
               </button>
-              <button class="league-action-btn link" @click="goToTeamLeagueStatus">
+              <!-- <button class="league-action-btn link" @click="goToTeamLeagueStatus">
                 팀 리그 현황 보기
-              </button>
+              </button> -->
             </div>
 
             <!-- 팀 리그 일정 -->
@@ -448,13 +448,6 @@
               </div>
             </VueSlickCarousel>
           </div>
-          <div v-else class="sponsor-banner-placeholder">
-            <div class="banner-placeholder-inner">
-              <i class="el-icon-picture-outline"></i>
-              <p>배너 이미지가 없습니다</p>
-            </div>
-          </div>
-
           <!-- 후원 멤버 리스트 -->
           <div v-if="sponsorships.length === 0" class="empty-state">
             <i class="el-icon-present"></i>
@@ -465,22 +458,22 @@
               v-for="sp in sponsorships"
               :key="sp.uid"
               class="sponsor-member-item"
+              @click="goToSponsorDetail(sp)"
             >
               <img
                 :src="sp.sponsorProfileUrl || defaultAvatar"
                 :alt="sp.sponsorName"
                 class="sponsor-avatar"
               >
-              <div class="sponsor-member-info">
-                <span
-                  class="sponsor-role-badge"
-                  :class="getSponsorRoleBadgeClass(sp.sponsorshipType)"
-                >{{ getSponsorTypeLabel(sp.sponsorshipType) }}</span>
-                <span class="sponsor-member-name">{{ sp.sponsorName || '익명' }}</span>
-              </div>
-              <div class="sponsor-go-arrow" @click="goToSponsorDetail(sp)">
-                <span class="go-arrow-icon">»</span>
-              </div>
+              <span
+                v-if="sp.sponsorshipType === 'REGULAR'"
+                class="sponsor-role-badge badge-regular"
+              >정기</span>
+              <span class="sponsor-member-name">{{ sp.sponsorName || '익명' }}</span>
+              <span class="sponsor-member-amount">{{ (sp.amount || 0).toLocaleString() }}원</span>
+              <span class="sponsor-member-message">{{ sp.message || '' }}</span>
+              <span class="sponsor-member-date">{{ formatDate(sp.createdDate) }}</span>
+              <span class="go-arrow-icon">»</span>
             </div>
           </div>
         </div>
@@ -509,7 +502,18 @@
                   alt="구단주"
                 >
                 <div class="owner-info-name">{{ ownerSponsor.sponsorName || '구단주' }}</div>
-                <div v-if="ownerSponsor.message" class="owner-info-message">{{ ownerSponsor.message }}</div>
+                <div class="owner-info-stat">
+                  <span class="owner-stat-label">총 후원금액</span>
+                  <span class="owner-stat-value">{{ (ownerSponsor.totalSponsorAmount || 0).toLocaleString() }}원</span>
+                </div>
+                <div class="owner-info-stat">
+                  <span class="owner-stat-label">후원횟수</span>
+                  <span class="owner-stat-value">{{ ownerSponsor.sponsorCount || 0 }}회</span>
+                </div>
+                <div class="owner-info-stat">
+                  <span class="owner-stat-label">가입일</span>
+                  <span class="owner-stat-value">{{ formatDate(ownerSponsor.joinDate) }}</span>
+                </div>
               </div>
               <div v-else class="owner-info-empty">
                 <div class="owner-info-empty-icon">🔍</div>
@@ -628,7 +632,7 @@ import {
 } from '@/api/team';
 import { getMyTeamMatches, deleteMatch } from '@/api/match';
 import {
-  getLeaguesByTeam, getLeagueStandings, getLeagueSchedule,
+  getLeaguesByTeam, getLeagueStandings, getLeagueAllMatches,
 } from '@/api/league';
 import {
   getTeamSponsorships,
@@ -970,7 +974,17 @@ export default class TeamPage extends Vue {
       const list: any[] = res.data || [];
       const owner = list.find((s: any) => s.sponsorshipType === 'OWNER' && s.status === 'ACTIVE');
       if (owner) {
-        this.ownerSponsor = owner;
+        const ownerSponsors = list.filter((s: any) => s.sponsorUid === owner.sponsorUid && s.status === 'ACTIVE');
+        const totalAmount = ownerSponsors.reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+        const joinDate = ownerSponsors
+          .map((s: any) => s.createdDate)
+          .sort()[0];
+        this.ownerSponsor = {
+          ...owner,
+          totalSponsorAmount: totalAmount,
+          sponsorCount: ownerSponsors.length,
+          joinDate,
+        };
         this.ownerSponsorName = owner.sponsorName || '구단주';
       }
     } catch (e) {
@@ -1360,16 +1374,18 @@ export default class TeamPage extends Vue {
     try {
       const [standingsRes, scheduleRes] = await Promise.all([
         getLeagueStandings(this.selectedLeagueUid),
-        getLeagueSchedule(this.selectedLeagueUid, {}),
+        getLeagueAllMatches(this.selectedLeagueUid),
       ]);
       this.leagueStandings = standingsRes.data || [];
       const schedule = scheduleRes.data || [];
-      // 날짜 순 정렬 (가까운 날짜 먼저)
-      this.leagueSchedule = schedule.sort((a: any, b: any) => {
-        const dateA = new Date(a.matchDate).getTime();
-        const dateB = new Date(b.matchDate).getTime();
-        return dateA - dateB;
-      });
+      // 이 팀의 경기만 필터링 후 날짜 순 정렬
+      this.leagueSchedule = schedule
+        .filter((m: any) => m.homeTeamUid === this.teamUid || m.awayTeamUid === this.teamUid)
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.matchDate).getTime();
+          const dateB = new Date(b.matchDate).getTime();
+          return dateA - dateB;
+        });
     } catch (error) {
       console.warn('리그 데이터 로드 실패:', error);
     }
@@ -1495,12 +1511,17 @@ export default class TeamPage extends Vue {
   }
 
   private goToSponsorDetail(sp: any): void {
-    if (sp.sponsorMemberUid) {
+    const memberUid = sp.sponsorMemberUid || sp.sponsorUid;
+    if (memberUid) {
       this.$router.push({
-        path: `/member-detail/${sp.sponsorMemberUid}`,
+        path: `/member-detail/${memberUid}`,
         query: { teamUid: this.teamUid },
       });
     }
+  }
+
+  private formatDate(dateStr: string): string {
+    return this.formatDateTime(dateStr);
   }
 
   // ===== Navigation =====
@@ -2424,7 +2445,7 @@ export default class TeamPage extends Vue {
 .standings-table td {
   padding: 10px 4px;
   text-align: center;
-  border-bottom: 1px solid #f0f0f0;
+  /* border-bottom: 1px solid #f0f0f0; */
   color: #333;
   font-size: 12px;
 }
@@ -2796,10 +2817,11 @@ export default class TeamPage extends Vue {
 }
 
 .sponsor-member-item {
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 0;
+  gap: 8px;
+  padding: 12px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -2808,52 +2830,65 @@ export default class TeamPage extends Vue {
 }
 
 .sponsor-avatar {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-}
-
-.sponsor-member-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin-top: 1px;
 }
 
 .sponsor-role-badge {
-  padding: 2px 10px;
-  border-radius: 10px;
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 700;
 }
 
-.badge-owner {
-  background: #fff3e0;
-  color: #f08717;
-}
-
-.badge-regular {
-  background: #e8f4fd;
-  color: #1890ff;
-}
-
-.badge-onetime {
-  background: #e8f5e9;
-  color: #4CAF50;
-}
+.badge-owner { background: #fff3e0; color: #f08717; }
+.badge-regular { background: #e8f4fd; color: #1890ff; }
+.badge-onetime { background: #e8f5e9; color: #4CAF50; }
 
 .sponsor-member-name {
-  font-size: 15px;
+  flex-shrink: 0;
+  font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: #222;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.sponsor-go-arrow {
+.sponsor-member-amount {
   flex-shrink: 0;
-  cursor: pointer;
-  padding: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #061da1;
+}
+
+.sponsor-member-message {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.sponsor-member-date {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #bbb;
+  white-space: nowrap;
+}
+
+.sponsor-member-item .go-arrow-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #ccc;
 }
 
 /* ========================================
@@ -2981,11 +3016,27 @@ export default class TeamPage extends Vue {
   color: #111;
 }
 
-.owner-info-message {
-  font-size: 13px;
-  color: #777;
-  text-align: center;
-  line-height: 1.5;
+.owner-info-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.owner-info-stat:last-child {
+  border-bottom: none;
+}
+
+.owner-stat-label {
+  color: #888;
+}
+
+.owner-stat-value {
+  font-weight: 700;
+  color: #111;
 }
 
 .owner-info-empty {

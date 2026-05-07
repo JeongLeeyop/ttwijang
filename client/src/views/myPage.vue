@@ -345,19 +345,23 @@ export default class MyPage extends Vue {
         this.isLoadingStats = false;
       }
 
-      // 참여 경기수 로드 (일반 매치 + 리그 경기 중 COMPLETED인 것)
+      // 참여 경기수 로드 — 소속 팀이 없으면 0 (팀 삭제 후 초기화)
       try {
-        const [matchesResponse, leagueMatchesResponse] = await Promise.allSettled([
-          getMyMatchApplications(),
-          getMyLeagueMatchApplications(),
-        ]);
-        const normalMatches = matchesResponse.status === 'fulfilled' && Array.isArray(matchesResponse.value.data)
-          ? matchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
-          : 0;
-        const leagueMatches = leagueMatchesResponse.status === 'fulfilled' && Array.isArray(leagueMatchesResponse.value.data)
-          ? leagueMatchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
-          : 0;
-        this.userStats.matches = normalMatches + leagueMatches;
+        if (!this.myTeamCode) {
+          this.userStats.matches = 0;
+        } else {
+          const [matchesResponse, leagueMatchesResponse] = await Promise.allSettled([
+            getMyMatchApplications(),
+            getMyLeagueMatchApplications(),
+          ]);
+          const normalMatches = matchesResponse.status === 'fulfilled' && Array.isArray(matchesResponse.value.data)
+            ? matchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
+            : 0;
+          const leagueMatches = leagueMatchesResponse.status === 'fulfilled' && Array.isArray(leagueMatchesResponse.value.data)
+            ? leagueMatchesResponse.value.data.filter((a: any) => a.matchStatus === 'COMPLETED').length
+            : 0;
+          this.userStats.matches = normalMatches + leagueMatches;
+        }
       } catch (matchError) {
         console.warn('경기 정보 로드 실패:', matchError);
       } finally {

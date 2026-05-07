@@ -11,7 +11,7 @@
       <!-- League Status View -->
       <div class="league-status-section">
         <div class="league-header">
-          <div class="league-title-row">
+          <div class="league-title-row" :style="$route.query.returnTeamCode ? { marginBottom: '10px' } : {}">
             <el-select v-model="selectedLeague" :popper-append-to-body="false" placeholder="리그 선택" size="small" class="league-select" @change="onLeagueChange">
               <el-option
                 v-for="league in leagues"
@@ -22,7 +22,7 @@
             </el-select>
             <span class="league-title-text">경기 일정</span>
           </div>
-          <div class="league-button-row">
+          <div class="league-button-row" v-if="!$route.query.returnTeamCode">
             <router-link to="/league-status" class="league-action-btn-link">
               <button class="status-button">현황보기</button>
             </router-link>
@@ -33,6 +33,7 @@
             v-for="(match, index) in upcomingMatches"
             :key="index"
             class="match-card"
+            @click="$router.push({ path: `/match-detail/${match.uid}`, query: { type: 'league' } })"
           >
             <i class="el-icon-arrow-right match-arrow"></i>
             <div class="match-date-time">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
@@ -64,7 +65,7 @@ import {
   Watch,
   Prop,
 } from 'vue-property-decorator';
-import { getLeagueList, getLeagueSchedule } from '@/api/league';
+import { getLeagueList, getLeagueAllMatches } from '@/api/league';
 
 interface LeagueTeam {
   name: string
@@ -80,6 +81,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -133,13 +135,6 @@ export default class extends Vue {
     }
   }
 
-  @Watch('currentMonthIndex')
-  async onMonthChange() {
-    if (this.selectedLeague) {
-      await this.loadScheduleData();
-    }
-  }
-
   private async loadLeagues(): Promise<void> {
     this.isLoading = true;
     try {
@@ -157,11 +152,8 @@ export default class extends Vue {
         name: league.name,
       }));
 
-      // URL의 leagueUid 우선, 없으면 첫 번째 리그 선택
-      const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
-      if (routeLeagueUid && this.leagues.some((l) => l.uid === routeLeagueUid)) {
-        this.selectedLeague = routeLeagueUid;
-      } else if (this.leagues.length > 0) {
+      // 첫 번째 리그 선택
+      if (this.leagues.length > 0) {
         this.selectedLeague = this.leagues[0].uid;
       }
     } catch (error) {
@@ -176,31 +168,28 @@ export default class extends Vue {
 
     this.isLoading = true;
     try {
-      const response = await getLeagueSchedule(this.selectedLeague, {
-        year: this.currentYear,
-        month: this.currentMonthIndex + 1,
-      });
+      const response = await getLeagueAllMatches(this.selectedLeague);
       const matches = response.data?.content || response.data || [];
 
       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
       this.upcomingMatches = matches
-        .filter((match: any) => match.status === 'SCHEDULED')
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {
+            uid: match.uid,
             date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
             day: dayNames[matchDate.getDay()],
             time: match.matchTime,
             location: match.stadiumName,
             homeTeam: match.homeTeamName,
             awayTeam: match.awayTeamName,
-            homeLogo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.homeTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
-            awayLogo: match.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.awayTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
+            homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+            awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
           };
         });
     } catch (error) {
-      this.$message.error('일정을 불러오지 못했습니다.');
+      console.error('Failed to load schedule data:', error);
     } finally {
       this.isLoading = false;
     }
@@ -224,6 +213,14 @@ export default class extends Vue {
     }
   }
 
+  private resolveLogoUrl(logoUrl: string | null | undefined, name: string): string {
+    if (!logoUrl) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(name.substring(0, 2))}&background=random&color=fff&size=40`;
+    }
+    if (logoUrl.startsWith('http') || logoUrl.startsWith('/')) return logoUrl;
+    return `/api/attached-file/${logoUrl}`;
+  }
+
   private goBackToTeamPage(): void {
     const code = this.$route.query.returnTeamCode as string;
     if (code) {
@@ -244,6 +241,10 @@ export default class extends Vue {
   margin-top: 73px;
   padding: 20px;
   background: #fff;
+}
+
+.league-schedule-page {
+  max-height: none !important;
 }
 
 .league-status-section {

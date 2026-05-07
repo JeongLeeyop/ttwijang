@@ -239,6 +239,14 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.updateLeagueMatch(matchUid, request));
     }
 
+    @Operation(summary = "리그 전체 경기 목록 조회 (날짜 제한 없음)")
+    @GetMapping("/{leagueUid}/matches")
+    public ResponseEntity<List<LeagueDto.MatchResponse>> getLeagueMatches(
+            @PathVariable String leagueUid,
+            @AuthenticationPrincipal com.ttwijang.cms.oauth.SinghaUser userDetails) {
+        return ResponseEntity.ok(leagueService.getAllLeagueMatches(leagueUid, userDetails != null ? userDetails.getUser().getUid() : null));
+    }
+
     @Operation(summary = "[관리자] 리그 전체 경기 목록 조회", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/{leagueUid}/matches")

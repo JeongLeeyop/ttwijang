@@ -34,7 +34,7 @@
           <el-tag v-else type="warning" size="small">미등록</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="운영자 UID" prop="ownerUid" min-width="150" show-overflow-tooltip />
+      <el-table-column label="운영자" prop="ownerName" min-width="120" />
       <el-table-column label="액션" width="200" align="center">
         <template slot-scope="scope">
           <div style="display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;">
@@ -68,6 +68,7 @@ interface TeamDetail {
   refundBankName: string
   refundBankAccount: string
   ownerUid: string
+  ownerName: string
 }
 
 @Component({ name: 'TeamDeleteRequest' })

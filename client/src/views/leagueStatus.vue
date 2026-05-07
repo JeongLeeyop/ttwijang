@@ -75,7 +75,7 @@
 
         <!-- Past Match Results -->
         <div class="past-matches">
-          <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card">
+          <div v-for="(match, index) in recentMatches" :key="index" class="past-match-card" style="cursor:pointer" @click="goToMatchDetail(match.uid)">
             <div class="past-match-date">{{ match.date }} ({{ match.day }}) {{ match.time }}</div>
             <div class="past-match-teams">
               <div class="past-team">
@@ -106,7 +106,7 @@ import {
   Vue, Component, Watch, Prop,
 } from 'vue-property-decorator';
 import {
-  getLeagueStandings, getLeagueSchedule, getLeaguesByTeam, getLeagueDetail,
+  getLeagueStandings, getLeagueAllMatches, getLeaguesByTeam, getLeagueDetail,
 } from '@/api/league';
 import { getMyTeams } from '@/api/team';
 
@@ -125,6 +125,7 @@ interface LeagueTeam {
 }
 
 interface Match {
+  uid: string
   date: string
   day: string
   time: string
@@ -167,15 +168,16 @@ export default class extends Vue {
     await this.loadLeagueData();
   }
 
-  @Watch('currentMonthIndex')
-  async onMonthChange() {
-    if (this.currentLeagueUid) {
-      await this.loadScheduleData();
-    }
-  }
-
   private isMyTeam(teamUid: string): boolean {
     return !!teamUid && this.myTeamUids.includes(teamUid);
+  }
+
+  private resolveLogoUrl(logoUrl: string | null | undefined, name: string): string {
+    if (!logoUrl) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(name.substring(0, 2))}&background=random&color=fff&size=40`;
+    }
+    if (logoUrl.startsWith('http') || logoUrl.startsWith('/')) return logoUrl;
+    return `/api/attached-file/${logoUrl}`;
   }
 
   private async onLeagueSelect(): Promise<void> {
@@ -269,7 +271,7 @@ export default class extends Vue {
       this.leagueTable = standings.map((team: any) => ({
         teamUid: team.teamUid,
         name: team.teamName,
-        logo: team.teamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.teamName.substring(0, 2))}&background=random&color=fff&size=40`,
+        logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
         played: team.played,
         wins: team.wins,
         draws: team.draws,
@@ -286,27 +288,24 @@ export default class extends Vue {
 
   private async loadScheduleData(): Promise<void> {
     try {
-      const scheduleResponse = await getLeagueSchedule(this.currentLeagueUid, {
-        year: this.currentYear,
-        month: this.currentMonthIndex + 1,
-      });
+      const scheduleResponse = await getLeagueAllMatches(this.currentLeagueUid);
       const matches = scheduleResponse.data?.content || scheduleResponse.data || [];
 
       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
       this.recentMatches = matches
-        .filter((match: any) => match.status === 'COMPLETED')
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {
+            uid: match.uid,
             date: `${String(matchDate.getMonth() + 1).padStart(2, '0')}월 ${String(matchDate.getDate()).padStart(2, '0')}일`,
             day: dayNames[matchDate.getDay()],
             time: match.matchTime,
             location: match.stadiumName,
             homeTeam: match.homeTeamName,
             awayTeam: match.awayTeamName,
-            homeLogo: match.homeTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.homeTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
-            awayLogo: match.awayTeamLogoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.awayTeamName.substring(0, 2))}&background=random&color=fff&size=40`,
+            homeLogo: this.resolveLogoUrl(match.homeTeamLogoUrl, match.homeTeamName),
+            awayLogo: this.resolveLogoUrl(match.awayTeamLogoUrl, match.awayTeamName),
             homeScore: match.homeScore,
             awayScore: match.awayScore,
           };
@@ -334,6 +333,10 @@ export default class extends Vue {
     }
   }
 
+  private goToMatchDetail(matchUid: string): void {
+    this.$router.push({ path: `/match-detail/${matchUid}`, query: { type: 'league' } });
+  }
+
   private goBackToTeamPage(): void {
     const code = this.$route.query.returnTeamCode as string;
     if (code) {
@@ -354,6 +357,10 @@ export default class extends Vue {
   margin-top: 73px;
   padding: 20px;
   background: #fff;
+}
+
+.league-schedule-page {
+  max-height: none !important;
 }
 
 .league-status-section {
@@ -386,7 +393,7 @@ export default class extends Vue {
 }
 
 .page-back-wrap {
-  position: fixed;
+  position: absolute;
   top: 85px;
   left: 50%;
   transform: translateX(-50%);

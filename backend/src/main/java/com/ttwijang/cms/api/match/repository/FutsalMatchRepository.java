@@ -40,6 +40,11 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
     @Query("SELECT m FROM FutsalMatch m WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) AND m.status = 'COMPLETED'")
     List<FutsalMatch> findCompletedMatchesByTeamUid(@Param("teamUid") String teamUid);
 
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END FROM FutsalMatch m " +
+           "WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) " +
+           "AND m.status IN ('RECRUITING', 'MATCHED', 'IN_PROGRESS')")
+    boolean existsActiveMatchByTeamUid(@Param("teamUid") String teamUid);
+
     List<FutsalMatch> findByMatchDateAndStatus(LocalDate matchDate, FutsalMatch.FutsalMatchStatus status);
 
     /**

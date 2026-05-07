@@ -300,6 +300,13 @@ export function getMyPendingInfo() {
 }
 
 // 팀 삭제 요청
+export function checkTeamDeleteEligibility(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/delete-eligibility`,
+    method: 'get',
+  });
+}
+
 export function requestDeleteTeam(teamUid: string) {
   return request({
     url: `/team/${teamUid}/delete-request`,

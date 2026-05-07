@@ -15,13 +15,17 @@ import com.ttwijang.cms.api.cash.repository.CashWalletRepository;
 import com.ttwijang.cms.api.cash.repository.TeamSponsorshipRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.sponsor.repository.SponsorSettingRepository;
+import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
+import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.CashWallet;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.SponsorSetting;
 import com.ttwijang.cms.entity.Team;
+import com.ttwijang.cms.entity.TeamMember;
 import com.ttwijang.cms.entity.TeamSponsorship;
+import com.ttwijang.cms.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +39,8 @@ public class CashService {
     private final TeamRepository teamRepository;
     private final SponsorSettingRepository sponsorSettingRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     private static final String DEFAULT_SETTING_UID = "default";
 
@@ -230,9 +236,16 @@ public class CashService {
         SponsorSetting setting = sponsorSettingRepository.findByUid(DEFAULT_SETTING_UID).orElse(null);
         int ownerThreshold = (setting != null && setting.getOwnerAmount() != null) ? setting.getOwnerAmount() : 0;
 
-        // 구단주 자동 판정: 기준금액 이상 AND 아직 구단주 없음
+        // 기존 누적 후원금 합산
+        int previousTotal = sponsorshipRepository
+                .findByTeamUidAndSponsorUidAndStatus(request.getTeamUid(), sponsorUid, TeamSponsorship.SponsorshipStatus.ACTIVE)
+                .stream()
+                .mapToInt(s -> s.getAmount() != null ? s.getAmount() : 0)
+                .sum();
+
+        // 구단주 자동 판정: 누적 총액이 기준금액 이상 AND 아직 구단주 없음
         boolean becomeOwner = ownerThreshold > 0
-                && request.getAmount() >= ownerThreshold
+                && (previousTotal + request.getAmount()) >= ownerThreshold
                 && team.getSponsorOwnerUid() == null;
 
         TeamSponsorship.SponsorshipType actualType = becomeOwner
@@ -280,7 +293,7 @@ public class CashService {
     public List<CashDto.SponsorshipResponse> getTeamSponsorships(String teamUid) {
         Team team = teamRepository.findByUid(teamUid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
-        return sponsorshipRepository.findByTeamUid(teamUid).stream()
+        return sponsorshipRepository.findByTeamUidOrderByCreatedDateDesc(teamUid).stream()
                 .map(s -> toSponsorshipResponse(s, team))
                 .collect(Collectors.toList());
     }
@@ -421,11 +434,18 @@ public class CashService {
     }
 
     private CashDto.SponsorshipResponse toSponsorshipResponse(TeamSponsorship sponsorship, Team team) {
+        User sponsor = userRepository.findByUid(sponsorship.getSponsorUserUid()).orElse(null);
+        TeamMember member = teamMemberRepository
+                .findByTeamUidAndUserUid(sponsorship.getTeamUid(), sponsorship.getSponsorUserUid())
+                .orElse(null);
         return CashDto.SponsorshipResponse.builder()
                 .uid(sponsorship.getUid())
                 .teamUid(sponsorship.getTeamUid())
                 .teamName(team != null ? team.getName() : "")
                 .sponsorUid(sponsorship.getSponsorUid())
+                .sponsorName(sponsor != null ? sponsor.getActualName() : null)
+                .sponsorProfileUrl(sponsor != null ? sponsor.getProfileImageUrl() : null)
+                .sponsorMemberUid(member != null ? member.getUid() : null)
                 .sponsorshipType(sponsorship.getType())
                 .amount(sponsorship.getAmount())
                 .totalAmount(sponsorship.getTotalAmount())

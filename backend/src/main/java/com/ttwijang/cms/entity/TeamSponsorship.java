@@ -47,7 +47,7 @@ public class TeamSponsorship implements Serializable {
 
     // 후원 유형 (OWNER: 구단주, ONE_TIME: 1회 후원, REGULAR: 정기 후원)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "sponsorship_type", nullable = false, length = 20)
     private SponsorshipType type;
 
     // 총 후원 금액 (정기 후원의 경우 누적 금액)

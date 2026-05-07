@@ -177,6 +177,12 @@ public class CashDto {
         @Schema(description = "후원자 이름")
         private String sponsorName;
 
+        @Schema(description = "후원자 프로필 이미지 URL")
+        private String sponsorProfileUrl;
+
+        @Schema(description = "후원자 팀멤버 UID (멤버인 경우)")
+        private String sponsorMemberUid;
+
         @Schema(description = "후원 유형")
         private TeamSponsorship.SponsorshipType sponsorshipType;
 

@@ -57,6 +57,10 @@
           <span class="info-label">가입일</span>
           <span class="info-value">{{ joinDateLabel }}</span>
         </div>
+        <div class="info-row">
+          <span class="info-label">총 후원금액</span>
+          <span class="info-value sponsor-amount">{{ totalSponsorshipAmount > 0 ? totalSponsorshipAmount.toLocaleString() + '원' : '-' }}</span>
+        </div>
       </div>
     </div>
 
@@ -72,6 +76,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { getTeamMembers } from '@/api/team';
+import { getTeamSponsorships } from '@/api/cash';
 
 @Component
 export default class MemberDetail extends Vue {
@@ -82,6 +87,8 @@ export default class MemberDetail extends Vue {
   private teamUid = ''
 
   private memberUid = ''
+
+  private totalSponsorshipAmount = 0
 
   private defaultAvatar = 'https://ui-avatars.com/api/?name=U&background=e8eaf6&color=3949ab&size=80&bold=true'
 
@@ -147,9 +154,19 @@ export default class MemberDetail extends Vue {
   private async loadMemberDetail(): Promise<void> {
     this.isLoading = true;
     try {
-      const res = await getTeamMembers(this.teamUid);
-      const members: any[] = res.data || [];
+      const [memberRes, sponsorRes] = await Promise.all([
+        getTeamMembers(this.teamUid),
+        getTeamSponsorships(this.teamUid),
+      ]);
+      const members: any[] = memberRes.data || [];
       this.memberInfo = members.find((m: any) => m.uid === this.memberUid) || null;
+
+      if (this.memberInfo) {
+        const sponsorships: any[] = sponsorRes.data || [];
+        this.totalSponsorshipAmount = sponsorships
+          .filter((s: any) => s.sponsorUid === this.memberInfo.userUid && s.status === 'ACTIVE')
+          .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+      }
     } catch (error) {
       this.memberInfo = null;
     } finally {
@@ -373,5 +390,9 @@ export default class MemberDetail extends Vue {
   font-size: 14px;
   color: #1a2340;
   font-weight: 600;
+}
+
+.sponsor-amount {
+  color: #061da1;
 }
 </style>

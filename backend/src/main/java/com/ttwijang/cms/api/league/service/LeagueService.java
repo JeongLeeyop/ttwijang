@@ -1,6 +1,7 @@
 package com.ttwijang.cms.api.league.service;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -118,9 +119,10 @@ public class LeagueService {
     public List<LeagueDto.LeagueStandingResponse> getLeagueStandings(String leagueUid) {
         List<LeagueTeam> leagueTeams = leagueTeamRepository.findByLeagueUidOrderByRanking(leagueUid);
         List<LeagueDto.LeagueStandingResponse> standings = new ArrayList<>();
-        
+
         int ranking = 1;
         for (LeagueTeam lt : leagueTeams) {
+            if (lt.isWithdrawn()) continue;
             Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
             if (team != null) {
                 standings.add(LeagueDto.LeagueStandingResponse.builder()
@@ -170,10 +172,18 @@ public class LeagueService {
      */
     @Transactional(readOnly = true)
     public List<LeagueDto.MatchResponse> getAllLeagueMatches(String leagueUid) {
+        return getAllLeagueMatches(leagueUid, null);
+    }
+
+    /**
+     * 리그 전체 경기 목록 조회 (사용자 컨텍스트 포함)
+     */
+    @Transactional(readOnly = true)
+    public List<LeagueDto.MatchResponse> getAllLeagueMatches(String leagueUid, String currentUserUid) {
         return leagueMatchRepository.findByLeagueUid(leagueUid).stream()
                 .sorted(Comparator.comparing(LeagueMatch::getMatchDate, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(LeagueMatch::getRound, Comparator.nullsLast(Comparator.naturalOrder())))
-                .map(this::toMatchResponse)
+                .map(match -> toMatchResponse(match, currentUserUid))
                 .collect(Collectors.toList());
     }
 
@@ -197,6 +207,7 @@ public class LeagueService {
     public List<LeagueDto.ListResponse> getLeaguesByTeam(String teamUid) {
         List<LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
         return leagueTeams.stream()
+                .filter(lt -> !lt.isWithdrawn())
                 .map(lt -> leagueRepository.findByUid(lt.getLeagueUid()).orElse(null))
                 .filter(league -> league != null)
                 .map(this::toListResponse)
@@ -513,7 +524,8 @@ public class LeagueService {
         LeagueTeam leagueTeam = leagueTeamRepository.findByLeagueUidAndTeamUid(leagueUid, teamUid)
                 .orElseThrow(() -> new IllegalArgumentException("리그에 등록되지 않은 팀입니다."));
 
-        leagueTeamRepository.delete(leagueTeam);
+        leagueTeam.setWithdrawn(true);
+        leagueTeamRepository.save(leagueTeam);
 
         league.setCurrentTeams(Math.max(0, (league.getCurrentTeams() != null ? league.getCurrentTeams() : 0) - 1));
         leagueRepository.save(league);
@@ -658,6 +670,7 @@ public class LeagueService {
         League league = leagueRepository.findByUid(leagueUid).orElse(null);
 
         return leagueTeams.stream()
+                .filter(lt -> !lt.isWithdrawn())
                 .map(lt -> {
                     Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
                     if (team == null) return null;
@@ -713,8 +726,9 @@ public class LeagueService {
         List<String> targetLeagueUids = new ArrayList<>(leagueCache.keySet());
         List<LeagueTeam> leagueTeams = leagueTeamRepository.findByLeagueUidIn(targetLeagueUids);
 
-        // 3. 팀 정보 매핑 + 키워드 필터
+        // 3. 팀 정보 매핑 + 키워드 필터 (해제된 팀 제외)
         List<LeagueDto.LeagueTeamResponse> responses = leagueTeams.stream()
+                .filter(lt -> !lt.isWithdrawn())
                 .map(lt -> {
                     Team team = teamRepository.findByUid(lt.getTeamUid()).orElse(null);
                     if (team == null) return null;
@@ -850,6 +864,9 @@ public class LeagueService {
         int[] homeRecord = getTeamTotalRecord(match.getHomeTeamUid());
         int[] awayRecord = getTeamTotalRecord(match.getAwayTeamUid());
 
+        Double homeTeamAverageAge = calculateAverageAge(match.getHomeTeamUid());
+        Double awayTeamAverageAge = calculateAverageAge(match.getAwayTeamUid());
+
         return LeagueDto.MatchResponse.builder()
                 .uid(match.getUid())
                 .leagueUid(match.getLeagueUid())
@@ -885,7 +902,24 @@ public class LeagueService {
                 .awayTeamTotalWins(awayRecord[0])
                 .awayTeamTotalDraws(awayRecord[1])
                 .awayTeamTotalLosses(awayRecord[2])
+                .homeTeamAverageAge(homeTeamAverageAge)
+                .awayTeamAverageAge(awayTeamAverageAge)
                 .build();
+    }
+
+    private Double calculateAverageAge(String teamUid) {
+        List<TeamMember> members = teamMemberRepository.findByTeamUidAndStatus(
+                teamUid, TeamMember.MemberStatus.APPROVED);
+        LocalDate today = LocalDate.now();
+        List<Integer> ages = new ArrayList<>();
+        for (TeamMember member : members) {
+            User u = userRepository.findById(member.getUserUid()).orElse(null);
+            if (u != null && u.getBirth() != null) {
+                ages.add(Period.between(u.getBirth(), today).getYears());
+            }
+        }
+        if (ages.isEmpty()) return null;
+        return ages.stream().mapToInt(Integer::intValue).average().orElse(0.0);
     }
 
     private boolean isTeamManagerOrOwner(Team team, String userUid) {

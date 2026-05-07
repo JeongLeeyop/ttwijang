@@ -141,6 +141,14 @@ export function getUpcomingLeagueMatches(params?: {
   });
 }
 
+// 리그 전체 경기 목록 조회 (날짜 제한 없음)
+export function getLeagueAllMatches(leagueUid: string) {
+  return request({
+    url: `/league/${leagueUid}/matches`,
+    method: 'get',
+  });
+}
+
 // 팀이 참가 중인 리그 목록 조회
 export function getLeaguesByTeam(teamUid: string) {
   return request({

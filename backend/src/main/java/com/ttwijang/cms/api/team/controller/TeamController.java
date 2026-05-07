@@ -203,6 +203,12 @@ public class TeamController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "팀 삭제 가능 여부 확인", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{teamUid}/delete-eligibility")
+    public ResponseEntity<TeamDto.DeleteEligibility> checkDeleteEligibility(@PathVariable String teamUid) {
+        return ResponseEntity.ok(teamService.checkDeleteEligibility(teamUid));
+    }
+
     @Operation(summary = "팀 삭제 요청 (운영자)", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{teamUid}/delete-request")
     public ResponseEntity<Void> requestDeleteTeam(

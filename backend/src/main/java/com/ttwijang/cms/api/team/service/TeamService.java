@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
@@ -18,6 +19,7 @@ import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
+import com.ttwijang.cms.entity.GuestRecruitment;
 import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
@@ -33,6 +35,7 @@ public class TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
     private final FutsalMatchRepository futsalMatchRepository;
+    private final GuestRecruitmentRepository guestRecruitmentRepository;
     private final LeagueTeamRepository leagueTeamRepository;
     private final NotificationService notificationService;
 
@@ -511,6 +514,23 @@ public class TeamService {
     }
 
     /**
+     * 팀 삭제 가능 여부 확인
+     * - 진행 중인 팀 매치(RECRUITING/MATCHED/IN_PROGRESS)가 없어야 함
+     * - 진행 중인 게스트 모집(RECRUITING)이 없어야 함
+     */
+    @Transactional(readOnly = true)
+    public TeamDto.DeleteEligibility checkDeleteEligibility(String teamUid) {
+        boolean hasActiveMatches = futsalMatchRepository.existsActiveMatchByTeamUid(teamUid);
+        boolean hasActiveGuestRecruitments = guestRecruitmentRepository.existsByTeamUidAndStatus(
+                teamUid, GuestRecruitment.RecruitmentStatus.RECRUITING);
+        return TeamDto.DeleteEligibility.builder()
+                .canDelete(!hasActiveMatches && !hasActiveGuestRecruitments)
+                .hasActiveMatches(hasActiveMatches)
+                .hasActiveGuestRecruitments(hasActiveGuestRecruitments)
+                .build();
+    }
+
+    /**
      * 팀 삭제 요청 (운영자 → DELETE_REQUESTED)
      */
     @Transactional
@@ -528,6 +548,16 @@ public class TeamService {
 
         team.setStatus(Team.TeamStatus.DELETE_REQUESTED);
         teamRepository.save(team);
+
+        notificationService.createNotification(
+                ownerUid,
+                Notification.NotificationType.TEAM,
+                "팀 삭제 요청 접수",
+                "'" + team.getName() + "' 팀의 삭제 요청이 접수되었습니다. 관리자 검토 후 처리됩니다.",
+                teamUid,
+                "TEAM",
+                null
+        );
     }
 
     /**
@@ -543,6 +573,9 @@ public class TeamService {
 
     /**
      * 팀 삭제 승인 (관리자 → DELETED)
+     * - 모든 멤버(APPROVED/PENDING)를 REJECTED 처리 → 무소속 → 새 팀 생성/가입 가능
+     * - 팀 매너점수 초기화
+     * - 전원에게 팀 삭제 알림 발송
      */
     @Transactional
     public void approveDeleteTeam(String teamUid) {
@@ -555,7 +588,37 @@ public class TeamService {
 
         team.setStatus(Team.TeamStatus.DELETED);
         team.setDeletedDate(java.time.LocalDateTime.now());
+        team.setMannerScore(0.0);
+        team.setMemberCount(0);
         teamRepository.save(team);
+
+        // 리그 참가 기록 withdrawn 처리 (경기·전적 기록은 보존)
+        List<com.ttwijang.cms.entity.LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
+        for (com.ttwijang.cms.entity.LeagueTeam lt : leagueTeams) {
+            if (!lt.isWithdrawn()) {
+                lt.setWithdrawn(true);
+            }
+        }
+        leagueTeamRepository.saveAll(leagueTeams);
+
+        // APPROVED / PENDING 멤버 전원 REJECTED 처리 + 알림 발송
+        List<TeamMember> activeMembers = teamMemberRepository.findByTeamUidAndStatusIn(
+                teamUid,
+                java.util.Arrays.asList(TeamMember.MemberStatus.APPROVED, TeamMember.MemberStatus.PENDING));
+
+        for (TeamMember member : activeMembers) {
+            member.setStatus(TeamMember.MemberStatus.REJECTED);
+            notificationService.createNotification(
+                    member.getUserUid(),
+                    Notification.NotificationType.TEAM,
+                    "팀이 삭제되었습니다",
+                    "'" + team.getName() + "' 팀이 관리자에 의해 삭제 처리되었습니다. 새 팀을 만들거나 다른 팀에 가입하실 수 있습니다.",
+                    teamUid,
+                    "TEAM",
+                    "/team"
+            );
+        }
+        teamMemberRepository.saveAll(activeMembers);
     }
 
     /**
@@ -572,6 +635,16 @@ public class TeamService {
 
         team.setStatus(Team.TeamStatus.ACTIVE);
         teamRepository.save(team);
+
+        notificationService.createNotification(
+                team.getOwnerUid(),
+                Notification.NotificationType.TEAM,
+                "팀 삭제 요청 거절",
+                "'" + team.getName() + "' 팀의 삭제 요청이 관리자에 의해 거절되었습니다.",
+                teamUid,
+                "TEAM",
+                "/team/" + team.getTeamCode()
+        );
     }
 
     /**

@@ -13,7 +13,11 @@ public interface TeamSponsorshipRepository extends JpaRepository<TeamSponsorship
 
     List<TeamSponsorship> findByTeamUid(String teamUid);
 
+    List<TeamSponsorship> findByTeamUidOrderByCreatedDateDesc(String teamUid);
+
     List<TeamSponsorship> findBySponsorUid(String sponsorUid);
+
+    List<TeamSponsorship> findByTeamUidAndSponsorUidAndStatus(String teamUid, String sponsorUid, TeamSponsorship.SponsorshipStatus status);
 
     List<TeamSponsorship> findByTeamUidAndType(String teamUid, TeamSponsorship.SponsorshipType type);
 
