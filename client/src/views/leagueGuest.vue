@@ -247,11 +247,11 @@ export default class extends Vue {
   }
 
   get upcomingGuestCards(): any[] {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return this.guestData;
-      // .filter((g: any) => g.date >= today && !g.isRecruitmentClosed)
-      // .sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+    return this.guestData.slice().sort((a: any, b: any) => {
+      const dateDiff = a.date.getTime() - b.date.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return (a.rawMatchTime || '').localeCompare(b.rawMatchTime || '');
+    });
   }
 
   private guestData: GuestItem[] = []
@@ -332,6 +332,7 @@ export default class extends Vue {
           matchDate: this.formatDate(guest.matchDate),
           matchDay: dayNames[matchDate.getDay()],
           matchTime: this.formatTime(guest.matchTime),
+          rawMatchTime: guest.matchTime || '',
           location: guest.stadiumName || '',
           date: matchDate,
           teamLogo: logoUrl,
@@ -582,14 +583,23 @@ export default class extends Vue {
   }
 
   get filteredGuests(): any[] {
+    const byDateTime = (a: any, b: any) => {
+      const dateDiff = a.date.getTime() - b.date.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return (a.rawMatchTime || '').localeCompare(b.rawMatchTime || '');
+    };
     if (this.showAllMonth) {
       return this.guestData
         .filter((g: any) => g.date
           && g.date.getFullYear() === this.currentYear
           && g.date.getMonth() === this.currentMonthIndex)
-        .sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+        .slice()
+        .sort(byDateTime);
     }
-    return this.guestData.filter((guest) => guest.date && this.isSameDate(guest.date, this.selectedDate));
+    return this.guestData
+      .filter((guest) => guest.date && this.isSameDate(guest.date, this.selectedDate))
+      .slice()
+      .sort(byDateTime);
   }
 
   private isSameDate(date1: Date, date2: Date): boolean {

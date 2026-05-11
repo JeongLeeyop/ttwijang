@@ -447,6 +447,10 @@
                     class="member-role-badge role-member"
                   >구단원</span>
                   <span class="member-name">{{ member.userName }}</span>
+                  <span
+                    v-if="member.status === 'LEAVE_PENDING'"
+                    class="member-leave-badge"
+                  >탈퇴 신청 중</span>
                 </div>
               </div>
               <div class="member-go-arrow" @click.stop="goToMemberDetail(member)">
@@ -2867,6 +2871,16 @@ export default class TeamPage extends Vue {
 .role-member {
   background: #e8f5e9;
   color: #4CAF50;
+}
+
+.member-leave-badge {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #fdecea;
+  color: #e53935;
 }
 
 .member-go-arrow {

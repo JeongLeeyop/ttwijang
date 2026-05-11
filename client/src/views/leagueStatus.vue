@@ -332,8 +332,12 @@ export default class extends Vue {
       const d = new Date(m.matchDate);
       return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonthIndex;
     });
+    const sortKey = (m: any) => `${m.matchDate || '9999-12-31'} ${m.matchTime || '99:99'}`;
     this.leagueTable = this.computeMonthlyStandings(filtered);
-    this.recentMatches = filtered.map((m) => this.toMatchEntry(m));
+    this.recentMatches = filtered
+      .slice()
+      .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
+      .map((m) => this.toMatchEntry(m));
   }
 
   private previousMonth(): void {

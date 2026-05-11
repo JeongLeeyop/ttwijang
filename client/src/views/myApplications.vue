@@ -205,7 +205,8 @@ export default class MyApplicationsPage extends Vue {
   private async loadMatches(): Promise<void> {
     try {
       const res = await getMyMatchApplications();
-      this.matchApplications = res.data || [];
+      const sortKey = (i: any) => `${i.matchDate || '9999-12-31'} ${i.matchTime || '99:99'}`;
+      this.matchApplications = (res.data || []).slice().sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)));
     } catch (e) {
       // ignore
     }
@@ -215,7 +216,8 @@ export default class MyApplicationsPage extends Vue {
     this.isLoading = true;
     try {
       const res = await getMyLeagueMatchApplications();
-      this.leagueApplications = res.data || [];
+      const sortKey = (i: any) => `${i.matchDate || '9999-12-31'} ${i.matchTime || '99:99'}`;
+      this.leagueApplications = (res.data || []).slice().sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)));
     } catch (e) {
       // ignore
     } finally {

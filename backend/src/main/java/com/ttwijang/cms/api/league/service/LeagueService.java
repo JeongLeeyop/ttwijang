@@ -1,6 +1,7 @@
 package com.ttwijang.cms.api.league.service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -789,7 +790,13 @@ public class LeagueService {
 
     private void notifyScoreMismatch(LeagueMatch match) {
         String actionUrl = "/match-detail/" + match.getUid() + "?type=league&leagueUid=" + match.getLeagueUid();
-        for (String teamUid : new String[]{match.getHomeTeamUid(), match.getAwayTeamUid()}) {
+        String dateTimeBody = formatMatchDateTime(match);
+        String[] teamUids = {match.getHomeTeamUid(), match.getAwayTeamUid()};
+        String[] opponentUids = {match.getAwayTeamUid(), match.getHomeTeamUid()};
+        for (int i = 0; i < teamUids.length; i++) {
+            String teamUid = teamUids[i];
+            String opponentName = teamRepository.findByUid(opponentUids[i])
+                    .map(Team::getName).orElse("상대팀");
             List<TeamMember> managers = teamMemberRepository
                     .findByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
                     .stream()
@@ -800,14 +807,33 @@ public class LeagueService {
                 notificationService.createNotification(
                         manager.getUserUid(),
                         Notification.NotificationType.MATCH,
-                        "점수 불일치 — 확인 필요",
-                        "상대 팀과 점수가 일치하지 않습니다. 점수를 다시 확인하고 수정해 주세요.",
+                        "경기 점수 불일치 확인 필요 - " + opponentName,
+                        dateTimeBody + "\n상대 팀과 점수가 일치하지 않습니다. 점수를 다시 확인하고 수정해 주세요.",
                         match.getUid(),
                         "LEAGUE_MATCH",
                         actionUrl
                 );
             }
         }
+    }
+
+    private String formatMatchDateTime(LeagueMatch match) {
+        if (match.getMatchDate() == null) return "경기";
+        LocalDate date = match.getMatchDate();
+        String[] days = {"", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"};
+        String dayName = days[date.getDayOfWeek().getValue()];
+        String timePart = "";
+        if (match.getMatchTime() != null) {
+            LocalTime time = match.getMatchTime();
+            int hour = time.getHour();
+            int minute = time.getMinute();
+            String ampm = hour < 12 ? "오전" : "오후";
+            int displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+            timePart = " " + ampm + " " + displayHour + "시";
+            if (minute > 0) timePart += " " + minute + "분";
+        }
+        return String.format("%d년 %d월 %d일 %s%s 경기",
+                date.getYear(), date.getMonthValue(), date.getDayOfMonth(), dayName, timePart);
     }
 
     /**

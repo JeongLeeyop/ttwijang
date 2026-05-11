@@ -286,7 +286,7 @@ export default class extends Vue {
 
   get filteredMatches(): MatchCard[] {
     const now = Date.now();
-    const byProximity = (a: MatchCard, b: MatchCard) => Math.abs(a.date.getTime() - now) - Math.abs(b.date.getTime() - now);
+    const byProximity = (a: MatchCard, b: MatchCard) => a.date.getTime() - b.date.getTime();
 
     if (this.showAllMonth) {
       return this.matchData

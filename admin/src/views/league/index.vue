@@ -691,7 +691,7 @@ status: 'RECRUITING',
     this.scheduleLoading = true;
     try {
       const res = await getAdminLeagueMatches(league.uid);
-      this.scheduleMatches = res.data || [];
+      this.scheduleMatches = (res.data || []).slice().sort((a: any, b: any) => (`${a.matchDate || ''} ${a.matchTime || ''}`).localeCompare(`${b.matchDate || ''} ${b.matchTime || ''}`));
     } catch {
       this.scheduleMatches = [];
     } finally {
@@ -727,7 +727,7 @@ status: 'RECRUITING',
       this.resultDialogVisible = false;
       // 현황 새로고침
       const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
-      this.scheduleMatches = res.data || [];
+      this.scheduleMatches = (res.data || []).slice().sort((a: any, b: any) => (`${a.matchDate || ''} ${a.matchTime || ''}`).localeCompare(`${b.matchDate || ''} ${b.matchTime || ''}`));
     } catch (e: any) {
       const msg = e?.response?.data?.message || '저장 중 오류가 발생했습니다.';
       this.$message.error(msg);
@@ -769,7 +769,7 @@ status: 'RECRUITING',
       this.$message.success('경기가 수정되었습니다.');
       this.matchEditDialogVisible = false;
       const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
-      this.scheduleMatches = res.data || [];
+      this.scheduleMatches = (res.data || []).slice().sort((a: any, b: any) => (`${a.matchDate || ''} ${a.matchTime || ''}`).localeCompare(`${b.matchDate || ''} ${b.matchTime || ''}`));
     } catch (e: any) {
       const msg = e?.response?.data?.message || '수정 중 오류가 발생했습니다.';
       this.$message.error(msg);
@@ -801,7 +801,7 @@ status: 'RECRUITING',
       await deleteLeagueMatch(match.uid);
       this.$message.success('경기가 삭제되었습니다.');
       const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
-      this.scheduleMatches = res.data || [];
+      this.scheduleMatches = (res.data || []).slice().sort((a: any, b: any) => (`${a.matchDate || ''} ${a.matchTime || ''}`).localeCompare(`${b.matchDate || ''} ${b.matchTime || ''}`));
     } catch (e: any) {
       const msg = e?.response?.data?.message || '삭제 중 오류가 발생했습니다.';
       this.$message.error(msg);

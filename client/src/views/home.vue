@@ -232,6 +232,7 @@ interface HomeCard {
   matchDay: string
   matchTime: string
   matchDateRaw: string
+  matchTimeRaw: string
   stadiumName: string
   matchFormat?: string
   fee?: number
@@ -433,6 +434,7 @@ export default class extends Vue {
           matchDay: dateInfo.day,
           matchTime: this.formatMatchTime(m.matchTime),
           matchDateRaw: m.matchDate || '',
+          matchTimeRaw: m.matchTime || '',
           stadiumName: m.stadiumName || '',
           matchFormat: m.matchFormat || '',
           fee: m.fee || 0,
@@ -451,6 +453,7 @@ export default class extends Vue {
           matchDay: dateInfo.day,
           matchTime: this.formatMatchTime(g.matchTime),
           matchDateRaw: g.matchDate || '',
+          matchTimeRaw: g.matchTime || '',
           stadiumName: g.stadiumName || '',
           fee: g.fee || 0,
           positionType: g.positionType || '',
@@ -458,8 +461,9 @@ export default class extends Vue {
         };
       });
 
-      // 날짜순 정렬
-      this.teamCards = [...matchCards, ...guestCards].sort((a, b) => a.matchDateRaw.localeCompare(b.matchDateRaw));
+      // 날짜+시간순 정렬
+      const byDateTime = (a: HomeCard, b: HomeCard) => (`${a.matchDateRaw} ${a.matchTimeRaw}`).localeCompare(`${b.matchDateRaw} ${b.matchTimeRaw}`);
+      this.teamCards = [...matchCards, ...guestCards].sort(byDateTime);
     } catch (error) {
       console.warn('팀 카드 로드 실패:', error);
       this.teamCards = [];
@@ -524,7 +528,7 @@ export default class extends Vue {
 
       this.recentMatches = allMatches
         .filter((m: any) => m.status === 'COMPLETED')
-        .sort((a: any, b: any) => sortKey(b).localeCompare(sortKey(a)))
+        .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
         .slice(0, 5)
         .map((match: any) => this.transformMatch(match, true));
 

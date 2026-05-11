@@ -404,7 +404,9 @@ public class TeamService {
      */
     @Transactional(readOnly = true)
     public List<TeamMemberDto.Response> getTeamMembers(String teamUid) {
-        return teamMemberRepository.findWithUserByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
+        return teamMemberRepository.findWithUserByTeamUidAndStatusIn(
+                teamUid,
+                java.util.Arrays.asList(TeamMember.MemberStatus.APPROVED, TeamMember.MemberStatus.LEAVE_PENDING))
                 .stream()
                 .map(this::toMemberResponse)
                 .collect(Collectors.toList());

@@ -1059,6 +1059,10 @@
   width: 28px;
 }
 
+.calendar-page .tabs-section .el-tabs .el-tabs__content {
+  margin-bottom:100px;
+}
+
 /* Calendar Section */
 .calendar-section {
   background: #fff;

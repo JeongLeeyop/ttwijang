@@ -46,7 +46,7 @@
                     <div class="title">{{ item2.title }}</div>
                     <div class="date">{{ item2.createDate | parseDate('YYYY-MM-DD HH:mm') }}</div>
                   </div>
-                  <div class="alarm-content">{{ item2.content }}</div>
+                  <div class="alarm-content" style="white-space: pre-line">{{ item2.content }}</div>
                 </a>
               </div>
             </div>

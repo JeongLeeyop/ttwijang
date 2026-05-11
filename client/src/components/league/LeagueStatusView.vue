@@ -250,8 +250,11 @@ export default class LeagueStatusView extends Vue {
 
       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
+      const sortKey = (m: any) => `${m.matchDate || '9999-12-31'} ${m.matchTime || '99:99'}`;
       this.recentMatches = matches
         .filter((match: any) => match.status === 'COMPLETED')
+        .slice()
+        .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
         .map((match: any) => {
           const matchDate = new Date(match.matchDate);
           return {

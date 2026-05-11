@@ -60,6 +60,13 @@
           <i class="el-icon-date"></i>
           <span>{{ formattedDateTime }}</span>
         </div>
+        <div
+          v-if="detailType === 'league' && detailData && detailData.round"
+          class="info-row"
+        >
+          <i class="el-icon-trophy"></i>
+          <span>{{ detailData.round }}회차</span>
+        </div>
         <div class="info-row">
           <i class="el-icon-location-outline"></i>
           <span class="stadium-name-text">{{ stadiumName }}</span>

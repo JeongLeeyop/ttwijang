@@ -500,11 +500,15 @@ export default class CalendarPage extends Vue {
   }
 
   get filteredMatches(): MatchItem[] {
-    return this.matchData.filter((m) => m.dateKey === this.selectedDateStr);
+    return this.matchData
+      .filter((m) => m.dateKey === this.selectedDateStr)
+      .sort((a, b) => (a.matchTime || '').localeCompare(b.matchTime || ''));
   }
 
   get filteredGuests(): MatchItem[] {
-    return this.guestData.filter((g) => g.dateKey === this.selectedDateStr);
+    return this.guestData
+      .filter((g) => g.dateKey === this.selectedDateStr)
+      .sort((a, b) => (a.matchTime || '').localeCompare(b.matchTime || ''));
   }
 
   private selectDate(day: CalendarDay): void {
