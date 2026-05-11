@@ -286,6 +286,41 @@ public class LeagueDto {
 
         @Schema(description = "원정팀 평균 나이")
         private Double awayTeamAverageAge;
+
+        @Schema(description = "홈팀 관리자가 제출한 점수")
+        private ScoreSubmissionInfo homeSubmission;
+
+        @Schema(description = "원정팀 관리자가 제출한 점수")
+        private ScoreSubmissionInfo awaySubmission;
+
+        @Schema(description = "현재 사용자 팀이 점수를 제출했는지 여부")
+        private Boolean myTeamSubmitted;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 관리자 점수 제출 정보")
+    public static class ScoreSubmissionInfo {
+        private String teamUid;
+        private Integer homeScore;
+        private Integer awayScore;
+        private String submittedByUid;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "팀 관리자 점수 제출 요청")
+    public static class ScoreSubmitRequest {
+        @NotNull(message = "홈팀 득점은 필수입니다")
+        @PositiveOrZero
+        private Integer homeScore;
+
+        @NotNull(message = "원정팀 득점은 필수입니다")
+        @PositiveOrZero
+        private Integer awayScore;
     }
 
     @Data

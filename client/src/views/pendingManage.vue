@@ -14,8 +14,66 @@
       <p>불러오는 중...</p>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="pendingList.length === 0" class="empty-container">
+    <!-- Leave Request List -->
+    <div v-if="!isLoading && leaveList.length > 0" class="content leave-section">
+      <div class="pending-summary leave-summary">
+        <span class="summary-count">{{ leaveList.length }}건</span>
+        <span class="summary-label">의 탈퇴 신청이 있습니다</span>
+      </div>
+      <div class="pending-list">
+        <div
+          v-for="member in leaveList"
+          :key="member.uid"
+          class="pending-card leave-card"
+        >
+          <div class="card-profile">
+            <div class="profile-avatar">
+              <img
+                :src="member.profileImageUrl || defaultAvatar(member.userName)"
+                :alt="member.userName"
+                class="avatar-img"
+              >
+            </div>
+            <div class="profile-info">
+              <div class="profile-name">{{ member.userName || '이름 없음' }}</div>
+              <div class="profile-meta">
+                <span v-if="member.applicationAge" class="meta-tag">{{ member.applicationAge }}세</span>
+                <span v-if="genderLabel(member.gender)" class="meta-tag">{{ genderLabel(member.gender) }}</span>
+              </div>
+            </div>
+            <div class="profile-date">{{ formatRelativeDate(member.createdDate) }}</div>
+          </div>
+          <div class="card-details">
+            <div class="detail-row">
+              <i class="el-icon-time detail-icon"></i>
+              <span class="detail-label">신청일시</span>
+              <span class="detail-value">{{ formatDate(member.createdDate) }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button
+              class="btn-reject"
+              :disabled="processingUid === member.uid"
+              @click="handleRejectLeave(member)"
+            >
+              <i class="el-icon-close"></i>
+              거절
+            </button>
+            <button
+              class="btn-approve btn-leave-approve"
+              :disabled="processingUid === member.uid"
+              @click="handleApproveLeave(member)"
+            >
+              <i class="el-icon-check"></i>
+              승인
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending List -->
+    <div v-else-if="!isLoading && pendingList.length === 0 && leaveList.length === 0" class="empty-container">
       <div class="empty-icon">
         <i class="el-icon-folder-checked"></i>
       </div>
@@ -24,7 +82,7 @@
     </div>
 
     <!-- Pending List -->
-    <div v-else class="content">
+    <div v-if="!isLoading && pendingList.length > 0" class="content">
       <div class="pending-summary">
         <span class="summary-count">{{ pendingList.length }}건</span>
         <span class="summary-label">의 가입 신청이 있습니다</span>
@@ -112,6 +170,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import {
   getPendingRequests, processJoinRequest, getMyTeams,
+  getPendingLeaveRequests, processLeaveRequest,
 } from '@/api/team';
 
 interface PendingMember {
@@ -141,6 +200,8 @@ export default class PendingManage extends Vue {
 
   private pendingList: PendingMember[] = []
 
+  private leaveList: PendingMember[] = []
+
   async created(): Promise<void> {
     this.teamUid = (this.$route.query.teamUid as string) || '';
     if (!this.teamUid) {
@@ -155,7 +216,7 @@ export default class PendingManage extends Vue {
       }
     }
     if (this.teamUid) {
-      await this.loadPendingList();
+      await Promise.all([this.loadPendingList(), this.loadLeaveList()]);
     } else {
       this.$message.error('팀 정보를 찾을 수 없습니다.');
     }
@@ -242,6 +303,59 @@ export default class PendingManage extends Vue {
     }).catch(() => {
       // 취소
     });
+  }
+
+  private async loadLeaveList(): Promise<void> {
+    try {
+      const res = await getPendingLeaveRequests(this.teamUid);
+      this.leaveList = Array.isArray(res.data) ? res.data : [];
+    } catch (error) {
+      console.error('탈퇴 신청 목록 조회 실패:', error);
+      this.leaveList = [];
+    }
+  }
+
+  private handleApproveLeave(member: PendingMember): void {
+    this.$confirm(
+      `${member.userName}님의 탈퇴 신청을 승인하시겠습니까?`,
+      '탈퇴 승인',
+      {
+        confirmButtonText: '승인',
+        cancelButtonText: '취소',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger',
+      },
+    ).then(() => {
+      this.processLeave(member.uid, true);
+    }).catch(() => { /* 취소 */ });
+  }
+
+  private handleRejectLeave(member: PendingMember): void {
+    this.$confirm(
+      `${member.userName}님의 탈퇴 신청을 거절하시겠습니까?`,
+      '탈퇴 거절',
+      {
+        confirmButtonText: '거절',
+        cancelButtonText: '취소',
+        type: 'info',
+      },
+    ).then(() => {
+      this.processLeave(member.uid, false);
+    }).catch(() => { /* 취소 */ });
+  }
+
+  private async processLeave(memberUid: string, approved: boolean): Promise<void> {
+    this.processingUid = memberUid;
+    try {
+      await processLeaveRequest({ memberUid, approved });
+      const action = approved ? '승인' : '거절';
+      this.$message.success(`탈퇴 신청이 ${action}되었습니다.`);
+      this.leaveList = this.leaveList.filter((m) => m.uid !== memberUid);
+    } catch (error) {
+      this.$message.error('처리 중 오류가 발생했습니다.');
+    } finally {
+      this.processingUid = '';
+    }
   }
 
   private async processRequest(memberUid: string, approved: boolean): Promise<void> {
@@ -557,5 +671,39 @@ export default class PendingManage extends Vue {
 .btn-reject i,
 .btn-approve i {
   font-size: 14px;
+}
+
+.leave-section {
+  padding-top: 0;
+}
+
+.leave-summary {
+  border-left: 3px solid #ff4757;
+}
+
+.leave-summary .summary-count {
+  color: #ff4757;
+}
+
+.leave-card {
+  border-left: 3px solid #ff4757;
+}
+
+.btn-leave-approve {
+  background: #fff0f0;
+  color: #ff4757;
+}
+
+.btn-leave-approve:active {
+  background: #ffe0e0;
+}
+
+.leave-team-item .menu-text {
+  color: #ff4757;
+}
+
+.leave-team-pending-item {
+  opacity: 0.6;
+  cursor: default;
 }
 </style>

@@ -238,6 +238,32 @@ public class TeamController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "팀 탈퇴 신청 (팀원)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{teamUid}/leave-request")
+    public ResponseEntity<Void> requestLeaveTeam(
+            @PathVariable String teamUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        teamService.requestLeaveTeam(teamUid, userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "탈퇴 신청 목록 조회 (운영자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{teamUid}/leave-pending")
+    public ResponseEntity<List<TeamMemberDto.Response>> getPendingLeaveRequests(
+            @PathVariable String teamUid,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        return ResponseEntity.ok(teamService.getPendingLeaveRequests(teamUid, userDetails.getUser().getUid()));
+    }
+
+    @Operation(summary = "탈퇴 신청 처리 (운영자)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/leave-request/process")
+    public ResponseEntity<Void> processLeaveRequest(
+            @Valid @RequestBody TeamMemberDto.ProcessRequest request,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        teamService.processLeaveRequest(request.getMemberUid(), request.getApproved(), userDetails.getUser().getUid());
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "회원 모집 설정 저장", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{teamUid}/recruitment")
     public ResponseEntity<TeamDto.DetailResponse> saveRecruitment(

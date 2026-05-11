@@ -72,3 +72,8 @@ export const updateLeagueMatch = (matchUid: string, data: any) => request({
   method: 'put',
   data,
 });
+
+export const deleteLeagueMatch = (matchUid: string) => request({
+  url: `${PATH}/admin/match/${matchUid}`,
+  method: 'delete',
+});

@@ -360,7 +360,7 @@ export default class extends Vue {
   @Watch('currentMonthIndex')
   async onMonthChange() {
     if (this.selectedLeague) {
-      await this.loadLeagueData();
+      await this.loadScheduleOnly();
     }
   }
 
@@ -487,8 +487,10 @@ export default class extends Vue {
       // 리그 순위표 로드
       const standingsResponse = await getLeagueStandings(this.selectedLeague);
       console.log('[HOME] 순위표 응답:', standingsResponse.data);
-      if (standingsResponse.data && standingsResponse.data.standings) {
-        this.leagueTable = standingsResponse.data.standings.map((team: any) => ({
+      const standings = standingsResponse.data || [];
+      if (Array.isArray(standings)) {
+        this.leagueTable = standings.map((team: any) => ({
+          teamCode: team.teamCode,
           name: team.teamName,
           logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
           played: team.played,
@@ -502,43 +504,37 @@ export default class extends Vue {
         }));
       }
 
-      // 리그 일정 로드
-      const year = this.currentYear;
-      const month = this.currentMonthIndex + 1;
-      const lastDay = new Date(year, month, 0).getDate(); // 해당 월의 마지막 날
-      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-      console.log('[HOME] 일정 조회 기간:', startDate, '~', endDate);
-      const scheduleResponse = await getLeagueSchedule(this.selectedLeague, { startDate, endDate });
-      console.log('[HOME] 일정 응답:', scheduleResponse.data);
-
-      if (scheduleResponse.data && Array.isArray(scheduleResponse.data)) {
-        const allMatches = scheduleResponse.data;
-        console.log('[HOME] allMatches 개수:', allMatches.length);
-        console.log('[HOME] allMatches 샘플:', allMatches[0]);
-
-        // 최근 경기 (완료된 경기)
-        const completedMatches = allMatches.filter((m: any) => m.status === 'COMPLETED');
-        console.log('[HOME] COMPLETED 매치:', completedMatches.length, '개');
-        this.recentMatches = completedMatches
-          .slice(0, 5)
-          .map((match: any) => this.transformMatch(match, true));
-
-        // 예정 경기
-        const scheduledMatches = allMatches.filter((m: any) => m.status !== 'COMPLETED');
-        console.log('[HOME] SCHEDULED 매치:', scheduledMatches.length, '개');
-        this.upcomingMatches = scheduledMatches
-          .slice(0, 5)
-          .map((match: any) => this.transformMatch(match, false));
-        console.log('[HOME] upcomingMatches:', this.upcomingMatches.length, '개');
-        console.log('[HOME] recentMatches:', this.recentMatches.length, '개');
-      } else {
-        console.warn('[HOME] scheduleResponse.data가 비어있거나 배열이 아님');
-        this.upcomingMatches = [];
-        this.recentMatches = [];
-      }
+      await this.loadScheduleOnly();
     } catch (error) {
       console.warn('리그 데이터 로드 실패:', error);
+    }
+  }
+
+  private async loadScheduleOnly(): Promise<void> {
+    this.recentMatches = [];
+    this.upcomingMatches = [];
+    try {
+      const year = this.currentYear;
+      const month = this.currentMonthIndex + 1;
+      const scheduleResponse = await getLeagueSchedule(this.selectedLeague, { year, month });
+      console.log('[HOME] 일정 응답:', scheduleResponse.data);
+
+      const allMatches = Array.isArray(scheduleResponse.data) ? scheduleResponse.data : [];
+      const sortKey = (m: any) => `${m.matchDate || '9999-12-31'} ${m.matchTime || '99:99'}`;
+
+      this.recentMatches = allMatches
+        .filter((m: any) => m.status === 'COMPLETED')
+        .sort((a: any, b: any) => sortKey(b).localeCompare(sortKey(a)))
+        .slice(0, 5)
+        .map((match: any) => this.transformMatch(match, true));
+
+      this.upcomingMatches = allMatches
+        .filter((m: any) => m.status !== 'COMPLETED')
+        .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
+        .slice(0, 5)
+        .map((match: any) => this.transformMatch(match, false));
+    } catch (error) {
+      console.warn('일정 로드 실패:', error);
     }
   }
 

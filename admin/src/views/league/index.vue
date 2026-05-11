@@ -216,6 +216,15 @@
             >수정</el-button>
           </template>
         </el-table-column>
+        <el-table-column label="삭제" width="90" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleMatchDelete(scope.row)"
+            >삭제</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <div slot="footer">
         <el-button @click="scheduleDialogVisible = false">닫기</el-button>
@@ -295,9 +304,12 @@
         </el-form-item>
         <el-form-item label="소요 시간(분)" prop="durationMinutes">
           <el-select v-model="matchForm.durationMinutes" style="width:100%">
-            <el-option label="60분" :value="60" />
-            <el-option label="90분" :value="90" />
-            <el-option label="120분" :value="120" />
+            <el-option
+              v-for="opt in durationOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="회차" prop="round">
@@ -348,9 +360,12 @@
         </el-form-item>
         <el-form-item label="소요 시간(분)">
           <el-select v-model="matchEditForm.durationMinutes" style="width:100%">
-            <el-option label="60분" :value="60" />
-            <el-option label="90분" :value="90" />
-            <el-option label="120분" :value="120" />
+            <el-option
+              v-for="opt in durationOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="회차">
@@ -376,7 +391,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import {
   getLeagueList, getLeague, createLeague, updateLeague, deleteLeague,
   getLeagueTeams, createLeagueMatch, updateMatchResult, getAdminLeagueMatches,
-  updateLeagueMatch,
+  updateLeagueMatch, deleteLeagueMatch,
 } from '@/api/league';
 import { getSidoList, getSigunguList } from '@/api/region';
 import { ElForm } from 'element-ui/types/form';
@@ -496,6 +511,14 @@ status: 'RECRUITING',
     stadiumName: [{ required: true, message: '구장명을 입력하세요', trigger: 'blur' }],
     round: [{ required: true, message: '회차를 입력하세요', trigger: 'blur' }],
   };
+
+  get durationOptions() {
+    const opts = [];
+    for (let m = 5; m <= 180; m += 5) {
+      opts.push({ value: m, label: `${m}분` });
+    }
+    return opts;
+  }
 
   statusType(s: string) {
     return ({ RECRUITING: 'success', IN_PROGRESS: 'warning', COMPLETED: 'info' } as any)[s] || 'info';
@@ -752,6 +775,36 @@ status: 'RECRUITING',
       this.$message.error(msg);
     } finally {
       this.savingMatchEdit = false;
+    }
+  }
+
+  async handleMatchDelete(match: any) {
+    const homeTeam = match.homeTeamName || '홈팀';
+    const awayTeam = match.awayTeamName || '원정팀';
+    const isCompleted = match.status === 'COMPLETED';
+    const warningMsg = isCompleted
+      ? `"${homeTeam} vs ${awayTeam}" 경기를 삭제하면 팀 전적이 역산되고, 신청한 팀원들에게 취소 알림이 발송됩니다. 계속하시겠습니까?`
+      : `"${homeTeam} vs ${awayTeam}" 경기를 삭제하면 신청한 팀원들에게 취소 알림이 발송됩니다. 계속하시겠습니까?`;
+
+    try {
+      await this.$confirm(warningMsg, '경기 삭제 확인', {
+        type: 'warning',
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소',
+        confirmButtonClass: 'el-button--danger',
+      });
+    } catch {
+      return;
+    }
+
+    try {
+      await deleteLeagueMatch(match.uid);
+      this.$message.success('경기가 삭제되었습니다.');
+      const res = await getAdminLeagueMatches(this.currentScheduleLeagueUid);
+      this.scheduleMatches = res.data || [];
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || '삭제 중 오류가 발생했습니다.';
+      this.$message.error(msg);
     }
   }
 

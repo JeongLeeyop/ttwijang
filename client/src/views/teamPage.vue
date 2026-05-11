@@ -140,13 +140,37 @@
                       <div class="comment-header">
                         <span class="comment-writer">{{ comment.writer }}</span>
                         <span class="comment-date">{{ formatDateTime(comment.createDate) }}</span>
+                        <div
+                          v-if="comment.isMine && editingCommentUid !== comment.uid"
+                          class="comment-actions"
+                        >
+                          <span
+                            class="comment-action-btn"
+                            @click.stop="startEditComment(comment)"
+                          >수정</span>
+                          <span
+                            class="comment-action-btn delete"
+                            @click.stop="confirmDeleteComment(comment, post.uid)"
+                          >삭제</span>
+                        </div>
                       </div>
-                      <p class="comment-text">{{ comment.contents }}</p>
-                      <span
-                        v-if="comment.isMine"
-                        class="comment-delete"
-                        @click.stop="confirmDeleteComment(comment)"
-                      >삭제</span>
+                      <template v-if="editingCommentUid === comment.uid">
+                        <textarea
+                          v-model="editingCommentText"
+                          class="comment-edit-input"
+                        />
+                        <div class="comment-edit-actions">
+                          <button
+                            class="comment-edit-confirm"
+                            @click.stop="submitEditComment(comment, post.uid)"
+                          >확인</button>
+                          <button
+                            class="comment-edit-cancel"
+                            @click.stop="cancelEditComment"
+                          >취소</button>
+                        </div>
+                      </template>
+                      <p v-else class="comment-text">{{ comment.contents }}</p>
                     </div>
                   </div>
                   <div v-else class="no-comments">
@@ -445,6 +469,7 @@
                     class="sponsor-banner-img"
                   >
                 </a>
+                <p v-if="banner.description" class="sponsor-banner-desc">{{ banner.description }}</p>
               </div>
             </VueSlickCarousel>
           </div>
@@ -644,8 +669,9 @@ import {
   deleteTeamPost, likeTeamPost,
 } from '@/api/teamPost';
 import {
-  getComments, addComment, deleteComment,
+  getComments, addComment, updateComment, deleteComment,
 } from '@/api/comment';
+import { getUserInfo } from '@/api/user';
 import { uploadFile } from '@/api/attachedFile';
 
 // eslint-disable-next-line no-unused-vars
@@ -745,6 +771,12 @@ export default class TeamPage extends Vue {
   private postComments: Record<string, any[]> = {}
 
   private commentTexts: Record<string, string> = {}
+
+  private editingCommentUid = ''
+
+  private editingCommentText = ''
+
+  private currentUserUid = ''
 
   private showWriteModal = false
 
@@ -934,6 +966,11 @@ export default class TeamPage extends Vue {
         this.loadOwnerSponsor(),
         this.loadMyRole(),
       ]);
+      if (this.myRole === '') {
+        this.$message.error('팀 회원만 이용가능합니다.');
+        this.$router.replace('/');
+        return;
+      }
       await this.loadTabData();
     } catch (error) {
       console.error('팀 정보 로드 실패:', error);
@@ -943,6 +980,10 @@ export default class TeamPage extends Vue {
   }
 
   private async loadMyRole(): Promise<void> {
+    try {
+      const userInfoRes = await getUserInfo();
+      if (userInfoRes.data?.uid) this.currentUserUid = userInfoRes.data.uid;
+    } catch (e) { /* 무시 */ }
     try {
       const statusRes = await checkMembershipStatus();
       const status = statusRes.data;
@@ -1045,7 +1086,11 @@ export default class TeamPage extends Vue {
     try {
       const res = await getComments(postUid);
       const comments = res.data?.content || res.data || [];
-      this.$set(this.postComments, postUid, Array.isArray(comments) ? comments : []);
+      const list = Array.isArray(comments) ? comments : [];
+      if (this.currentUserUid) {
+        list.forEach((c: any) => { c.isMine = c.userUid === this.currentUserUid; });
+      }
+      this.$set(this.postComments, postUid, list);
     } catch (e) {
       this.$set(this.postComments, postUid, []);
     }
@@ -1086,7 +1131,30 @@ export default class TeamPage extends Vue {
     }
   }
 
-  private async confirmDeleteComment(comment: any): Promise<void> {
+  private startEditComment(comment: any): void {
+    this.editingCommentUid = comment.uid;
+    this.editingCommentText = comment.contents;
+  }
+
+  private cancelEditComment(): void {
+    this.editingCommentUid = '';
+    this.editingCommentText = '';
+  }
+
+  private async submitEditComment(comment: any, postUid: string): Promise<void> {
+    const text = this.editingCommentText.trim();
+    if (!text) return;
+    try {
+      await updateComment(comment.uid, { contents: text });
+      this.cancelEditComment();
+      await this.loadPostComments(postUid);
+      this.$message.success('댓글이 수정되었습니다.');
+    } catch (e) {
+      this.$message.error('댓글 수정에 실패했습니다.');
+    }
+  }
+
+  private async confirmDeleteComment(comment: any, postUid?: string): Promise<void> {
     try {
       await this.$confirm('댓글을 삭제하시겠습니까?', '댓글 삭제', {
         confirmButtonText: '삭제',
@@ -1094,8 +1162,11 @@ export default class TeamPage extends Vue {
         type: 'warning',
       });
       await deleteComment(comment.uid);
-      if (this.expandedPostUid) {
-        await this.loadPostComments(this.expandedPostUid);
+      const targetPostUid = postUid || this.expandedPostUid;
+      if (targetPostUid) {
+        await this.loadPostComments(targetPostUid);
+        const post = this.communityPosts.find((p) => p.uid === targetPostUid);
+        if (post) post.commentCount = Math.max(0, (post.commentCount || 1) - 1);
       }
       this.$message.success('댓글이 삭제되었습니다.');
     } catch (e) {
@@ -2129,12 +2200,67 @@ export default class TeamPage extends Vue {
   line-height: 1.4;
 }
 
-.comment-delete {
-  position: absolute;
-  top: 8px;
-  right: 0;
+.comment-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.comment-action-btn {
   font-size: 11px;
-  color: #ff4757;
+  color: #999;
+  cursor: pointer;
+
+  &.delete {
+    color: #ff4757;
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.comment-edit-input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  resize: none;
+  min-height: 60px;
+  box-sizing: border-box;
+  outline: none;
+
+  &:focus {
+    border-color: #409eff;
+  }
+}
+
+.comment-edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  justify-content: flex-end;
+}
+
+.comment-edit-confirm {
+  padding: 4px 12px;
+  font-size: 12px;
+  background: #409eff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-edit-cancel {
+  padding: 4px 12px;
+  font-size: 12px;
+  background: #f0f0f0;
+  color: #666;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -2783,6 +2909,14 @@ export default class TeamPage extends Vue {
   height: 200px;
   object-fit: cover;
   border-radius: 12px;
+}
+
+.sponsor-banner-desc {
+  margin: 8px 4px 0;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  white-space: pre-line;
 }
 
 .sponsor-banner-placeholder {

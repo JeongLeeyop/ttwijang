@@ -38,6 +38,14 @@
             </div>
           </div>
 
+          <!-- 탈퇴 신청 관리 -->
+          <div class="settings-menu-item" @click="goToLeaveManage">
+            <div class="menu-label-row">
+              <span class="menu-label">탈퇴 신청 관리<span v-if="leaveCount > 0" class="pending-badge leave-badge">{{ leaveCount }}</span></span>
+              <i class="el-icon-arrow-right menu-arrow"></i>
+            </div>
+          </div>
+
           <!-- 환불 계좌 -->
           <div class="settings-menu-item" @click="openBankDialog">
             <div class="menu-label-row">
@@ -182,6 +190,7 @@ import {
   getTeamDetail,
   getMyTeams,
   getPendingRequests,
+  getPendingLeaveRequests,
   getTeamMembers,
   delegateOwner,
   updateTeam,
@@ -196,6 +205,8 @@ export default class TeamSettings extends Vue {
   private teamInfo: any = {}
 
   private pendingCount = 0
+
+  private leaveCount = 0
 
   private bankDialogVisible = false
 
@@ -240,7 +251,7 @@ export default class TeamSettings extends Vue {
     }
     if (this.teamUid) {
       await this.loadTeamInfo();
-      await this.loadPendingCount();
+      await Promise.all([this.loadPendingCount(), this.loadLeaveCount()]);
     }
   }
 
@@ -263,6 +274,16 @@ export default class TeamSettings extends Vue {
     }
   }
 
+  private async loadLeaveCount(): Promise<void> {
+    try {
+      const res = await getPendingLeaveRequests(this.teamUid);
+      const list = res.data;
+      this.leaveCount = Array.isArray(list) ? list.length : 0;
+    } catch (error) {
+      console.warn('탈퇴 신청 목록 조회 실패:', error);
+    }
+  }
+
   private goBack(): void {
     this.$router.go(-1);
   }
@@ -278,6 +299,13 @@ export default class TeamSettings extends Vue {
     this.$router.push({
       path: '/pending-manage',
       query: { teamUid: this.teamUid },
+    });
+  }
+
+  private goToLeaveManage(): void {
+    this.$router.push({
+      path: '/pending-manage',
+      query: { teamUid: this.teamUid, section: 'leave' },
     });
   }
 
@@ -517,6 +545,10 @@ export default class TeamSettings extends Vue {
   margin-left: 8px;
   top: -2px;
   position: relative;
+}
+
+.leave-badge {
+  background: #ff8c00;
 }
 
 .menu-tag {

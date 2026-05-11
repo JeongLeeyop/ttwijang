@@ -43,6 +43,7 @@ public class ClientUserDto {
 
     @Data
     public static class info {
+        private String uid;
         private String userId;
         private String actualName;
         private String concatNumber;

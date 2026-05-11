@@ -239,6 +239,27 @@ public class LeagueController {
         return ResponseEntity.ok(leagueService.updateLeagueMatch(matchUid, request));
     }
 
+    @Operation(summary = "[관리자] 리그 경기 삭제 (전적 역산 + 참가자 알림)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/admin/match/{matchUid}")
+    public ResponseEntity<Void> deleteLeagueMatch(@PathVariable String matchUid) {
+        leagueService.deleteLeagueMatch(matchUid);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "팀 관리자 점수 제출 (경기 종료 후, 양측 일치 시 자동 확정)", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/match/{matchUid}/submit-score")
+    public ResponseEntity<Void> submitManagerScore(
+            @PathVariable String matchUid,
+            @RequestBody @Valid LeagueDto.ScoreSubmitRequest request,
+            @AuthenticationPrincipal SinghaUser userDetails) {
+        if (userDetails == null || userDetails.getUser() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        leagueService.submitManagerScore(matchUid, userDetails.getUser().getUid(), request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "리그 전체 경기 목록 조회 (날짜 제한 없음)")
     @GetMapping("/{leagueUid}/matches")
     public ResponseEntity<List<LeagueDto.MatchResponse>> getLeagueMatches(

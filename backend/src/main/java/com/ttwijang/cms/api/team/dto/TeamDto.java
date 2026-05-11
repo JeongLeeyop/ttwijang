@@ -345,6 +345,9 @@ public class TeamDto {
 
         @Schema(description = "팀 생성 가능 여부")
         private boolean canCreateTeam;
+
+        @Schema(description = "탈퇴 신청 대기 중")
+        private boolean leavePending;
     }
 
     @Data

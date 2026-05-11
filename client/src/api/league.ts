@@ -306,3 +306,12 @@ export function createLeagueMatch(data: CreateLeagueMatchRequest) {
     data,
   });
 }
+
+// 팀 관리자 점수 제출 (경기 종료 후, 양측 일치 시 자동 확정)
+export function submitLeagueMatchScore(matchUid: string, data: { homeScore: number, awayScore: number }) {
+  return request({
+    url: `/league/match/${matchUid}/submit-score`,
+    method: 'post',
+    data,
+  });
+}

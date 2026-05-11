@@ -126,6 +126,18 @@
                   결과 수정
                 </el-button>
               </div>
+              <div
+                v-if="showManagerScoreInput"
+                style="margin-top:8px"
+              >
+                <el-button
+                  size="mini"
+                  type="warning"
+                  @click="openManagerScoreModal"
+                >
+                  {{ detailData && detailData.myTeamSubmitted ? '점수 수정' : '점수 입력' }}
+                </el-button>
+              </div>
             </div>
             <div class="versus-team">
               <img
@@ -600,6 +612,53 @@
         </div>
       </el-dialog>
 
+      <!-- 팀 관리자 점수 제출 모달 -->
+      <el-dialog
+        title="점수 입력"
+        :visible.sync="showManagerScoreModal"
+        :close-on-click-modal="false"
+        width="90%"
+      >
+        <div class="score-input-section">
+          <div class="score-input-row">
+            <span class="score-team-name">{{ detailData && detailData.homeTeamName }}</span>
+            <el-input-number
+              v-model="managerInputHomeScore"
+              :min="0"
+              :max="99"
+              size="small"
+              controls-position="right"
+            />
+          </div>
+          <div class="score-input-row">
+            <span class="score-team-name">{{ detailData && detailData.awayTeamName }}</span>
+            <el-input-number
+              v-model="managerInputAwayScore"
+              :min="0"
+              :max="99"
+              size="small"
+              controls-position="right"
+            />
+          </div>
+          <p
+            v-if="detailData && detailData.myTeamSubmitted"
+            class="manager-score-notice"
+          >
+            이미 제출한 점수가 있습니다. 수정하면 양측 점수를 다시 비교합니다.
+          </p>
+        </div>
+        <div slot="footer">
+          <el-button @click="showManagerScoreModal = false">취소</el-button>
+          <el-button
+            type="primary"
+            :loading="isSubmittingManagerScore"
+            @click="handleManagerScoreSubmit"
+          >
+            제출
+          </el-button>
+        </div>
+      </el-dialog>
+
       <!-- 경기 결과 입력 모달 -->
       <el-dialog
         :visible.sync="showResultModal"
@@ -723,6 +782,7 @@ import {
 import { getGuestRecruitmentDetail, applyAsGuest } from '@/api/guest';
 import {
   getLeagueDetail, getLeagueMatchDetail, updateMatchResult, applyToLeagueMatch,
+  submitLeagueMatchScore,
 } from '@/api/league';
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
@@ -773,6 +833,14 @@ export default class MatchDetail extends Vue {
   private leagueInputAwayScore = 0
 
   private isSubmittingLeagueResult = false
+
+  private showManagerScoreModal = false
+
+  private managerInputHomeScore = 0
+
+  private managerInputAwayScore = 0
+
+  private isSubmittingManagerScore = false
 
   private detailType: DetailType = 'friendly'
 
@@ -1133,6 +1201,16 @@ export default class MatchDetail extends Vue {
     if (d.members && Array.isArray(d.members)) return d.members;
     // Generate sample participants from names if available
     return [];
+  }
+
+  /**
+   * 경기 종료 후 팀 관리자(OWNER/MANAGER)에게 점수 제출 버튼 표시
+   */
+  get showManagerScoreInput(): boolean {
+    if (this.detailType !== 'league') return false;
+    const status = this.detailData?.status;
+    if (status === 'COMPLETED' || status === 'CANCELLED') return false;
+    return this.detailData?.isTeamOwner === true && this.isMatchDatePassed;
   }
 
   /**
@@ -1572,6 +1650,31 @@ export default class MatchDetail extends Vue {
       this.$message.error(message);
     } finally {
       this.isSubmittingManner = false;
+    }
+  }
+
+  private openManagerScoreModal(): void {
+    this.managerInputHomeScore = 0;
+    this.managerInputAwayScore = 0;
+    this.showManagerScoreModal = true;
+  }
+
+  private async handleManagerScoreSubmit(): Promise<void> {
+    if (!this.matchUid) return;
+    this.isSubmittingManagerScore = true;
+    try {
+      await submitLeagueMatchScore(this.matchUid, {
+        homeScore: this.managerInputHomeScore,
+        awayScore: this.managerInputAwayScore,
+      });
+      this.$message.success('점수가 제출되었습니다.');
+      this.showManagerScoreModal = false;
+      await this.loadDetail();
+    } catch (err: any) {
+      const message = err?.response?.data?.message || '점수 제출에 실패했습니다.';
+      this.$message.error(message);
+    } finally {
+      this.isSubmittingManagerScore = false;
     }
   }
 }
@@ -2220,5 +2323,29 @@ export default class MatchDetail extends Vue {
   font-weight: 700;
   background: #061da1 !important;
   border-color: #061da1 !important;
+}
+
+.score-input-section {
+  padding: 8px 0;
+}
+
+.score-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.score-team-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.manager-score-notice {
+  font-size: 12px;
+  color: #e6a23c;
+  margin-top: 4px;
 }
 </style>

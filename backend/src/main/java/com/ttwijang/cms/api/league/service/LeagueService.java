@@ -22,6 +22,7 @@ import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.league.dto.LeagueDto;
 import com.ttwijang.cms.api.league.repository.LeagueMatchApplicationRepository;
 import com.ttwijang.cms.api.league.repository.LeagueMatchRepository;
+import com.ttwijang.cms.api.league.repository.LeagueMatchScoreSubmissionRepository;
 import com.ttwijang.cms.api.league.repository.LeagueRepository;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
 import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
@@ -33,6 +34,7 @@ import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.LeagueMatch;
 import com.ttwijang.cms.entity.LeagueMatchApplication;
+import com.ttwijang.cms.entity.LeagueMatchScoreSubmission;
 import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.MatchConfig;
 import com.ttwijang.cms.entity.Notification;
@@ -50,6 +52,7 @@ public class LeagueService {
     private final LeagueTeamRepository leagueTeamRepository;
     private final LeagueMatchRepository leagueMatchRepository;
     private final LeagueMatchApplicationRepository leagueMatchApplicationRepository;
+    private final LeagueMatchScoreSubmissionRepository leagueMatchScoreSubmissionRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
@@ -662,6 +665,152 @@ public class LeagueService {
     }
 
     /**
+     * [관리자] 리그 경기 삭제
+     * - COMPLETED 경기면 팀 전적 역산
+     * - APPROVED 신청자 전원에게 취소 알림 발송
+     * - LeagueMatchApplication 삭제 후 LeagueMatch 삭제
+     */
+    @Transactional
+    public void deleteLeagueMatch(String matchUid) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
+
+        // COMPLETED 경기면 전적 역산
+        if (match.getStatus() == LeagueMatch.MatchStatus.COMPLETED) {
+            reverseTeamStats(match);
+        }
+
+        // APPROVED 신청자에게 취소 알림
+        List<LeagueMatchApplication> approvedApps = leagueMatchApplicationRepository
+                .findByLeagueMatchUidAndStatus(matchUid, LeagueMatchApplication.ApplicationStatus.APPROVED);
+
+        Team homeTeam = teamRepository.findByUid(match.getHomeTeamUid()).orElse(null);
+        Team awayTeam = teamRepository.findByUid(match.getAwayTeamUid()).orElse(null);
+        String matchTitle = (homeTeam != null ? homeTeam.getName() : "홈팀")
+                + " vs " + (awayTeam != null ? awayTeam.getName() : "원정팀");
+
+        for (LeagueMatchApplication app : approvedApps) {
+            notificationService.createNotification(
+                    app.getUserUid(),
+                    Notification.NotificationType.MATCH,
+                    "경기가 취소되었습니다",
+                    "'" + matchTitle + "' 경기가 관리자에 의해 삭제되었습니다.",
+                    matchUid,
+                    "LEAGUE_MATCH",
+                    null
+            );
+        }
+
+        // 신청 내역, 점수 제출 내역 및 경기 삭제
+        leagueMatchApplicationRepository.deleteByLeagueMatchUid(matchUid);
+        leagueMatchScoreSubmissionRepository.deleteByMatchUid(matchUid);
+        leagueMatchRepository.delete(match);
+    }
+
+    /**
+     * [팀 관리자] 경기 점수 제출
+     * - 홈/원정팀의 OWNER 또는 MANAGER만 가능
+     * - 경기 종료 후(matchDate+matchTime 이후)에만 가능
+     * - 양측 제출 점수 일치 시 자동 확정, 불일치 시 양측 알림
+     */
+    @Transactional
+    public void submitManagerScore(String matchUid, String userUid, LeagueDto.ScoreSubmitRequest request) {
+        LeagueMatch match = leagueMatchRepository.findByUid(matchUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
+
+        if (match.getStatus() == LeagueMatch.MatchStatus.CANCELLED) {
+            throw new IllegalArgumentException("취소된 경기입니다.");
+        }
+        if (match.getStatus() == LeagueMatch.MatchStatus.COMPLETED) {
+            throw new IllegalArgumentException("이미 확정된 경기입니다.");
+        }
+        if (!isMatchEnded(match)) {
+            throw new IllegalArgumentException("경기가 아직 종료되지 않았습니다.");
+        }
+
+        Team homeTeam = teamRepository.findByUid(match.getHomeTeamUid()).orElse(null);
+        Team awayTeam = teamRepository.findByUid(match.getAwayTeamUid()).orElse(null);
+
+        String submittingTeamUid;
+        if (isTeamManagerOrOwner(homeTeam, userUid)) {
+            submittingTeamUid = match.getHomeTeamUid();
+        } else if (isTeamManagerOrOwner(awayTeam, userUid)) {
+            submittingTeamUid = match.getAwayTeamUid();
+        } else {
+            throw new IllegalArgumentException("해당 경기의 팀 관리자만 점수를 제출할 수 있습니다.");
+        }
+
+        // 기존 제출이 있으면 수정, 없으면 신규 생성
+        LeagueMatchScoreSubmission submission = leagueMatchScoreSubmissionRepository
+                .findByMatchUidAndTeamUid(matchUid, submittingTeamUid)
+                .orElse(LeagueMatchScoreSubmission.builder()
+                        .matchUid(matchUid)
+                        .teamUid(submittingTeamUid)
+                        .build());
+        submission.setSubmittedByUid(userUid);
+        submission.setHomeScore(request.getHomeScore());
+        submission.setAwayScore(request.getAwayScore());
+        leagueMatchScoreSubmissionRepository.save(submission);
+
+        tryConfirmMatchScore(match);
+    }
+
+    private boolean isMatchEnded(LeagueMatch match) {
+        java.time.LocalDate date = match.getMatchDate();
+        if (date == null) return false;
+        java.time.LocalDateTime endAt = match.getMatchTime() != null
+                ? java.time.LocalDateTime.of(date, match.getMatchTime())
+                : date.atTime(23, 59, 59);
+        return java.time.LocalDateTime.now().isAfter(endAt);
+    }
+
+    private void tryConfirmMatchScore(LeagueMatch match) {
+        List<LeagueMatchScoreSubmission> submissions = leagueMatchScoreSubmissionRepository.findByMatchUid(match.getUid());
+
+        LeagueMatchScoreSubmission homeSub = submissions.stream()
+                .filter(s -> s.getTeamUid().equals(match.getHomeTeamUid())).findFirst().orElse(null);
+        LeagueMatchScoreSubmission awaySub = submissions.stream()
+                .filter(s -> s.getTeamUid().equals(match.getAwayTeamUid())).findFirst().orElse(null);
+
+        if (homeSub == null || awaySub == null) return;
+
+        if (homeSub.getHomeScore().equals(awaySub.getHomeScore())
+                && homeSub.getAwayScore().equals(awaySub.getAwayScore())) {
+            // 점수 일치 → 기존 결과 입력 로직 재사용
+            LeagueDto.MatchResultRequest req = new LeagueDto.MatchResultRequest();
+            req.setMatchUid(match.getUid());
+            req.setHomeScore(homeSub.getHomeScore());
+            req.setAwayScore(homeSub.getAwayScore());
+            updateMatchResult(req);
+        } else {
+            notifyScoreMismatch(match);
+        }
+    }
+
+    private void notifyScoreMismatch(LeagueMatch match) {
+        String actionUrl = "/match-detail/" + match.getUid() + "?type=league&leagueUid=" + match.getLeagueUid();
+        for (String teamUid : new String[]{match.getHomeTeamUid(), match.getAwayTeamUid()}) {
+            List<TeamMember> managers = teamMemberRepository
+                    .findByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.APPROVED)
+                    .stream()
+                    .filter(m -> m.getRole() == TeamMember.MemberRole.OWNER
+                            || m.getRole() == TeamMember.MemberRole.MANAGER)
+                    .collect(Collectors.toList());
+            for (TeamMember manager : managers) {
+                notificationService.createNotification(
+                        manager.getUserUid(),
+                        Notification.NotificationType.MATCH,
+                        "점수 불일치 — 확인 필요",
+                        "상대 팀과 점수가 일치하지 않습니다. 점수를 다시 확인하고 수정해 주세요.",
+                        match.getUid(),
+                        "LEAGUE_MATCH",
+                        actionUrl
+                );
+            }
+        }
+    }
+
+    /**
      * 리그 참가 팀 목록 조회
      */
     @Transactional(readOnly = true)
@@ -867,6 +1016,34 @@ public class LeagueService {
         Double homeTeamAverageAge = calculateAverageAge(match.getHomeTeamUid());
         Double awayTeamAverageAge = calculateAverageAge(match.getAwayTeamUid());
 
+        // 점수 제출 정보
+        List<LeagueMatchScoreSubmission> submissions = leagueMatchScoreSubmissionRepository.findByMatchUid(match.getUid());
+        LeagueMatchScoreSubmission homeSub = submissions.stream()
+                .filter(s -> s.getTeamUid().equals(match.getHomeTeamUid())).findFirst().orElse(null);
+        LeagueMatchScoreSubmission awaySub = submissions.stream()
+                .filter(s -> s.getTeamUid().equals(match.getAwayTeamUid())).findFirst().orElse(null);
+
+        LeagueDto.ScoreSubmissionInfo homeSubmissionInfo = homeSub == null ? null
+                : LeagueDto.ScoreSubmissionInfo.builder()
+                        .teamUid(homeSub.getTeamUid()).homeScore(homeSub.getHomeScore())
+                        .awayScore(homeSub.getAwayScore()).submittedByUid(homeSub.getSubmittedByUid()).build();
+        LeagueDto.ScoreSubmissionInfo awaySubmissionInfo = awaySub == null ? null
+                : LeagueDto.ScoreSubmissionInfo.builder()
+                        .teamUid(awaySub.getTeamUid()).homeScore(awaySub.getHomeScore())
+                        .awayScore(awaySub.getAwayScore()).submittedByUid(awaySub.getSubmittedByUid()).build();
+
+        boolean myTeamSubmitted = false;
+        if (currentUserUid != null && !currentUserUid.isEmpty()) {
+            myTeamSubmitted = submissions.stream().anyMatch(s -> {
+                boolean isHomeMember = teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                        match.getHomeTeamUid(), currentUserUid, TeamMember.MemberStatus.APPROVED);
+                boolean isAwayMember = teamMemberRepository.existsByTeamUidAndUserUidAndStatus(
+                        match.getAwayTeamUid(), currentUserUid, TeamMember.MemberStatus.APPROVED);
+                return (isHomeMember && s.getTeamUid().equals(match.getHomeTeamUid()))
+                        || (isAwayMember && s.getTeamUid().equals(match.getAwayTeamUid()));
+            });
+        }
+
         return LeagueDto.MatchResponse.builder()
                 .uid(match.getUid())
                 .leagueUid(match.getLeagueUid())
@@ -904,6 +1081,9 @@ public class LeagueService {
                 .awayTeamTotalLosses(awayRecord[2])
                 .homeTeamAverageAge(homeTeamAverageAge)
                 .awayTeamAverageAge(awayTeamAverageAge)
+                .homeSubmission(homeSubmissionInfo)
+                .awaySubmission(awaySubmissionInfo)
+                .myTeamSubmitted(myTeamSubmitted)
                 .build();
     }
 

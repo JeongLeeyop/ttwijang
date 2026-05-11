@@ -35,10 +35,10 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
     long countByTeamUidAndStatus(String teamUid, TeamMember.MemberStatus status);
 
     /**
-     * BR-01: 사용자가 이미 다른 팀에 소속(APPROVED 또는 PENDING)되어 있는지 확인
+     * BR-01: 사용자가 이미 다른 팀에 소속(APPROVED, PENDING, LEAVE_PENDING)되어 있는지 확인
      */
     @Query("SELECT CASE WHEN COUNT(tm) > 0 THEN true ELSE false END FROM TeamMember tm " +
-           "WHERE tm.userUid = :userUid AND tm.status IN ('APPROVED', 'PENDING')")
+           "WHERE tm.userUid = :userUid AND tm.status IN ('APPROVED', 'PENDING', 'LEAVE_PENDING')")
     boolean existsActiveOrPendingMembershipByUserUid(@Param("userUid") String userUid);
 
     /**
@@ -51,6 +51,12 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
      */
     @Query("SELECT tm FROM TeamMember tm JOIN FETCH tm.team WHERE tm.userUid = :userUid AND tm.status = 'APPROVED'")
     Optional<TeamMember> findApprovedMembershipByUserUid(@Param("userUid") String userUid);
+
+    /**
+     * 사용자의 현재 소속팀(APPROVED 또는 LEAVE_PENDING) 조회 — 탈퇴 신청 중에도 팀 접근 허용
+     */
+    @Query("SELECT tm FROM TeamMember tm JOIN FETCH tm.team WHERE tm.userUid = :userUid AND tm.status IN ('APPROVED', 'LEAVE_PENDING')")
+    Optional<TeamMember> findActiveMembershipByUserUid(@Param("userUid") String userUid);
 
     /**
      * 사용자의 대기 중(PENDING) 가입 신청 조회

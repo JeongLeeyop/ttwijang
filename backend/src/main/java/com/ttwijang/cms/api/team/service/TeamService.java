@@ -429,6 +429,129 @@ public class TeamService {
     }
 
     /**
+     * 팀 탈퇴 신청 (APPROVED → LEAVE_PENDING)
+     * OWNER는 탈퇴 불가
+     */
+    @Transactional
+    public void requestLeaveTeam(String teamUid, String userUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (team.getOwnerUid().equals(userUid)) {
+            throw new IllegalArgumentException("팀 운영자는 탈퇴할 수 없습니다. 운영자를 위임한 후 탈퇴하세요.");
+        }
+
+        TeamMember member = teamMemberRepository.findByTeamUidAndUserUid(teamUid, userUid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 팀의 팀원이 아닙니다."));
+
+        if (member.getStatus() != TeamMember.MemberStatus.APPROVED) {
+            throw new IllegalArgumentException("탈퇴 신청이 불가능한 상태입니다.");
+        }
+
+        member.setStatus(TeamMember.MemberStatus.LEAVE_PENDING);
+        teamMemberRepository.save(member);
+
+        // 신청자 알림
+        notificationService.createNotification(
+                userUid,
+                Notification.NotificationType.TEAM,
+                "팀 탈퇴 신청 완료",
+                team.getName() + " 팀에 탈퇴 신청이 완료되었습니다. 운영자 승인 후 탈퇴가 완료됩니다.",
+                team.getUid(),
+                "TEAM",
+                "/team/" + team.getTeamCode()
+        );
+
+        // 운영자 알림
+        String memberName = userRepository.findById(userUid)
+                .map(u -> u.getActualName() != null ? u.getActualName() : "팀원")
+                .orElse("팀원");
+
+        notificationService.createNotification(
+                team.getOwnerUid(),
+                Notification.NotificationType.TEAM,
+                "팀 탈퇴 신청",
+                memberName + "님이 팀 탈퇴를 신청했습니다. 승인 또는 거절해 주세요.",
+                team.getUid(),
+                "TEAM",
+                "/pending-manage"
+        );
+    }
+
+    /**
+     * 탈퇴 신청 목록 조회 (OWNER만)
+     */
+    @Transactional(readOnly = true)
+    public List<TeamMemberDto.Response> getPendingLeaveRequests(String teamUid, String ownerUid) {
+        Team team = teamRepository.findByUid(teamUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (!team.getOwnerUid().equals(ownerUid)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        return teamMemberRepository.findWithUserByTeamUidAndStatus(teamUid, TeamMember.MemberStatus.LEAVE_PENDING)
+                .stream()
+                .map(this::toMemberResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 탈퇴 신청 처리 (OWNER만)
+     * approved=true: 탈퇴 완료 → TeamMember 삭제, memberCount -1
+     * approved=false: 탈퇴 거절 → APPROVED 복원
+     */
+    @Transactional
+    public void processLeaveRequest(String memberUid, boolean approved, String ownerUid) {
+        TeamMember member = teamMemberRepository.findById(memberUid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 탈퇴 신청입니다."));
+
+        if (member.getStatus() != TeamMember.MemberStatus.LEAVE_PENDING) {
+            throw new IllegalArgumentException("탈퇴 신청 상태가 아닙니다.");
+        }
+
+        Team team = teamRepository.findByUid(member.getTeamUid())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+        if (!team.getOwnerUid().equals(ownerUid)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        String memberUserUid = member.getUserUid();
+
+        if (approved) {
+            teamMemberRepository.delete(member);
+            if (team.getMemberCount() > 0) {
+                team.setMemberCount(team.getMemberCount() - 1);
+            }
+            teamRepository.save(team);
+
+            notificationService.createNotification(
+                    memberUserUid,
+                    Notification.NotificationType.TEAM,
+                    "팀 탈퇴 완료",
+                    team.getName() + " 팀에서 탈퇴가 완료되었습니다.",
+                    team.getUid(),
+                    "TEAM",
+                    "/"
+            );
+        } else {
+            member.setStatus(TeamMember.MemberStatus.APPROVED);
+            teamMemberRepository.save(member);
+
+            notificationService.createNotification(
+                    memberUserUid,
+                    Notification.NotificationType.TEAM,
+                    "팀 탈퇴 거절",
+                    team.getName() + " 팀 운영자가 탈퇴 신청을 거절하였습니다.",
+                    team.getUid(),
+                    "TEAM",
+                    "/team/" + team.getTeamCode()
+            );
+        }
+    }
+
+    /**
      * 팀 코드 중복 확인
      */
     public boolean checkTeamCodeAvailable(String teamCode) {
@@ -436,11 +559,11 @@ public class TeamService {
     }
 
     /**
-     * 내 소속 팀 조회
+     * 내 소속 팀 조회 — 탈퇴 신청 중(LEAVE_PENDING)에도 팀 정보 반환
      */
     @Transactional(readOnly = true)
     public TeamDto.DetailResponse getMyTeam(String userUid) {
-        TeamMember membership = teamMemberRepository.findApprovedMembershipByUserUid(userUid)
+        TeamMember membership = teamMemberRepository.findActiveMembershipByUserUid(userUid)
                 .orElse(null);
         if (membership == null) {
             return null;
@@ -456,15 +579,18 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDto.MembershipStatus checkMembershipStatus(String userUid) {
         boolean hasApprovedTeam = teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.APPROVED);
+        boolean isLeavePending = teamMemberRepository.existsByUserUidAndStatus(userUid, TeamMember.MemberStatus.LEAVE_PENDING);
+        boolean hasActiveTeam = hasApprovedTeam || isLeavePending;
         boolean hasPendingRequest = teamMemberRepository.existsActiveOrPendingMembershipByUserUid(userUid);
         boolean hasCreatedTeam = teamRepository.existsByOwnerUidAndStatus(userUid, Team.TeamStatus.ACTIVE);
 
         return TeamDto.MembershipStatus.builder()
-                .hasTeam(hasApprovedTeam)
-                .hasPendingRequest(hasPendingRequest && !hasApprovedTeam)
+                .hasTeam(hasActiveTeam)
+                .hasPendingRequest(hasPendingRequest && !hasActiveTeam)
                 .hasCreatedTeam(hasCreatedTeam)
-                .canJoinTeam(!hasApprovedTeam && !hasPendingRequest)
-                .canCreateTeam(!hasApprovedTeam && !hasCreatedTeam && !hasPendingRequest)
+                .canJoinTeam(!hasActiveTeam && !hasPendingRequest)
+                .canCreateTeam(!hasActiveTeam && !hasCreatedTeam && !hasPendingRequest)
+                .leavePending(isLeavePending)
                 .build();
     }
 
@@ -588,8 +714,6 @@ public class TeamService {
 
         team.setStatus(Team.TeamStatus.DELETED);
         team.setDeletedDate(java.time.LocalDateTime.now());
-        team.setMannerScore(0.0);
-        team.setMemberCount(0);
         teamRepository.save(team);
 
         // 리그 참가 기록 withdrawn 처리 (경기·전적 기록은 보존)

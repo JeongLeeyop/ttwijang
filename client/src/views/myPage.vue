@@ -152,6 +152,19 @@
             <i class="el-icon-arrow-right"></i>
           </div>
           -->
+          <div v-if="myTeamUid && !isTeamOwner && !isLeavePending" class="menu-item leave-team-item" @click="handleLeaveTeam">
+            <div class="menu-icon">
+              <i class="el-icon-remove-outline"></i>
+            </div>
+            <span class="menu-text">팀 탈퇴</span>
+            <i class="el-icon-arrow-right"></i>
+          </div>
+          <div v-if="myTeamUid && !isTeamOwner && isLeavePending" class="menu-item leave-team-pending-item">
+            <div class="menu-icon">
+              <i class="el-icon-loading"></i>
+            </div>
+            <span class="menu-text">탈퇴 신청 대기 중</span>
+          </div>
           <div class="menu-item logout-item" @click="logout">
             <div class="menu-icon">
               <i class="el-icon-switch-button"></i>
@@ -172,7 +185,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { UserModule } from '@/store/modules/user';
 import { getWallet } from '@/api/cash';
-import { getMyTeams, checkMembershipStatus } from '@/api/team';
+import { getMyTeams, checkMembershipStatus, requestLeaveTeam } from '@/api/team';
 import { getTeamMannerScore } from '@/api/mannerRating';
 import { getUserInfo } from '@/api/user';
 import { getMyMatchApplications } from '@/api/match';
@@ -192,7 +205,7 @@ export default class MyPage extends Vue {
   private userStats = {
     matches: 0,
     mannerscore: 0,
-    team: '-',
+    team: 0 as number | string,
     teamLabel: '소속 팀',
   };
 
@@ -206,7 +219,13 @@ export default class MyPage extends Vue {
 
   private isLoadingMatches = true;
 
-  private myTeamCode = '';
+  private myTeamCode = ''
+
+  private myTeamUid = ''
+
+  private isTeamOwner = false
+
+  private isLeavePending = false;
 
   async mounted() {
     // 마이페이지 헤더 배경색 설정을 위한 클래스 추가
@@ -304,10 +323,14 @@ export default class MyPage extends Vue {
         if (team && team.name) {
           this.userStats.team = team.name;
           this.myTeamCode = team.teamCode || team.uid || '';
-          // 팀을 생성했는지 확인
+          this.myTeamUid = team.uid || '';
+          // 팀을 생성했는지 / 탈퇴 신청 중인지 확인
           try {
             const statusResponse = await checkMembershipStatus();
-            const hasCreatedTeam = (statusResponse.data as any).hasCreatedTeam || false;
+            const statusData = statusResponse.data as any;
+            const hasCreatedTeam = statusData.hasCreatedTeam || false;
+            this.isTeamOwner = hasCreatedTeam;
+            this.isLeavePending = statusData.leavePending || false;
             if (hasCreatedTeam) {
               this.userStats.teamLabel = '나의 팀';
             } else {
@@ -331,7 +354,7 @@ export default class MyPage extends Vue {
             }
           }
         } else {
-          this.userStats.team = '-';
+          this.userStats.team = 0;
           this.userStats.teamLabel = '소속 팀';
           this.userStats.mannerscore = 0;
         }
@@ -414,6 +437,26 @@ export default class MyPage extends Vue {
 
   private openGuideDetail(): void {
     this.$router.push({ name: 'Guide' });
+  }
+
+  private handleLeaveTeam(): void {
+    this.$confirm(
+      '팀 탈퇴를 신청하시겠습니까? 운영자의 승인 후 탈퇴가 완료됩니다.',
+      '팀 탈퇴 신청',
+      {
+        confirmButtonText: '신청',
+        cancelButtonText: '취소',
+        type: 'warning',
+      },
+    ).then(async () => {
+      try {
+        await requestLeaveTeam(this.myTeamUid);
+        this.$message.success('탈퇴 신청이 완료되었습니다. 운영자 승인을 기다려주세요.');
+        this.isLeavePending = true;
+      } catch (error) {
+        this.$message.error('탈퇴 신청에 실패했습니다.');
+      }
+    }).catch(() => { /* 취소 */ });
   }
 
   private logout(): void {

@@ -348,3 +348,28 @@ export function getTeamDashboard(teamUid: string) {
     method: 'get',
   });
 }
+
+// 팀 탈퇴 신청
+export function requestLeaveTeam(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/leave-request`,
+    method: 'post',
+  });
+}
+
+// 탈퇴 신청 목록 조회 (운영자용)
+export function getPendingLeaveRequests(teamUid: string) {
+  return request({
+    url: `/team/${teamUid}/leave-pending`,
+    method: 'get',
+  });
+}
+
+// 탈퇴 신청 처리 (운영자용)
+export function processLeaveRequest(data: { memberUid: string, approved: boolean }) {
+  return request({
+    url: '/team/leave-request/process',
+    method: 'post',
+    data,
+  });
+}

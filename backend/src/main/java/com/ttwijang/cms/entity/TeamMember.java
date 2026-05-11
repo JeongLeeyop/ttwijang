@@ -88,6 +88,6 @@ public class TeamMember implements Serializable {
     }
 
     public enum MemberStatus {
-        PENDING, APPROVED, REJECTED
+        PENDING, APPROVED, REJECTED, LEAVE_PENDING
     }
 }

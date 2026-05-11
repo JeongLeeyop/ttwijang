@@ -101,7 +101,7 @@ import {
   Vue, Component, Watch, Prop,
 } from 'vue-property-decorator';
 import {
-  getLeagueStandings, getLeagueAllMatches, getLeaguesByTeam, getLeagueDetail,
+  getLeagueAllMatches, getLeaguesByTeam, getLeagueDetail,
 } from '@/api/league';
 import { getMyTeams } from '@/api/team';
 
@@ -179,7 +179,6 @@ export default class extends Vue {
 
   private async onLeagueSelect(): Promise<void> {
     this.currentLeagueUid = this.selectedLeagueUid;
-    await this.loadStandingsData();
     await this.loadScheduleData();
   }
 
@@ -247,7 +246,7 @@ export default class extends Vue {
       }
 
       if (this.currentLeagueUid) {
-        await Promise.all([this.loadStandingsData(), this.loadScheduleData()]);
+        await this.loadScheduleData();
       } else {
         this.leagueTable = [];
         this.recentMatches = [];
@@ -256,28 +255,6 @@ export default class extends Vue {
       this.$message.error('리그 정보를 불러오지 못했습니다.');
     } finally {
       this.isLoading = false;
-    }
-  }
-
-  private async loadStandingsData(): Promise<void> {
-    try {
-      const standingsResponse = await getLeagueStandings(this.currentLeagueUid);
-      const standings = standingsResponse.data || [];
-      this.allStandings = standings.map((team: any) => ({
-        teamUid: team.teamUid,
-        name: team.teamName,
-        logo: this.resolveLogoUrl(team.teamLogoUrl, team.teamName),
-        played: team.played,
-        wins: team.wins,
-        draws: team.draws,
-        losses: team.losses,
-        points: team.points,
-        goals: team.goalsFor,
-        conceded: team.goalsAgainst,
-        difference: team.goalDifference,
-      }));
-    } catch (error) {
-      this.$message.error('순위표를 불러오지 못했습니다.');
     }
   }
 
@@ -360,7 +337,6 @@ export default class extends Vue {
   }
 
   private previousMonth(): void {
-    this.isShowingAll = false;
     if (this.currentMonthIndex === 0) {
       this.currentMonthIndex = 11;
       this.currentYear -= 1;
@@ -371,7 +347,6 @@ export default class extends Vue {
   }
 
   private nextMonth(): void {
-    this.isShowingAll = false;
     if (this.currentMonthIndex === 11) {
       this.currentMonthIndex = 0;
       this.currentYear += 1;
