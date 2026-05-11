@@ -50,7 +50,11 @@ export default class extends Vue {
   }
 
   private goToLeague() {
-    this.$router.push({ name: 'League' });
+    if (this.$route.name === 'League') {
+      this.$root.$emit('league:reset-view');
+    } else {
+      this.$router.push({ name: 'League' });
+    }
   }
 
   private goToHome() {

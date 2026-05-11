@@ -257,6 +257,15 @@ export default class extends Vue {
 
   async created() {
     await this.loadData();
+    this.$root.$on('league:reset-view', this.resetToMain);
+  }
+
+  beforeDestroy() {
+    this.$root.$off('league:reset-view', this.resetToMain);
+  }
+
+  private resetToMain() {
+    this.currentView = 'main';
   }
 
   @Watch('selectedRegion')

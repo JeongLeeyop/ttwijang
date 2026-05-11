@@ -529,13 +529,11 @@ export default class extends Vue {
       this.recentMatches = allMatches
         .filter((m: any) => m.status === 'COMPLETED')
         .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
-        .slice(0, 5)
         .map((match: any) => this.transformMatch(match, true));
 
       this.upcomingMatches = allMatches
         .filter((m: any) => m.status !== 'COMPLETED')
         .sort((a: any, b: any) => sortKey(a).localeCompare(sortKey(b)))
-        .slice(0, 5)
         .map((match: any) => this.transformMatch(match, false));
     } catch (error) {
       console.warn('일정 로드 실패:', error);

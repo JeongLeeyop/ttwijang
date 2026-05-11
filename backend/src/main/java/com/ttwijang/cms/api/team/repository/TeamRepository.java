@@ -24,6 +24,9 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     boolean existsByTeamCode(String teamCode);
 
+    /** DELETED 상태가 아닌 팀 중 해당 코드가 사용 중인지 확인 */
+    boolean existsByTeamCodeAndStatusNot(String teamCode, Team.TeamStatus status);
+
     Page<Team> findByStatus(Team.TeamStatus status, Pageable pageable);
 
     Page<Team> findByRegionSidoAndRegionSigungu(String sido, String sigungu, Pageable pageable);

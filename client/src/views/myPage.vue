@@ -205,7 +205,7 @@ export default class MyPage extends Vue {
   private userStats = {
     matches: 0,
     mannerscore: 0,
-    team: 0 as number | string,
+    team: '-' as number | string,
     teamLabel: '소속 팀',
   };
 
@@ -354,7 +354,7 @@ export default class MyPage extends Vue {
             }
           }
         } else {
-          this.userStats.team = 0;
+          this.userStats.team = '-';
           this.userStats.teamLabel = '소속 팀';
           this.userStats.mannerscore = 0;
         }

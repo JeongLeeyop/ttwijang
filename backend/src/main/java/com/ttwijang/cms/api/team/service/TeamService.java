@@ -59,8 +59,8 @@ public class TeamService {
             throw new IllegalArgumentException("이미 소속된 팀이 있습니다. 계정 하나당 하나의 팀에만 가입할 수 있습니다.");
         }
 
-        // 팀 코드 중복 확인
-        if (teamRepository.existsByTeamCode(request.getTeamCode())) {
+        // 팀 코드 중복 확인 (DELETED된 팀의 코드는 재사용 허용)
+        if (teamRepository.existsByTeamCodeAndStatusNot(request.getTeamCode(), Team.TeamStatus.DELETED)) {
             throw new IllegalArgumentException("이미 사용 중인 팀 코드입니다.");
         }
 
@@ -554,10 +554,10 @@ public class TeamService {
     }
 
     /**
-     * 팀 코드 중복 확인
+     * 팀 코드 중복 확인 (DELETED된 팀의 코드는 재사용 허용)
      */
     public boolean checkTeamCodeAvailable(String teamCode) {
-        return !teamRepository.existsByTeamCode(teamCode);
+        return !teamRepository.existsByTeamCodeAndStatusNot(teamCode, Team.TeamStatus.DELETED);
     }
 
     /**
