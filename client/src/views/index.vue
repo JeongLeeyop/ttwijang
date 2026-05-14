@@ -141,9 +141,9 @@ export default class extends Vue {
 <style scoped lang="scss">
 @font-face {
     font-family: 'PartialSans';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/PartialSansKR-Regular.woff2') format('woff2');
+    src: url('~@/assets/font/PartialSansKR-Regular.woff2') format('woff2');
     font-weight: normal;
-    font-display: swap;
+    font-display: block;
 }
 
 .main {
