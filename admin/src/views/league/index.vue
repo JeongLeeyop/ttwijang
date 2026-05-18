@@ -80,7 +80,7 @@
     >
       <el-form ref="leagueFormRef" :model="leagueForm" :rules="leagueRules" label-width="130px">
         <el-form-item label="리그명" prop="name">
-          <el-input v-model="leagueForm.name" placeholder="예: 2025 진주 A리그" />
+          <el-input v-model="leagueForm.name" placeholder="예: 2025 진주 A리그" :maxlength="20" show-word-limit />
         </el-form-item>
         <el-form-item label="설명">
           <el-input v-model="leagueForm.description" type="textarea" :rows="2" />
@@ -439,7 +439,10 @@ status: 'RECRUITING',
   };
 
   private leagueRules = {
-    name: [{ required: true, message: '리그명을 입력하세요', trigger: 'blur' }],
+    name: [
+      { required: true, message: '리그명을 입력하세요', trigger: 'blur' },
+      { max: 20, message: '리그명은 20자 이내로 입력하세요', trigger: 'blur' },
+    ],
     season: [{ required: true, message: '시즌을 입력하세요', trigger: 'blur' }],
     regionSido: [{ required: true, message: '시/도를 선택하세요', trigger: 'change' }],
     regionSigungu: [{ required: true, message: '시/군/구를 선택하세요', trigger: 'change' }],
