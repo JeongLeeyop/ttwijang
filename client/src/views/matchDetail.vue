@@ -642,47 +642,59 @@
 
       <!-- 팀 관리자 점수 제출 모달 -->
       <el-dialog
-        title="점수 입력"
         :visible.sync="showManagerScoreModal"
         :close-on-click-modal="false"
+        :show-close="true"
+        custom-class="match-result-dialog"
         width="90%"
+        top="10vh"
       >
-        <div class="score-input-section">
+        <div class="result-modal">
+          <div class="result-modal-title">점수를 입력해 주세요!</div>
+          <div class="result-modal-versus">
+            <div class="result-team">
+              <img :src="homeTeamLogo" :alt="homeTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ homeTeamName }}</span>
+            </div>
+            <div class="result-vs">VS</div>
+            <div class="result-team">
+              <img :src="awayTeamLogo" :alt="awayTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ awayTeamName }}</span>
+            </div>
+          </div>
           <div class="result-score-input">
-            <div class="score-team">
-              <span class="score-team-label">{{ detailData && detailData.homeTeamName }}</span>
-              <div class="score-control">
-                <el-button
-                  icon="el-icon-minus"
-                  circle
-                  :disabled="managerInputHomeScore <= 0"
-                  @click="managerInputHomeScore = Math.max(0, managerInputHomeScore - 1)"
-                />
-                <span class="score-value">{{ managerInputHomeScore }}</span>
-                <el-button
-                  icon="el-icon-plus"
-                  circle
-                  @click="managerInputHomeScore += 1"
-                />
-              </div>
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
+                size="small"
+                :disabled="managerInputHomeScore <= 0"
+                @click="managerInputHomeScore = Math.max(0, managerInputHomeScore - 1)"
+              />
+              <span class="score-value">{{ managerInputHomeScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="managerInputHomeScore += 1"
+              />
             </div>
             <div class="score-divider">-</div>
-            <div class="score-team">
-              <span class="score-team-label">{{ detailData && detailData.awayTeamName }}</span>
-              <div class="score-control">
-                <el-button
-                  icon="el-icon-minus"
-                  circle
-                  :disabled="managerInputAwayScore <= 0"
-                  @click="managerInputAwayScore = Math.max(0, managerInputAwayScore - 1)"
-                />
-                <span class="score-value">{{ managerInputAwayScore }}</span>
-                <el-button
-                  icon="el-icon-plus"
-                  circle
-                  @click="managerInputAwayScore += 1"
-                />
-              </div>
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
+                size="small"
+                :disabled="managerInputAwayScore <= 0"
+                @click="managerInputAwayScore = Math.max(0, managerInputAwayScore - 1)"
+              />
+              <span class="score-value">{{ managerInputAwayScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="managerInputAwayScore += 1"
+              />
             </div>
           </div>
           <p
@@ -691,15 +703,13 @@
           >
             이미 제출한 점수가 있습니다. 수정하면 양측 점수를 다시 비교합니다.
           </p>
-        </div>
-        <div slot="footer">
-          <el-button @click="showManagerScoreModal = false">취소</el-button>
           <el-button
             type="primary"
+            class="result-submit-btn"
             :loading="isSubmittingManagerScore"
             @click="handleManagerScoreSubmit"
           >
-            제출
+            제출하기
           </el-button>
         </div>
       </el-dialog>
