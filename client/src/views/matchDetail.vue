@@ -115,7 +115,7 @@
                 style="margin-top:8px"
               >
                 <el-button
-                  size="mini"
+                  size="small"
                   type="primary"
                   @click="showLeagueResultModal = true"
                 >
@@ -127,7 +127,7 @@
                 style="margin-top:8px"
               >
                 <el-button
-                  size="mini"
+                  size="small"
                   @click="openLeagueResultEdit"
                 >
                   결과 수정
@@ -138,7 +138,7 @@
                 style="margin-top:8px"
               >
                 <el-button
-                  size="mini"
+                  size="small"
                   type="warning"
                   @click="openManagerScoreModal"
                 >
@@ -577,44 +577,65 @@
         :visible.sync="showLeagueResultModal"
         :close-on-click-modal="false"
         :show-close="true"
-        title="경기 결과 입력"
+        custom-class="match-result-dialog"
         width="90%"
-        top="20vh"
+        top="10vh"
       >
         <div class="result-modal">
-          <div class="result-modal-title">{{ detailData && detailData.homeTeamName }} vs {{ detailData && detailData.awayTeamName }}</div>
+          <div class="result-modal-title">경기 결과를 입력해 주세요!</div>
+          <div class="result-modal-versus">
+            <div class="result-team">
+              <img :src="homeTeamLogo" :alt="homeTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ homeTeamName }}</span>
+            </div>
+            <div class="result-vs">VS</div>
+            <div class="result-team">
+              <img :src="awayTeamLogo" :alt="awayTeamName" class="result-team-logo">
+              <span class="result-team-name">{{ awayTeamName }}</span>
+            </div>
+          </div>
           <div class="result-score-input">
-            <div class="score-team">
-              <span class="score-team-name">{{ detailData && detailData.homeTeamName }}</span>
-              <el-input-number
-                v-model="leagueInputHomeScore"
-                :min="0"
-                :max="99"
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
                 size="small"
-                controls-position="right"
+                :disabled="leagueInputHomeScore <= 0"
+                @click="leagueInputHomeScore = Math.max(0, leagueInputHomeScore - 1)"
+              />
+              <span class="score-value">{{ leagueInputHomeScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="leagueInputHomeScore += 1"
               />
             </div>
-            <span class="score-colon">:</span>
-            <div class="score-team">
-              <span class="score-team-name">{{ detailData && detailData.awayTeamName }}</span>
-              <el-input-number
-                v-model="leagueInputAwayScore"
-                :min="0"
-                :max="99"
+            <div class="score-divider">-</div>
+            <div class="score-control">
+              <el-button
+                icon="el-icon-minus"
+                circle
                 size="small"
-                controls-position="right"
+                :disabled="leagueInputAwayScore <= 0"
+                @click="leagueInputAwayScore = Math.max(0, leagueInputAwayScore - 1)"
+              />
+              <span class="score-value">{{ leagueInputAwayScore }}</span>
+              <el-button
+                icon="el-icon-plus"
+                circle
+                size="small"
+                @click="leagueInputAwayScore += 1"
               />
             </div>
           </div>
-        </div>
-        <div slot="footer">
-          <el-button @click="showLeagueResultModal = false">취소</el-button>
           <el-button
             type="primary"
+            class="result-submit-btn"
             :loading="isSubmittingLeagueResult"
             @click="handleLeagueResult"
           >
-            저장
+            저장하기
           </el-button>
         </div>
       </el-dialog>
@@ -627,25 +648,42 @@
         width="90%"
       >
         <div class="score-input-section">
-          <div class="score-input-row">
-            <span class="score-team-name">{{ detailData && detailData.homeTeamName }}</span>
-            <el-input-number
-              v-model="managerInputHomeScore"
-              :min="0"
-              :max="99"
-              size="small"
-              controls-position="right"
-            />
-          </div>
-          <div class="score-input-row">
-            <span class="score-team-name">{{ detailData && detailData.awayTeamName }}</span>
-            <el-input-number
-              v-model="managerInputAwayScore"
-              :min="0"
-              :max="99"
-              size="small"
-              controls-position="right"
-            />
+          <div class="result-score-input">
+            <div class="score-team">
+              <span class="score-team-label">{{ detailData && detailData.homeTeamName }}</span>
+              <div class="score-control">
+                <el-button
+                  icon="el-icon-minus"
+                  circle
+                  :disabled="managerInputHomeScore <= 0"
+                  @click="managerInputHomeScore = Math.max(0, managerInputHomeScore - 1)"
+                />
+                <span class="score-value">{{ managerInputHomeScore }}</span>
+                <el-button
+                  icon="el-icon-plus"
+                  circle
+                  @click="managerInputHomeScore += 1"
+                />
+              </div>
+            </div>
+            <div class="score-divider">-</div>
+            <div class="score-team">
+              <span class="score-team-label">{{ detailData && detailData.awayTeamName }}</span>
+              <div class="score-control">
+                <el-button
+                  icon="el-icon-minus"
+                  circle
+                  :disabled="managerInputAwayScore <= 0"
+                  @click="managerInputAwayScore = Math.max(0, managerInputAwayScore - 1)"
+                />
+                <span class="score-value">{{ managerInputAwayScore }}</span>
+                <el-button
+                  icon="el-icon-plus"
+                  circle
+                  @click="managerInputAwayScore += 1"
+                />
+              </div>
+            </div>
           </div>
           <p
             v-if="detailData && detailData.myTeamSubmitted"
@@ -679,16 +717,9 @@
           <div class="result-modal-title">경기 결과를 입력해 주세요!</div>
           <div class="result-modal-date">{{ formattedDateTime }}</div>
           <div class="result-modal-stadium">{{ stadiumName }}</div>
-          <div class="result-modal-versus">
-            <div class="result-team">
-              <img :src="hostTeamLogo" :alt="hostTeamName" class="result-team-logo">
-              <span class="result-team-name">{{ hostTeamName }}</span>
-            </div>
-            <div class="result-vs">VS</div>
-            <div class="result-team">
-              <img :src="opponentTeamLogo" :alt="opponentTeamName" class="result-team-logo">
-              <span class="result-team-name">{{ opponentTeamName }}</span>
-            </div>
+          <div class="result-modal-team-single">
+            <img :src="hostTeamLogo" :alt="hostTeamName" class="result-team-logo">
+            <span class="result-team-name">{{ hostTeamName }}</span>
           </div>
           <div class="result-score-input">
             <div class="score-control">
@@ -2222,6 +2253,32 @@ export default class MatchDetail extends Vue {
   justify-content: center;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.score-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-team-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-modal-team-single {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .score-control {
