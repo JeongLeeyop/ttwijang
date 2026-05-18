@@ -1,5 +1,6 @@
 package com.ttwijang.cms.api.sponsor.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttwijang.cms.api.sponsor.dto.SponsorDto;
 import com.ttwijang.cms.api.sponsor.repository.SponsorSettingRepository;
 import com.ttwijang.cms.api.sponsor.repository.TeamSponsorBannerRepository;
@@ -24,12 +27,10 @@ public class SponsorService {
 
     private final SponsorSettingRepository sponsorSettingRepository;
     private final TeamSponsorBannerRepository teamSponsorBannerRepository;
+    private final ObjectMapper objectMapper;
 
     // ── 구단주 금액 설정 ──────────────────────────────────
 
-    /**
-     * 구단주 신청 금액 조회
-     */
     @Transactional(readOnly = true)
     public SponsorDto.FeeResponse getSponsorFee() {
         SponsorSetting setting = sponsorSettingRepository.findByUid(DEFAULT_SETTING_UID)
@@ -43,9 +44,6 @@ public class SponsorService {
                 .build();
     }
 
-    /**
-     * 구단주 신청 금액 설정
-     */
     @Transactional
     public SponsorDto.FeeResponse updateSponsorFee(SponsorDto.FeeRequest request) {
         if (request.getAmount() == null || request.getAmount() < 0) {
@@ -66,18 +64,12 @@ public class SponsorService {
 
     // ── 팀별 후원 배너 ────────────────────────────────────
 
-    /**
-     * 팀별 배너 목록 조회 (관리자용 전체 목록)
-     */
     @Transactional(readOnly = true)
     public Page<SponsorDto.TeamBannerResponse> getTeamBannerList(Pageable pageable) {
         return teamSponsorBannerRepository.findAll(pageable)
                 .map(this::toTeamBannerResponse);
     }
 
-    /**
-     * 특정 팀의 배너 조회 (사용자용 — teamUid 기준)
-     */
     @Transactional(readOnly = true)
     public List<SponsorDto.TeamBannerResponse> getTeamBannersByTeamUid(String teamUid) {
         return teamSponsorBannerRepository.findByTeamUid(teamUid).stream()
@@ -85,39 +77,30 @@ public class SponsorService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 팀 배너 등록
-     */
     @Transactional
     public SponsorDto.TeamBannerResponse createTeamBanner(SponsorDto.TeamBannerCreateRequest request) {
         TeamSponsorBanner banner = TeamSponsorBanner.builder()
                 .teamUid(request.getTeamUid())
                 .teamName(request.getTeamName())
-                .imageUrl(request.getImageUrl())
+                .imageUrls(serializeImageUrls(request.getImageUrls()))
                 .description(request.getDescription())
                 .build();
         banner = teamSponsorBannerRepository.save(banner);
         return toTeamBannerResponse(banner);
     }
 
-    /**
-     * 팀 배너 수정
-     */
     @Transactional
     public SponsorDto.TeamBannerResponse updateTeamBanner(String uid, SponsorDto.TeamBannerUpdateRequest request) {
         TeamSponsorBanner banner = teamSponsorBannerRepository.findByUid(uid)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배너입니다."));
         if (request.getTeamUid() != null) banner.setTeamUid(request.getTeamUid());
         if (request.getTeamName() != null) banner.setTeamName(request.getTeamName());
-        if (request.getImageUrl() != null) banner.setImageUrl(request.getImageUrl());
+        if (request.getImageUrls() != null) banner.setImageUrls(serializeImageUrls(request.getImageUrls()));
         if (request.getDescription() != null) banner.setDescription(request.getDescription());
         banner = teamSponsorBannerRepository.save(banner);
         return toTeamBannerResponse(banner);
     }
 
-    /**
-     * 팀 배너 삭제
-     */
     @Transactional
     public void deleteTeamBanner(String uid) {
         TeamSponsorBanner banner = teamSponsorBannerRepository.findByUid(uid)
@@ -130,10 +113,28 @@ public class SponsorService {
                 .uid(banner.getUid())
                 .teamUid(banner.getTeamUid())
                 .teamName(banner.getTeamName())
-                .imageUrl(banner.getImageUrl())
+                .imageUrls(parseImageUrls(banner.getImageUrls()))
                 .description(banner.getDescription())
                 .createdDate(banner.getCreatedDate())
                 .updatedDate(banner.getUpdatedDate())
                 .build();
+    }
+
+    private List<String> parseImageUrls(String json) {
+        if (json == null || json.isBlank()) return Collections.emptyList();
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private String serializeImageUrls(List<String> urls) {
+        if (urls == null || urls.isEmpty()) return "[]";
+        try {
+            return objectMapper.writeValueAsString(urls);
+        } catch (Exception e) {
+            return "[]";
+        }
     }
 }

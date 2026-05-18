@@ -68,6 +68,12 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, String>,
     Optional<TeamMember> findPendingMembershipByUserUid(@Param("userUid") String userUid);
 
     /**
+     * 팀의 특정 역할(OWNER/MANAGER) + 상태 멤버 조회 (스코어 알림 발송용)
+     */
+    List<TeamMember> findByTeamUidAndStatusAndRoleIn(String teamUid, TeamMember.MemberStatus status,
+                                                      List<TeamMember.MemberRole> roles);
+
+    /**
      * 여러 사용자의 승인된 팀 멤버십 일괄 조회 (N+1 방지용)
      */
     @Query("SELECT tm FROM TeamMember tm JOIN FETCH tm.team WHERE tm.userUid IN :userUids AND tm.status = 'APPROVED'")

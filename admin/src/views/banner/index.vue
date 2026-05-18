@@ -77,6 +77,15 @@
         </el-form-item>
         <el-form-item label="이미지 URL" prop="imageUrl" v-if="imageInputType === 'url'">
           <el-input v-model="form.imageUrl" placeholder="이미지 URL을 입력하세요" />
+          <div v-if="form.imageUrl" class="image-preview-box">
+            <img
+              :src="form.imageUrl"
+              class="image-preview-img"
+              @error="(e) => e.target.style.display='none'"
+              @load="(e) => e.target.style.display='block'"
+            />
+            <p class="image-preview-label">미리보기</p>
+          </div>
         </el-form-item>
         <el-form-item label="이미지 파일" v-if="imageInputType === 'file'">
           <el-upload
@@ -90,9 +99,10 @@
               {{ uploadingImage ? '업로드 중...' : '파일 선택' }}
             </el-button>
           </el-upload>
-          <div v-if="form.imageUrl" style="margin-top:8px">
-            <img :src="form.imageUrl" style="max-width:200px;max-height:80px;object-fit:cover;border-radius:4px;border:1px solid #eee" />
-            <el-button size="mini" type="text" style="margin-left:8px;color:#f56c6c" @click="form.imageUrl = ''">제거</el-button>
+          <div v-if="form.imageUrl" class="image-preview-box" style="margin-top:8px">
+            <img :src="form.imageUrl" class="image-preview-img" />
+            <p class="image-preview-label">미리보기</p>
+            <el-button size="mini" type="text" style="color:#f56c6c;display:block;margin-top:4px" @click="form.imageUrl = ''">이미지 제거</el-button>
           </div>
           <div v-else style="color:#aaa;font-size:12px;margin-top:4px">이미지 파일을 선택하세요 (jpg, png, gif 등)</div>
         </el-form-item>
@@ -382,3 +392,28 @@ status: 'ACTIVE',
   }
 }
 </script>
+
+<style scoped>
+.image-preview-box {
+  margin-top: 10px;
+  display: inline-block;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f5f7fa;
+}
+
+.image-preview-img {
+  display: block;
+  max-width: 300px;
+  max-height: 120px;
+  object-fit: contain;
+}
+
+.image-preview-label {
+  text-align: center;
+  font-size: 11px;
+  color: #909399;
+  margin: 4px 0;
+}
+</style>

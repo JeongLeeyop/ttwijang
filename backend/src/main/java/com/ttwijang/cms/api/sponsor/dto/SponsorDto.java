@@ -1,6 +1,7 @@
 package com.ttwijang.cms.api.sponsor.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +38,7 @@ public class SponsorDto {
         private String uid;
         private String teamUid;
         private String teamName;
-        private String imageUrl;
+        private List<String> imageUrls;
         private String description;
         private LocalDateTime createdDate;
         private LocalDateTime updatedDate;
@@ -49,7 +50,7 @@ public class SponsorDto {
     public static class TeamBannerCreateRequest {
         private String teamUid;
         private String teamName;
-        private String imageUrl;
+        private List<String> imageUrls;
         private String description;
     }
 
@@ -59,7 +60,7 @@ public class SponsorDto {
     public static class TeamBannerUpdateRequest {
         private String teamUid;
         private String teamName;
-        private String imageUrl;
+        private List<String> imageUrls;
         private String description;
     }
 }

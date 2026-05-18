@@ -161,6 +161,7 @@ legend {
 	color: #1a3c34;
 }
 
+.input-box__login .el-form-item { width: 100%;}
 .input-box__login .el-input {
 	width: calc(100% - 50px);
 }

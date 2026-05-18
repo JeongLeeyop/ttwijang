@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 팀별 후원 배너 이미지 엔티티
+ * 팀별 후원 배너 엔티티
  * 사용자 앱 '나의 팀 → 후원내역'에 표시될 배너를 관리자가 등록
+ * 팀당 하나의 배너 레코드, 복수 이미지는 imageUrls(JSON 배열)로 관리
  */
 @Entity
 @Table(name = "team_sponsor_banner")
@@ -43,8 +44,9 @@ public class TeamSponsorBanner {
     @Column(name = "team_name", length = 100)
     private String teamName;
 
-    @Column(name = "image_url", length = 500, nullable = false)
-    private String imageUrl;
+    // 복수 이미지 URL을 JSON 배열 문자열로 저장 (예: ["url1","url2"])
+    @Column(name = "image_urls", columnDefinition = "TEXT")
+    private String imageUrls;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

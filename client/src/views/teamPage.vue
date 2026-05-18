@@ -97,7 +97,7 @@
                   <span class="post-writer-dot">●</span>
                   <span class="post-writer-name">{{ post.writer }}</span>
                 </div>
-                <span class="post-date">{{ post.createDate }}</span>
+                <span class="post-date">{{ formatDateTime(post.createDate) }}</span>
               </div>
               <div class="post-body" @click="togglePostExpand(post.uid)">
                 <p class="post-content-text">{{ post.title }}</p>
@@ -176,7 +176,7 @@
                   <div v-else class="no-comments">
                     <span>댓글이 없습니다.</span>
                   </div>
-                  <div class="comment-input-row">
+                  <div v-if="isMember || isOwner" class="comment-input-row">
                     <input
                       v-model="commentTexts[post.uid]"
                       type="text"
@@ -462,20 +462,24 @@
 
         <!-- ========== 후원내역 Tab ========== -->
         <div v-show="activeTab === 'sponsorship'" class="team-tab-content sponsorship-tab">
-          <!-- 배너 슬라이더 -->
+          <!-- 배너 목록 -->
           <div v-if="teamBanners.length > 0" class="sponsor-banner-area">
-            <VueSlickCarousel v-bind="bannerSlickSettings">
-              <div v-for="banner in teamBanners" :key="banner.uid" class="sponsor-banner-slide">
-                <a :href="banner.linkUrl || '#'" class="banner-link">
-                  <img
-                    :src="banner.imageUrl"
-                    :alt="banner.title"
-                    class="sponsor-banner-img"
-                  >
-                </a>
-                <p v-if="banner.description" class="sponsor-banner-desc">{{ banner.description }}</p>
-              </div>
-            </VueSlickCarousel>
+            <div class="sponsor-banner-list">
+              <template v-for="banner in teamBanners">
+                <div
+                  v-for="(imageUrl, idx) in (banner.imageUrls || [])"
+                  :key="`${banner.uid}-${idx}`"
+                  class="sponsor-banner-item"
+                >
+                  <img :src="imageUrl" class="sponsor-banner-img" />
+                </div>
+                <p
+                  v-if="banner.description"
+                  :key="`desc-${banner.uid}`"
+                  class="sponsor-banner-desc"
+                >{{ banner.description }}</p>
+              </template>
+            </div>
           </div>
           <!-- 후원 멤버 리스트 -->
           <div v-if="sponsorships.length === 0" class="empty-state">
@@ -678,11 +682,6 @@ import {
 import { getUserInfo } from '@/api/user';
 import { uploadFile } from '@/api/attachedFile';
 
-// eslint-disable-next-line no-unused-vars
-import VueSlickCarousel from 'vue-slick-carousel';
-import 'vue-slick-carousel/dist/vue-slick-carousel.css';
-import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
-
 interface TabItem {
   key: string
   label: string
@@ -704,9 +703,7 @@ interface MemberStats {
 }
 
 @Component({
-  components: {
-    VueSlickCarousel,
-  },
+  components: {},
 })
 export default class TeamPage extends Vue {
   @Prop({ default: '' }) private selectedRegion!: string
@@ -804,17 +801,6 @@ export default class TeamPage extends Vue {
 
   // Sponsorship state
   private teamBanners: any[] = []
-
-  private bannerSlickSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: false,
-  }
 
   private tabs: TabItem[] = [
     { key: 'community', label: '커뮤니티' },
@@ -970,11 +956,6 @@ export default class TeamPage extends Vue {
         this.loadOwnerSponsor(),
         this.loadMyRole(),
       ]);
-      if (this.myRole === '') {
-        this.$message.error('팀 회원만 이용가능합니다.');
-        this.$router.replace('/');
-        return;
-      }
       await this.loadTabData();
     } catch (error) {
       console.error('팀 정보 로드 실패:', error);
@@ -1101,6 +1082,10 @@ export default class TeamPage extends Vue {
   }
 
   private async toggleLike(post: any): Promise<void> {
+    if (!this.isMember && !this.isOwner) {
+      this.$message.warning('팀 회원만 좋아요를 누를 수 있습니다.');
+      return;
+    }
     try {
       await likeTeamPost(post.uid);
       if (post.likeStatus) {
@@ -1116,6 +1101,10 @@ export default class TeamPage extends Vue {
   }
 
   private async submitComment(postUid: string): Promise<void> {
+    if (!this.isMember && !this.isOwner) {
+      this.$message.warning('팀 회원만 댓글을 작성할 수 있습니다.');
+      return;
+    }
     const text = this.commentTexts[postUid];
     if (!text || !text.trim()) return;
     try {
@@ -1785,7 +1774,9 @@ export default class TeamPage extends Vue {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
-    return `${y}.${m}.${d}`;
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    return `${y}.${m}.${d} ${hh}:${mm}`;
   }
 
   private formatAmount(amount: number | null | undefined): string {
@@ -2903,15 +2894,20 @@ export default class TeamPage extends Vue {
    후원내역 Tab
    ======================================== */
 
-/* 배너 슬라이더 */
+/* 배너 목록 */
 .sponsor-banner-area {
   margin-bottom: 16px;
-  border-radius: 12px;
-  overflow: hidden;
 }
 
-.sponsor-banner-slide {
-  outline: none;
+.sponsor-banner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sponsor-banner-item {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .banner-link {

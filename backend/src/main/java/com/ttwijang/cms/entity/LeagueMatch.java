@@ -77,6 +77,10 @@ public class LeagueMatch implements Serializable {
     // 라운드 (1라운드, 2라운드 등)
     private Integer round;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean scoreReminderSent = false;
+
     @CreationTimestamp
     private LocalDateTime createdDate;
 

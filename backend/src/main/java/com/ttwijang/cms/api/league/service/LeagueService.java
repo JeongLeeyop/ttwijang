@@ -167,6 +167,8 @@ public class LeagueService {
                 leagueUid, startDate, endDate);
         
         return matches.stream()
+                .sorted(Comparator.comparing(LeagueMatch::getMatchDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(LeagueMatch::getMatchTime, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(this::toMatchResponse)
                 .collect(Collectors.toList());
     }
@@ -186,7 +188,7 @@ public class LeagueService {
     public List<LeagueDto.MatchResponse> getAllLeagueMatches(String leagueUid, String currentUserUid) {
         return leagueMatchRepository.findByLeagueUid(leagueUid).stream()
                 .sorted(Comparator.comparing(LeagueMatch::getMatchDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                        .thenComparing(LeagueMatch::getRound, Comparator.nullsLast(Comparator.naturalOrder())))
+                        .thenComparing(LeagueMatch::getMatchTime, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(match -> toMatchResponse(match, currentUserUid))
                 .collect(Collectors.toList());
     }

@@ -102,6 +102,10 @@ public class FutsalMatch implements Serializable {
     // 모집 마감일
     private LocalDateTime recruitmentDeadline;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean scoreReminderSent = false;
+
     @CreationTimestamp
     private LocalDateTime createdDate;
 

@@ -112,6 +112,17 @@ public interface FutsalMatchRepository extends JpaRepository<FutsalMatch, String
             Pageable pageable);
 
     /**
+     * 경기 종료 후 스코어 미입력 매치 조회 (스코어 입력 알림 스케줄러용)
+     */
+    @Query(value = "SELECT * FROM futsal_match " +
+                   "WHERE score_reminder_sent = 0 " +
+                   "AND status IN ('MATCHED', 'IN_PROGRESS') " +
+                   "AND duration_hours IS NOT NULL " +
+                   "AND ADDTIME(CONCAT(match_date, ' ', match_time), SEC_TO_TIME(duration_hours * 3600)) <= NOW()",
+           nativeQuery = true)
+    List<FutsalMatch> findMatchesNeedingScoreReminder();
+
+    /**
      * 팀별 날짜 범위 매치 조회 (캘린더용)
      */
     @Query("SELECT m FROM FutsalMatch m WHERE (m.hostTeamUid = :teamUid OR m.guestTeamUid = :teamUid) AND m.matchDate BETWEEN :startDate AND :endDate")

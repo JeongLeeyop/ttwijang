@@ -59,4 +59,16 @@ public interface LeagueMatchRepository extends JpaRepository<LeagueMatch, String
             + "AND lm.status = 'SCHEDULED' "
             + "ORDER BY lm.matchDate ASC, lm.matchTime ASC")
     List<LeagueMatch> findUpcomingAll(@Param("today") LocalDate today, Pageable pageable);
+
+    /**
+     * 경기 종료 후 스코어 미입력 리그 경기 조회 (스코어 입력 알림 스케줄러용)
+     */
+    @Query(value = "SELECT * FROM league_match " +
+                   "WHERE score_reminder_sent = 0 " +
+                   "AND status IN ('SCHEDULED', 'IN_PROGRESS') " +
+                   "AND match_time IS NOT NULL " +
+                   "AND duration_minutes IS NOT NULL " +
+                   "AND ADDTIME(CONCAT(match_date, ' ', match_time), SEC_TO_TIME(duration_minutes * 60)) <= NOW()",
+           nativeQuery = true)
+    List<LeagueMatch> findMatchesNeedingScoreReminder();
 }
