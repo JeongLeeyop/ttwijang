@@ -2368,7 +2368,7 @@ export default class TeamPage extends Vue {
 .match-card-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
 .match-card {
@@ -2707,7 +2707,7 @@ export default class TeamPage extends Vue {
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 14px 16px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .league-match-date {
