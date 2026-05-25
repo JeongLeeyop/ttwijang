@@ -335,6 +335,9 @@ public class LeagueDto {
         @Schema(description = "이름")
         private String name;
 
+        @Schema(description = "팀 UID")
+        private String teamUid;
+
         @Schema(description = "팀 이름")
         private String teamName;
 

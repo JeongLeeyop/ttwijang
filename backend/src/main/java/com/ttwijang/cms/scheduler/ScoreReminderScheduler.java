@@ -54,7 +54,7 @@ public class ScoreReminderScheduler {
         List<LeagueMatch> leagueMatches = leagueMatchRepository.findMatchesNeedingScoreReminder();
         for (LeagueMatch match : leagueMatches) {
             String content = "리그 경기가 종료되었습니다. 스코어를 입력해주세요.";
-            String actionUrl = "/league-detail/" + match.getLeagueUid();
+            String actionUrl = "/match-detail/" + match.getUid() + "?type=league&leagueUid=" + match.getLeagueUid();
             notifyTeamManagers(match.getHomeTeamUid(), Notification.NotificationType.LEAGUE,
                 "경기 스코어 입력 요청", content, match.getUid(), "LEAGUE_MATCH", actionUrl);
             notifyTeamManagers(match.getAwayTeamUid(), Notification.NotificationType.LEAGUE,

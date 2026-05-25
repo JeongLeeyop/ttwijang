@@ -1008,6 +1008,7 @@ public class LeagueService {
                     return LeagueDto.LeagueMatchParticipant.builder()
                             .uid(app.getUserUid())
                             .name(u != null ? u.getActualName() : "알 수 없음")
+                            .teamUid(app.getTeamUid())
                             .teamName(t != null ? t.getName() : "")
                             .profileImageUrl(u != null ? u.getProfileImageUrl() : null)
                             .build();

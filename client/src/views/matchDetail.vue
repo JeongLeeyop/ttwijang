@@ -339,8 +339,115 @@
         </div>
       </template>
 
-      <!-- =============== 참여자 명단 (공통) =============== -->
-      <div class="section-block">
+      <!-- =============== 참여자 명단 (리그: 팀별 구분) =============== -->
+      <div
+        v-if="detailType === 'league'"
+        class="section-block"
+      >
+        <h3 class="section-title">참여자 명단</h3>
+        <div v-if="participants.length > 0">
+          <!-- 홈팀 -->
+          <div class="team-participant-group">
+            <div class="team-participant-header">
+              <img
+                :src="homeTeamLogo"
+                :alt="homeTeamName"
+                class="team-participant-logo"
+              >
+              <span class="team-participant-team-name">{{ homeTeamName }}</span>
+              <span class="team-participant-count">{{ homeParticipants.length }}명</span>
+            </div>
+            <div
+              v-if="homeParticipants.length > 0"
+              class="participant-grid"
+            >
+              <div
+                v-for="p in homeParticipants"
+                :key="p.uid || p.name"
+                class="participant-item"
+              >
+                <div
+                  class="participant-avatar"
+                  :style="p.profileImageUrl ? {} : { background: getAvatarColor(p.name) }"
+                >
+                  <img
+                    v-if="p.profileImageUrl"
+                    :src="p.profileImageUrl"
+                    :alt="p.name"
+                    class="participant-avatar-img"
+                  />
+                  <template v-else>{{ getInitial(p.name) }}</template>
+                </div>
+                <span class="participant-name">{{ p.name }}</span>
+              </div>
+            </div>
+            <div
+              v-else
+              class="empty-participants"
+            >
+              <span>참여자가 없습니다.</span>
+            </div>
+          </div>
+
+          <!-- 구분선 -->
+          <div class="team-participant-divider"></div>
+
+          <!-- 원정팀 -->
+          <div class="team-participant-group">
+            <div class="team-participant-header">
+              <img
+                :src="awayTeamLogo"
+                :alt="awayTeamName"
+                class="team-participant-logo"
+              >
+              <span class="team-participant-team-name">{{ awayTeamName }}</span>
+              <span class="team-participant-count">{{ awayParticipants.length }}명</span>
+            </div>
+            <div
+              v-if="awayParticipants.length > 0"
+              class="participant-grid"
+            >
+              <div
+                v-for="p in awayParticipants"
+                :key="p.uid || p.name"
+                class="participant-item"
+              >
+                <div
+                  class="participant-avatar"
+                  :style="p.profileImageUrl ? {} : { background: getAvatarColor(p.name) }"
+                >
+                  <img
+                    v-if="p.profileImageUrl"
+                    :src="p.profileImageUrl"
+                    :alt="p.name"
+                    class="participant-avatar-img"
+                  />
+                  <template v-else>{{ getInitial(p.name) }}</template>
+                </div>
+                <span class="participant-name">{{ p.name }}</span>
+              </div>
+            </div>
+            <div
+              v-else
+              class="empty-participants"
+            >
+              <span>참여자가 없습니다.</span>
+            </div>
+          </div>
+        </div>
+        <div
+          v-else
+          class="empty-participants"
+        >
+          <span>아직 참여자가 없습니다.</span>
+        </div>
+      </div>
+
+      <!-- =============== 참여자 명단 (공통: 리그 제외) =============== -->
+      <div
+        v-else
+        class="section-block"
+      >
         <h3 class="section-title">참여자 명단</h3>
         <div
           v-if="participants.length > 0"
@@ -1247,8 +1354,19 @@ export default class MatchDetail extends Vue {
     if (d.participants && Array.isArray(d.participants)) return d.participants;
     if (d.guests && Array.isArray(d.guests)) return d.guests;
     if (d.members && Array.isArray(d.members)) return d.members;
-    // Generate sample participants from names if available
     return [];
+  }
+
+  get homeParticipants(): any[] {
+    const homeTeamUid = this.detailData?.homeTeamUid;
+    if (!homeTeamUid) return this.participants;
+    return this.participants.filter((p) => p.teamUid === homeTeamUid);
+  }
+
+  get awayParticipants(): any[] {
+    const awayTeamUid = this.detailData?.awayTeamUid;
+    if (!awayTeamUid) return [];
+    return this.participants.filter((p) => p.teamUid === awayTeamUid);
   }
 
   /**
@@ -2085,6 +2203,48 @@ export default class MatchDetail extends Vue {
   padding: 20px 0;
   font-size: 13px;
   color: #bbb;
+}
+
+/* Team-grouped participants (리그) */
+.team-participant-group {
+  padding: 12px 0 8px;
+}
+
+.team-participant-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.team-participant-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.team-participant-team-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  flex: 1;
+}
+
+.team-participant-count {
+  font-size: 12px;
+  color: #888;
+  background: #f0f2ff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.team-participant-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 4px 0;
 }
 
 /* Accordion */
