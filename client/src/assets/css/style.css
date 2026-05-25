@@ -74,6 +74,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px;
+  left: 15px !important;
   /* 스크롤바 숨기기 */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
