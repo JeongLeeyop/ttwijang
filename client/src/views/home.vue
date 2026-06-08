@@ -289,9 +289,17 @@ export default class extends Vue {
 
   private dragStartY = 0
 
+  private dragStartClientX = 0
+
   private dragStartTop = 0
 
   private sectionTop: number | null = null
+
+  private touchMoveIntent: 'unknown' | 'vertical' | 'horizontal' = 'unknown'
+
+  private rafId: number | null = null
+
+  private pendingTop: number | null = null
 
   private collapsedTop = 290
 
@@ -651,16 +659,14 @@ export default class extends Vue {
   private onDragStart(e: TouchEvent | MouseEvent): void {
     this.fromHandle = !!(e.target as HTMLElement).closest('.league-section-handle');
     this.isDragging = true;
+    this.touchMoveIntent = this.fromHandle ? 'vertical' : 'unknown';
     this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    this.dragStartClientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
     const el = (e.target as HTMLElement).closest('.league-section') as HTMLElement;
     if (el) {
       this.dragStartTop = el.getBoundingClientRect().top;
     }
-    if (this.fromHandle) {
-      document.addEventListener('touchmove', this.onDragMove, { passive: false });
-    } else {
-      document.addEventListener('touchmove', this.onDragMove);
-    }
+    document.addEventListener('touchmove', this.onDragMove, { passive: false });
     document.addEventListener('mousemove', this.onDragMove);
     document.addEventListener('touchend', this.onDragEnd);
     document.addEventListener('mouseup', this.onDragEnd);
@@ -668,23 +674,66 @@ export default class extends Vue {
 
   private onDragMove(e: TouchEvent | MouseEvent): void {
     if (!this.isDragging) return;
-    if (this.fromHandle && 'cancelable' in e && e.cancelable) e.preventDefault();
+
     const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
-    const delta = clientY - this.dragStartY;
-    let newTop = this.dragStartTop + delta;
+    const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+    const deltaY = clientY - this.dragStartY;
+    const deltaX = Math.abs(clientX - this.dragStartClientX);
+
+    if (this.touchMoveIntent === 'unknown' && (Math.abs(deltaY) > 5 || deltaX > 5)) {
+      this.touchMoveIntent = Math.abs(deltaY) >= deltaX ? 'vertical' : 'horizontal';
+    }
+
+    if (this.touchMoveIntent === 'horizontal') {
+      this.isDragging = false;
+      return;
+    }
+
+    if (this.touchMoveIntent !== 'vertical') return;
+
+    if (e.cancelable) e.preventDefault();
+
+    let newTop = this.dragStartTop + deltaY;
     newTop = Math.max(this.expandedTop, Math.min(newTop, this.collapsedTop));
-    this.sectionTop = newTop;
+    this.pendingTop = newTop;
+
+    if (!this.rafId) {
+      this.rafId = requestAnimationFrame(() => {
+        if (this.pendingTop !== null) {
+          this.sectionTop = this.pendingTop;
+        }
+        this.rafId = null;
+      });
+    }
   }
 
   private onDragEnd(): void {
+    const wasDragging = this.isDragging;
     this.isDragging = false;
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
     document.removeEventListener('touchmove', this.onDragMove);
     document.removeEventListener('mousemove', this.onDragMove);
     document.removeEventListener('touchend', this.onDragEnd);
     document.removeEventListener('mouseup', this.onDragEnd);
-    if (this.sectionTop === null) return;
+
+    const intent = this.touchMoveIntent;
+    this.touchMoveIntent = 'unknown';
+
+    if (!wasDragging || intent === 'horizontal' || this.pendingTop === null) {
+      this.pendingTop = null;
+      return;
+    }
+
+    const finalTop = this.pendingTop;
+    this.pendingTop = null;
+
     const mid = (this.collapsedTop + this.expandedTop) / 2;
-    if (this.sectionTop < mid) {
+    if (finalTop < mid) {
       this.sectionTop = this.expandedTop;
       this.isExpanded = true;
     } else {
@@ -748,6 +797,14 @@ export default class extends Vue {
 
 <style scoped>
 /* Styles moved to style.css - Home Page Specific Styles section */
+
+.league-section {
+  will-change: top;
+}
+
+.league-section .league-section-handle {
+  touch-action: none;
+}
 
 .team-card {
   min-height: 100px;
