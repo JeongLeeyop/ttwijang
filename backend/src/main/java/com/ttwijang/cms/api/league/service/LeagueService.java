@@ -287,9 +287,9 @@ public class LeagueService {
 
             notificationService.createNotification(
                     app.getUserUid(),
-                    Notification.NotificationType.MATCH,
+                    Notification.NotificationType.LEAGUE,
                     "매너 점수를 입력해주세요",
-                    "'" + opponentTeamName + "'과의 경기가 종료되었습니다. 상대팀 매너 점수를 기록해주세요.",
+                    "'" + opponentTeamName + "'과의 경기가 확정되었습니다. 상대팀 매너 점수를 기록해주세요.",
                     match.getUid(),
                     "LEAGUE_MATCH",
                     actionUrl

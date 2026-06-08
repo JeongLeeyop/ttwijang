@@ -3,6 +3,7 @@ package com.ttwijang.cms.api.manner.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ttwijang.cms.api.league.repository.LeagueMatchApplicationRepository;
 import com.ttwijang.cms.api.league.repository.LeagueMatchRepository;
 import com.ttwijang.cms.api.manner.dto.MannerRatingDto;
 import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
@@ -10,6 +11,7 @@ import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.LeagueMatch;
+import com.ttwijang.cms.entity.LeagueMatchApplication;
 import com.ttwijang.cms.entity.MannerRating;
 import com.ttwijang.cms.entity.Team;
 
@@ -22,6 +24,7 @@ public class MannerRatingService {
     private final MannerRatingRepository mannerRatingRepository;
     private final FutsalMatchRepository matchRepository;
     private final LeagueMatchRepository leagueMatchRepository;
+    private final LeagueMatchApplicationRepository leagueMatchApplicationRepository;
     private final TeamRepository teamRepository;
 
     /**
@@ -40,6 +43,13 @@ public class MannerRatingService {
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
             if (leagueMatch.getStatus() != LeagueMatch.MatchStatus.COMPLETED) {
                 throw new IllegalArgumentException("완료된 매치에서만 매너 점수를 평가할 수 있습니다.");
+            }
+            boolean isParticipant = leagueMatchApplicationRepository
+                    .existsByLeagueMatchUidAndUserUidAndStatus(
+                            request.getMatchUid(), raterUserUid,
+                            LeagueMatchApplication.ApplicationStatus.APPROVED);
+            if (!isParticipant) {
+                throw new IllegalArgumentException("해당 경기에 참가한 선수만 매너 점수를 평가할 수 있습니다.");
             }
         }
 

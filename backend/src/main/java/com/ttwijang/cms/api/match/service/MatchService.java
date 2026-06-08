@@ -545,29 +545,24 @@ public class MatchService {
                 match.getMatchDate().getMonthValue(),
                 match.getMatchDate().getDayOfMonth(),
                 match.getStadiumName());
+        String actionUrl = "/match-detail/" + match.getUid() + "?type=match";
 
-        // 홈팀 멤버들에게 알림 (상대팀 평가)
-        List<TeamMember> hostMembers = teamMemberRepository.findByTeamUidAndStatus(
-                match.getHostTeamUid(), TeamMember.MemberStatus.APPROVED);
-        String guestTeamName = "";
-        if (match.getGuestTeamUid() != null) {
-            Team guestTeam = teamRepository.findByUid(match.getGuestTeamUid()).orElse(null);
-            guestTeamName = guestTeam != null ? guestTeam.getName() : "상대팀";
-        }
-
-        for (TeamMember member : hostMembers) {
+        // 팀 신청자(MatchApplication) → 호스트팀 매너 평가 알림
+        List<MatchApplication> teamApps = matchApplicationRepository.findByMatchUidAndStatus(
+                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
+        for (MatchApplication app : teamApps) {
             notificationService.createNotification(
-                    member.getUserUid(),
+                    app.getApplicantUserUid(),
                     Notification.NotificationType.MATCH,
                     "상대팀의 매너 점수를 기록해 주세요!",
-                    matchInfo + " " + guestTeamName + "의 매너 점수를 기록해주세요.",
+                    matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
                     match.getUid(),
                     "MATCH",
-                    "/match-detail/" + match.getUid() + "?type=match"
+                    actionUrl
             );
         }
 
-        // 게스트 참여자들에게 알림 (홈팀 평가)
+        // 게스트 참여자(GuestApplication) → 호스트팀 매너 평가 알림
         guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid())
                 .ifPresent(recruitment -> {
                     List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
@@ -580,27 +575,10 @@ public class MatchService {
                                 matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
                                 match.getUid(),
                                 "MATCH",
-                                "/match-detail/" + match.getUid() + "?type=match"
+                                actionUrl
                         );
                     }
                 });
-
-        // 상대팀 멤버들에게 알림 (홈팀 평가)
-/*         if (match.getGuestTeamUid() != null) {
-            List<TeamMember> guestMembers = teamMemberRepository.findByTeamUidAndStatus(
-                    match.getGuestTeamUid(), TeamMember.MemberStatus.APPROVED);
-            for (TeamMember member : guestMembers) {
-                notificationService.createNotification(
-                        member.getUserUid(),
-                        Notification.NotificationType.MATCH,
-                        "상대팀의 매너 점수를 기록해 주세요!",
-                        matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
-                        match.getUid(),
-                        "MATCH",
-                        "/match-detail/" + match.getUid() + "?type=match"
-                );
-            }
-        } */
     }
 
     /**
