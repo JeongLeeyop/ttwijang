@@ -647,7 +647,14 @@
           매너점수 입력
         </el-button>
         <el-button
-          v-else-if="alreadyApplied && !detailData?.hasRatedManner"
+          v-else-if="detailData?.status === 'COMPLETED'"
+          class="apply-button apply-button--closed"
+          disabled
+        >
+          경기 종료
+        </el-button>
+        <el-button
+          v-else-if="alreadyApplied && !detailData?.hasRatedManner && detailData?.status !== 'COMPLETED'"
           class="apply-button apply-button--applied"
           disabled
         >
@@ -664,7 +671,7 @@
           {{ applyButtonText }}
         </el-button>
         <el-button
-          v-else-if="isRecruitmentClosed"
+          v-else-if="isRecruitmentClosed && detailData?.status !== 'COMPLETED'"
           class="apply-button apply-button--closed"
           disabled
         >
@@ -1412,11 +1419,10 @@ export default class MatchDetail extends Vue {
    * 경기 완료 후 참여자가 매너점수를 입력할 수 있는 버튼 표시
    */
   get showMannerButton(): boolean {
+    if (this.detailType !== 'league') return false;
     const status = this.detailData?.status;
     if (status !== 'COMPLETED') return false;
     if (this.detailData?.hasRatedManner) return false;
-    // 리그 경기는 관리자가 결과를 입력하므로 팀 오너도 참가자로서 평가 가능
-    if (this.detailType !== 'league' && this.detailData?.isTeamOwner) return false;
     return this.alreadyApplied;
   }
 
@@ -1776,15 +1782,6 @@ export default class MatchDetail extends Vue {
 
       // 데이터 갱신
       await this.loadDetail();
-
-      // 상대팀이 있으면 매너 점수 모달 열기
-      if (this.opponentTeamUid) {
-        this.mannerScore = 0;
-        this.mannerRatedTeamUid = this.opponentTeamUid;
-        this.mannerRatedTeamName = this.opponentTeamName;
-        this.mannerRatedTeamLogo = this.opponentTeamLogo;
-        this.showMannerModal = true;
-      }
     } catch (err: any) {
       const message = err?.response?.data?.message || '경기 결과 입력에 실패했습니다.';
       this.$message.error(message);

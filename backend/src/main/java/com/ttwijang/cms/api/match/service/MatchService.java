@@ -531,54 +531,7 @@ public class MatchService {
         }
         match = matchRepository.save(match);
 
-        // 경기 참여자들에게 알림 발송 - 상대팀 매너 점수 기록 요청
-        sendMannerRatingNotifications(match, hostTeam);
-
         return toDetailResponse(match, userUid);
-    }
-
-    /**
-     * 경기 종료 후 참여자들에게 매너 점수 평가 알림 발송
-     */
-    private void sendMannerRatingNotifications(FutsalMatch match, Team hostTeam) {
-        String matchInfo = String.format("%02d월 %02d일 %s에서 진행한",
-                match.getMatchDate().getMonthValue(),
-                match.getMatchDate().getDayOfMonth(),
-                match.getStadiumName());
-        String actionUrl = "/match-detail/" + match.getUid() + "?type=match";
-
-        // 팀 신청자(MatchApplication) → 호스트팀 매너 평가 알림
-        List<MatchApplication> teamApps = matchApplicationRepository.findByMatchUidAndStatus(
-                match.getUid(), MatchApplication.ApplicationStatus.APPROVED);
-        for (MatchApplication app : teamApps) {
-            notificationService.createNotification(
-                    app.getApplicantUserUid(),
-                    Notification.NotificationType.MATCH,
-                    "상대팀의 매너 점수를 기록해 주세요!",
-                    matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
-                    match.getUid(),
-                    "MATCH",
-                    actionUrl
-            );
-        }
-
-        // 게스트 참여자(GuestApplication) → 호스트팀 매너 평가 알림
-        guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(match.getUid())
-                .ifPresent(recruitment -> {
-                    List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
-                            recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
-                    for (GuestApplication gApp : guestApps) {
-                        notificationService.createNotification(
-                                gApp.getUserUid(),
-                                Notification.NotificationType.MATCH,
-                                "상대팀의 매너 점수를 기록해 주세요!",
-                                matchInfo + " " + hostTeam.getName() + "의 매너 점수를 기록해주세요.",
-                                match.getUid(),
-                                "MATCH",
-                                actionUrl
-                        );
-                    }
-                });
     }
 
     /**

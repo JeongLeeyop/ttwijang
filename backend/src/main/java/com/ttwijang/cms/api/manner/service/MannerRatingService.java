@@ -35,9 +35,7 @@ public class MannerRatingService {
         // FutsalMatch 또는 LeagueMatch 존재 및 완료 상태 확인
         FutsalMatch futsalMatch = matchRepository.findByUid(request.getMatchUid()).orElse(null);
         if (futsalMatch != null) {
-            if (futsalMatch.getStatus() != FutsalMatch.FutsalMatchStatus.COMPLETED) {
-                throw new IllegalArgumentException("완료된 매치에서만 매너 점수를 평가할 수 있습니다.");
-            }
+            throw new IllegalArgumentException("일반 매치는 매너 점수 평가를 지원하지 않습니다.");
         } else {
             LeagueMatch leagueMatch = leagueMatchRepository.findByUid(request.getMatchUid())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다."));
