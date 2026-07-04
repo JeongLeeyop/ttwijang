@@ -275,9 +275,14 @@
                     {{ match.stadiumName }}
                     <i class="el-icon-arrow-right"></i>
                   </div>
-                  <div class="match-card-recruit">
-                    <span class="recruit-dot"></span>
-                    <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+                  <div class="match-card-right">
+                    <span class="match-fee-tag" :class="match.fee > 0 ? 'paid' : 'free'">
+                      {{ match.fee > 0 ? (match.fee).toLocaleString() + '원' : '무료' }}
+                    </span>
+                    <div class="match-card-recruit">
+                      <span class="recruit-dot"></span>
+                      <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2829,6 +2834,31 @@ export default class TeamPage extends Vue {
 
 .match-card-venue i {
   font-size: 12px;
+}
+
+.match-card-right {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.match-fee-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.match-fee-tag.free {
+  background: #e8f5e9;
+  color: #4CAF50;
+}
+
+.match-fee-tag.paid {
+  background: #fff3e0;
+  color: #f08717;
 }
 
 .match-card-recruit {
