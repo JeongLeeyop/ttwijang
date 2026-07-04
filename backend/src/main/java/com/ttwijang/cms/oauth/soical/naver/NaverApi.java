@@ -49,7 +49,7 @@ public class NaverApi {
     public ResponseEntity token(String code, String redirectUri) {
         String resolvedRedirectUri = (redirectUri != null && !redirectUri.isEmpty())
             ? redirectUri
-            : (profile.equals("development") ? "http://localhost:3000/login" : "http://1.234.10.116:3000/login");
+            : (profile.equals("development") ? "http://localhost:3000/login" : "http://ttwijang.kr/login");
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(HOST+"/oauth2.0/token")
             .queryParam("code", code)
             .queryParam("grant_type", "authorization_code")

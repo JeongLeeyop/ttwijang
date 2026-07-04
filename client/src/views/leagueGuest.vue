@@ -39,7 +39,7 @@
                 </div>
                 <div class="guest-members">
                   <i class="el-icon-user"></i>
-                  <span>{{ (guest.teamMemberCount || 0) + guest.currentMembers }} / {{ guest.maxPlayers || guest.maxMembers }}</span>
+                  <span>{{ guest.currentMembers }} / {{ guest.maxMembers }}</span>
                 </div>
               </div>
             </div>
