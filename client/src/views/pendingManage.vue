@@ -686,7 +686,7 @@ export default class PendingManage extends Vue {
 }
 
 .leave-card {
-  border-left: 3px solid #ff4757;
+  margin-top: 10px;
 }
 
 .btn-leave-approve {

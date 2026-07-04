@@ -24,6 +24,7 @@ import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
+import com.ttwijang.cms.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -293,6 +294,7 @@ public class TeamService {
 
         member = teamMemberRepository.save(member);
 
+        // 신청자에게 알림
         notificationService.createNotification(
                 userUid,
                 Notification.NotificationType.TEAM,
@@ -301,6 +303,19 @@ public class TeamService {
                 team.getUid(),
                 "TEAM",
                 "/team-recruit-detail/" + team.getTeamCode()
+        );
+
+        // 팀 운영자에게 알림
+        User applicant = userRepository.findById(userUid).orElse(null);
+        String applicantName = applicant != null ? applicant.getActualName() : "누군가";
+        notificationService.createNotification(
+                team.getOwnerUid(),
+                Notification.NotificationType.TEAM,
+                "팀 가입 신청자가 있습니다",
+                applicantName + "님이 " + team.getName() + " 팀에 가입 신청하였습니다.",
+                team.getUid(),
+                "TEAM",
+                "/pending-manage?teamUid=" + team.getUid()
         );
 
         return toMemberResponse(member);

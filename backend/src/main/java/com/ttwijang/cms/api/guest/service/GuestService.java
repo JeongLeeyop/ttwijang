@@ -1,7 +1,9 @@
 package com.ttwijang.cms.api.guest.service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,18 +12,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ttwijang.cms.api.cash.dto.CashDto;
+import com.ttwijang.cms.api.cash.repository.CashTransactionRepository;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.dto.GuestDto;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
 import com.ttwijang.cms.api.match.repository.MatchApplicationRepository;
 import com.ttwijang.cms.api.match.service.MatchService;
+import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.team.repository.TeamMemberRepository;
+import com.ttwijang.cms.entity.CashTransaction;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.GuestApplication;
 import com.ttwijang.cms.entity.GuestRecruitment;
 import com.ttwijang.cms.entity.MatchApplication;
+import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
 import com.ttwijang.cms.entity.TeamMember;
 import com.ttwijang.cms.entity.User;
@@ -40,6 +46,8 @@ public class GuestService {
     private final MatchApplicationRepository matchApplicationRepository;
     private final UserRepository userRepository;
     private final CashService cashService;
+    private final CashTransactionRepository cashTransactionRepository;
+    private final NotificationService notificationService;
 
     private static final int MAX_RECRUITMENT_DAYS = 7;
 
@@ -348,7 +356,7 @@ public class GuestService {
     }
 
     /**
-     * 게스트 모집 취소
+     * 게스트 모집 취소 — 승인된 신청자 참가비 환불 + 알림
      */
     @Transactional
     public void cancelRecruitment(String recruitmentUid, String userUid) {
@@ -360,6 +368,38 @@ public class GuestService {
 
         if (!team.getOwnerUid().equals(userUid)) {
             throw new IllegalArgumentException("게스트 모집 취소 권한이 없습니다.");
+        }
+
+        String stadiumName = recruitment.getStadiumName() != null ? recruitment.getStadiumName() : "";
+        String matchInfo = recruitment.getMatchDate() + " " + stadiumName;
+
+        // 승인된 신청자 목록 조회
+        List<GuestApplication> approvedApps = applicationRepository.findByRecruitmentUidAndStatus(
+                recruitmentUid, GuestApplication.ApplicationStatus.APPROVED);
+
+        // USE 트랜잭션 조회 (참가비 낸 내역)
+        List<CashTransaction> useTxs = cashTransactionRepository
+                .findByReferenceUidAndReferenceTypeAndType(recruitmentUid, "GUEST", CashTransaction.TransactionType.USE);
+        Map<String, Integer> refundMap = new HashMap<>();
+        for (CashTransaction tx : useTxs) {
+            refundMap.merge(tx.getUserUid(), tx.getAmount(), Integer::sum);
+        }
+
+        // 각 신청자 환불 + 알림 + 상태 변경
+        for (GuestApplication app : approvedApps) {
+            int refundAmount = refundMap.getOrDefault(app.getUserUid(), 0);
+            if (refundAmount > 0) {
+                cashService.refund(app.getUserUid(), refundAmount,
+                        "게스트 모집 취소 환불 (" + stadiumName + ")", recruitmentUid, "GUEST");
+            }
+            notificationService.createNotification(
+                    app.getUserUid(),
+                    Notification.NotificationType.MATCH,
+                    "게스트 모집이 취소되었습니다",
+                    matchInfo + " 게스트 모집이 취소되었습니다." + (refundAmount > 0 ? " 참가비가 환불 처리되었습니다." : ""),
+                    recruitmentUid, "GUEST", null);
+            app.setStatus(GuestApplication.ApplicationStatus.CANCELLED);
+            applicationRepository.save(app);
         }
 
         recruitment.setStatus(GuestRecruitment.RecruitmentStatus.CANCELLED);

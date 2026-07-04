@@ -378,6 +378,17 @@ export default class MatchCreate extends Vue {
     this.selectedDate = day.dateStr;
   }
 
+  private isWithinSevenDays(): boolean {
+    if (!this.selectedDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(this.selectedDate);
+    selectedDate.setHours(0, 0, 0, 0);
+    const diffTime = selectedDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }
+
   private async handleSubmit(): Promise<void> {
     if (!this.selectedDate) {
       this.$message.warning('날짜를 선택해주세요.');
@@ -417,25 +428,31 @@ export default class MatchCreate extends Vue {
         const response = await createMatch(matchData);
         this.$message.success('매치 일정이 등록되었습니다!');
 
-        // 게스트 모집 여부 묻기
-        this.$confirm('게스트 모집도 함께 하시겠습니까?', '게스트 모집', {
-          confirmButtonText: '게스트 모집하기',
-          cancelButtonText: '나중에',
-          type: 'info',
-        }).then(() => {
-          this.$router.push({
-            path: '/guest-recruit',
-            query: {
-              teamUid: this.teamUid,
-              matchUid: response.data?.uid || '',
-              matchDate: this.selectedDate,
-              matchTime: `${this.selectedHour}:${this.selectedMinute}`,
-              stadium: this.stadium,
-            },
+        // 경기 날짜가 7일 이내인지 확인
+        if (this.isWithinSevenDays()) {
+          // 게스트 모집 여부 묻기
+          this.$confirm('게스트 모집도 함께 하시겠습니까?', '게스트 모집', {
+            confirmButtonText: '게스트 모집하기',
+            cancelButtonText: '나중에',
+            type: 'info',
+          }).then(() => {
+            this.$router.push({
+              path: '/guest-recruit',
+              query: {
+                teamUid: this.teamUid,
+                matchUid: response.data?.uid || '',
+                matchDate: this.selectedDate,
+                matchTime: `${this.selectedHour}:${this.selectedMinute}`,
+                stadium: this.stadium,
+              },
+            });
+          }).catch(() => {
+            this.$router.go(-1);
           });
-        }).catch(() => {
+        } else {
+          // 7일 이후 경기는 바로 완료
           this.$router.go(-1);
-        });
+        }
       }
     } catch (error) {
       console.error('Failed to save match:', error);

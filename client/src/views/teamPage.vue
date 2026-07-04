@@ -222,54 +222,123 @@
               :class="{ 'active': matchFilter === 'FREE' }"
               @click="matchFilter = 'FREE'"
             >자체경기</span>
+            <span
+              v-if="isOwner"
+              class="match-filter-tag"
+              :class="{ 'active': matchFilter === 'GUEST' }"
+              @click="matchFilter = 'GUEST'"
+            >게스트 모집</span>
           </div>
-          <div v-if="filteredMatches.length === 0" class="empty-state">
-            <i class="el-icon-football"></i>
-            <p>매치 경기가 없습니다.</p>
-          </div>
-          <div v-else class="match-card-list">
-            <div
-              v-for="match in filteredMatches"
-              :key="match.uid"
-              class="match-card"
-              :class="{ 'completed': match.status === 'COMPLETED' }"
-              @click="goToMatchDetail(match)"
-            >
-              <div class="match-card-badges">
-                <div class="badge-list">
-                  <span class="match-badge format-badge">{{ getMatchFormatLabel(match.matchFormat) }}</span>
-                  <span
-                    class="match-badge type-badge"
-                    :class="match.matchType === 'FRIENDLY' ? 'friendly' : 'free'"
+          <!-- 게스트 모집이 아닌 경우 (매치 카드) -->
+          <div v-if="matchFilter !== 'GUEST'">
+            <div v-if="filteredMatches.length === 0" class="empty-state">
+              <i class="el-icon-football"></i>
+              <p>매치 경기가 없습니다.</p>
+            </div>
+            <div v-else class="match-card-list">
+              <div
+                v-for="match in filteredMatches"
+                :key="match.uid"
+                class="match-card"
+                :class="{ 'completed': match.status === 'COMPLETED' }"
+                @click="goToMatchDetail(match)"
+              >
+                <div class="match-card-badges">
+                  <div class="badge-list">
+                    <span class="match-badge format-badge">{{ getMatchFormatLabel(match.matchFormat) }}</span>
+                    <span
+                      class="match-badge type-badge"
+                      :class="match.matchType === 'FRIENDLY' ? 'friendly' : 'free'"
+                    >
+                      {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
+                    </span>
+                  </div>
+                  <div
+                    v-if="(isOwner || isManager) && match.status === 'RECRUITING'"
+                    class="match-more-wrap"
+                    @click.stop
                   >
-                    {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
-                  </span>
+                    <button class="match-more-btn" @click.stop="toggleMatchMenu(match.uid)">
+                      <i class="el-icon-more"></i>
+                    </button>
+                    <ul v-if="openMenuMatchUid === match.uid" class="match-more-menu">
+                      <li @click.stop="handleMatchMenuCommand('edit', match)">수정</li>
+                      <li class="danger" @click.stop="handleMatchMenuCommand('delete', match)">삭제</li>
+                    </ul>
+                  </div>
                 </div>
-                <div
-                  v-if="(isOwner || isManager) && match.status === 'RECRUITING'"
-                  class="match-more-wrap"
-                  @click.stop
-                >
-                  <button class="match-more-btn" @click.stop="toggleMatchMenu(match.uid)">
-                    <i class="el-icon-more"></i>
-                  </button>
-                  <ul v-if="openMenuMatchUid === match.uid" class="match-more-menu">
-                    <li @click.stop="handleMatchMenuCommand('edit', match)">수정</li>
-                    <li class="danger" @click.stop="handleMatchMenuCommand('delete', match)">삭제</li>
-                  </ul>
+                <div class="match-card-datetime">
+                  {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
+                </div>
+                <div class="match-card-bottom">
+                  <div class="match-card-venue">
+                    {{ match.stadiumName }}
+                    <i class="el-icon-arrow-right"></i>
+                  </div>
+                  <div class="match-card-recruit">
+                    <span class="recruit-dot"></span>
+                    <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+                  </div>
                 </div>
               </div>
-              <div class="match-card-datetime">
-                {{ match.matchDate }} ({{ match.matchDay }}) {{ match.matchTime }}
-              </div>
-              <div class="match-card-bottom">
-                <div class="match-card-venue">
-                  {{ match.stadiumName }}
-                  <i class="el-icon-arrow-right"></i>
+            </div>
+          </div>
+
+          <!-- 게스트 모집 탭 -->
+          <div v-else>
+            <div v-if="guestRecruitments.length === 0" class="empty-state">
+              <i class="el-icon-user"></i>
+              <p>게스트 모집이 없습니다.</p>
+            </div>
+            <div v-else class="guest-card-list">
+              <div
+                v-for="recruitment in guestRecruitments"
+                :key="recruitment.uid"
+                class="guest-card"
+                :class="{ 'completed': recruitment.status === 'COMPLETED' }"
+              >
+                <div class="guest-card-header">
+                  <div class="guest-card-title-wrap">
+                    <h3 class="guest-card-title">{{ recruitment.stadiumName }}</h3>
+                    <span
+                      class="guest-status-badge"
+                      :class="getGuestStatusClass(recruitment.status)"
+                    >
+                      {{ getGuestStatusLabel(recruitment.status) }}
+                    </span>
+                  </div>
+                  <div
+                    v-if="isOwner"
+                    class="guest-more-wrap"
+                    @click.stop
+                  >
+                    <button class="guest-more-btn" @click.stop="toggleGuestMenu(recruitment.uid)">
+                      <i class="el-icon-more"></i>
+                    </button>
+                    <ul v-if="openMenuGuestUid === recruitment.uid" class="guest-more-menu">
+                      <li class="danger" @click.stop="handleGuestMenuCommand('delete', recruitment)">취소</li>
+                    </ul>
+                  </div>
                 </div>
-                <div class="match-card-recruit">
-                  <span class="recruit-dot"></span>
-                  <span class="recruit-count">{{ (match.teamMemberCount || 0) + (match.guestCurrentMembers || 0) }}/{{ match.maxPlayers || 0 }}</span>
+                <div class="guest-card-info">
+                  <div class="guest-info-row">
+                    <span class="guest-info-label">날짜</span>
+                    <span class="guest-info-value">{{ formatGuestDate(recruitment.matchDate) }} {{ recruitment.matchTime }}</span>
+                  </div>
+                  <div class="guest-info-row">
+                    <span class="guest-info-label">포지션</span>
+                    <span class="guest-info-value">{{ getPositionLabel(recruitment.positionType) }}</span>
+                  </div>
+                  <div class="guest-info-row">
+                    <span class="guest-info-label">모집현황</span>
+                    <span class="guest-info-value guest-recruit-status">
+                      {{ recruitment.currentGuests }}/{{ recruitment.maxGuests }}명
+                    </span>
+                  </div>
+                  <div v-if="recruitment.fee" class="guest-info-row">
+                    <span class="guest-info-label">참가비</span>
+                    <span class="guest-info-value">{{ (recruitment.fee || 0).toLocaleString() }}원</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -671,6 +740,9 @@ import {
   getTeamSponsorships,
   getTeamSponsorshipSummary,
 } from '@/api/cash';
+import {
+  getTeamRecruitments, cancelGuestRecruitment,
+} from '@/api/guest';
 import { getTeamBanners } from '@/api/sponsor';
 import {
   getTeamPosts, addTeamPost, updateTeamPost,
@@ -740,6 +812,8 @@ export default class TeamPage extends Vue {
 
   private matchData: any[] = []
 
+  private guestRecruitments: any[] = []
+
   private teamLeagues: any[] = []
 
   private leagueStandings: any[] = []
@@ -765,6 +839,8 @@ export default class TeamPage extends Vue {
   private myRole = ''
 
   private openMenuMatchUid = ''
+
+  private openMenuGuestUid = ''
 
   // Community state
   private expandedPostUid = ''
@@ -1024,7 +1100,10 @@ export default class TeamPage extends Vue {
         await this.loadCommunityPosts();
         break;
       case 'match':
-        await this.loadMatchData();
+        await Promise.all([
+          this.loadMatchData(),
+          this.loadGuestRecruitments(),
+        ]);
         break;
       case 'league':
         await this.loadLeagues();
@@ -1330,6 +1409,7 @@ export default class TeamPage extends Vue {
           currentPlayers: m.currentPlayers || m.applicationCount || 0,
           teamMemberCount: m.teamMemberCount || 0,
           guestCurrentMembers: m.guestCurrentMembers || 0,
+          fee: m.fee || 0,
         };
       });
     } catch (error) {
@@ -1416,6 +1496,89 @@ export default class TeamPage extends Vue {
         this.$message.error(e?.response?.data?.message || '삭제 중 오류가 발생했습니다.');
       }
     }
+  }
+
+  // ===== Guest Recruitment Methods =====
+  private async loadGuestRecruitments(): Promise<void> {
+    try {
+      const res = await getTeamRecruitments(this.teamUid);
+      const recruitments = res.data || [];
+      this.guestRecruitments = Array.isArray(recruitments)
+        ? recruitments.sort((a: any, b: any) => {
+          const dateA = new Date(a.matchDate).getTime();
+          const dateB = new Date(b.matchDate).getTime();
+          return dateA - dateB;
+        })
+        : [];
+    } catch (error) {
+      console.warn('게스트 모집 데이터 로드 실패:', error);
+      this.guestRecruitments = [];
+    }
+  }
+
+  private toggleGuestMenu(uid: string): void {
+    this.openMenuGuestUid = this.openMenuGuestUid === uid ? '' : uid;
+  }
+
+  private async handleGuestMenuCommand(command: string, recruitment: any): Promise<void> {
+    this.openMenuGuestUid = '';
+    if (command === 'delete') {
+      try {
+        await this.$confirm(
+          '게스트 모집을 취소하시겠습니까? 승인된 게스트에게 알림이 발송됩니다.',
+          '게스트 모집 취소',
+          { confirmButtonText: '모집취소', cancelButtonText: '돌아가기', type: 'warning' },
+        );
+      } catch {
+        return;
+      }
+      try {
+        await cancelGuestRecruitment(recruitment.uid);
+        this.$message.success('게스트 모집이 취소되었습니다.');
+        await this.loadGuestRecruitments();
+      } catch (e: any) {
+        this.$message.error(e?.response?.data?.message || '취소 중 오류가 발생했습니다.');
+      }
+    }
+  }
+
+  private getGuestStatusLabel(status: string): string {
+    const statusMap: Record<string, string> = {
+      RECRUITING: '모집중',
+      COMPLETED: '완료',
+      CANCELLED: '취소됨',
+      EXPIRED: '마감',
+    };
+    return statusMap[status] || status;
+  }
+
+  private getGuestStatusClass(status: string): string {
+    const classMap: Record<string, string> = {
+      RECRUITING: 'recruiting',
+      COMPLETED: 'completed',
+      CANCELLED: 'cancelled',
+      EXPIRED: 'expired',
+    };
+    return classMap[status] || '';
+  }
+
+  private getPositionLabel(position: string): string {
+    const positionMap: Record<string, string> = {
+      FIELD: '필드',
+      GK: '골키퍼',
+      ANY: '전체',
+    };
+    return positionMap[position] || position;
+  }
+
+  private formatGuestDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dayName = dayNames[date.getDay()];
+    return `${month}월 ${day}일(${dayName})`;
   }
 
   // ===== League Methods =====
@@ -2453,6 +2616,162 @@ export default class TeamPage extends Vue {
 
 .match-more-btn:active {
   background: #f0f2fa;
+}
+
+/* ========================================
+   게스트 모집 카드
+   ======================================== */
+.guest-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guest-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.guest-card:active {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guest-card.completed {
+  opacity: 0.65;
+}
+
+.guest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.guest-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.guest-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.guest-status-badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.guest-status-badge.recruiting {
+  background: #e8f5e9;
+  color: #4CAF50;
+}
+
+.guest-status-badge.completed {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.guest-status-badge.cancelled {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+.guest-status-badge.expired {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.guest-more-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.guest-more-btn {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: #aab2cc;
+  font-size: 16px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.guest-more-btn:active {
+  background: #f0f2fa;
+}
+
+.guest-more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 6px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  min-width: 100px;
+  z-index: 2000;
+}
+
+.guest-more-menu li {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #606266;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.guest-more-menu li:hover {
+  background: #f5f7fa;
+}
+
+.guest-more-menu li.danger {
+  color: #e53935;
+}
+
+.guest-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guest-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.guest-info-label {
+  min-width: 50px;
+  color: #999;
+  font-weight: 500;
+}
+
+.guest-info-value {
+  color: #333;
+  font-weight: 600;
+  flex: 1;
+}
+
+.guest-recruit-status {
+  color: #4CAF50;
 }
 
 .match-badge {
