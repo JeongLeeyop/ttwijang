@@ -20,6 +20,7 @@ import com.ttwijang.cms.api.cash.repository.CashTransactionRepository;
 import com.ttwijang.cms.api.cash.service.CashService;
 import com.ttwijang.cms.api.guest.repository.GuestApplicationRepository;
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
+import com.ttwijang.cms.api.guest.service.GuestService;
 import com.ttwijang.cms.api.manner.repository.MannerRatingRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
@@ -52,6 +53,7 @@ public class MatchService {
     private final CashTransactionRepository cashTransactionRepository;
     private final GuestApplicationRepository guestApplicationRepository;
     private final GuestRecruitmentRepository guestRecruitmentRepository;
+    private final GuestService guestService;
     private final NotificationService notificationService;
     private final TeamMemberRepository teamMemberRepository;
     private final MannerRatingRepository mannerRatingRepository;
@@ -378,35 +380,9 @@ public class MatchService {
             matchApplicationRepository.save(app);
         }
 
-        // 게스트 신청자 환불 + 알림
+        // 연동된 게스트 모집 동시 취소 (승인된 게스트 참가비 환불 + 알림 포함)
         guestRecruitmentRepository.findFirstByMatchUidOrderByCreatedDateDesc(matchUid)
-                .ifPresent(recruitment -> {
-                    List<GuestApplication> guestApps = guestApplicationRepository.findByRecruitmentUidAndStatus(
-                            recruitment.getUid(), GuestApplication.ApplicationStatus.APPROVED);
-                    List<CashTransaction> guestTxs = cashTransactionRepository
-                            .findByReferenceUidAndReferenceTypeAndType(
-                                    recruitment.getUid(), "GUEST", CashTransaction.TransactionType.USE);
-                    Map<String, Integer> guestRefundMap = new HashMap<>();
-                    for (CashTransaction tx : guestTxs) {
-                        guestRefundMap.merge(tx.getUserUid(), tx.getAmount(), Integer::sum);
-                    }
-                    for (GuestApplication gApp : guestApps) {
-                        int refundAmount = guestRefundMap.getOrDefault(gApp.getUserUid(), 0);
-                        if (refundAmount > 0) {
-                            cashService.refund(gApp.getUserUid(), refundAmount,
-                                    "매치 취소 환불 (게스트) (" + stadiumName + ")",
-                                    recruitment.getUid(), "GUEST");
-                        }
-                        notificationService.createNotification(
-                                gApp.getUserUid(),
-                                Notification.NotificationType.MATCH,
-                                "매치가 취소되었습니다",
-                                matchInfo + " 매치가 취소되어 참가비가 환불 처리되었습니다.",
-                                matchUid, "MATCH", "/match-detail/" + matchUid);
-                        gApp.setStatus(GuestApplication.ApplicationStatus.CANCELLED);
-                        guestApplicationRepository.save(gApp);
-                    }
-                });
+                .ifPresent(guestService::cancelRecruitmentForMatch);
 
         match.setStatus(FutsalMatch.FutsalMatchStatus.CANCELLED);
         matchRepository.save(match);

@@ -240,7 +240,7 @@
                 v-for="match in filteredMatches"
                 :key="match.uid"
                 class="match-card"
-                :class="{ 'completed': match.status === 'COMPLETED' }"
+                :class="{ 'completed': match.status === 'COMPLETED', 'cancelled': match.status === 'CANCELLED' }"
                 @click="goToMatchDetail(match)"
               >
                 <div class="match-card-badges">
@@ -251,6 +251,9 @@
                       :class="match.matchType === 'FRIENDLY' ? 'friendly' : 'free'"
                     >
                       {{ match.matchType === 'FRIENDLY' ? '친선 경기' : '자체 경기' }}
+                    </span>
+                    <span v-if="match.status === 'CANCELLED'" class="match-badge status-badge cancelled">
+                      취소됨
                     </span>
                   </div>
                   <div
@@ -2552,7 +2555,8 @@ export default class TeamPage extends Vue {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.match-card.completed {
+.match-card.completed,
+.match-card.cancelled {
   opacity: 0.65;
 }
 
@@ -2799,6 +2803,11 @@ export default class TeamPage extends Vue {
 .match-badge.type-badge.free {
   background: #2196F3;
   color: #fff;
+}
+
+.match-badge.status-badge.cancelled {
+  background: #fce4ec;
+  color: #c2185b;
 }
 
 .match-badge.size-badge {

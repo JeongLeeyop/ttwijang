@@ -16,8 +16,14 @@ Match 도메인의 FutsalMatch와 연계되지만, 독립적으로도 생성 가
 
 ```
 RECRUITING → COMPLETED (currentGuests >= maxGuests 시 자동)
-           → CANCELLED  (팀 운영자가 취소)
+           → CANCELLED  (팀 운영자가 취소 / 연동된 매치가 취소되어 연쇄 취소)
 ```
+
+## 게스트 모집 취소
+
+- `cancelRecruitment(recruitmentUid, userUid)`: 팀 운영자가 직접 취소 (권한 검증 O)
+- `cancelRecruitmentForMatch(recruitment)`: `MatchService.cancelMatch()`에서 매치 취소 시 호출 (권한 검증 X, 매치 취소 쪽에서 이미 검증됨). `RECRUITING` 상태일 때만 실제 취소 수행
+- 공통 로직(`doCancelRecruitment`): 승인된 게스트 신청자 참가비 환불 + "게스트 모집이 취소되었습니다" 알림 + `GuestApplication`/`GuestRecruitment` 상태를 `CANCELLED`로 변경
 
 ## 신청 상태 (ApplicationStatus)
 

@@ -68,9 +68,17 @@ boolean isTeamOwner = hostTeam.getOwnerUid().equals(currentUserUid)
 getMatchListBySigungu() / getMatchesByDateRangeBySigungu()
 ```
 
+## 매치 취소 (`cancelMatch`)
+
+- 호스트팀 운영자만 취소 가능
+- 팀 신청자(MatchApplication): 참가비 환불 + "매치가 취소되었습니다" 알림 + 상태 `CANCELLED`
+- 연동된 `GuestRecruitment`이 `RECRUITING` 상태면 `GuestService.cancelRecruitmentForMatch()`로 동시 취소
+  - 게스트 신청자별 참가비 환불 + "게스트 모집이 취소되었습니다" 알림 (매치 취소 알림과 별개)
+  - `GuestRecruitment.status` → `CANCELLED`로 변경 (팀 페이지 게스트 모집 탭 뱃지에 반영됨)
+
 ## 관련 도메인 의존성
 
 - `CashService` — 참가비 차감
 - `NotificationService` — 매너 평가 알림 발송
-- `GuestRecruitment` / `GuestApplication` — 게스트 모집 (guest 도메인)
+- `GuestRecruitment` / `GuestApplication` — 게스트 모집 (guest 도메인). `MatchService`가 `GuestService`를 주입받아 매치 취소 시 게스트 모집 연쇄 취소를 위임함 (단방향 의존성, `GuestService`는 `MatchService`를 정적 메서드 호출로만 참조하므로 순환 없음)
 - `MannerRating` — 매너 점수 기록 여부 확인 (manner 도메인)

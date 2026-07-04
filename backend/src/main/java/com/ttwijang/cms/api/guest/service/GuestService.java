@@ -371,6 +371,22 @@ public class GuestService {
             throw new IllegalArgumentException("게스트 모집 취소 권한이 없습니다.");
         }
 
+        doCancelRecruitment(recruitment);
+    }
+
+    /**
+     * 매치 취소로 인한 게스트 모집 연쇄 취소 — 권한 검증은 매치 취소 쪽에서 이미 수행됨
+     */
+    @Transactional
+    public void cancelRecruitmentForMatch(GuestRecruitment recruitment) {
+        if (recruitment.getStatus() != GuestRecruitment.RecruitmentStatus.RECRUITING) {
+            return;
+        }
+        doCancelRecruitment(recruitment);
+    }
+
+    private void doCancelRecruitment(GuestRecruitment recruitment) {
+        String recruitmentUid = recruitment.getUid();
         String stadiumName = recruitment.getStadiumName() != null ? recruitment.getStadiumName() : "";
         String matchInfo = recruitment.getMatchDate() + " " + stadiumName;
 

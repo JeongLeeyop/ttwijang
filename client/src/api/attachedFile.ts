@@ -6,6 +6,7 @@ export const uploadFile = (moduleName: string, formData: FormData) => commonRequ
   url: `${moduleName}/upload`,
   method: 'post',
   data: formData,
+  timeout: 0,
 });
 
 export const getFile = (fileUid: string) => commonRequest({

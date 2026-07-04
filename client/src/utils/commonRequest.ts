@@ -3,7 +3,7 @@ import axios from 'axios';
 /* eslint-disable */
 const service = axios.create({
   baseURL: process.env.VUE_APP_COMMON_API, // url = base url + request url
-  timeout: 5000,
+  timeout: 20000,
   // withCredentials: true // send cookies when cross-domain requests
 });
 

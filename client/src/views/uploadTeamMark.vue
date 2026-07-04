@@ -34,7 +34,9 @@
         </div>
 
         <!-- Submit Button -->
-        <button class="submit-button" @click="handleSubmit">다 음</button>
+        <button class="submit-button" @click="handleSubmit" :disabled="isSubmitting">
+          {{ isSubmitting ? '업로드 중...' : '다 음' }}
+        </button>
       </div>
     </div>
   </div>
@@ -44,23 +46,36 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { uploadFile } from '@/api/attachedFile';
 
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
 @Component
 export default class UploadTeamMark extends Vue {
   private teamMarkImage = ''
 
   private teamMarkFile: File | null = null
 
+  private isSubmitting = false
+
+  beforeDestroy(): void {
+    if (this.teamMarkImage.startsWith('blob:')) {
+      URL.revokeObjectURL(this.teamMarkImage);
+    }
+  }
+
   private goBack(): void {
     this.$router.go(-1);
   }
 
   private handleImageChange(file: any): void {
+    if (file.raw.size > MAX_FILE_SIZE) {
+      this.$message.error('파일 용량은 100MB를 초과할 수 없습니다.');
+      return;
+    }
+    if (this.teamMarkImage.startsWith('blob:')) {
+      URL.revokeObjectURL(this.teamMarkImage);
+    }
     this.teamMarkFile = file.raw;
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.teamMarkImage = e.target.result;
-    };
-    reader.readAsDataURL(file.raw);
+    this.teamMarkImage = URL.createObjectURL(file.raw);
   }
 
   private async handleSubmit(): Promise<void> {
@@ -68,9 +83,10 @@ export default class UploadTeamMark extends Vue {
       this.$message.warning('팀 마크를 업로드해주세요.');
       return;
     }
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
     try {
-      // 서버에 파일 업로드
       const formData = new FormData();
       formData.append('file', this.teamMarkFile);
 
@@ -94,7 +110,15 @@ export default class UploadTeamMark extends Vue {
       }
     } catch (error) {
       console.error('File upload failed:', error);
-      this.$message.error('파일 업로드 중 오류가 발생했습니다.');
+      if ((error as any).code === 'ECONNABORTED') {
+        this.$message.error('업로드 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.');
+      } else if ((error as any).response?.status === 413) {
+        this.$message.error('파일 용량이 너무 큽니다.');
+      } else {
+        this.$message.error('파일 업로드 중 오류가 발생했습니다.');
+      }
+    } finally {
+      this.isSubmitting = false;
     }
   }
 }
