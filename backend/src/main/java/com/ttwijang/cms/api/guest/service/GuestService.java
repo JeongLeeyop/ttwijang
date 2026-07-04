@@ -282,6 +282,7 @@ public class GuestService {
                     .amount(fee)
                     .description("게스트 참가비 (" + recruitTeamName + " / " + recruitment.getStadiumName() + ")")
                     .referenceUid(recruitment.getUid())
+                    .referenceType("GUEST")
                     .build();
             cashService.use(useRequest, userUid);
         }
