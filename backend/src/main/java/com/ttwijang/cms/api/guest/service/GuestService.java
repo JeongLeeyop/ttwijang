@@ -424,13 +424,11 @@ public class GuestService {
     }
 
     /**
-     * 팀의 게스트 모집 목록 조회 (7일 이내)
+     * 팀의 게스트 모집 목록 조회 (지난 모집 포함 전체, 최신 경기일 순)
      */
     @Transactional(readOnly = true)
     public List<GuestDto.ListResponse> getTeamRecruitments(String teamUid) {
-        LocalDate startDate = LocalDate.now();
-        LocalDate endDate = startDate.plusDays(MAX_RECRUITMENT_DAYS);
-        List<GuestRecruitment> recruitments = recruitmentRepository.findByTeamUidAndDateRange(teamUid, startDate, endDate);
+        List<GuestRecruitment> recruitments = recruitmentRepository.findByTeamUidOrderByMatchDateDesc(teamUid);
         return recruitments.stream()
                 .map(this::toListResponse)
                 .collect(Collectors.toList());

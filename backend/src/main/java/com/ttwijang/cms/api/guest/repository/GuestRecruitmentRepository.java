@@ -41,6 +41,8 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
 
     Page<GuestRecruitment> findByTeamUid(String teamUid, Pageable pageable);
 
+    List<GuestRecruitment> findByTeamUidOrderByMatchDateDesc(String teamUid);
+
     /**
      * 지역(시/도)으로 상태별 게스트 모집 조회 — 모집 팀의 지역 기준
      */
@@ -49,12 +51,6 @@ public interface GuestRecruitmentRepository extends JpaRepository<GuestRecruitme
     Page<GuestRecruitment> findByStatusAndRegion(@Param("status") GuestRecruitment.RecruitmentStatus status,
                                                    @Param("sido") String sido,
                                                    Pageable pageable);
-
-    // 7일 이내 모집만 가능한 조건 확인
-    @Query("SELECT gr FROM GuestRecruitment gr WHERE gr.teamUid = :teamUid AND gr.matchDate BETWEEN :startDate AND :endDate")
-    List<GuestRecruitment> findByTeamUidAndDateRange(@Param("teamUid") String teamUid,
-                                                       @Param("startDate") LocalDate startDate,
-                                                       @Param("endDate") LocalDate endDate);
 
     /**
      * 지역(시/도 + 시/군/구)으로 상태별 게스트 모집 조회 — 모집 팀의 지역 기준
