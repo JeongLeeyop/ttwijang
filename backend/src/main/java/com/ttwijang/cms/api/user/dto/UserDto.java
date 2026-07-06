@@ -20,6 +20,11 @@ import lombok.Data;
 public class UserDto {
 
     @Data
+    public static class EnableRequest {
+        private boolean enabled;
+    }
+
+    @Data
     public static class Detail {
         private String uid;
         private String userId;

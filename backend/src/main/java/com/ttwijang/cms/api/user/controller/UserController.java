@@ -136,8 +136,8 @@ public class UserController {
     }
 
     @PutMapping("{uid}/enable")
-    public ResponseEntity setEnable(@PathVariable("uid") String userUid, boolean enabled) {
-        userService.setEnabled(userUid, enabled);
+    public ResponseEntity setEnable(@PathVariable("uid") String userUid, @RequestBody UserDto.EnableRequest request) {
+        userService.setEnabled(userUid, request.isEnabled());
         return ResponseEntity.ok().build();
     }
 
