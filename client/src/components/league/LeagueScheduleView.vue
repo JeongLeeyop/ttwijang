@@ -56,7 +56,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue, Component, Watch, Prop,
+} from 'vue-property-decorator';
 import { getLeagueList, getLeagueSchedule } from '@/api/league';
 
 interface Match {
@@ -80,6 +82,8 @@ interface LeagueOption {
 
 @Component({})
 export default class LeagueScheduleView extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
@@ -93,6 +97,11 @@ export default class LeagueScheduleView extends Vue {
   private upcomingMatches: Match[] = []
 
   async created() {
+    await this.loadLeagues();
+  }
+
+  @Watch('selectedRegion')
+  async onRegionChange() {
     await this.loadLeagues();
   }
 
@@ -123,7 +132,11 @@ export default class LeagueScheduleView extends Vue {
   private async loadLeagues(): Promise<void> {
     this.isLoading = true;
     try {
-      const response = await getLeagueList({ status: 'IN_PROGRESS' });
+      const params: any = { status: 'IN_PROGRESS' };
+      if (this.selectedRegion) {
+        params.regionCode = this.selectedRegion;
+      }
+      const response = await getLeagueList(params);
       const leagueList = response.data?.content || response.data || [];
 
       this.leagues = leagueList.map((league: any) => ({
@@ -132,7 +145,14 @@ export default class LeagueScheduleView extends Vue {
       }));
 
       if (this.leagues.length > 0) {
-        this.selectedLeague = this.leagues[0].uid;
+        if (this.selectedLeague === this.leagues[0].uid) {
+          await this.loadScheduleData();
+        } else {
+          this.selectedLeague = this.leagues[0].uid;
+        }
+      } else {
+        this.selectedLeague = '';
+        this.upcomingMatches = [];
       }
     } catch (error) {
       console.error('Failed to load leagues:', error);

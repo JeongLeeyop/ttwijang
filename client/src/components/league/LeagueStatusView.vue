@@ -97,7 +97,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import {
+  Vue, Component, Watch, Prop,
+} from 'vue-property-decorator';
 import { getLeagueList, getLeagueStandings, getLeagueSchedule } from '@/api/league';
 
 interface LeagueTeam {
@@ -130,6 +132,8 @@ interface Match {
 
 @Component({})
 export default class LeagueStatusView extends Vue {
+  @Prop({ default: '' }) private selectedRegion!: string
+
   private currentYear = new Date().getFullYear()
 
   private currentMonthIndex = new Date().getMonth()
@@ -151,6 +155,11 @@ export default class LeagueStatusView extends Vue {
   }
 
   async created() {
+    await this.loadLeagueData();
+  }
+
+  @Watch('selectedRegion')
+  async onRegionChange() {
     await this.loadLeagueData();
   }
 
@@ -186,7 +195,11 @@ export default class LeagueStatusView extends Vue {
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      const leagueResponse = await getLeagueList({ status: 'IN_PROGRESS' });
+      const params: any = { status: 'IN_PROGRESS' };
+      if (this.selectedRegion) {
+        params.regionCode = this.selectedRegion;
+      }
+      const leagueResponse = await getLeagueList(params);
       const leagues = leagueResponse.data?.content || leagueResponse.data || [];
 
       this.availableLeagues = leagues.map((league: any) => ({
@@ -200,6 +213,11 @@ export default class LeagueStatusView extends Vue {
 
         await this.loadStandingsData();
         await this.loadScheduleData();
+      } else {
+        this.currentLeagueUid = '';
+        this.selectedLeagueUid = '';
+        this.leagueTable = [];
+        this.recentMatches = [];
       }
     } catch (error) {
       this.$message.error('리그 정보를 불러오지 못했습니다.');

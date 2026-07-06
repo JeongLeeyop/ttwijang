@@ -101,7 +101,7 @@ import {
   Vue, Component, Watch, Prop,
 } from 'vue-property-decorator';
 import {
-  getLeagueAllMatches, getLeaguesByTeam, getLeagueDetail,
+  getLeagueAllMatches, getLeagueList, getLeagueDetail,
 } from '@/api/league';
 import { getMyTeams } from '@/api/team';
 
@@ -165,6 +165,11 @@ export default class extends Vue {
     await this.loadLeagueData();
   }
 
+  @Watch('selectedRegion')
+  async onRegionChange() {
+    await this.loadLeagueData();
+  }
+
   private isMyTeam(teamUid: string): boolean {
     return !!teamUid && this.myTeamUids.includes(teamUid);
   }
@@ -187,40 +192,34 @@ export default class extends Vue {
     try {
       const routeLeagueUid = this.$route.query.leagueUid as string | undefined;
 
-      // 본인 팀 목록 조회 (단일 객체 또는 배열 모두 처리)
-      let myTeams: any[] = [];
+      // 본인 팀 목록 조회 (순위표 "내 팀" 하이라이트용 — 실패/미가입이어도 조회 자체는 계속 진행)
       try {
         const teamsRes = await getMyTeams();
         const teamData = teamsRes.data;
+        let myTeams: any[] = [];
         if (Array.isArray(teamData)) {
           myTeams = teamData;
         } else if (teamData) {
           myTeams = [teamData];
-        } else {
-          myTeams = [];
         }
+        this.myTeamUids = myTeams.map((t: any) => t.uid);
       } catch (e) {
-        myTeams = [];
+        this.myTeamUids = [];
       }
-      this.myTeamUids = myTeams.map((t: any) => t.uid);
 
-      // 각 팀이 참여 중인 리그 수집
+      // 가입한 팀/리그 여부와 무관하게 지역 내 전체 리그 목록 조회
+      const leagueParams: any = { status: 'IN_PROGRESS' };
+      if (this.selectedRegion) {
+        leagueParams.regionCode = this.selectedRegion;
+      }
+      const leagueListRes = await getLeagueList(leagueParams);
+      const leagues = leagueListRes.data?.content || leagueListRes.data || [];
       const leagueMap = new Map<string, { uid: string, name: string }>();
-      await Promise.all(myTeams.map(async (team: any) => {
-        try {
-          const res = await getLeaguesByTeam(team.uid);
-          const teamLeagues: any[] = res.data || [];
-          teamLeagues.forEach((l: any) => {
-            if (!l.status || l.status === 'IN_PROGRESS') {
-              leagueMap.set(l.uid, { uid: l.uid, name: l.name });
-            }
-          });
-        } catch (e) {
-          // silent
-        }
-      }));
+      leagues.forEach((l: any) => {
+        leagueMap.set(l.uid, { uid: l.uid, name: l.name });
+      });
 
-      // URL의 leagueUid가 있지만 내 리그 목록에 없는 경우 직접 추가 (다른 팀 리그 조회)
+      // URL의 leagueUid가 있지만 지역 리그 목록에 없는 경우 직접 추가 (다른 지역 리그 조회)
       if (routeLeagueUid && !leagueMap.has(routeLeagueUid)) {
         try {
           const leagueRes = await getLeagueDetail(routeLeagueUid);

@@ -140,12 +140,14 @@
           <!-- 리그 일정 뷰 -->
           <LeagueScheduleView
             v-if="currentView === 'schedule'"
+            :selected-region="selectedRegion"
             @navigate="showView"
           />
 
           <!-- 리그 현황 뷰 -->
           <LeagueStatusView
             v-if="currentView === 'status'"
+            :selected-region="selectedRegion"
           />
         </div>
       </div>

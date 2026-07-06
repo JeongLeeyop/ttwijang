@@ -18,7 +18,7 @@
             <span class="league-title-text">경기 일정</span>
           </div>
           <div class="league-button-row" v-if="!$route.query.returnTeamCode">
-            <router-link to="/league-status" class="league-action-btn-link">
+            <router-link :to="{ path: '/league-status', query: { leagueUid: selectedLeague } }" class="league-action-btn-link">
               <button class="status-button">현황보기</button>
             </router-link>
           </div>
