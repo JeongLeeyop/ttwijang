@@ -2,12 +2,22 @@ import axios from 'axios';
 import { Message, MessageBox } from 'element-ui';
 import { UserModule } from '@/store/modules/user';
 import router from '@/router';
-import cookies from 'js-cookie';
+import { getToken } from '@/utils/cookies';
 
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   timeout: 5000,
   // withCredentials: true // send cookies when cross-domain requests
+});
+
+// Request interceptor — attach admin JWT token
+service.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Response interceptors

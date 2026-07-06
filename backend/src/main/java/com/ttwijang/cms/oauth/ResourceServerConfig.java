@@ -1,20 +1,13 @@
 package com.ttwijang.cms.oauth;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 @Configuration
 @EnableResourceServer
@@ -29,24 +22,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
 		// resources.stateless(true); // 리소스에서 토큰 기반 인증 모두 허용 JUNIT 때문.
+		// tokenExtractor를 별도 지정하지 않으면 기본 BearerTokenExtractor가 사용되어
+		// Authorization: Bearer <token> 헤더로 인증한다 (사용자/관리자 앱이 각자 헤더로
+		// 토큰을 실어보내므로 브라우저 쿠키를 공유해도 세션이 서로 덮어쓰이지 않는다).
 		resources.resourceId(resourceIds).tokenStore(tokenStore);
-		resources.tokenExtractor(new TokenExtractor() {
-			@Override
-			public Authentication extract(HttpServletRequest request) {
-				Cookie[] cookies = request.getCookies();
-				if (cookies == null)
-					return null;
-
-				for (Cookie cookie : cookies) {
-					if (OAuth2AccessToken.ACCESS_TOKEN.equals(cookie.getName())) {
-						PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
-								cookie.getValue(), "");
-						return authentication;
-					}
-				}
-				return null;
-			}
-		});
 	}
 
 	@Override

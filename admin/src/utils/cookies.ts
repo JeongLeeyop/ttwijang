@@ -2,7 +2,7 @@ import cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 
 // User
-const tokenKey = 'access_token';
+const tokenKey = 'admin_access_token';
 export const getTokenDecode = () => {
   const token = cookies.get(tokenKey);
   if (!token) {
