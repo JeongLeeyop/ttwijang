@@ -482,8 +482,8 @@ public class LeagueService {
             throw new IllegalArgumentException("이미 리그에 등록된 팀입니다.");
         }
 
-        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준
-        long actualCount = leagueTeamRepository.countByLeagueUid(leagueUid);
+        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준 (탈퇴/withdrawn 팀 제외)
+        long actualCount = leagueTeamRepository.countByLeagueUidAndWithdrawnFalse(leagueUid);
         if (league.getMaxTeams() != null && actualCount >= league.getMaxTeams()) {
             throw new IllegalArgumentException("리그 최대 참가 팀 수를 초과했습니다.");
         }
@@ -565,8 +565,8 @@ public class LeagueService {
             throw new IllegalArgumentException("이미 리그에 참여한 팀입니다.");
         }
 
-        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준 (currentTeams 동기화 어긋남 방지)
-        long actualCount = leagueTeamRepository.countByLeagueUid(leagueUid);
+        // 최대 팀 수 확인 — 실제 LeagueTeam 카운트 기준 (탈퇴/withdrawn 팀 제외, currentTeams 동기화 어긋남 방지)
+        long actualCount = leagueTeamRepository.countByLeagueUidAndWithdrawnFalse(leagueUid);
         if (league.getMaxTeams() != null && actualCount >= league.getMaxTeams()) {
             throw new IllegalArgumentException("리그 최대 참가 팀 수에 도달했습니다.");
         }

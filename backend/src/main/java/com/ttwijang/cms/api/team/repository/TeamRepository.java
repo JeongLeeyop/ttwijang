@@ -31,9 +31,10 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
 
     Page<Team> findByRegionSidoAndRegionSigungu(String sido, String sigungu, Pageable pageable);
 
-    Page<Team> findByRecruitingMembersTrue(Pageable pageable);
+    Page<Team> findByStatusAndRecruitingMembersTrue(Team.TeamStatus status, Pageable pageable);
 
-    Page<Team> findByRecruitingMembersTrueAndRegionSidoAndRegionSigungu(String sido, String sigungu, Pageable pageable);
+    Page<Team> findByStatusAndRecruitingMembersTrueAndRegionSidoAndRegionSigungu(
+            Team.TeamStatus status, String sido, String sigungu, Pageable pageable);
 
     List<Team> findByOwnerUid(String ownerUid);
 
@@ -66,7 +67,8 @@ public interface TeamRepository extends JpaRepository<Team, String>, QuerydslPre
     /**
      * 시/군/구 이름으로 모집 중인 팀 조회 (도 필터 없이)
      */
-    Page<Team> findByRecruitingMembersTrueAndRegionSigungu(String sigungu, Pageable pageable);
+    Page<Team> findByStatusAndRecruitingMembersTrueAndRegionSigungu(
+            Team.TeamStatus status, String sigungu, Pageable pageable);
 
     /**
      * 관리자용: 시/도 이름으로 팀 전체 조회 (DELETED 제외)

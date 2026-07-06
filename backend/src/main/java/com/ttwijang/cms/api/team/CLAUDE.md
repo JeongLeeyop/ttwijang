@@ -45,12 +45,17 @@ if (!team.getOwnerUid().equals(userUid)) {
 - 8자리 대문자 + 숫자 랜덤 생성 (`SecureRandom`)
 - 중복 확인 후 저장 (`existsByTeamCode`)
 - 초대 코드로 즉시 가입 가능 (`joinTeamByCode` — APPROVED 처리)
+- `teamCode` 컬럼은 DB에 `unique=true, nullable=false` 제약이 있고 소프트 삭제라 DELETED 팀도 행이 남음 →
+  삭제된 팀의 코드는 재사용 허용 정책(`existsByTeamCodeAndStatusNot(.., DELETED)`)과 실제 DB 제약이 어긋나
+  같은 코드로 재가입 시 `DataIntegrityViolationException`이 발생하는 버그가 있었음.
+  `approveDeleteTeam()`에서 삭제 처리 시 `teamCode`를 `"DEL_" + 랜덤값`으로 치환해 원래 코드값을 비워주는 방식으로 해결 (2026-07).
 
 ## 회원 모집 (recruitingMembers)
 
 - `saveRecruitment()`: 모집 설정 저장 + `recruitingMembers = true`
 - `stopRecruitment()`: `recruitingMembers = false`
 - 모집 중 팀 목록 필터: `findRecruitingTeams()` (native query — sort 없는 Pageable 사용)
+- `getTeamList`/`getTeamListBySigungu`의 `recruiting=true` 조회는 `findByStatusAndRecruitingMembersTrue*` 사용 — DELETED 팀은 `recruitingMembers`가 남아있어도 목록에서 제외됨 (status=ACTIVE 필수)
 
 ## memberCount 관리
 

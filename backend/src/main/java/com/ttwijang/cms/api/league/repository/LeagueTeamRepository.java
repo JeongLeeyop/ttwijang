@@ -28,5 +28,7 @@ public interface LeagueTeamRepository extends JpaRepository<LeagueTeam, String>,
 
     long countByLeagueUid(String leagueUid);
 
+    long countByLeagueUidAndWithdrawnFalse(String leagueUid);
+
     List<LeagueTeam> findByLeagueUidIn(List<String> leagueUids);
 }

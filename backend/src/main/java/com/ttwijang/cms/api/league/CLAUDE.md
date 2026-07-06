@@ -69,8 +69,11 @@ findBySigunguAndStatus(sigungu, status, pageable)
 
 ## currentTeams 관리
 
-`League.currentTeams`는 팀 추가/제거 시 직접 업데이트합니다 (`addTeamToLeague`, `removeTeamFromLeague`).
-최대 팀 수 초과 시 예외 발생.
+`League.currentTeams`는 팀 추가/제거 시 직접 업데이트합니다 (`addTeamToLeague`, `removeTeamFromLeague`,
+`TeamService.approveDeleteTeam` — 팀 삭제로 인한 리그 탈퇴 시에도 감소 처리).
+최대 팀 수 초과 여부는 `currentTeams` 필드가 아니라 항상 `leagueTeamRepository.countByLeagueUidAndWithdrawnFalse()`
+(withdrawn=true 팀 제외한 실제 카운트)로 재확인합니다 — `countByLeagueUid()`(withdrawn 포함 전체 카운트)를 쓰면
+탈퇴한 팀 수만큼 최대 인원에 조기 도달한 것으로 오판해 신규 가입이 막히는 버그가 있었음 (2026-07 수정).
 
 ## 주요 서비스 메서드
 

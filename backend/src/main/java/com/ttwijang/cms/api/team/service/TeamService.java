@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ttwijang.cms.api.guest.repository.GuestRecruitmentRepository;
+import com.ttwijang.cms.api.league.repository.LeagueRepository;
 import com.ttwijang.cms.api.league.repository.LeagueTeamRepository;
 import com.ttwijang.cms.api.match.repository.FutsalMatchRepository;
 import com.ttwijang.cms.api.notification.service.NotificationService;
@@ -20,6 +21,7 @@ import com.ttwijang.cms.api.team.repository.TeamRepository;
 import com.ttwijang.cms.api.user.repository.UserRepository;
 import com.ttwijang.cms.entity.FutsalMatch;
 import com.ttwijang.cms.entity.GuestRecruitment;
+import com.ttwijang.cms.entity.League;
 import com.ttwijang.cms.entity.LeagueTeam;
 import com.ttwijang.cms.entity.Notification;
 import com.ttwijang.cms.entity.Team;
@@ -38,6 +40,7 @@ public class TeamService {
     private final FutsalMatchRepository futsalMatchRepository;
     private final GuestRecruitmentRepository guestRecruitmentRepository;
     private final LeagueTeamRepository leagueTeamRepository;
+    private final LeagueRepository leagueRepository;
     private final NotificationService notificationService;
 
     private static final String TEAM_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -187,9 +190,10 @@ public class TeamService {
 
         if (recruiting != null && recruiting) {
             if (sido != null && sigungu != null) {
-                teams = teamRepository.findByRecruitingMembersTrueAndRegionSidoAndRegionSigungu(sido, sigungu, pageable);
+                teams = teamRepository.findByStatusAndRecruitingMembersTrueAndRegionSidoAndRegionSigungu(
+                        Team.TeamStatus.ACTIVE, sido, sigungu, pageable);
             } else {
-                teams = teamRepository.findByRecruitingMembersTrue(pageable);
+                teams = teamRepository.findByStatusAndRecruitingMembersTrue(Team.TeamStatus.ACTIVE, pageable);
             }
         } else if (sido != null) {
             teams = teamRepository.findActiveByRegion(sido, sigungu, pageable);
@@ -207,12 +211,13 @@ public class TeamService {
         Page<Team> teams;
         if (sigungu == null || sigungu.isEmpty()) {
             if (recruiting != null && recruiting) {
-                teams = teamRepository.findByRecruitingMembersTrue(pageable);
+                teams = teamRepository.findByStatusAndRecruitingMembersTrue(Team.TeamStatus.ACTIVE, pageable);
             } else {
                 teams = teamRepository.findByStatus(Team.TeamStatus.ACTIVE, pageable);
             }
         } else if (recruiting != null && recruiting) {
-            teams = teamRepository.findByRecruitingMembersTrueAndRegionSigungu(sigungu, pageable);
+            teams = teamRepository.findByStatusAndRecruitingMembersTrueAndRegionSigungu(
+                    Team.TeamStatus.ACTIVE, sigungu, pageable);
         } else {
             teams = teamRepository.findActiveBySigungu(sigungu, pageable);
         }
@@ -731,13 +736,21 @@ public class TeamService {
 
         team.setStatus(Team.TeamStatus.DELETED);
         team.setDeletedDate(java.time.LocalDateTime.now());
+        // teamCode는 DB에서 유니크 제약이 걸려 있어(soft delete로 행이 남기 때문) 삭제 시점에
+        // 값 자체를 비워 재사용 가능하게 함 — 그대로 두면 신규 팀이 같은 코드로 가입 시 제약 위반 발생
+        team.setTeamCode("DEL_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16));
         teamRepository.save(team);
 
-        // 리그 참가 기록 withdrawn 처리 (경기·전적 기록은 보존)
+        // 리그 참가 기록 withdrawn 처리 (경기·전적 기록은 보존) + 리그 currentTeams 동기화
         List<com.ttwijang.cms.entity.LeagueTeam> leagueTeams = leagueTeamRepository.findByTeamUid(teamUid);
         for (com.ttwijang.cms.entity.LeagueTeam lt : leagueTeams) {
             if (!lt.isWithdrawn()) {
                 lt.setWithdrawn(true);
+                leagueRepository.findByUid(lt.getLeagueUid()).ifPresent(league -> {
+                    league.setCurrentTeams(Math.max(0,
+                            (league.getCurrentTeams() != null ? league.getCurrentTeams() : 0) - 1));
+                    leagueRepository.save(league);
+                });
             }
         }
         leagueTeamRepository.saveAll(leagueTeams);
