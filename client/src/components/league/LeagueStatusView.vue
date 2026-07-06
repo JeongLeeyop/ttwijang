@@ -195,7 +195,7 @@ export default class LeagueStatusView extends Vue {
   private async loadLeagueData(): Promise<void> {
     this.isLoading = true;
     try {
-      const params: any = { status: 'IN_PROGRESS' };
+      const params: any = {};
       if (this.selectedRegion) {
         params.regionCode = this.selectedRegion;
       }

@@ -207,8 +207,8 @@ export default class extends Vue {
         this.myTeamUids = [];
       }
 
-      // 가입한 팀/리그 여부와 무관하게 지역 내 전체 리그 목록 조회
-      const leagueParams: any = { status: 'IN_PROGRESS' };
+      // 가입한 팀/리그 여부와 무관하게 지역 내 전체 리그 목록 조회 (상태 무관)
+      const leagueParams: any = {};
       if (this.selectedRegion) {
         leagueParams.regionCode = this.selectedRegion;
       }

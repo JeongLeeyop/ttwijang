@@ -133,9 +133,7 @@ export default class extends Vue {
   private async loadLeagues(): Promise<void> {
     this.isLoading = true;
     try {
-      const params: any = {
-        status: 'IN_PROGRESS',
-      };
+      const params: any = {};
       if (this.selectedRegion) {
         params.regionCode = this.selectedRegion;
       }

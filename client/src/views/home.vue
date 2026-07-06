@@ -376,10 +376,8 @@ export default class extends Vue {
   private async loadHomeData(): Promise<void> {
     this.isLoading = true;
     try {
-      // 리그 목록 로드 (지역 필터 적용)
-      const leagueParams: any = {
-        status: 'IN_PROGRESS',
-      };
+      // 리그 목록 로드 (지역 필터 적용, 가입한 팀/리그 여부와 무관하게 전체 상태 조회)
+      const leagueParams: any = {};
       if (this.effectiveRegion) {
         leagueParams.regionCode = this.effectiveRegion;
       }
